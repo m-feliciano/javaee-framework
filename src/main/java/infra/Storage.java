@@ -9,20 +9,27 @@ import servlets.entities.Company;
 public class Storage {
 
 	private static List<Company> companies = new ArrayList<Company>();
+	private static int length = 0;
+
+	public static int getSize() {
+		return length;
+	}
+
+	public static void setSize(int length) {
+		Storage.length = length;
+	}
 
 	static { // mock
 		Company c1 = new Company(1, "Twitter");
 		Company c2 = new Company(2, "Extra");
 		Company c3 = new Company(3, "Casa do Código");
 		companies.addAll(Arrays.asList(c1, c2, c3));
-	}
-
-	public static int getSize() {
-		return companies.size();
+		length += 3;
 	}
 
 	public void add(Company company) {
-		if (company.getName() != null) {
+		if (!company.getName().isEmpty()) {
+			Storage.setSize(length + 1);
 			companies.add(company);
 		}
 	}
@@ -31,14 +38,8 @@ public class Storage {
 		return companies;
 	}
 
-	public boolean delete(int id) {
-		for (int i = 0; i < companies.size(); i++) {
-			if (companies.get(i).getId() == id) {
-				companies.remove(i);
-				return true;
-			}
-		}
-		return false;
+	public void delete(int id) {
+		companies.remove(findById(id));
 	}
 
 	public Company findById(int id) {
@@ -47,12 +48,6 @@ public class Storage {
 				return company;
 			}
 		}
-
-//		for (int i = 0; i < companies.size(); i++) {
-//			if (companies.get(i).getId() == id) {
-//				return companies.get(i);
-//			}
-//		}
 		return null;
 
 	}
