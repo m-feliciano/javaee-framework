@@ -1,31 +1,38 @@
 package servlets.entities;
 
 import java.util.Date;
-import java.util.UUID;
+
+import infra.Storage;
 
 public class Company {
 
-	private String id;
+	private int id;
 	private String name;
 	private Date releaseDate;
 
 	public Company(String name) {
-		this.id = UUID.randomUUID().toString();
+		this.id = Storage.getSize() + 1;
 		this.name = name;
 		this.releaseDate = new Date();
 	}
-	
+
 	public Company(String name, Date date) {
-		this.id = UUID.randomUUID().toString();
+		this.id = Storage.getSize() + 1;
 		this.name = name;
 		this.releaseDate = date;
 	}
 
-	public String getId() {
+	public Company(int id, String name) {
+		this.id = id;
+		this.name = name;
+		this.releaseDate = new Date();
+	}
+
+	public int getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 

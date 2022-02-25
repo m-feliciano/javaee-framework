@@ -10,19 +10,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import infra.Storage;
 import servlets.entities.Company;
 
 @WebServlet("/listCompanies")
 public class ListCompanies extends HttpServlet {
-
 	private static final long serialVersionUID = 1L;
 
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+	protected void service(HttpServletRequest req, HttpServletResponse resp) {
 		System.out.println("doGET listing companies");
 		Storage storage = new Storage();
-		
 		List<Company> companies = storage.getCompanies();
-		
 		req.setAttribute("companies", companies);
 		RequestDispatcher rd = req.getRequestDispatcher("/listCompanies.jsp");
 

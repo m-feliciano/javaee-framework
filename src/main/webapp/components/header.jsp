@@ -10,12 +10,12 @@
 	href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
 	integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn"
 	crossorigin="anonymous" />
-<link rel="stylesheet" type="text/css" href="styles.css">
+<link rel="stylesheet" href="styles.css">
 
 <title>Servlet CRUD</title>
 </head>
 <body>
-	<nav class="navbar navbar-light bg-light">
+	<nav class="navbar navbar-dark bg-dark mb-4">
 		<a class="navbar-brand" href="#"> <img src="assets/logo.svg" width="30"
 			height="30" class="d-inline-block align-top" alt="Bootstrap logo"> Bootstrap
 		</a>
