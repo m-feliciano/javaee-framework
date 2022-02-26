@@ -5,11 +5,12 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
-import servlets.entities.Company;
+import entities.Company;
 
-public class Storage {
+public class CompanyDB {
 
 	private static List<Company> companies = new ArrayList<Company>();
+
 	private static int length = 0;
 
 	public static int getSize() {
@@ -17,7 +18,7 @@ public class Storage {
 	}
 
 	public static void setSize(int length) {
-		Storage.length = length;
+		CompanyDB.length = length;
 	}
 
 	static { // mock test
@@ -48,7 +49,7 @@ public class Storage {
 
 	public void add(Company company) {
 		if (!company.getName().isEmpty()) {
-			Storage.setSize(length + 1);
+			CompanyDB.setSize(length + 1);
 			companies.add(company);
 		}
 	}

@@ -11,12 +11,13 @@
 	href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
 	integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn"
 	crossorigin="anonymous" />
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>	
 <link rel="stylesheet" href="<c:url value='/css/styles.css'/>">
-
 <title>Servlet CRUD</title>
 </head>
 <body>
-	<nav class="navbar navbar-dark bg-dark mb-4">
+	<nav class="navbar navbar-dark bg-dark">
 		<a class="navbar-brand" 
 			href="/"> 
 			<img src="<c:url value='/assets/logo.svg'/>"

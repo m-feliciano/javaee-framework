@@ -12,10 +12,13 @@ import crud.CreateCompany;
 import crud.DeleteCompany;
 import crud.ListCompanies;
 import crud.ListCompany;
+import crud.Login;
+import crud.LoginForm;
+import crud.NewCompany;
 import crud.UpdateCompany;
 
 @WebServlet("/company")
-public class CompanyServlet extends HttpServlet {
+public class Servlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	protected void service(HttpServletRequest req, HttpServletResponse resp) {
@@ -26,25 +29,29 @@ public class CompanyServlet extends HttpServlet {
 		/* MAIN CRUD */
 		if (param.equals("list")) {
 			ListCompany listCompany = new ListCompany();
-			path = listCompany.doList(req, resp);
+			path = listCompany.doService(req, resp);
 		} else if (param.equals("listAll")) {
 			ListCompanies listCompanies = new ListCompanies();
-			path = listCompanies.doList(req, resp);
+			path = listCompanies.doService(req, resp);
 		} else if (param.equals("create")) {
 			CreateCompany createCompany = new CreateCompany();
-			path = createCompany.doCreate(req, resp);
+			path = createCompany.doService(req, resp);
 		} else if (param.equals("delete")) {
 			DeleteCompany deleteCompany = new DeleteCompany();
-			path = deleteCompany.doDelete(req, resp);
+			path = deleteCompany.doService(req, resp);
 		} else if (param.equals("update")) {
 			UpdateCompany updateCompany = new UpdateCompany();
-			path = updateCompany.doUpdate(req, resp);
+			path = updateCompany.doService(req, resp);
 		} else if (param.equals("new")) {
-			try {
-				req.getRequestDispatcher("/WEB-INF/view/formCreateCompany.jsp").forward(req, resp);
-			} catch (IOException | ServletException e) {
-				e.printStackTrace();
-			}
+			NewCompany newCompany = new NewCompany();
+			path = newCompany.doService(req, resp);
+		} else if (param.equals("loginForm")) {
+			LoginForm login = new LoginForm();
+			path = login.doService(req, resp);
+		} else if (param.equals("login")) {
+			System.out.println("login");
+			Login login = new Login();
+			path = login.doService(req, resp);
 		}
 
 		String[] array = path.split(":");

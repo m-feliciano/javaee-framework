@@ -5,15 +5,16 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import infra.Storage;
-import servlets.entities.Company;
+import entities.Company;
+import infra.CompanyDB;
 
-public class ListCompanies {
+public class ListCompanies implements Action {
 
-	public String doList(HttpServletRequest req, HttpServletResponse resp) {
+	@Override
+	public String doService(HttpServletRequest req, HttpServletResponse resp) {
 
 		System.out.println("doGET listing companies");
-		Storage storage = new Storage();
+		CompanyDB storage = new CompanyDB();
 		List<Company> companies = storage.getCompanies();
 		req.setAttribute("companies", companies);
 

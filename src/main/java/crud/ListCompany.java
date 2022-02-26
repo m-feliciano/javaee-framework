@@ -5,18 +5,19 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import infra.Storage;
+import entities.Company;
+import infra.CompanyDB;
 import services.Validate;
-import servlets.entities.Company;
 
-public class ListCompany {
+public class ListCompany implements Action {
 
-	public String doList(HttpServletRequest req, HttpServletResponse resp) {
+	@Override
+	public String doService(HttpServletRequest req, HttpServletResponse resp) {
 		System.out.println("doGET listing single company");
 
 		if (Validate.isValid(req, "id")) {
 			int id = Integer.parseInt(req.getParameter("id"));
-			Storage storage = new Storage();
+			CompanyDB storage = new CompanyDB();
 			Company company = storage.findById(id);
 			if (company != null) {
 				System.out.println(company);

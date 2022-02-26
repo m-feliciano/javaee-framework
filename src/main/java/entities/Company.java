@@ -1,8 +1,8 @@
-package servlets.entities;
+package entities;
 
 import java.util.Date;
 
-import infra.Storage;
+import infra.CompanyDB;
 
 public class Company {
 
@@ -11,13 +11,13 @@ public class Company {
 	private Date releaseDate;
 
 	public Company(String name) {
-		this.id = Storage.getSize() + 1;
+		this.id = CompanyDB.getSize() + 1;
 		this.name = name;
 		this.releaseDate = new Date();
 	}
 
 	public Company(String name, Date date) {
-		this.id = Storage.getSize() + 1;
+		this.id = CompanyDB.getSize() + 1;
 		this.name = name;
 		this.releaseDate = date;
 	}

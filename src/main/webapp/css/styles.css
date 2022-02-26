@@ -14,12 +14,15 @@ html, body {
 	position: relative;
 }
 
+.container {
+	margin-top: 2rem;
+}
+
 #footer {
 	position: absolute;
 	bottom: 0;
 	width: 100%;
 	height: 60px;
-	background-color: rgba(0, 0, 0, 0.05);
 }
 
 #copyright-text {
@@ -36,4 +39,9 @@ html, body {
 	padding: 5px 10px;
 	margin: 5px 10px;
 	color: #666
+}
+
+/* 404 not found */
+.page-wrap {
+	min-height: 100vh;
 }
