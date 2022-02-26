@@ -1,10 +1,8 @@
-package servlets;
+package crud;
 
 import java.io.IOException;
 import java.util.Date;
 
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -12,11 +10,10 @@ import infra.Storage;
 import services.DateFormatter;
 import servlets.entities.Company;
 
-@WebServlet("/newCompany")
-public class NewCompany extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+public class CreateCompany {
 
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+	public void doCreate(HttpServletRequest req, HttpServletResponse resp) {
+
 		System.out.println("doPOST registering new company");
 		String name = req.getParameter("name");
 		String releaseDate = req.getParameter("date");
@@ -25,10 +22,11 @@ public class NewCompany extends HttpServlet {
 		Storage storage = new Storage();
 		storage.add(company);
 		try {
-			resp.sendRedirect("listCompanies");
+			resp.sendRedirect("company?action=listAll");
 		} catch (IOException e) {
 			throw new Error("Cannot redirect: " + e.getMessage());
 		}
+
 	}
 
 }

@@ -1,10 +1,8 @@
-package servlets;
+package crud;
 
 import java.io.IOException;
 import java.util.Date;
 
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -12,11 +10,9 @@ import infra.Storage;
 import services.DateFormatter;
 import services.Validate;
 
-@WebServlet("/editCompany")
-public class EditCompany extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+public class UpdateCompany {
 
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+	public void doUpdate(HttpServletRequest req, HttpServletResponse resp) {
 		System.out.println("doPOST editing company");
 		if (Validate.isValid(req, "id")) {
 			int id = Integer.parseInt(req.getParameter("id"));
@@ -29,10 +25,11 @@ public class EditCompany extends HttpServlet {
 			req.setAttribute("company", storage);
 		}
 		try {
-			resp.sendRedirect("listCompanies");
+			resp.sendRedirect("company?action=listAll");
 		} catch (IOException e) {
 			throw new Error("Cannot redirect: " + e.getMessage());
 		}
+
 	}
 
 }

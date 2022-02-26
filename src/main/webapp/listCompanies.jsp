@@ -2,14 +2,16 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ page import="java.util.*, servlets.entities.Company,infra.Storage"%>
 
-<c:url value="/listCompany" var="editCompanyServlet" />
-<c:url value="/deleteCompany" var="deleteCompanyServlet" />
+<c:url value="/company?action=list" var="listCompany" />
+<c:url value="/company?action=delete" var="deleteCompany" />
+<c:url value="/company?action=new" var="newCompany" />
 
 <jsp:include page="components/header.jsp" />
-<div class="title">
-	<h3>Companies</h3>
-</div>
+
 <div class="container">
+<div class="d-flex flex-row-reverse mb-2">
+	<a type="button" href="${ newCompany }" class="btn btn-primary">Add Company</a>
+</div>
 	<c:if test="${ empty companies }">
 		<p>No one new company created.</p>
 	</c:if>
@@ -35,8 +37,8 @@
 	            <td width=30%>${ releaseDate }</td>
 	            <td width=20%>
 	              	<a type="button" class="btn btn-primary"><i class="bi bi-eye"></i></a>
-              		<a type="button" href="${ editCompanyServlet }?id=${ company.id }" class="btn btn-success"><i class="bi bi-pencil-square"></i></a>
-            		<a type="button" href="${ deleteCompanyServlet }?id=${ company.id }" class="btn btn-danger"><i class="bi bi-trash3"></i></a>
+              		<a type="button" href="${ listCompany }&id=${ company.id }" class="btn btn-success"><i class="bi bi-pencil-square"></i></a>
+            		<a type="button" href="${ deleteCompany }&id=${ company.id }" class="btn btn-danger"><i class="bi bi-trash3"></i></a>
 	            </td>
 	          </tr>
 	          </c:forEach>

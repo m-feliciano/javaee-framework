@@ -1,8 +1,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<c:url value="/newCompany" var="linkServletCompany" />
+<c:url value="/company" var="linkCompanyServlet" />
 <!-- header -->
 <jsp:include page="components/header.jsp" />
-<form action="${ linkServletCompany }" method="post">
+<form action="${ linkCompanyServlet }?action=create" method="post">
 	<div class="col-md-6">
 		<div class="mb-3">
 			<label for="inputName" class="form-label">Company name</label> 

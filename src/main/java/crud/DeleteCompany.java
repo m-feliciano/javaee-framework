@@ -1,20 +1,17 @@
-package servlets;
+package crud;
 
 import java.io.IOException;
 
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import infra.Storage;
 import services.Validate;
 
-@WebServlet("/deleteCompany")
-public class DeleteCompany extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+public class DeleteCompany {
 
-	protected void service(HttpServletRequest req, HttpServletResponse resp) {
+	public void doDelete(HttpServletRequest req, HttpServletResponse resp) {
+
 		System.out.println("doPOST deleting company");
 
 		if (Validate.isValid(req, "id")) {
@@ -23,7 +20,7 @@ public class DeleteCompany extends HttpServlet {
 			storage.delete(id);
 		}
 		try {
-			resp.sendRedirect("listCompanies");
+			resp.sendRedirect("company?action=listAll");
 		} catch (IOException e) {
 			throw new Error("Cannot redirect after delete: " + e.getMessage());
 		}

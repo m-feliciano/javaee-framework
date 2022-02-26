@@ -3,13 +3,12 @@
 <fmt:formatDate value="${company.releaseDate }" pattern="yyyy-MM-dd" var="releaseDate" />
 <fmt:formatDate value="${ today }" pattern="yyyy-MM-dd" var="calendar" />
 
-<c:url value="/editCompany" var="editCompanyServlet" />
-<c:url value="/listCompanies" var="listCompaniesServlet" />
+<c:url value="/company" var="companyServlet" />
 
 <!-- header -->
 <jsp:include page="components/header.jsp" />
 <div class="container">
-<form action="${ editCompanyServlet }" method="post">
+<form action="${ companyServlet }?action=update&id=${company.id}" method="post">
 	<div class="col-md-6">
 	<div class="mb-3">
 			<label for="inputId" class="form-label">Company ID</label> 
@@ -44,7 +43,7 @@
 				placeholder="Release Date" required />
 		</div>
 		<button type="submit" class="btn btn-primary">Submit</button>
-		<a type="button" href="${ listCompaniesServlet }" class="btn btn-light">Go back</a>
+		<a type="button" href="${ companyServlet }?action=listAll" class="btn btn-light">Go back</a>
 	</div>
  </form>
  </div>
