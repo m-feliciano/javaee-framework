@@ -1,5 +1,5 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<c:url value="/company" var="companyServlet" />
+<c:url value="/company?action=listAll" var="companyServlet" />
 <!-- header -->
 <jsp:include page="components/header.jsp" />
 <div class="container">
@@ -7,7 +7,7 @@
 		<h3>Welcome</h3>
 	</div>
 	<div class="row">
-		<a type="button" href="${ companyServlet }?action=listAll" class="btn btn-info">See companies</a>
+		<a type="button" href="${ companyServlet }" class="btn btn-info">See companies</a>
 	</div>
 </div>
 <!-- footer -->

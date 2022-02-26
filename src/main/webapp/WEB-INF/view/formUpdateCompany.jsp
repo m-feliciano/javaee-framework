@@ -8,7 +8,7 @@
 <!-- header -->
 <jsp:include page="components/header.jsp" />
 <div class="container">
-<form action="${ companyServlet }?action=update&id=${company.id}" method="post">
+<form action="${ companyServlet }" method="post">
 	<div class="col-md-6">
 	<div class="mb-3">
 			<label for="inputId" class="form-label">Company ID</label> 
@@ -42,6 +42,8 @@
 				value="${ releaseDate }"
 				placeholder="Release Date" required />
 		</div>
+		<!-- action -->
+		<input type="hidden" name="action" value="update">
 		<button type="submit" class="btn btn-primary">Submit</button>
 		<a type="button" href="${ companyServlet }?action=listAll" class="btn btn-light">Go back</a>
 	</div>

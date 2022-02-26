@@ -1,6 +1,5 @@
 package crud;
 
-import java.io.IOException;
 import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,7 +11,7 @@ import servlets.entities.Company;
 
 public class CreateCompany {
 
-	public void doCreate(HttpServletRequest req, HttpServletResponse resp) {
+	public String doCreate(HttpServletRequest req, HttpServletResponse resp) {
 
 		System.out.println("doPOST registering new company");
 		String name = req.getParameter("name");
@@ -21,11 +20,8 @@ public class CreateCompany {
 		Company company = new Company(name, date);
 		Storage storage = new Storage();
 		storage.add(company);
-		try {
-			resp.sendRedirect("company?action=listAll");
-		} catch (IOException e) {
-			throw new Error("Cannot redirect: " + e.getMessage());
-		}
+
+		return "redirect:company?action=listAll";
 
 	}
 

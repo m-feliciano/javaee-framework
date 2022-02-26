@@ -2,7 +2,7 @@
 <c:url value="/company" var="linkCompanyServlet" />
 <!-- header -->
 <jsp:include page="components/header.jsp" />
-<form action="${ linkCompanyServlet }?action=create" method="post">
+<form action="${ linkCompanyServlet }" method="post">
 	<div class="col-md-6">
 		<div class="mb-3">
 			<label for="inputName" class="form-label">Company name</label> 
@@ -16,6 +16,8 @@
 				class="form-control" id="inputDate" 
 				placeholder="Release Date" required />
 		</div>
+		<!-- action -->
+		<input type="hidden" name="action" value="create">
 		<button type="submit" class="btn btn-primary">Submit</button>
 	</div>
 </form>

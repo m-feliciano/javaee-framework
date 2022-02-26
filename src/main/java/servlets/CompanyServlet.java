@@ -2,7 +2,6 @@ package servlets;
 
 import java.io.IOException;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -22,33 +21,44 @@ public class CompanyServlet extends HttpServlet {
 	protected void service(HttpServletRequest req, HttpServletResponse resp) {
 
 		String param = req.getParameter("action");
+		String path = null;
 
 		/* MAIN CRUD */
-
 		if (param.equals("list")) {
 			ListCompany listCompany = new ListCompany();
-			listCompany.doList(req, resp);
+			path = listCompany.doList(req, resp);
 		} else if (param.equals("listAll")) {
-			ListCompanies listCompany = new ListCompanies();
-			listCompany.doList(req, resp);
+			ListCompanies listCompanies = new ListCompanies();
+			path = listCompanies.doList(req, resp);
 		} else if (param.equals("create")) {
 			CreateCompany createCompany = new CreateCompany();
-			createCompany.doCreate(req, resp);
+			path = createCompany.doCreate(req, resp);
 		} else if (param.equals("delete")) {
 			DeleteCompany deleteCompany = new DeleteCompany();
-			deleteCompany.doDelete(req, resp);
+			path = deleteCompany.doDelete(req, resp);
 		} else if (param.equals("update")) {
 			UpdateCompany updateCompany = new UpdateCompany();
-			updateCompany.doUpdate(req, resp);
+			path = updateCompany.doUpdate(req, resp);
+		} else if (param.equals("new")) {
+			try {
+				req.getRequestDispatcher("/WEB-INF/view/formCreateCompany.jsp").forward(req, resp);
+			} catch (IOException | ServletException e) {
+				e.printStackTrace();
+			}
 		}
 
-		/* HELPERS */
+		String[] array = path.split(":");
 
-		else if (param.equals("new")) {
+		if (array[0].equals("forward")) {
 			try {
-				RequestDispatcher rd = req.getRequestDispatcher("/formCreateCompany.jsp");
-				rd.forward(req, resp);
+				req.getRequestDispatcher("/WEB-INF/view/" + array[1]).forward(req, resp);
 			} catch (IOException | ServletException e) {
+				e.printStackTrace();
+			}
+		} else {
+			try {
+				resp.sendRedirect(array[1]);
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}

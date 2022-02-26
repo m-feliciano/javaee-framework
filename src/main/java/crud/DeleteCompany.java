@@ -1,7 +1,5 @@
 package crud;
 
-import java.io.IOException;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -10,7 +8,7 @@ import services.Validate;
 
 public class DeleteCompany {
 
-	public void doDelete(HttpServletRequest req, HttpServletResponse resp) {
+	public String doDelete(HttpServletRequest req, HttpServletResponse resp) {
 
 		System.out.println("doPOST deleting company");
 
@@ -19,11 +17,7 @@ public class DeleteCompany {
 			Storage storage = new Storage();
 			storage.delete(id);
 		}
-		try {
-			resp.sendRedirect("company?action=listAll");
-		} catch (IOException e) {
-			throw new Error("Cannot redirect after delete: " + e.getMessage());
-		}
+		return "redirect:company?action=listAll";
 	}
 
 }

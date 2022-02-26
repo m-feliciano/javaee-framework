@@ -1,6 +1,5 @@
 package crud;
 
-import java.io.IOException;
 import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,7 +11,7 @@ import services.Validate;
 
 public class UpdateCompany {
 
-	public void doUpdate(HttpServletRequest req, HttpServletResponse resp) {
+	public String doUpdate(HttpServletRequest req, HttpServletResponse resp) {
 		System.out.println("doPOST editing company");
 		if (Validate.isValid(req, "id")) {
 			int id = Integer.parseInt(req.getParameter("id"));
@@ -24,12 +23,7 @@ public class UpdateCompany {
 			storage.findById(id).setReleaseDate(date);
 			req.setAttribute("company", storage);
 		}
-		try {
-			resp.sendRedirect("company?action=listAll");
-		} catch (IOException e) {
-			throw new Error("Cannot redirect: " + e.getMessage());
-		}
-
+		return "redirect:company?action=listAll";
 	}
 
 }
