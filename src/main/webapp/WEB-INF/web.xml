@@ -1,7 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" id="WebApp_ID" version="3.1">
-  <display-name>servlet</display-name>
-  <welcome-file-list>
-    <welcome-file>view/index.jsp</welcome-file>
-  </welcome-file-list>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+	id="WebApp_ID" version="3.1">
+	<display-name>servlet</display-name>
+	<welcome-file-list>
+		<welcome-file>view/index.jsp</welcome-file>
+	</welcome-file-list>
+
+	<!-- filter chain order -->
+	<filter>
+		<filter-name>AF</filter-name>
+		<filter-class>filter.Auth</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>AF</filter-name>
+		<url-pattern>/company</url-pattern>
+	</filter-mapping>
+
+	<filter>
+		<filter-name>ACF</filter-name>
+		<filter-class>filter.AuthController</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>ACF</filter-name>
+		<url-pattern>/company</url-pattern>
+	</filter-mapping>
 </web-app>
