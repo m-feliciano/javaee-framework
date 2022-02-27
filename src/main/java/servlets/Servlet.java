@@ -7,7 +7,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import crud.Action;
 
@@ -18,20 +17,7 @@ public class Servlet extends HttpServlet {
 	protected void service(HttpServletRequest req, HttpServletResponse resp) {
 
 		String param = req.getParameter("action");
-
-		HttpSession session = req.getSession();
-		boolean userNotSignIn = (session.getAttribute("userLogged") == null);
-		boolean filter = param.equals("Login") || param.equals("LoginForm");
-
-		if (!filter && userNotSignIn) {
-			try {
-				resp.sendRedirect("company?action=LoginForm");
-				return;
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
+		
 		String classname = "crud." + param;
 		String path = null;
 
