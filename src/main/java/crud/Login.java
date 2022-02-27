@@ -2,6 +2,7 @@ package crud;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import entities.User;
 import infra.UserDB;
@@ -17,7 +18,9 @@ public class Login implements Action {
 		User user = storage.findByEmail(login);
 		if (user != null) {
 			if (user.isEqual(login, password)) {
-				return "redirect:company?action=listAll";
+				HttpSession session = req.getSession();
+				session.setAttribute("userLogged", user);
+				return "redirect:company?action=ListCompanies";
 			}
 		}
 		return "forward:formLogin.jsp";

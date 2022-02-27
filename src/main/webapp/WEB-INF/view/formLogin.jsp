@@ -19,7 +19,7 @@
 <div class="main">
 	<div class="col-md-6 col-sm-12">
 		<div class="login-form">
-			<form action="${ loginServlet }?action=login" method="post">
+			<form action="${ loginServlet }?action=Login" method="post">
 				<div class="form-group">
 					<label  for="inputEmail">Email</label> 
 					<input type="text" 

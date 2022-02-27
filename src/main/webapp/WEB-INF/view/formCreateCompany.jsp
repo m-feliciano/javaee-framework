@@ -17,7 +17,7 @@
 				placeholder="Release Date" required />
 		</div>
 		<!-- action -->
-		<input type="hidden" name="action" value="create">
+		<input type="hidden" name="action" value="CreateCompany">
 		<button type="submit" class="btn btn-primary">Submit</button>
 	</div>
 </form>

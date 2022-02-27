@@ -22,7 +22,7 @@ public class CreateCompany implements Action {
 		CompanyDB storage = new CompanyDB();
 		storage.add(company);
 
-		return "redirect:company?action=listAll";
+		return "redirect:company?action=ListCompanies";
 
 	}
 

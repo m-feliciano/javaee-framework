@@ -18,7 +18,7 @@ public class DeleteCompany implements Action {
 			CompanyDB storage = new CompanyDB();
 			storage.delete(id);
 		}
-		return "redirect:company?action=listAll";
+		return "redirect:company?action=ListCompanies";
 	}
 
 }

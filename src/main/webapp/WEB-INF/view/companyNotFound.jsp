@@ -5,7 +5,7 @@
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
-<c:url value="/company?action=listAll" var="listCompany" />
+<c:url value="/company?action=ListCompanies" var="listCompany" />
 <div class="page-wrap d-flex flex-row align-items-center bodyt">
     <div class="container">
         <div class="row justify-content-center">

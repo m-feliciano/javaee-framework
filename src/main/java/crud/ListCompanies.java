@@ -12,7 +12,7 @@ public class ListCompanies implements Action {
 
 	@Override
 	public String doService(HttpServletRequest req, HttpServletResponse resp) {
-
+		
 		System.out.println("doGET listing companies");
 		CompanyDB storage = new CompanyDB();
 		List<Company> companies = storage.getCompanies();

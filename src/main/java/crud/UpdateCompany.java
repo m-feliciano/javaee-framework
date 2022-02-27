@@ -24,7 +24,7 @@ public class UpdateCompany implements Action {
 			storage.findById(id).setReleaseDate(date);
 			req.setAttribute("company", storage);
 		}
-		return "redirect:company?action=listAll";
+		return "redirect:company?action=ListCompanies";
 	}
 
 }

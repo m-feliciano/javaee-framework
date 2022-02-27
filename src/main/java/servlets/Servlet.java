@@ -7,15 +7,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
-import crud.CreateCompany;
-import crud.DeleteCompany;
-import crud.ListCompanies;
-import crud.ListCompany;
-import crud.Login;
-import crud.LoginForm;
-import crud.NewCompany;
-import crud.UpdateCompany;
+import crud.Action;
 
 @WebServlet("/company")
 public class Servlet extends HttpServlet {
@@ -24,34 +18,29 @@ public class Servlet extends HttpServlet {
 	protected void service(HttpServletRequest req, HttpServletResponse resp) {
 
 		String param = req.getParameter("action");
+
+		HttpSession session = req.getSession();
+		boolean userNotSignIn = (session.getAttribute("userLogged") == null);
+		boolean filter = param.equals("Login") || param.equals("LoginForm");
+
+		if (!filter && userNotSignIn) {
+			try {
+				resp.sendRedirect("company?action=LoginForm");
+				return;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		String classname = "crud." + param;
 		String path = null;
 
-		/* MAIN CRUD */
-		if (param.equals("list")) {
-			ListCompany listCompany = new ListCompany();
-			path = listCompany.doService(req, resp);
-		} else if (param.equals("listAll")) {
-			ListCompanies listCompanies = new ListCompanies();
-			path = listCompanies.doService(req, resp);
-		} else if (param.equals("create")) {
-			CreateCompany createCompany = new CreateCompany();
-			path = createCompany.doService(req, resp);
-		} else if (param.equals("delete")) {
-			DeleteCompany deleteCompany = new DeleteCompany();
-			path = deleteCompany.doService(req, resp);
-		} else if (param.equals("update")) {
-			UpdateCompany updateCompany = new UpdateCompany();
-			path = updateCompany.doService(req, resp);
-		} else if (param.equals("new")) {
-			NewCompany newCompany = new NewCompany();
-			path = newCompany.doService(req, resp);
-		} else if (param.equals("loginForm")) {
-			LoginForm login = new LoginForm();
-			path = login.doService(req, resp);
-		} else if (param.equals("login")) {
-			System.out.println("login");
-			Login login = new Login();
-			path = login.doService(req, resp);
+		try {
+			Class<?> clazz = Class.forName(classname);
+			Action action = (Action) clazz.getDeclaredConstructor().newInstance();
+			path = action.doService(req, resp);
+		} catch (Exception e1) {
+			e1.printStackTrace();
 		}
 
 		String[] array = path.split(":");

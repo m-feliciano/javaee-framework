@@ -43,9 +43,9 @@
 				placeholder="Release Date" required />
 		</div>
 		<!-- action -->
-		<input type="hidden" name="action" value="update">
+		<input type="hidden" name="action" value="UpdateCompany">
 		<button type="submit" class="btn btn-primary">Submit</button>
-		<a type="button" href="${ companyServlet }?action=listAll" class="btn btn-light">Go back</a>
+		<a type="button" href="${ companyServlet }?action=ListCompanies" class="btn btn-light">Go back</a>
 	</div>
  </form>
  </div>

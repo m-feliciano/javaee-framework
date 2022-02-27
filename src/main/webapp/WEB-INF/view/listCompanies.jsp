@@ -2,9 +2,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ page import="java.util.*,entities.Company,infra.CompanyDB"%>
 
-<c:url value="/company?action=list" var="listCompany" />
-<c:url value="/company?action=delete" var="deleteCompany" />
-<c:url value="/company?action=new" var="newCompany" />
+<c:url value="/company?action=ListCompany" var="listCompany" />
+<c:url value="/company?action=DeleteCompany" var="deleteCompany" />
+<c:url value="/company?action=NewCompany" var="newCompany" />
 
 <jsp:include page="components/header.jsp" />
 
