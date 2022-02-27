@@ -8,12 +8,11 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-@WebFilter(urlPatterns = "/company")
+//@WebFilter(urlPatterns = "/company")
 public class Auth implements Filter {
 
 	@Override
@@ -43,15 +42,9 @@ public class Auth implements Filter {
 	}
 
 	@Override
-	public void destroy() {
-		// TODO Auto-generated method stub
-
-	}
+	public void destroy() {	}
 
 	@Override
-	public void init(FilterConfig filterConfig) throws ServletException {
-		// TODO Auto-generated method stub
-
-	}
+	public void init(FilterConfig filterConfig) throws ServletException {	}
 
 }
