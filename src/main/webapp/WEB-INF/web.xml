@@ -5,7 +5,7 @@
 	id="WebApp_ID" version="3.1">
 	<display-name>servlet</display-name>
 	<welcome-file-list>
-		<welcome-file>view/index.jsp</welcome-file>
+		<welcome-file>view/formLogin.jsp</welcome-file>
 	</welcome-file-list>
 
 	<!-- filter chain order -->

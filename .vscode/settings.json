@@ -1,0 +1,7 @@
+{
+	"java.dependency.packagePresentation": "hierarchical",
+	"java.project.referencedLibraries": [
+		"lib/**/*.jar",
+		"src/main/webapp/WEB-INF/lib/javax.servlet-api-4.0.0.jar"
+	]
+}

@@ -5,15 +5,13 @@
 <form action="${ linkCompanyServlet }" method="post">
 	<div class="col-md-6">
 		<div class="mb-3">
-			<label for="inputName" class="form-label">Company name</label> 
-			<input type="text" name="name" 
-				class="form-control" id="inputName" 
+			<label for="inputName" class="form-label">Company name</label> <input
+				type="text" name="name" class="form-control" id="inputName"
 				placeholder="Company name" required minlength="4" />
 		</div>
 		<div class="mb-3">
-			<label for="inputDate" class="form-label">Date</label> 
-			<input type="date" name="date" 
-				class="form-control" id="inputDate" 
+			<label for="inputDate" class="form-label">Date</label> <input
+				type="date" name="date" class="form-control" id="inputDate"
 				placeholder="Release Date" required />
 		</div>
 		<!-- action -->

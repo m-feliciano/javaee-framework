@@ -11,8 +11,10 @@
 	href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
 	integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn"
 	crossorigin="anonymous" />
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script
+	src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<script
+	src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <link rel="stylesheet" href="<c:url value='/css/styles.css'/>">
 <title>Servlet CRUD</title>
 </head>
@@ -21,9 +23,11 @@
 
 <body>
 	<nav class="navbar navbar-dark bg-dark">
-		<a class="navbar-brand" href="${linkCompanyServlet}?action=ListCompanies"> <img
+		<a class="navbar-brand"
+			href="${linkCompanyServlet}?action=ListCompanies"> <img
 			src="<c:url value='/assets/logo.svg'/>" width="30" height="30"
-			class="d-inline-block align-top" alt="Bootstrap logo"> Bootstrap
+			class="d-inline-block align-top" alt="Bootstrap logo">
+			Bootstrap
 		</a> <a id="logout" class="btn btn-secondary"
 			href="${linkCompanyServlet}?action=Logout">Logout</a>
 	</nav>

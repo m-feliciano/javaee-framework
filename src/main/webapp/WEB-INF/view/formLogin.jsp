@@ -1,7 +1,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+<script
+	src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<link
+	href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
 	rel="stylesheet" id="bootstrap-css">
 <link rel="stylesheet" href="<c:url value='/css/login.css'/>">
 <!------ Include the above in your HEAD tag ---------->
@@ -21,23 +23,14 @@
 		<div class="login-form">
 			<form action="${ loginServlet }?action=Login" method="post">
 				<div class="form-group">
-					<label  for="inputEmail">Email</label> 
-					<input type="text" 
-						id="inputEmail"
-						name="email" 
-						class="form-control" 
-						placeholder="Email" 
-						required>
+					<label for="inputEmail">Email</label> <input type="text"
+						id="inputEmail" name="email" class="form-control"
+						placeholder="Email" required>
 				</div>
 				<div class="form-group">
-					<label for="inputPassword">Password</label>
-					<input type="password" 
-						id="inputPassword" 
-						name="password"
-						class="form-control" 
-						placeholder="Password" 
-						required
-						minlength="3">
+					<label for="inputPassword">Password</label> <input type="password"
+						id="inputPassword" name="password" class="form-control"
+						placeholder="Password" required minlength="3">
 				</div>
 				<button type="submit" class="btn btn-black">Login</button>
 				<button type="submit" class="btn btn-secondary" disabled>Register</button>

@@ -16,12 +16,10 @@ public class Login implements Action {
 		String password = req.getParameter("password");
 		UserDB storage = new UserDB();
 		User user = storage.findByEmail(login);
-		if (user != null) {
-			if (user.isEqual(login, password)) {
-				HttpSession session = req.getSession();
-				session.setAttribute("userLogged", user);
-				return "redirect:company?action=ListCompanies";
-			}
+		if (user != null && user.isEqual(login, password)) {
+			HttpSession session = req.getSession();
+			session.setAttribute("userLogged", user);
+			return "redirect:company?action=ListCompanies";
 		}
 		return "forward:formLogin.jsp";
 	}
