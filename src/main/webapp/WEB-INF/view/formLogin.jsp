@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="<c:url value='/css/login.css'/>">
 <!------ Include the above in your HEAD tag ---------->
 
-<c:url value="/company" var="loginServlet" />
+<c:url value="/product" var="loginServlet" />
 
 <div class="sidenav">
 	<div class="login-main-text">

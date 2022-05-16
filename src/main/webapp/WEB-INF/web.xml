@@ -15,7 +15,7 @@
 	</filter>
 	<filter-mapping>
 		<filter-name>AF</filter-name>
-		<url-pattern>/company</url-pattern>
+		<url-pattern>/product</url-pattern>
 	</filter-mapping>
 
 	<filter>
@@ -25,6 +25,6 @@
 
 	<filter-mapping>
 		<filter-name>ACF</filter-name>
-		<url-pattern>/company</url-pattern>
+		<url-pattern>/product</url-pattern>
 	</filter-mapping>
 </web-app>

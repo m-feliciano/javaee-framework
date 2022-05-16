@@ -19,7 +19,7 @@ public class Login implements Action {
 		if (user != null && user.isEqual(login, password)) {
 			HttpSession session = req.getSession();
 			session.setAttribute("userLogged", user);
-			return "redirect:company?action=ListCompanies";
+			return "redirect:product?action=ListProducts";
 		}
 		return "forward:formLogin.jsp";
 	}

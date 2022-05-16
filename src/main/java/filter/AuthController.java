@@ -25,10 +25,16 @@ public class AuthController implements Filter {
 		HttpServletResponse resp = (HttpServletResponse) servletResponse;
 
 		String param = req.getParameter("action");
-
-		String classname = "crud." + param;
+		String classname = null;
+		if(!param.contains("Log")) {
+			int entityPos = req.getServletPath().lastIndexOf("/") + 1;
+			String entityName = req.getServletPath().substring(entityPos);
+			classname = "crud." + entityName + "." + param;			
+		} else {
+			classname = "crud." + param;						
+		}
+		
 		String path = null;
-
 		try {
 			Class<?> clazz = Class.forName(classname);
 			Action action = (Action) clazz.getDeclaredConstructor().newInstance();

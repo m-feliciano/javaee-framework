@@ -31,7 +31,7 @@ public class Auth implements Filter {
 
 		if (!filter && userNotSignIn) {
 			try {
-				resp.sendRedirect("company?action=LoginForm");
+				resp.sendRedirect("product?action=LoginForm");
 				return;
 			} catch (IOException e) {
 				e.printStackTrace();
