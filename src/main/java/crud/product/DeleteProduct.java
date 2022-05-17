@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import crud.Action;
 import dao.ProductDAO;
 import infra.ConnectionFactory;
-import services.Validate;
+import utils.Validate;
 
 public class DeleteProduct implements Action {
 
