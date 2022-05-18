@@ -14,13 +14,19 @@
 				<input type="text" name="description" class="form-control" id="inputDescription" placeholder="Simple Description" required />
 			</div>
 			<div class="mb-3">
-				<label for="inputPrice" class="form-label">Price</label> 
-				<input type="number" name="price" class="form-control" id="inputPrice" placeholder="Price" 
-					min="0.00" max="10000" step="10" required />
+				<label for="inputPrice" class="form-label">Product Price</label> 
+				<input name="price" class="form-control" id="inputPrice" 
+					placeholder="1000,00" min="0" max="10000" step="any" 
+					pattern="^\s*(?:[1-9]\d{0,2}(?:\,\d{3})*|0)(?:.\d{1,2})?$"
+					title="Currency should only contain numbers and (comma/doc) e.g. 1000,00"
+					required />
 			</div>
 			<!-- action -->
 			<input type="hidden" name="action" value="CreateProduct">
 			<button type="submit" class="btn btn-primary">Submit</button>
+			<a type="button" href="${ linkProductServlet }?action=ListProducts" class="btn btn-light">
+				Go back
+			</a>
 		</div>
 	</form>
 </div>

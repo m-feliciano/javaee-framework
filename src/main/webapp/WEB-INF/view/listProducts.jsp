@@ -5,6 +5,7 @@
 <c:url value="/product?action=ListProduct" var="listProduct" />
 <c:url value="/product?action=DeleteProduct" var="deleteProduct" />
 <c:url value="/product?action=NewProduct" var="newProduct" />
+<fmt:setLocale value="pt-BR" scope="application"/>
 
 <jsp:include page="components/header.jsp" />
 <div class="main">
@@ -25,18 +26,19 @@
 							<th scope="col">Name</th>
 							<th scope="col">Description</th>
 							<th scope="col">Price</th>
-							<th scope="col">Release</th>
+							<th scope="col">Register</th>
 							<th scope="col">Actions</th>
 						</tr>
 					</thead>
 					<tbody>
-						<c:forEach items="${ products }" var="product">
-							<fmt:formatDate value="${product.registerDate }" pattern="dd/MM/yyyy" var="releaseDate" />
+						<c:forEach items="${ products }" var="product">	
+							<fmt:formatDate value="${product.registerDate }" pattern="dd/MM/yyyy" var="releaseDate" />		
+							<fmt:formatNumber value = "${product.price}" type = "currency" minFractionDigits="2" var="parsedPrice"/>
 							<tr>
 								<th width="10%" scope="row">${ product.id }</th>
 								<td width=25%>${ product.name }</td>
 								<td width=30%>${ product.description }</td>
-								<td width=10%>R$ ${ product.price }</td>							
+								<td width=10%>${ parsedPrice }</td>							
 								<td width=10%>${ releaseDate }</td>
 								<td width=15%>
 									<a type="button" href="${ listProduct }&id=${ product.id }" class="btn btn-primary">

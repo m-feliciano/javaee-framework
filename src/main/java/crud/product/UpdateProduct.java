@@ -10,6 +10,7 @@ import crud.Action;
 import dao.ProductDAO;
 import entities.Product;
 import infra.ConnectionFactory;
+import utils.CurrencyFormatter;
 import utils.Validate;
 
 public class UpdateProduct implements Action {
@@ -22,13 +23,14 @@ public class UpdateProduct implements Action {
 			String name = req.getParameter("name");
 			String descriprion = req.getParameter("description");
 			String priceString = req.getParameter("price");
+			BigDecimal price = CurrencyFormatter.stringToBigDecimal(priceString);
 
 			Connection conn = new ConnectionFactory().getConnection();
 			ProductDAO dao = new ProductDAO(conn);
 			Product product = dao.findById(id);			
 			product.setName(name);
 			product.setDescription(descriprion);
-			product.setPrice(new BigDecimal(priceString));			
+			product.setPrice(price);			
 			dao.update(product);
 //			req.setAttribute("product", storage);
 		}
