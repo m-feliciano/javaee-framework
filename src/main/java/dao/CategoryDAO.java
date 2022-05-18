@@ -8,9 +8,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.feliciano.mvc.domain.entities.Category;
-import br.com.feliciano.mvc.domain.entities.Product;
-import br.com.feliciano.mvc.infra.Query;
+import entities.Product;
 
 public class CategoryDAO {
 

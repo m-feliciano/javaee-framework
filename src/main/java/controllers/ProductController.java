@@ -10,7 +10,7 @@ public class ProductController {
 
     private final ProductDAO productDAO;
     private final Connection conn;
-    
+
     public ProductController(Connection conn) {
         this.conn = conn;
         this.productDAO = new ProductDAO(conn);

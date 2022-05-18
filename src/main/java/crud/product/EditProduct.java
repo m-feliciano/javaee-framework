@@ -1,13 +1,13 @@
 package crud.product;
 
 import java.sql.Connection;
-import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import crud.Action;
 import dao.ProductDAO;
+import dto.ProductDTO;
 import entities.Product;
 import infra.ConnectionFactory;
 import utils.Validate;
@@ -23,12 +23,9 @@ public class EditProduct implements Action {
 			Connection conn = new ConnectionFactory().getConnection();
 			ProductDAO dao = new ProductDAO(conn);
 			Product product = dao.findById(id);
-			if (product != null) {
-				System.out.println(product);
-				req.setAttribute("product", product);
-				req.setAttribute("today", new Date());
-				return "forward:formUpdateProduct.jsp";
-			}
+			ProductDTO dto = new ProductDTO(product);			
+			req.setAttribute("product", dto);
+			return "forward:formUpdateProduct.jsp";
 		}
 		return "forward:productNotFound.jsp";
 	}

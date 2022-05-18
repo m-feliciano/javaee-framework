@@ -24,7 +24,7 @@ public class ProductDAO {
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()){
-				return instantiateProduct(rs);				
+				return instantiateProduct(rs);
 			}
 		} catch (SQLException e) {
 			throw new IllegalArgumentException(e.getMessage());

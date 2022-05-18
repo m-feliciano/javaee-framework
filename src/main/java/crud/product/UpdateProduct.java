@@ -19,7 +19,7 @@ public class UpdateProduct implements Action {
 	public String doService(HttpServletRequest req, HttpServletResponse resp) {
 		System.out.println("doPOST editing product");
 		if (Validate.isValid(req, "id")) {
-			int id = Integer.parseInt(req.getParameter("id"));			
+			int id = Integer.parseInt(req.getParameter("id"));
 			String name = req.getParameter("name");
 			String descriprion = req.getParameter("description");
 			String priceString = req.getParameter("price");
@@ -27,12 +27,11 @@ public class UpdateProduct implements Action {
 
 			Connection conn = new ConnectionFactory().getConnection();
 			ProductDAO dao = new ProductDAO(conn);
-			Product product = dao.findById(id);			
+			Product product = dao.findById(id);
 			product.setName(name);
 			product.setDescription(descriprion);
-			product.setPrice(price);			
+			product.setPrice(price);
 			dao.update(product);
-//			req.setAttribute("product", storage);
 		}
 		return "redirect:product?action=ListProducts";
 	}

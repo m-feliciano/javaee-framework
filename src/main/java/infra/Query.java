@@ -34,7 +34,7 @@ public class Query {
 	public static final String SQL_INVENTORY_DELETE = "DELETE FROM tb_inventory WHERE id = ?";
 	public static final String SQL_INVENTORY_UPDATE = "UPDATE tb_inventory SET product_id=?, category_id=?, quantity=?, description=? WHERE id = ?";
 	public static final String SQL_INVENTORY_SELECT_LIST = "SELECT id, description, quantity, product_id, category_id FROM tb_inventory ORDER BY id";
-	
+
 	public static final String SQL_INVENTORY_SELECT_LIST_JOIN = "SELECT i.id, p.id AS p_id, p.name AS p_name, p.price AS p_price, i.quantity, c.id AS c_id, "
 			+ "c.name AS c_name, i.description FROM tb_inventory i INNER JOIN tb_product p ON p.id = product_id "
 			+ "INNER JOIN tb_category c ON c.id = category_id ORDER BY i.id;";

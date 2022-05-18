@@ -29,11 +29,13 @@ public class AuthController implements Filter {
 		if(!param.contains("Log")) {
 			int entityPos = req.getServletPath().lastIndexOf("/") + 1;
 			String entityName = req.getServletPath().substring(entityPos);
-			classname = "crud." + entityName + "." + param;			
+			classname = "crud." + entityName + "." + param;
+			
+			System.out.println(classname + "crud." + entityName + "." + param);
 		} else {
-			classname = "crud." + param;						
+			classname = "crud." + param;
 		}
-		
+
 		String path = null;
 		try {
 			Class<?> clazz = Class.forName(classname);

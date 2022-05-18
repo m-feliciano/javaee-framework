@@ -1,13 +1,17 @@
 package entities;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 
+import dto.ProductDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import utils.CurrencyFormatter;
 
 @Getter
 @Setter
@@ -36,14 +40,23 @@ public class Product {
 		this.price = price;
 	}
 
+	public Product(ProductDTO dto) {
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		try {
+			this.id = Integer.parseInt(dto.getId());
+			this.name = dto.getName();
+			this.description = dto.getDescription();
+			this.registerDate = sdf.parse(dto.getRegisterDate());
+			this.price = CurrencyFormatter.stringToBigDecimal(dto.getPrice());
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+	}
+
 	@Override
-    public String toString() {
-        return new StringBuilder()
-                .append(id)
-                .append(" - ")
-                .append(name)
-                .toString();
-    }
+	public String toString() {
+		return new StringBuilder().append(id).append(" - ").append(name).toString();
+	}
 
 	@Override
 	public int hashCode() {
