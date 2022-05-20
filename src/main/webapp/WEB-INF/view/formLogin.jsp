@@ -23,17 +23,26 @@
 		<div class="login-form">
 			<form action="${ loginServlet }?action=Login" method="post">
 				<div class="form-group">
-					<label for="inputEmail">Email</label> <input type="text"
-						id="inputEmail" name="email" class="form-control"
+					<label for="inputEmail">Email</label> 
+					<input type="text" id="inputEmail" name="email" 
+						class="form-control hidden-alert"
 						placeholder="Email" required>
 				</div>
 				<div class="form-group">
-					<label for="inputPassword">Password</label> <input type="password"
-						id="inputPassword" name="password" class="form-control"
+					<label for="inputPassword">Password</label> 
+					<input type="password" id="inputPassword" name="password" 
+						class="form-control hidden-alert"
 						placeholder="Password" required minlength="3">
 				</div>
-				<button type="submit" class="btn btn-black">Login</button>
-				<button type="submit" class="btn btn-secondary" disabled>Register</button>
+				<c:if test="${not empty error}">
+   					<div class="alert alert-danger hidden-alert" role="alert">
+   						<c:out value="${error}"/>
+   					</div>
+				</c:if>	
+				<div>
+					<button type="submit" class="btn btn-black">Login</button>
+					<button type="submit" class="btn btn-secondary" disabled>Register</button>				
+				</div>
 			</form>
 		</div>
 	</div>

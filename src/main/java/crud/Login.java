@@ -21,6 +21,7 @@ public class Login implements Action {
 			session.setAttribute("userLogged", user);
 			return "redirect:product?action=ListProducts";
 		}
+		req.setAttribute("error", "User or password invalid.");
 		return "forward:formLogin.jsp";
 	}
 

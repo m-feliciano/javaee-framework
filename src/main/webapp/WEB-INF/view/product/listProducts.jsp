@@ -19,7 +19,7 @@
 		<div class="row">
 			<div class="col-12">
 				<table class="table table-striped table-bordered table-hover">
-					<caption>List of products</caption>
+					<caption>${products.size()} records found</caption>
 					<thead class="thead-dark">
 						<tr>
 							<th scope="col">#</th>
