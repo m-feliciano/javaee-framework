@@ -1,14 +1,14 @@
-package crud.product;
+package crud.category;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import crud.Action;
 
-public class NewProduct implements Action {
+public class NewCategory implements Action {
 
 	@Override
 	public String doService(HttpServletRequest req, HttpServletResponse resp) {
-		return "forward:product/formCreateProduct.jsp";
+		return "forward:category/formCreateCategory.jsp";
 	}
 }

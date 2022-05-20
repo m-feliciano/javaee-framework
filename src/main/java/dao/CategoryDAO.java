@@ -8,7 +8,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import entities.Category;
 import entities.Product;
+import infra.Query;
 
 public class CategoryDAO {
 

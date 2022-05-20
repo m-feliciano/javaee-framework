@@ -5,8 +5,8 @@ import java.sql.Connection;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import controllers.ProductController;
 import crud.Action;
-import dao.ProductDAO;
 import dto.ProductDTO;
 import entities.Product;
 import infra.ConnectionFactory;
@@ -21,11 +21,11 @@ public class EditProduct implements Action {
 		if (Validate.isValid(req, "id")) {
 			int id = Integer.parseInt(req.getParameter("id"));
 			Connection conn = new ConnectionFactory().getConnection();
-			ProductDAO dao = new ProductDAO(conn);
-			Product product = dao.findById(id);
+			ProductController controller = new ProductController(conn);
+			Product product = controller.findById(id);
 			ProductDTO dto = new ProductDTO(product);			
 			req.setAttribute("product", dto);
-			return "forward:formUpdateProduct.jsp";
+			return "forward:product/formUpdateProduct.jsp";
 		}
 		return "forward:productNotFound.jsp";
 	}

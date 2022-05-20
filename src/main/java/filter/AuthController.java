@@ -13,29 +13,32 @@ import javax.servlet.http.HttpServletResponse;
 
 import crud.Action;
 
-//@WebFilter(urlPatterns = "/company")
 public class AuthController implements Filter {
 
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
 			throws IOException, ServletException {
 
-		System.out.println("AuthController Filter");
+		System.out.println("-->>>> AuthController Filter <<<<--");
 		HttpServletRequest req = (HttpServletRequest) servletRequest;
 		HttpServletResponse resp = (HttpServletResponse) servletResponse;
 
 		String param = req.getParameter("action");
+		
 		String classname = null;
+		String entityName = null;
+		
+		// fully qualified name do metodo a ser executado
 		if(!param.contains("Log")) {
 			int entityPos = req.getServletPath().lastIndexOf("/") + 1;
-			String entityName = req.getServletPath().substring(entityPos);
-			classname = "crud." + entityName + "." + param;
-			
-			System.out.println(classname + "crud." + entityName + "." + param);
+			entityName = req.getServletPath().substring(entityPos);
+			classname = String.format("crud.%s.%s", entityName, param);
 		} else {
-			classname = "crud." + param;
+			classname = String.format("crud.%s", param);
 		}
-
+		
+		System.out.printf("classname: %s%n", classname);
+		
 		String path = null;
 		try {
 			Class<?> clazz = Class.forName(classname);

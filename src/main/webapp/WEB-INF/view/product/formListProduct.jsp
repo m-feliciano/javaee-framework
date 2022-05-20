@@ -8,7 +8,7 @@
 <fmt:formatDate value="${product.registerDate }" pattern="dd/MM/yyyy" var="releaseDate" />
 <fmt:formatNumber value = "${product.price}" type = "currency" minFractionDigits="2" var="parsedNumber"/>
 <!-- header -->
-<jsp:include page="components/header.jsp" />
+<jsp:include page="../components/header.jsp" />
 <div class="main">
 	<form action="${ productServlet }" method="post">
 		<div class="col-md-6">
@@ -48,4 +48,4 @@
 	</form>
 </div>
 <!-- footer -->
-<jsp:include page="components/footer.jsp" />
+<jsp:include page="../components/footer.jsp" />

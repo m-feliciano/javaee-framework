@@ -19,7 +19,7 @@ public class Auth implements Filter {
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
 			throws IOException, ServletException {
 
-		System.out.println("Auth Filter");
+		System.out.println("-->>>> Auth Filter <<<<--");
 		HttpServletRequest req = (HttpServletRequest) servletRequest;
 		HttpServletResponse resp = (HttpServletResponse) servletResponse;
 

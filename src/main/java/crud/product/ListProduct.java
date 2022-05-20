@@ -6,8 +6,8 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import controllers.ProductController;
 import crud.Action;
-import dao.ProductDAO;
 import entities.Product;
 import infra.ConnectionFactory;
 import utils.Validate;
@@ -21,16 +21,16 @@ public class ListProduct implements Action {
 		if (Validate.isValid(req, "id")) {
 			int id = Integer.parseInt(req.getParameter("id"));
 			Connection conn = new ConnectionFactory().getConnection();
-			ProductDAO dao = new ProductDAO(conn);
-			Product product = dao.findById(id);
+			ProductController controller = new ProductController(conn);
+			Product product = controller.findById(id);
 			if (product != null) {
 				System.out.println(product);
 				req.setAttribute("product", product);
 				req.setAttribute("today", new Date());
-				return "forward:formListProduct.jsp";
+				return "forward:product/formListProduct.jsp";
 			}
 		}
-		return "forward:productNotFound.jsp";
+		return "forward:notFound.jsp";
 	}
 
 }

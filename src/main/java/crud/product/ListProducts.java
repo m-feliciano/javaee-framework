@@ -15,12 +15,12 @@ public class ListProducts implements Action {
 
 	@Override
 	public String doService(HttpServletRequest req, HttpServletResponse resp) {
-		System.out.println("doGET listing companies");
+		System.out.println("doGET listing products");
 		Connection conn = new ConnectionFactory().getConnection();
 		ProductController controller = new ProductController(conn);
 		List<Product> productsList = controller.list();
 		req.setAttribute("products", productsList);
-		return "forward:listProducts.jsp";
+		return "forward:product/listProducts.jsp";
 	}
 
 }

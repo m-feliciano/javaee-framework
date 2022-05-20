@@ -5,7 +5,7 @@
 <fmt:setLocale value="pt-BR" scope="application"/>
 
 <!-- header -->
-<jsp:include page="components/header.jsp" />
+<jsp:include page="../components/header.jsp" />
 <div class="main">
 	<form action="${ productServlet }" method="post">
 		<div class="col-md-6">
@@ -48,4 +48,4 @@
 	</form>
 </div>
 <!-- footer -->
-<jsp:include page="components/footer.jsp" />
+<jsp:include page="../components/footer.jsp" />

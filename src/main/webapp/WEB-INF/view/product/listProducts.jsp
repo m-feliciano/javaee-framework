@@ -7,7 +7,7 @@
 <c:url value="/product?action=NewProduct" var="newProduct" />
 <fmt:setLocale value="pt-BR" scope="application"/>
 
-<jsp:include page="components/header.jsp" />
+<jsp:include page="../components/header.jsp" />
 <div class="main">
 	<div class="d-flex flex-row-reverse mb-2">
 		<a type="button" href="${ newProduct }" class="btn btn-dark">Add Product</a>
@@ -56,4 +56,4 @@
 		</div>
 	</c:if>
 </div>
-<jsp:include page="components/footer.jsp" />
+<jsp:include page="../components/footer.jsp" />

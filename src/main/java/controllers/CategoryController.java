@@ -4,13 +4,16 @@ import java.sql.Connection;
 import java.util.List;
 
 import dao.CategoryDAO;
+import entities.Category;
 
 public class CategoryController {
 
     private CategoryDAO categoryDAO;
+    
+    private Connection conn;
 
-    public CategoryController() {
-        Connection conn = new ConnectionFactory().getConnection();
+    public CategoryController(Connection conn) {
+        this.conn = conn;
         this.categoryDAO = new CategoryDAO(conn);
     }
 

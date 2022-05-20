@@ -6,8 +6,8 @@ import java.sql.Connection;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import controllers.ProductController;
 import crud.Action;
-import dao.ProductDAO;
 import entities.Product;
 import infra.ConnectionFactory;
 import utils.CurrencyFormatter;
@@ -26,12 +26,12 @@ public class UpdateProduct implements Action {
 			BigDecimal price = CurrencyFormatter.stringToBigDecimal(priceString);
 
 			Connection conn = new ConnectionFactory().getConnection();
-			ProductDAO dao = new ProductDAO(conn);
-			Product product = dao.findById(id);
+			ProductController controller = new ProductController(conn);
+			Product product = controller.findById(id);
 			product.setName(name);
 			product.setDescription(descriprion);
 			product.setPrice(price);
-			dao.update(product);
+			controller.update(product);
 		}
 		return "redirect:product?action=ListProducts";
 	}

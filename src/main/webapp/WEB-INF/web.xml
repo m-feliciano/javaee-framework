@@ -27,4 +27,24 @@
 		<filter-name>ACF</filter-name>
 		<url-pattern>/product</url-pattern>
 	</filter-mapping>
+	
+	<filter>
+		<filter-name>AFCATEGORY</filter-name>
+		<filter-class>filter.Auth</filter-class>
+	</filter>
+	
+		<filter-mapping>
+		<filter-name>AFCATEGORY</filter-name>
+		<url-pattern>/category</url-pattern>
+	</filter-mapping>
+
+	<filter>
+		<filter-name>ACFCATEGORY</filter-name>
+		<filter-class>filter.AuthController</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>ACFCATEGORY</filter-name>
+		<url-pattern>/category</url-pattern>
+	</filter-mapping>
 </web-app>

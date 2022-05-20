@@ -1,27 +1,32 @@
-package crud.product;
+package crud.category;
 
 import java.sql.Connection;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import controllers.ProductController;
+import controllers.CategoryController;
 import crud.Action;
+import entities.Category;
 import infra.ConnectionFactory;
 import utils.Validate;
 
-public class DeleteProduct implements Action {
+public class UpdateCategory implements Action {
 
 	@Override
 	public String doService(HttpServletRequest req, HttpServletResponse resp) {
-		System.out.println("doPOST deleting product");
+		System.out.println("doPOST editing category");
 		if (Validate.isValid(req, "id")) {
 			int id = Integer.parseInt(req.getParameter("id"));
+			String name = req.getParameter("name");
+
 			Connection conn = new ConnectionFactory().getConnection();
-			ProductController controller = new ProductController(conn);
-			controller.delete(id);
+			CategoryController controller = new CategoryController(conn);
+			Category cat = controller.findById(id);
+			cat.setName(name);
+			controller.update(cat);
 		}
-		return "redirect:product?action=ListProducts";
+		return "redirect:category?action=ListCategories";
 	}
 
 }
