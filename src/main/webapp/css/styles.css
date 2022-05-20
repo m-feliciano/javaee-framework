@@ -50,3 +50,7 @@ html, body {
 .page-wrap {
 	min-height: 100vh;
 }
+
+.nav-menu-items li {
+	text-decoration: none;
+}

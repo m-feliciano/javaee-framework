@@ -10,7 +10,7 @@
 <jsp:include page="../components/header.jsp" />
 <div class="main">
 	<div class="d-flex flex-row-reverse mb-2">
-		<a type="button" href="${ newCategory }" class="btn btn-dark">Add category</a>
+		<a type="button" href="${ newCategory }" class="btn btn-dark">New</a>
 	</div>
 	<c:if test="${ empty categories }">
 		<p>No one new category created.</p>

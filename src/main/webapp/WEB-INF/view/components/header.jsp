@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+<%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="ISO-8859-1"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <!DOCTYPE html>
 <html>
@@ -17,15 +17,37 @@
 </head>
 
 <c:url value="/product" var="linkProductServlet" />
+<c:url value="/category" var="linkCategoryServlet" />
 
 <body>
-	<nav class="navbar navbar-dark bg-dark">
-		<a class="navbar-brand"
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+	  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01" 
+	  	aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+	    <span class="navbar-toggler-icon"></span>
+	  </button>
+	  <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+	    <a class="navbar-brand"
 			href="${linkProductServlet}?action=ListProducts"> 
 			<img src="<c:url value='/assets/logo.svg'/>" width="30" height="30"
 			class="d-inline-block align-top" alt="Bootstrap logo">
 			Bootstrap
-		</a> 
-		<a id="logout" class="btn btn-secondary" href="${linkProductServlet}?action=Logout">Logout</a>
+		</a>
+	    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+	      <li class="nav-item active">
+	        <a class="nav-link" href="${linkProductServlet}?action=ListProducts">Products <span class="sr-only">(current)</span></a>
+	      </li>
+	      <li class="nav-item">
+	        <a class="nav-link" href="${linkCategoryServlet}?action=ListCategories">Categories</a>
+	      </li>
+	      <!-- 
+	      <li class="nav-item">
+	        <a class="nav-link" href="${linkInventoryServlet}?action=ListItems">Inventory</a>
+	      </li>
+	       -->
+	    </ul>
+	    <a id="logout" class="btn btn-secondary" href="${linkProductServlet}?action=Logout">Logout</a>
+	  </div>
 	</nav>
+		
+
 	<div class="container">
