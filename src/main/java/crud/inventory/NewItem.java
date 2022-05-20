@@ -1,14 +1,14 @@
-package crud.product;
+	package crud.inventory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import crud.Action;
 
-public class NewProduct implements Action {
+public class NewItem implements Action {
 
 	@Override
 	public String doService(HttpServletRequest req, HttpServletResponse resp) {
-		return "forward:pages/product/formCreateProduct.jsp";
+		return "forward:pages/inventory/formCreateItem.jsp";
 	}
 }

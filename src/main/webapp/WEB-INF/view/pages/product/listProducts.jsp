@@ -7,10 +7,10 @@
 <c:url value="/product?action=NewProduct" var="newProduct" />
 <fmt:setLocale value="pt-BR" scope="application"/>
 
-<jsp:include page="../components/header.jsp" />
+<jsp:include page="../../components/header.jsp" />
 <div class="main">
 	<div class="d-flex flex-row-reverse mb-2">
-		<a type="button" href="${ newProduct }" class="btn btn-dark">New</a>
+		<a type="button" href="${ newProduct }" class="btn btn btn-success">New</a>
 	</div>
 	<c:if test="${ empty products }">
 		<p>No one new product created.</p>
@@ -23,11 +23,11 @@
 					<thead class="thead-dark">
 						<tr>
 							<th scope="col">#</th>
-							<th scope="col">Name</th>
-							<th scope="col">Description</th>
-							<th scope="col">Price</th>
-							<th scope="col">Register</th>
-							<th scope="col">Actions</th>
+							<th scope="col">NAME</th>
+							<th scope="col">DESCRIPTION</th>
+							<th scope="col">PRICE</th>
+							<th scope="col">REGISTER</th>
+							<th scope="col">ACTIONS</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -36,7 +36,7 @@
 							<fmt:formatNumber value = "${product.price}" type = "currency" minFractionDigits="2" var="parsedPrice"/>
 							<tr>
 								<th width="10%" scope="row">${ product.id }</th>
-								<td width=25%>${ product.name }</td>
+								<td width=25% >${ product.name }</td>
 								<td width=30%>${ product.description }</td>
 								<td width=10%>${ parsedPrice }</td>							
 								<td width=10%>${ releaseDate }</td>
@@ -56,4 +56,4 @@
 		</div>
 	</c:if>
 </div>
-<jsp:include page="../components/footer.jsp" />
+<jsp:include page="../../components/footer.jsp" />

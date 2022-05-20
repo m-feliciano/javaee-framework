@@ -24,10 +24,10 @@ public class AuthController implements Filter {
 		HttpServletResponse resp = (HttpServletResponse) servletResponse;
 
 		String param = req.getParameter("action");
-		
+
 		String classname = null;
 		String entityName = null;
-		
+
 		// fully qualified name do metodo a ser executado
 		if(!param.contains("Log")) {
 			int entityPos = req.getServletPath().lastIndexOf("/") + 1;
@@ -36,9 +36,9 @@ public class AuthController implements Filter {
 		} else {
 			classname = String.format("crud.%s", param);
 		}
-		
+
 		System.out.printf("classname: %s%n", classname);
-		
+
 		String path = null;
 		try {
 			Class<?> clazz = Class.forName(classname);

@@ -23,11 +23,11 @@ public class EditProduct implements Action {
 			Connection conn = new ConnectionFactory().getConnection();
 			ProductController controller = new ProductController(conn);
 			Product product = controller.findById(id);
-			ProductDTO dto = new ProductDTO(product);			
+			ProductDTO dto = new ProductDTO(product);
 			req.setAttribute("product", dto);
-			return "forward:product/formUpdateProduct.jsp";
+			return "forward:pages/product/formUpdateProduct.jsp";
 		}
-		return "forward:productNotFound.jsp";
+		return "forward:pages/notFound.jsp";
 	}
 
 }

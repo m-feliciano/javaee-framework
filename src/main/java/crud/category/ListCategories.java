@@ -18,9 +18,9 @@ public class ListCategories implements Action {
 		System.out.println("doGET listing categories");
 		Connection conn = new ConnectionFactory().getConnection();
 		CategoryController controller = new CategoryController(conn);
-		List<Category> productsList = controller.list();
-		req.setAttribute("categories", productsList);
-		return "forward:category/listCategories.jsp";
+		List<Category> list = controller.list();
+		req.setAttribute("categories", list);
+		return "forward:pages/category/listCategories.jsp";
 	}
 
 }

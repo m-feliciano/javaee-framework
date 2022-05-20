@@ -9,7 +9,7 @@ import entities.Category;
 public class CategoryController {
 
     private CategoryDAO categoryDAO;
-    
+
     private Connection conn;
 
     public CategoryController(Connection conn) {

@@ -1,27 +1,27 @@
-package crud.category;
+package crud.inventory;
 
 import java.sql.Connection;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import controllers.CategoryController;
+import controllers.InventoryController;
 import crud.Action;
 import infra.ConnectionFactory;
 import utils.Validate;
 
-public class DeleteCategory implements Action {
+public class DeleteItem implements Action {
 
 	@Override
 	public String doService(HttpServletRequest req, HttpServletResponse resp) {
-		System.out.println("doPOST deleting category");
+		System.out.println("doPOST deleting inventory");
 		if (Validate.isValid(req, "id")) {
 			int id = Integer.parseInt(req.getParameter("id"));
 			Connection conn = new ConnectionFactory().getConnection();
-			CategoryController controller = new CategoryController(conn);
+			InventoryController controller = new InventoryController(conn);
 			controller.delete(id);
 		}
-		return "redirect:category?action=ListCategories";
+		return "redirect:inventory?action=ListItems";
 	}
 
 }

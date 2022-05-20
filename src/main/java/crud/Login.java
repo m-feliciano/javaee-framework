@@ -22,7 +22,7 @@ public class Login implements Action {
 			return "redirect:product?action=ListProducts";
 		}
 		req.setAttribute("error", "User or password invalid.");
-		return "forward:formLogin.jsp";
+		return "forward:pages/formLogin.jsp";
 	}
 
 }

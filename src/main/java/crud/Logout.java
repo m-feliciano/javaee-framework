@@ -10,7 +10,7 @@ public class Logout implements Action {
 	public String doService(HttpServletRequest req, HttpServletResponse resp) {
 		HttpSession session = req.getSession();
 		session.invalidate();
-		return "forward:formLogin.jsp";
+		return "forward:pages/formLogin.jsp";
 	}
 
 }

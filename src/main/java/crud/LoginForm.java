@@ -7,7 +7,7 @@ public class LoginForm implements Action {
 
 	@Override
 	public String doService(HttpServletRequest req, HttpServletResponse resp) {
-		return "forward:formLogin.jsp";
+		return "forward:pages/formLogin.jsp";
 	}
 
 }

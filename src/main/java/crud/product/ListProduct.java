@@ -27,10 +27,10 @@ public class ListProduct implements Action {
 				System.out.println(product);
 				req.setAttribute("product", product);
 				req.setAttribute("today", new Date());
-				return "forward:product/formListProduct.jsp";
+				return "forward:pages/product/formListProduct.jsp";
 			}
 		}
-		return "forward:notFound.jsp";
+		return "forward:pages/notFound.jsp";
 	}
 
 }

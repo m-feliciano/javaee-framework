@@ -20,7 +20,7 @@ public class ListProducts implements Action {
 		ProductController controller = new ProductController(conn);
 		List<Product> productsList = controller.list();
 		req.setAttribute("products", productsList);
-		return "forward:product/listProducts.jsp";
+		return "forward:pages/product/listProducts.jsp";
 	}
 
 }

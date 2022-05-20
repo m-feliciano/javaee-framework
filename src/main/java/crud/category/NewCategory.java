@@ -9,6 +9,6 @@ public class NewCategory implements Action {
 
 	@Override
 	public String doService(HttpServletRequest req, HttpServletResponse resp) {
-		return "forward:category/formCreateCategory.jsp";
+		return "forward:pages/category/formCreateCategory.jsp";
 	}
 }

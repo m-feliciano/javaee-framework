@@ -1,7 +1,5 @@
-<!-- Footer -->
 </div>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-
 <footer id="footer" class="text-center text-lg-start bg-light text-muted">
 	<!-- Copyright -->
 	<div id="copyright" class="text-center">
@@ -10,8 +8,6 @@
 			width="30" height="30" class="d-inline-block align-top" alt="Github logo">
 	</a>
 	</div>
-	<!-- Copyright -->
 </footer>
-<!-- Footer -->
 </body>
 </html>

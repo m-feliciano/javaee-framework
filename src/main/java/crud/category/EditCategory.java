@@ -23,9 +23,9 @@ public class EditCategory implements Action {
 			CategoryController controller = new CategoryController(conn);
 			Category cat = controller.findById(id);
 			req.setAttribute("category", cat);
-			return "forward:category/formUpdateCategory.jsp";		
+			return "forward:pages/category/formUpdateCategory.jsp";
 		}
-		return "forward:notFound.jsp";
+		return "forward:pages/notFound.jsp";
 	}
 
 }
