@@ -7,7 +7,7 @@
 <!-- header -->
 <jsp:include page="../../components/header.jsp" />
 <div class="main">
-	<form action="${ iinventoryServlet }" method="post">
+	<form action="${ inventoryServlet }" method="post">
 		<div class="col-md-6">
 			<div class="mb-3">
 				<label for="inputItemId" class="form-label">ID</label> 

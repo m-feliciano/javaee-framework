@@ -21,7 +21,7 @@
 					placeholder="ID"  value="${ item.productId }"readonly="readonly" required minlength="1" />
 			</div>
 			<div class="mb-3">
-				<label for="inputCategoryId" class="form-label">inventory ID</label> 
+				<label for="inputCategoryId" class="form-label">CATEGORY ID</label> 
 				<input type="number" name="categoryId" class="form-control" id="inputCategoryId" 
 					placeholder="ID" value="${item.categoryId }" readonly="readonly" required minlength="1" />
 			</div>

@@ -35,8 +35,8 @@
 			Bootstrap
 		</a>
 	    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-	      <li class="nav-item active">
-	        <a class="nav-link" href="${linkProductServlet}?action=ListProducts">Products <span class="sr-only">(current)</span></a>
+	      <li class="nav-item">
+	        <a class="nav-link" href="${linkProductServlet}?action=ListProducts">Products</a>
 	      </li>
 	      <li class="nav-item">
 	        <a class="nav-link" href="${linkCategoryServlet}?action=ListCategories">Categories</a>

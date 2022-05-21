@@ -14,6 +14,10 @@ html, body {
   margin: 0 auto;
 }
 
+.navbar {
+	padding: 1rem;
+}
+
 .content {
   min-height: calc(100vh - 9.375rem);
 }
@@ -36,3 +40,30 @@ html, body {
 	min-height: 100vh;
 	justify-content: center;
 }
+
+.btn-success {
+  color: darkgreen;
+}
+
+.btn-success:hover {
+  color: white;
+}
+
+.btn-primary {
+  color: darkblue;
+}
+
+.btn-primary:hover {
+  color: white;
+}
+
+.btn-danger {
+  color: darkred;
+}
+
+.btn-danger:hover {
+  color: white;
+}
+
+
+

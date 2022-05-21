@@ -13,27 +13,27 @@
 	<form action="${ productServlet }" method="post">
 		<div class="col-md-6">
 			<div class="mb-3">
-				<label for="inputId" class="form-label">Product ID</label> 
+				<label for="inputId" class="form-label">ID</label> 
 				<input type="text" name="id" class="form-control col-md-3" id="inputId"
 					value="${ product.id }" readonly="readonly" />
 			</div>
 			<div class="mb-3">
-				<label for="inputRegisterDate" class="form-label">Register</label> 
+				<label for="inputRegisterDate" class="form-label">REGISTER</label> 
 				<input type="text" name="description" class="form-control" id="inputRegisterDate" 
 					value="${ releaseDate }" required readonly="readonly"/>
 			</div>
 			<div class="mb-3">
-				<label for="inputName" class="form-label">Product name</label> 
+				<label for="inputName" class="form-label">NAME</label> 
 				<input type="text" name="name" class="form-control" id="inputName"
 					placeholder="Product name" value="${ product.name }" autocomplete="name" required minlength="4" readonly="readonly"/>
 			</div>
 			<div class="mb-3">
-				<label for="inputDescription" class="form-label">Product Description</label> 
+				<label for="inputDescription" class="form-label">DESCRIPRION</label> 
 				<input type="text" name="description" class="form-control" id="inputDescription" 
 					placeholder="Simple Description" value="${ product.description }" required readonly="readonly"/>
 			</div>
 			<div class="mb-3">
-				<label for="inputPrice" class="form-label">Product Price</label> 			
+				<label for="inputPrice" class="form-label">PRICE</label> 			
 				<input name="price" class="form-control" id="inputPrice"
 					placeholder="price" value="${parsedNumber}" required readonly="readonly"/>
 			</div>

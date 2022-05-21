@@ -29,7 +29,7 @@ public class AuthController implements Filter {
 		String entityName = null;
 
 		// fully qualified name do metodo a ser executado
-		if(!param.contains("Log")) {
+		if (!param.contains("Log")) {
 			int entityPos = req.getServletPath().lastIndexOf("/") + 1;
 			entityName = req.getServletPath().substring(entityPos);
 			classname = String.format("crud.%s.%s", entityName, param);
@@ -47,6 +47,8 @@ public class AuthController implements Filter {
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
+
+		System.out.println(classname + " " + entityName + " " + param);
 
 		String[] array = path.split(":");
 
