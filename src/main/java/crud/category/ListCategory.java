@@ -28,7 +28,7 @@ public class ListCategory implements Action {
 				return "forward:pages/category/formListCategory.jsp";
 			}
 		}
-		return "forward:notFound.jsp";
+		return "forward:pages/not-found.jsp";
 	}
 
 }

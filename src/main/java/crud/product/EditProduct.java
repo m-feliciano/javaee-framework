@@ -27,7 +27,7 @@ public class EditProduct implements Action {
 			req.setAttribute("product", dto);
 			return "forward:pages/product/formUpdateProduct.jsp";
 		}
-		return "forward:pages/notFound.jsp";
+		return "forward:pages/not-found.jsp";
 	}
 
 }

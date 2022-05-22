@@ -28,7 +28,7 @@ public class ListItemsByDescription implements Action {
 				return "forward:pages/inventory/listItems.jsp";
 			}
 		}
-		return "forward:notFound.jsp";
+		return "forward:pages/not-found.jsp";
 	}
 
 }

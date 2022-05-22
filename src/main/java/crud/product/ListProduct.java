@@ -30,7 +30,7 @@ public class ListProduct implements Action {
 				return "forward:pages/product/formListProduct.jsp";
 			}
 		}
-		return "forward:pages/notFound.jsp";
+		return "forward:pages/not-found.jsp";
 	}
 
 }

@@ -25,7 +25,7 @@ public class EditCategory implements Action {
 			req.setAttribute("category", cat);
 			return "forward:pages/category/formUpdateCategory.jsp";
 		}
-		return "forward:pages/notFound.jsp";
+		return "forward:pages/not-found.jsp";
 	}
 
 }

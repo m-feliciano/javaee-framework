@@ -28,7 +28,7 @@ public class ListItem implements Action {
 				return "forward:pages/inventory/formListItem.jsp";
 			}
 		}
-		return "forward:notFound.jsp";
+		return  "forward:pages/not-found.jsp";
 	}
 
 }

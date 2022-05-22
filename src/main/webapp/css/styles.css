@@ -9,9 +9,9 @@
 }
 
 html, body {
-  height: 100vh;
   max-width: 1200px;
   margin: 0 auto;
+  height:100%;
 }
 
 .navbar {
@@ -19,16 +19,22 @@ html, body {
 }
 
 .content {
-  min-height: calc(100vh - 9.375rem);
-}
-
-.footer {
-  height: 50px;
+   min-height:100%;
+   position:relative;
 }
 
 .main {
-	margin: 2rem 2rem 0 2rem;
+  padding:3rem;
+  padding-bottom:5rem;   /* Mesma Altura do Rodapé */
 }
+
+#footer {
+  position:absolute;
+  bottom:0;
+  width:100%;
+  height:60px;   /* Mesma Altura do Rodapé */
+}
+
 
 #copyright {
 	padding: 1rem;
@@ -45,23 +51,17 @@ html, body {
   color: darkgreen;
 }
 
-.btn-success:hover {
-  color: white;
-}
-
 .btn-primary {
   color: darkblue;
-}
-
-.btn-primary:hover {
-  color: white;
 }
 
 .btn-danger {
   color: darkred;
 }
 
-.btn-danger:hover {
+.btn-primary:hover 
+.btn-danger:hover
+.btn-success:hover {
   color: white;
 }
 

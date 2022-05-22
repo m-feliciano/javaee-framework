@@ -28,7 +28,7 @@
 					placeholder="Product name" value="${ product.name }" autocomplete="name" required minlength="4" readonly="readonly"/>
 			</div>
 			<div class="mb-3">
-				<label for="inputDescription" class="form-label">DESCRIPRION</label> 
+				<label for="inputDescription" class="form-label">DESCRIPTION</label> 
 				<input type="text" name="description" class="form-control" id="inputDescription" 
 					placeholder="Simple Description" value="${ product.description }" required readonly="readonly"/>
 			</div>

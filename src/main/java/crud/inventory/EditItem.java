@@ -25,7 +25,7 @@ public class EditItem implements Action {
 			req.setAttribute("item", item);
 			return "forward:pages/inventory/formUpdateItem.jsp";
 		}
-		return "forward:pages/notFound.jsp";
+		return "forward:pages/not-found.jsp";
 	}
 
 }
