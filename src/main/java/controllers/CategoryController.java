@@ -8,9 +8,9 @@ import entities.Category;
 
 public class CategoryController {
 
-    private CategoryDAO categoryDAO;
+    private final CategoryDAO categoryDAO;
 
-    private Connection conn;
+    private final Connection conn;
 
     public CategoryController(Connection conn) {
         this.conn = conn;

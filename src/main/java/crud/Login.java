@@ -16,7 +16,7 @@ public class Login implements Action {
 		String password = req.getParameter("password");
 		UserDB storage = new UserDB();
 		User user = storage.findByEmail(login);
-		if (user != null && user.isEqual(login, password)) {
+		if (user != null && user.equals(login, password)) {
 			HttpSession session = req.getSession();
 			session.setAttribute("userLogged", user);
 			return "redirect:product?action=ListProducts";

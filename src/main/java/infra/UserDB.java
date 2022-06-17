@@ -17,12 +17,11 @@ public class UserDB {
 	}
 
 	public User findByEmail(String email) {
-		for (User user : users) {
-			if (user.getLogin().equals(email)) {
-				return user;
-			}
-		}
-		return null;
+		return users.stream()
+				.filter(user -> user.getLogin()
+						.equals(email))
+				.findAny()
+				.orElseThrow();
 	}
 
 }

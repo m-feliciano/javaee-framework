@@ -12,14 +12,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 //@WebFilter(urlPatterns = "/company")
 public class Auth implements Filter {
+
+	final Logger logger = LoggerFactory.getLogger(Auth.class);
 
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
 			throws IOException, ServletException {
 
-		System.out.println("-->>>> Auth Filter <<<<--");
+		logger.info("Init filter");
 		HttpServletRequest req = (HttpServletRequest) servletRequest;
 		HttpServletResponse resp = (HttpServletResponse) servletResponse;
 
@@ -30,6 +35,7 @@ public class Auth implements Filter {
 		boolean filter = param.equals("Login") || param.equals("LoginForm");
 
 		if (!filter && userNotSignIn) {
+			logger.info("User redirected to login page.");
 			try {
 				resp.sendRedirect("product?action=LoginForm");
 				return;

@@ -8,20 +8,25 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import entities.Category;
 import entities.Product;
 import infra.Query;
+import infra.exceptions.CustomRuntimeException;
 
 public class CategoryDAO {
 
 	private final Connection conn;
+	final Logger logger = LoggerFactory.getLogger(CategoryDAO.class);
 
 	public CategoryDAO(Connection conn) {
 		this.conn = conn;
 	}
 
 	public Category findById(int id) {
-		try (PreparedStatement ps = conn.prepareStatement(Query.SQL_CATEGORY_SELECT_BY_ID)) {
+		try (PreparedStatement ps = conn.prepareStatement(Query.CATEGORY_SELECT_BY_ID)) {
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
 			Category cat = null;
@@ -30,52 +35,52 @@ public class CategoryDAO {
 			}
 			return cat;
 		} catch (SQLException e) {
-			throw new RuntimeException(e.getMessage());
+			throw new CustomRuntimeException(e.getMessage());
 		}
 	}
 
 	public void save(Category cat) {
-		try (PreparedStatement ps = conn.prepareStatement(Query.SQL_CATEGORY_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+		try (PreparedStatement ps = conn.prepareStatement(Query.CATEGORY_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 			ps.setString(1, cat.getName());
 			int affectedRows = ps.executeUpdate();
 			if (affectedRows > 0) {
 				ResultSet rs = ps.getGeneratedKeys();
 				while (rs.next()) {
 					int id = rs.getInt(1);
-					System.out.println("Successfully added category\nInserted ID: " + id);
+					logger.info("Successfully added category: Id= " + id);
 				}
 			}
 
 		} catch (SQLException e) {
-			throw new RuntimeException(e.getMessage());
+			throw new CustomRuntimeException(e.getMessage());
 		}
 	}
 
 	public void update(Category cat) {
-		try (PreparedStatement ps = conn.prepareStatement(Query.SQL_CATEGORY_UPDATE)) {
+		try (PreparedStatement ps = conn.prepareStatement(Query.CATEGORY_UPDATE)) {
 			ps.setString(1, cat.getName());
 			ps.setInt(2, cat.getId());
 			ps.executeUpdate();
 		} catch (SQLException e) {
-			throw new RuntimeException(e.getMessage());
+			throw new CustomRuntimeException(e.getMessage());
 		}
 	}
 
 	public void delete(int id) {
-		try (PreparedStatement ps = conn.prepareStatement(Query.SQL_CATEGORY_DELETE)) {
+		try (PreparedStatement ps = conn.prepareStatement(Query.CATEGORY_DELETE)) {
 			ps.setInt(1, id);
 			ps.executeUpdate();
 			int affectedRows = ps.getUpdateCount();
 			if (affectedRows > 0) {
-				System.out.println("Successfully delete category\nAffected rows: " + affectedRows);
+				logger.info("Successfully delete category: Id= " + id);
 			}
 		} catch (SQLException e) {
-			throw new RuntimeException(e.getMessage());
+			throw new CustomRuntimeException(e.getMessage());
 		}
 	}
 
 	public List<Category> list() {
-		try (PreparedStatement ps = conn.prepareStatement(Query.SQL_CATEGORIES)) {
+		try (PreparedStatement ps = conn.prepareStatement(Query.CATEGORIES)) {
 			ResultSet rs = ps.executeQuery();
 			List<Category> categories = new ArrayList<>();
 			Category cat;
@@ -87,13 +92,13 @@ public class CategoryDAO {
 			}
 			return categories;
 		} catch (SQLException e) {
-			throw new RuntimeException(e.getMessage());
+			throw new CustomRuntimeException(e.getMessage());
 		}
 	}
 
 	public List<Category> listProductByCategory() {
 
-		try (PreparedStatement ps = conn.prepareStatement(Query.SQL_PRODUCTS_BY_CATEGORY)) {
+		try (PreparedStatement ps = conn.prepareStatement(Query.PRODUCTS_BY_CATEGORY)) {
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
 			List<Category> items = new ArrayList<>();
@@ -117,7 +122,7 @@ public class CategoryDAO {
 			}
 			return items;
 		} catch (SQLException e) {
-			throw new RuntimeException(e.getMessage());
+			throw new CustomRuntimeException(e.getMessage());
 		}
 	}
 

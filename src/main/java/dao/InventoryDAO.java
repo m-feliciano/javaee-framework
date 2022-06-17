@@ -8,41 +8,47 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import dto.InventoryDTO;
 import entities.Inventory;
 import infra.Query;
+import infra.exceptions.CustomRuntimeException;
 
 public class InventoryDAO {
 
 	private final Connection conn;
 
+	final Logger logger = LoggerFactory.getLogger(InventoryDAO.class);
+
 	public InventoryDAO(Connection conn) {
 		this.conn = conn;
 	}
 
-    public Inventory findById(int id) {
-        try (PreparedStatement ps = conn.prepareStatement(Query.SQL_INVENTORY_SELECT_BY_ID)) {
-            ps.setInt(1, id);
+	public Inventory findById(int id) {
+		try (PreparedStatement ps = conn.prepareStatement(Query.SQL_INVENTORY_SELECT_BY_ID)) {
+			ps.setInt(1, id);
 
-            try (ResultSet rs = ps.executeQuery()) {
+			try (ResultSet rs = ps.executeQuery()) {
 
-                Inventory inventory = null;
-                while (rs.next()) {
-                    inventory = new Inventory();
-                    inventory.setId(rs.getInt("id"));
-                    inventory.setProductId(rs.getInt("product_id"));
-                    inventory.setCategoryId(rs.getInt("category_id"));
-                    inventory.setQuantity(rs.getInt("quantity"));
-                    inventory.setDescription(rs.getString("description"));
-                }
-                return inventory;
-            } catch (Exception e) {
-                throw new RuntimeException(e.getMessage());
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }
+				Inventory inventory = null;
+				while (rs.next()) {
+					inventory = new Inventory();
+					inventory.setId(rs.getInt("id"));
+					inventory.setProductId(rs.getInt("product_id"));
+					inventory.setCategoryId(rs.getInt("category_id"));
+					inventory.setQuantity(rs.getInt("quantity"));
+					inventory.setDescription(rs.getString("description"));
+				}
+				return inventory;
+			} catch (Exception e) {
+				throw new CustomRuntimeException(e.getMessage());
+			}
+		} catch (SQLException e) {
+			throw new CustomRuntimeException(e.getMessage());
+		}
+	}
 
 	public List<InventoryDTO> list() {
 		try (PreparedStatement ps = conn.prepareStatement(Query.SQL_INVENTORY_SELECT_LIST_JOIN)) {
@@ -50,12 +56,12 @@ public class InventoryDAO {
 			List<InventoryDTO> inventoriesVo = new ArrayList<>();
 			InventoryDTO inventoryVo;
 			while (rs.next()) {
-				inventoryVo = instantiateVO(rs);
+				inventoryVo = getDTOFromResultSet(rs);
 				inventoriesVo.add(inventoryVo);
 			}
 			return inventoriesVo;
 		} catch (SQLException e) {
-			throw new RuntimeException(e.getMessage());
+			throw new CustomRuntimeException(e.getMessage());
 		}
 	}
 
@@ -71,11 +77,11 @@ public class InventoryDAO {
 				ResultSet rs = ps.getGeneratedKeys();
 				while (rs.next()) {
 					int id = rs.getInt(1);
-					System.out.println("Successfully added constraint\nInserted ID: " + id);
+					logger.info("Successfully added item: ID: " + id);
 				}
 			}
 		} catch (SQLException e) {
-			throw new RuntimeException(e.getMessage());
+			throw new CustomRuntimeException(e.getMessage());
 		}
 	}
 
@@ -89,10 +95,10 @@ public class InventoryDAO {
 
 			int affectedRows = ps.executeUpdate();
 			if (affectedRows > 0) {
-				System.out.println("Successfully update constraint");
+				logger.info("Successfully update item");
 			}
 		} catch (SQLException e) {
-			throw new RuntimeException(e.getMessage());
+			throw new CustomRuntimeException(e.getMessage());
 		}
 	}
 
@@ -103,10 +109,10 @@ public class InventoryDAO {
 			ps.executeUpdate();
 			int affectedRows = ps.getUpdateCount();
 			if (affectedRows > 0) {
-				System.out.println("Successfully delete constraint\nAffected rows: " + affectedRows);
+				logger.info("Successfully delete item: " + id);
 			}
 		} catch (SQLException e) {
-			throw new RuntimeException(e.getMessage());
+			throw new CustomRuntimeException(e.getMessage());
 		}
 	}
 
@@ -117,16 +123,16 @@ public class InventoryDAO {
 			List<InventoryDTO> inventoriesVo = new ArrayList<>();
 			InventoryDTO inventoryVo;
 			while (rs.next()) {
-				inventoryVo = instantiateVO(rs);
+				inventoryVo = getDTOFromResultSet(rs);
 				inventoriesVo.add(inventoryVo);
 			}
 			return inventoriesVo;
 		} catch (SQLException e) {
-			throw new RuntimeException(e.getMessage());
+			throw new CustomRuntimeException(e.getMessage());
 		}
 	}
 
-	private InventoryDTO instantiateVO(ResultSet rs) {
+	private InventoryDTO getDTOFromResultSet(ResultSet rs) {
 		InventoryDTO vo = new InventoryDTO();
 		try {
 			vo.setId(rs.getInt("id"));
@@ -138,7 +144,7 @@ public class InventoryDAO {
 			vo.setQuantity(rs.getInt("quantity"));
 			vo.setDescription(rs.getString("description"));
 		} catch (Exception e) {
-			throw new RuntimeException("cannot instantiate itens from current resultset.");
+			throw new CustomRuntimeException("cannot instantiate itens from current resultset.");
 		}
 		return vo;
 	}

@@ -10,7 +10,7 @@ import entities.Inventory;
 public class InventoryController {
 
     private final InventoryDAO inventoryDAO;
-	private Connection conn;
+	private final Connection conn;
 
     public InventoryController(Connection conn) {
     	this.conn = conn;

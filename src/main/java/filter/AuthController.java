@@ -11,44 +11,49 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import crud.Action;
 
 public class AuthController implements Filter {
+
+	final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
 			throws IOException, ServletException {
 
-		System.out.println("-->>>> AuthController Filter <<<<--");
+		logger.info("Init controller filter");
 		HttpServletRequest req = (HttpServletRequest) servletRequest;
 		HttpServletResponse resp = (HttpServletResponse) servletResponse;
 
-		String param = req.getParameter("action");
+		String action = req.getParameter("action");
 
 		String classname = null;
 		String entityName = null;
 
 		// fully qualified name do metodo a ser executado
-		if (!param.contains("Log")) {
+		if (!action.contains("Log")) {
 			int entityPos = req.getServletPath().lastIndexOf("/") + 1;
 			entityName = req.getServletPath().substring(entityPos);
-			classname = String.format("crud.%s.%s", entityName, param);
+			classname = String.format("crud.%s.%s", entityName, action);
 		} else {
-			classname = String.format("crud.%s", param);
+			classname = String.format("crud.%s", action);
 		}
 
-		System.out.printf("classname: %s%n", classname);
+		logger.info("classname: " + classname);
 
 		String path = null;
 		try {
 			Class<?> clazz = Class.forName(classname);
-			Action action = (Action) clazz.getDeclaredConstructor().newInstance();
-			path = action.doService(req, resp);
+			Action actionMethod = (Action) clazz.getDeclaredConstructor().newInstance();
+			path = actionMethod.doService(req, resp);
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
 
-		System.out.println(classname + " " + entityName + " " + param);
+		logger.info(classname + " " + entityName + " " + action);
 
 		String[] array = path.split(":");
 
