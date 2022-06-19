@@ -97,8 +97,8 @@ public class ProductDAO {
 		}
 	}
 
-	public List<Product> getProductsByCategoryName(String name) {
-		try (PreparedStatement ps = conn.prepareStatement(Query.PRODUCTS_BY_CATEGORY_NAME)) {
+	public List<Product> getProductsByCategory(String name) {
+		try (PreparedStatement ps = conn.prepareStatement(Query.PRODUCTS_BY_CATEGORY)) {
 			ps.setString(1, name);
 			ResultSet rs = ps.executeQuery();
 			List<Product> products = new ArrayList<>();

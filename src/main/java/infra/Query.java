@@ -13,8 +13,6 @@ public final class Query {
 	public static final String PRODUCT_INSERT = "INSERT INTO tb_product (name, description, price, url_img) VALUES (?,?,?::numeric, ?)";
 	public static final String PRODUCT_DELETE = "DELETE FROM tb_product WHERE id = ?";
 	public static final String PRODUCTS_UPDATE = "UPDATE tb_product SET name=?, description=?, price=(?::numeric), url_img=? WHERE id = ?";
-	public static final String PRODUCTS_BY_CATEGORY_NAME = "SELECT id, name, description, price, created_at, url_img FROM tb_product "
-			+ "WHERE category_id = (SELECT id FROM tb_category WHERE name = ?)";
 	public static final String PRODUCTS_BY_CATEGORY = "SELECT c.id,c.name, p.id, p.name, p.description, p.price, p.created_at, p.url_img"
 			+ " FROM tb_inventory i INNER JOIN tb_product p ON i.product_id= p.id INNER JOIN tb_category c ON i.category_id=c.id;";
 	public static final String CATEGORIES = "SELECT id, name FROM tb_category ORDER BY name ASC";
