@@ -1,11 +1,14 @@
 package dto;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 import lombok.Data;
 
 @Data
-public class InventoryDTO {
+public class InventoryDTO implements Serializable{
+
+	private static final long serialVersionUID = 1L;
 
     private Integer id;
     private Integer productId;

@@ -3,8 +3,11 @@
 <%@ page import="java.util.*,entities.Product"%>
 
 <c:url value="/product?action=ListProduct" var="listProduct" />
+<c:url value="/product?action=ListProducts" var="listProducts" />
 <c:url value="/product?action=DeleteProduct" var="deleteProduct" />
 <c:url value="/product?action=NewProduct" var="newProduct" />
+<c:url value="/product?action=ListProductsByName" var="listByName" />
+
 <fmt:setLocale value="pt-BR" scope="application"/>
 
 <jsp:include page="../../components/header.jsp" />
@@ -13,9 +16,17 @@
 		<div class="d-flex flex-row-reverse">
 			<a type="button" href="${ newProduct }" class="btn btn-success">New</a>	
 		</div>
-		<p>No one new product created.</p>
+		<p>No one product found.</p>
 	</c:if>
 	<c:if test="${ not empty products }">
+	<form class="form-inline d-flex flex-row-reverse mb-2" action="${ listByName }" method="post">	
+		<div class="mb-3">
+			<input type="text" name="name" class="form-control" placeholder="simple name" required minlength="1" />
+			<input type="hidden" name="action" value="listProductsByName">
+			<button type="submit" class="btn btn-primary">Search</button>
+			<a type="button" href="${listProducts}" class="btn btn-light">Clean</a>
+		</div>
+	</form>
 		<div class="row">
 			<div class="col-12">
 				<table class="table table-striped table-bordered table-hover mb-0">

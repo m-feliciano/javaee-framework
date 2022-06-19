@@ -19,7 +19,7 @@
 			</div>
 			<div class="mb-3">
 				<label for="inputRegisterDate" class="form-label">REGISTER</label> 
-				<input type="text" name="description" class="form-control" id="inputRegisterDate" 
+				<input type="text" name="register" class="form-control" id="inputRegisterDate" 
 					value="${ releaseDate }" required readonly="readonly"/>
 			</div>
 			<c:if test="${ not empty product.url }">

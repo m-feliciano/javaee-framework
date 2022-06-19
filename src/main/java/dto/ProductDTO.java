@@ -1,5 +1,6 @@
 package dto;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 
 import entities.Product;
@@ -7,7 +8,8 @@ import lombok.Data;
 import utils.CurrencyFormatter;
 
 @Data
-public class ProductDTO {
+public class ProductDTO implements Serializable{
+	private static final long serialVersionUID = 1L;
 	private String id;
 	private String name;
 	private String description;

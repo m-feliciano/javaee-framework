@@ -1,5 +1,6 @@
 package entities;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +11,8 @@ import lombok.Setter;
 
 @Data
 @NoArgsConstructor
-public class Category {
+public class Category implements Serializable{
+	private static final long serialVersionUID = 1L;
 
 	@Setter(value = AccessLevel.NONE)
 	List<Product> products = new ArrayList<>();

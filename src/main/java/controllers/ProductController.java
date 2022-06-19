@@ -2,6 +2,7 @@ package controllers;
 
 import java.sql.Connection;
 import java.util.List;
+import java.util.Optional;
 
 import cache.product.ProductCache;
 import dao.ProductDAO;
@@ -28,7 +29,7 @@ public class ProductController {
 	}
 
 	public List<Product> list() {
-		if (ProductCache.isCacheValid()) {
+		if (ProductCache.isValid()) {
 			return ProductCache.getProductsFromCache();
 		}
 		List<Product> list = this.productDAO.list();
@@ -41,12 +42,28 @@ public class ProductController {
 	}
 
 	public Product findById(int id) {
-		return this.productDAO.findById(id);
+		if(ProductCache.isValid()) {
+			Optional<Product> product = this.list().stream()
+					.filter(p -> p.getId() == id)
+					.findAny();
+			return product.isPresent() ? product.get() : null;
+		} else {
+			return this.productDAO.findById(id);
+		}
+
+
 	}
 
 	public void update(Product prod) {
 		this.productDAO.update(prod);
 		ProductCache.invalidateCache();
+	}
+
+	public List<Product> findAllByName(String name) {
+		return this.list().stream()
+				.filter(prod -> prod.getName().toLowerCase()
+						.contains(name.toLowerCase()))
+				.toList();
 	}
 
 }

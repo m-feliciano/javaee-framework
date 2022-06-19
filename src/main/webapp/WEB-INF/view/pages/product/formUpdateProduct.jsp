@@ -17,7 +17,7 @@
 			
 			<div class="mb-3">
 				<label for="inputRegisterDate" class="form-label">REGISTER</label> 
-				<input type="text" name="description" class="form-control" id="inputRegisterDate" 
+				<input type="text" name="register" class="form-control" id="inputRegisterDate" 
 					value="${ product.registerDate }" required readonly="readonly"/>
 			</div>
 			<div class="mb-3">

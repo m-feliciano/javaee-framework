@@ -17,6 +17,7 @@
 	<c:if test="${ empty items }">
 		<p>No one new item created.</p>
 	</c:if>
+	<c:if test="${ not empty items }">
 	<form class="form-inline d-flex flex-row-reverse mb-2" action="${ listItemsByDescription }" method="post">	
 		<div class="mb-3">
 			<input type="text" name="description" class="form-control" id="inputSearchItem" 
@@ -28,7 +29,6 @@
 				class="btn btn-light">Clean</a>
 		</div>
 	</form>
-	<c:if test="${ not empty items }">
 		<div class="row">
 			<div class="col-12">
 				<table class="table table-striped table-bordered table-hover mb-0">

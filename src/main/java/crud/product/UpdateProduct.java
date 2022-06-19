@@ -21,18 +21,18 @@ public class UpdateProduct implements Action {
 		if (Validate.isValid(req, "id")) {
 			int id = Integer.parseInt(req.getParameter("id"));
 			String name = req.getParameter("name");
-			String descriprion = req.getParameter("description");
+			String description = req.getParameter("description");
 			String priceString = req.getParameter("price");
 			String url = req.getParameter("url");
 			BigDecimal price = CurrencyFormatter.stringToBigDecimal(priceString);
-
 			Connection conn = new ConnectionFactory().getConnection();
 			ProductController controller = new ProductController(conn);
 			Product product = controller.findById(id);
 			product.setName(name);
-			product.setDescription(descriprion);
+			product.setDescription(description);
 			product.setPrice(price);
 			product.setUrl(url);
+			System.out.println("DESC "+product);
 			controller.update(product);
 		}
 		return "redirect:product?action=ListProducts";

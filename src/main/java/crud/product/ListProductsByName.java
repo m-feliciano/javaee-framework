@@ -1,7 +1,7 @@
 package crud.product;
 
 import java.sql.Connection;
-import java.util.Date;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,24 +12,19 @@ import entities.Product;
 import infra.ConnectionFactory;
 import utils.Validate;
 
-public class ListProduct implements Action {
+public class ListProductsByName implements Action {
 
 	@Override
 	public String doService(HttpServletRequest req, HttpServletResponse resp) {
-		System.out.println("doGET listing single product");
-
-		if (Validate.isValid(req, "id")) {
-			int id = Integer.parseInt(req.getParameter("id"));
+		System.out.println("doGET listing products by name");
+		if (Validate.isValid(req, "name")) {
+			String name = req.getParameter("name");
 			Connection conn = new ConnectionFactory().getConnection();
 			ProductController controller = new ProductController(conn);
-			Product product = controller.findById(id);
-			if (product != null) {
-				req.setAttribute("product", product);
-				req.setAttribute("today", new Date());
-				return "forward:pages/product/formListProduct.jsp";
-			}
+			List<Product> list = controller.findAllByName(name);
+			req.setAttribute("products", list);
 		}
-		return "forward:pages/not-found.jsp";
+		return "forward:pages/product/listProducts.jsp";
 	}
 
 }

@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.mchange.util.AssertException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.mchange.util.AssertException;
 
 import entities.Product;
 
@@ -16,7 +16,7 @@ public final class ProductCache {
 
 	private static boolean valid = false;
 
-	private static List<Product> products;
+	private static List<Product> products = new ArrayList<>();
 
 	private ProductCache() {
 		throw new AssertException("This class must not be instantiated.");
@@ -39,7 +39,7 @@ public final class ProductCache {
 		valid = false;
 	}
 
-	public static boolean isCacheValid() {
+	public static boolean isValid() {
 		logger.info("Checking product cache validity... valid: " + valid);
 		return valid;
 	}

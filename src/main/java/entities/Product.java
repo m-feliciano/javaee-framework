@@ -1,5 +1,6 @@
 package entities;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -12,7 +13,8 @@ import utils.CurrencyFormatter;
 
 @Data
 @NoArgsConstructor
-public class Product {
+public class Product implements Serializable {
+	private static final long serialVersionUID = 1L;
 
 	private Integer id;
 	private String name;
@@ -55,7 +57,13 @@ public class Product {
 
 	@Override
 	public String toString() {
-		return new StringBuilder().append(id).append(" - ").append(name).toString();
+		return "Product [id=" + id + ", name=" + name + ", description=" + description + ", url=" + url
+				+ ", registerDate=" + registerDate + ", price=" + price + "]";
 	}
+
+//	@Override
+//	public String toString() {
+//		return new StringBuilder().append(id).append(" - ").append(name).toString();
+//	}
 
 }
