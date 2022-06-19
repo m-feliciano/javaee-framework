@@ -22,6 +22,12 @@
 				<input type="text" name="description" class="form-control" id="inputRegisterDate" 
 					value="${ releaseDate }" required readonly="readonly"/>
 			</div>
+			<c:if test="${ not empty product.url }">
+				<div class="mb-3"  style="text-align: center;">
+					<img style="height: 400px; border: 1px solid #e0e0e0; box-shadow: 0 4px 4px -2px #989898;" src="${ product.url }" alt="">
+				</div>
+			</c:if>
+			
 			<div class="mb-3">
 				<label for="inputName" class="form-label">NAME</label> 
 				<input type="text" name="name" class="form-control" id="inputName"

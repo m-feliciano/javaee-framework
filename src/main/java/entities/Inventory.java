@@ -1,13 +1,16 @@
 package entities;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class Inventory {
 
 	private Integer id;
 	private Integer productId;
 	private Integer categoryId;
+	private String productUrl;
 	private Integer quantity;
 	private String description;
 

@@ -23,6 +23,7 @@ public class UpdateProduct implements Action {
 			String name = req.getParameter("name");
 			String descriprion = req.getParameter("description");
 			String priceString = req.getParameter("price");
+			String url = req.getParameter("url");
 			BigDecimal price = CurrencyFormatter.stringToBigDecimal(priceString);
 
 			Connection conn = new ConnectionFactory().getConnection();
@@ -31,6 +32,7 @@ public class UpdateProduct implements Action {
 			product.setName(name);
 			product.setDescription(descriprion);
 			product.setPrice(price);
+			product.setUrl(url);
 			controller.update(product);
 		}
 		return "redirect:product?action=ListProducts";

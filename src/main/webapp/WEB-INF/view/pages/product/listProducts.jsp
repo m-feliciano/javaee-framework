@@ -23,6 +23,7 @@
 					<thead class="thead-dark">
 						<tr>
 							<th scope="col">#</th>
+							<th scope="col">IMAGE</th>
 							<th scope="col">NAME</th>
 							<th scope="col">DESCRIPTION</th>
 							<th scope="col">PRICE</th>
@@ -35,12 +36,22 @@
 							<fmt:formatDate value="${product.registerDate }" pattern="dd/MM/yyyy" var="releaseDate" />		
 							<fmt:formatNumber value = "${product.price}" type = "currency" minFractionDigits="2" var="parsedPrice"/>
 							<tr>
-								<th width="10%" scope="row">${ product.id }</th>
+								<th width="7%" scope="row">${ product.id }</th>
+								<td width=10% style="text-align: center;">
+									<a href="${ listProduct }&id=${ product.id }">
+										<c:if test="${empty product.url }">
+											<img style="max-height: 80px;" src="<c:url value='/assets/no_image_available.png'/>" alt="no image available">
+										</c:if>
+										<c:if test="${not empty product.url }">
+											<img style="max-height: 80px;" src="${ product.url }" alt="product ${ product.name } image">
+										</c:if>
+									</a>
+								</td>
 								<td width=25% >${ product.name }</td>
-								<td width=30%>${ product.description }</td>
+								<td width=25%>${ product.description }</td>
 								<td width=10%>${ parsedPrice }</td>							
 								<td width=10%>${ releaseDate }</td>
-								<td width=15%>
+								<td width=20%>
 									<a type="button" href="${ listProduct }&id=${ product.id }" class="btn btn-primary">
 										<i class="bi bi-eye"></i>
 									</a> 

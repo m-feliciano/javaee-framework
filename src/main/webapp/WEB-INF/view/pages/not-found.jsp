@@ -21,11 +21,3 @@
 		</div>
 	</div>
 </div>
-
-<!-- 
-<div class="d-flex justify-content-center" style="height: 18rem; align-items: center">
-	<div class="align-items-center">
-		<h3>PAGE NOT FOUND</h3>
-	</div>
-</div>
- -->

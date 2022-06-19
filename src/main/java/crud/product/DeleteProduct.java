@@ -15,6 +15,7 @@ public class DeleteProduct implements Action {
 	@Override
 	public String doService(HttpServletRequest req, HttpServletResponse resp) {
 		System.out.println("doPOST deleting product");
+
 		if (Validate.isValid(req, "id")) {
 			int id = Integer.parseInt(req.getParameter("id"));
 			Connection conn = new ConnectionFactory().getConnection();

@@ -20,10 +20,11 @@ public class CreateProduct implements Action {
 		String name = req.getParameter("name");
 		String descriprion = req.getParameter("description");
 		String priceString = req.getParameter("price");
+		String url = req.getParameter("url");
 		BigDecimal price = CurrencyFormatter.stringToBigDecimal(priceString);
 		Connection conn = new ConnectionFactory().getConnection();
 		ProductController controller = new ProductController(conn);
-		Product product = new Product(name, descriprion, price);
+		Product product = new Product(name, descriprion, url, price);
 		controller.save(product);
 		return "redirect:product?action=ListProducts";
 

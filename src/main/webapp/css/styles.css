@@ -1,21 +1,38 @@
 @charset "ISO-8859-1";
 
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css");
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display+SC:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
 
 * {
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
+	font-family: 'Open Sans', sans-serif;
 }
 
 html, body {
-  max-width: 1200px;
+  max-width: 1300px;
   margin: 0 auto;
   height:100%;
 }
 
 .navbar {
-	padding: 1rem;
+	padding: 1.3rem;
+	font-family: 'Playfair Display SC', serif;
+}
+
+.nav-items {
+ 	display: flex;
+ 	gap: 20px;
+}
+
+.nav-link {
+	text-transform: uppercase;
+}
+
+.nav-items li {
+	padding: 0 10px;
 }
 
 .content {
@@ -25,7 +42,7 @@ html, body {
 
 .main {
   padding:3rem;
-  padding-bottom:5rem;   /* Mesma Altura do Rodapé */
+  padding-bottom:6rem;   /* Mesma Altura do Rodapé */
 }
 
 #footer {
@@ -59,11 +76,17 @@ html, body {
   color: darkred;
 }
 
-.btn-primary:hover 
-.btn-danger:hover
+.btn-primary:hover, 
+.btn-danger:hover,
 .btn-success:hover {
   color: white;
 }
 
 
+.btn-logout {
+	color: rgba(255,255,255,.5);
+}
 
+.btn-logout:hover {
+	color: rgba(255,255,255,.75);
+}

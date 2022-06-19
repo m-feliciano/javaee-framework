@@ -17,21 +17,25 @@ public class Product {
 	private Integer id;
 	private String name;
 	private String description;
+
+	private String url;
 	private Date registerDate;
 	private BigDecimal price;
 
-	public Product(String name, String description, BigDecimal price) {
+	public Product(String name, String description, String url, BigDecimal price) {
 		super();
 		this.name = name;
 		this.description = description;
+		this.url = url;
 		this.price = price;
 	}
 
-	public Product(String name, String description, Date registerDate, BigDecimal price) {
+	public Product(Integer id, String name, String description, String url, BigDecimal price) {
 		super();
+		this.id = id;
 		this.name = name;
 		this.description = description;
-		this.registerDate = registerDate;
+		this.url = url;
 		this.price = price;
 	}
 
@@ -43,6 +47,7 @@ public class Product {
 			this.description = dto.getDescription();
 			this.registerDate = sdf.parse(dto.getRegisterDate());
 			this.price = CurrencyFormatter.stringToBigDecimal(dto.getPrice());
+			this.url = dto.getUrl();
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}

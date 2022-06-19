@@ -21,6 +21,11 @@
 					value="${ product.registerDate }" required readonly="readonly"/>
 			</div>
 			<div class="mb-3">
+				<label for="inputURL" class="form-label">IMAGE</label> 
+				<input type="text" name="url" class="form-control" id="inputURL"
+					placeholder="URL" value="${ product.url }" />
+			</div>
+			<div class="mb-3">
 				<label for="inputName" class="form-label">NAME</label> 
 				<input type="text" name="name" class="form-control" id="inputName"
 					placeholder="Product name" value="${ product.name }" autocomplete="name" required minlength="4" />

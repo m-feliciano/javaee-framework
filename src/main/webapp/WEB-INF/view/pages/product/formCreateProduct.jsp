@@ -21,12 +21,15 @@
 					title="Currency should only contain numbers and (comma/doc) e.g. 1000,00"
 					required />
 			</div>
+			<div class="mb-3">
+				<label for="inputURL" class="form-label">IMAGE</label> 
+				<input type="text" name="url" class="form-control" id="inputURL" placeholder="URL" value="url"/>
+			</div>
 			<!-- action -->
 			<input type="hidden" name="action" value="CreateProduct">
 			<button type="submit" class="btn btn-primary">Submit</button>
-			<a type="button" href="${ linkProductServlet }?action=ListProducts" class="btn btn-light">
-				Cancel
-			</a>
+			<a type="button" href="${ linkProductServlet }?action=ListProducts" 
+				class="btn btn-light">Cancel</a>
 		</div>
 	</form>
 </div>

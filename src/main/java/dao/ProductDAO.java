@@ -56,6 +56,7 @@ public class ProductDAO {
 			ps.setString(1, prod.getName());
 			ps.setString(2, prod.getDescription());
 			ps.setBigDecimal(3, prod.getPrice());
+			ps.setString(4, prod.getUrl());
 
 			int affectedRows = ps.executeUpdate();
 			if (affectedRows > 0) {
@@ -75,7 +76,8 @@ public class ProductDAO {
 			ps.setString(1, prod.getName());
 			ps.setString(2, prod.getDescription());
 			ps.setBigDecimal(3, prod.getPrice());
-			ps.setInt(4, prod.getId());
+			ps.setString(4, prod.getUrl());
+			ps.setInt(5, prod.getId());
 			ps.executeUpdate();
 		} catch (SQLException e) {
 			throw new CustomRuntimeException(e.getMessage());
@@ -112,11 +114,12 @@ public class ProductDAO {
 	// bean
 	private Product instantiateProduct(ResultSet rs) throws SQLException {
 		Product prod = new Product();
-		prod.setId(rs.getInt(1));
-		prod.setName(rs.getString(2));
-		prod.setDescription(rs.getString(3));
-		prod.setPrice(rs.getBigDecimal(4));
-		prod.setRegisterDate(rs.getTimestamp(5));
+		prod.setId(rs.getInt("id"));
+		prod.setName(rs.getString("name"));
+		prod.setDescription(rs.getString("description"));
+		prod.setPrice(rs.getBigDecimal("price"));
+		prod.setRegisterDate(rs.getTimestamp("created_at"));
+		prod.setUrl(rs.getString("url_img"));
 		return prod;
 	}
 

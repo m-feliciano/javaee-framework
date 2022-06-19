@@ -11,6 +11,8 @@ public class ProductDTO {
 	private String id;
 	private String name;
 	private String description;
+
+	private String url;
 	private String registerDate;
 	private String price;
 
@@ -21,6 +23,7 @@ public class ProductDTO {
 		this.description = product.getDescription();
 		this.registerDate = sdf.format(product.getRegisterDate());
 		this.price = CurrencyFormatter.bigDecimalToString(product.getPrice());
+		this.url = product.getUrl();
 	}
 
 }

@@ -17,8 +17,7 @@ public class ListProducts implements Action {
 	public String doService(HttpServletRequest req, HttpServletResponse resp) {
 		System.out.println("doGET listing products");
 		Connection conn = new ConnectionFactory().getConnection();
-		ProductController controller = new ProductController(conn);
-		List<Product> productsList = controller.list();
+		List<Product> productsList = new ProductController(conn).list();
 		req.setAttribute("products", productsList);
 		return "forward:pages/product/listProducts.jsp";
 	}
