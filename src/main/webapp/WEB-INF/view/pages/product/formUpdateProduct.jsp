@@ -32,8 +32,8 @@
 			</div>
 			<div class="mb-3">
 				<label for="inputDescription" class="form-label">DESCRIPTION</label> 
-				<input type="text" name="description" class="form-control" id="inputDescription" 
-					placeholder="Simple Description" value="${ product.description }" required />
+				<textarea name="description" class="form-control" id="inputDescription" 
+					placeholder="Simple Description" rows="" cols="" required>${ product.description }</textarea>
 			</div>
 			<div class="mb-3">
 				<label for="inputPrice" class="form-label">PRICE</label> 

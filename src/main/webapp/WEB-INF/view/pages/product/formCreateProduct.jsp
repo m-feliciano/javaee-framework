@@ -11,7 +11,8 @@
 			</div>
 			<div class="mb-3">
 				<label for="inputDescription" class="form-label">DESCRIPTION</label> 
-				<input type="text" name="description" class="form-control" id="inputDescription" placeholder="simple Description" required />
+				<textarea name="description" class="form-control" id="inputDescription" placeholder="simple Description" required />
+				</textarea>
 			</div>
 			<div class="mb-3">
 				<label for="inputPrice" class="form-label">PRICE</label> 
@@ -23,7 +24,7 @@
 			</div>
 			<div class="mb-3">
 				<label for="inputURL" class="form-label">IMAGE</label> 
-				<input type="text" name="url" class="form-control" id="inputURL" placeholder="URL" value="url"/>
+				<textarea name="url" class="form-control" id="inputURL" placeholder="URL"/></textarea>
 			</div>
 			<!-- action -->
 			<input type="hidden" name="action" value="CreateProduct">

@@ -11,6 +11,15 @@
 	font-family: 'Open Sans', sans-serif;
 }
 
+ul {
+  list-style: none;
+}
+
+textarea {
+  padding: 0px;
+  margin: 0px;
+}
+
 html, body {
   max-width: 1300px;
   margin: 0 auto;
@@ -22,6 +31,11 @@ html, body {
 	font-family: 'Playfair Display SC', serif;
 }
 
+.nav-items::before {
+	content: '';
+	padding: 10px;
+}
+
 .nav-items {
  	display: flex;
  	gap: 20px;
@@ -29,6 +43,7 @@ html, body {
 
 .nav-link {
 	text-transform: uppercase;
+	font-weight: bold;
 }
 
 .nav-items li {
@@ -40,16 +55,24 @@ html, body {
    position:relative;
 }
 
+.title-logo {
+	font-family: 'Playfair Display SC', georgia;
+  	font-size: 1.3rem;
+ 	line-height: 1;
+  	font-weight: 400;
+  	margin-bottom: 1rem;
+}
+
 .main {
   padding:3rem;
-  padding-bottom:6rem;   /* Mesma Altura do Rodapé */
+  padding-bottom:6rem;
 }
 
 #footer {
   position:absolute;
   bottom:0;
   width:100%;
-  height:60px;   /* Mesma Altura do Rodapé */
+  height:60px;
 }
 
 

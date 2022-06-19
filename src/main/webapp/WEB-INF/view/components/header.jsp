@@ -27,8 +27,7 @@
 	    <a class="navbar-brand"
 			href="${linkProductServlet}?action=ListProducts"> 
 			<img src="<c:url value='/assets/logo.svg'/>" width="30" height="30" 
-				class="d-inline-block align-top" alt="Bootstrap logo">
-				Bootstrap
+				class="d-inline-block align-top" alt="Bootstrap logo"><span class="title-logo ml-2">Shopping</span>
 		</a>
 	    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
 	      <li class="nav-item">
