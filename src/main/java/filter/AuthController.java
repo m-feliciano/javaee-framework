@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import crud.Action;
+import servlets.Action;
 
 public class AuthController implements Filter {
 
@@ -37,12 +37,12 @@ public class AuthController implements Filter {
 		if (!action.contains("Log")) {
 			int entityPos = req.getServletPath().lastIndexOf("/") + 1;
 			entityName = req.getServletPath().substring(entityPos);
-			classname = String.format("crud.%s.%s", entityName, action);
+			classname = String.format("servlets.%s.%s", entityName, action);
 		} else {
-			classname = String.format("crud.%s", action);
+			classname = String.format("servlets.%s", action);
 		}
 
-		logger.info("classname: " + classname);
+		logger.info("classname: {}", classname);
 
 		String path = null;
 		try {
@@ -53,7 +53,7 @@ public class AuthController implements Filter {
 			e1.printStackTrace();
 		}
 
-		logger.info(classname + " " + entityName + " " + action);
+		logger.info("{} - {} - {}",classname, entityName, action);
 
 		String[] array = path.split(":");
 

@@ -1,8 +1,8 @@
 package utils;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.mchange.util.AssertException;
+
+import javax.servlet.http.HttpServletRequest;
 
 public final class Validate {
 

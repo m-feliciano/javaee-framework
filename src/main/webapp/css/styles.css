@@ -5,111 +5,111 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
 
 * {
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
-	font-family: 'Open Sans', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Open Sans', sans-serif;
 }
 
 ul {
-  list-style: none;
+    list-style: none;
 }
 
 textarea {
-  padding: 0px;
-  margin: 0px;
+    padding: 0px;
+    margin: 0px;
 }
 
 html, body {
-  max-width: 1300px;
-  margin: 0 auto;
-  height:100%;
+    max-width: 1300px;
+    margin: 0 auto;
+    height: 100%;
 }
 
 .navbar {
-	padding: 1.3rem;
-	font-family: 'Playfair Display SC', serif;
+    padding: 1.3rem;
+    font-family: 'Playfair Display SC', serif;
 }
 
 .nav-items::before {
-	content: '';
-	padding: 10px;
+    content: '';
+    padding: 10px;
 }
 
 .nav-items {
- 	display: flex;
- 	gap: 20px;
+    display: flex;
+    gap: 20px;
 }
 
 .nav-link {
-	text-transform: uppercase;
-	font-weight: bold;
+    text-transform: uppercase;
+    font-weight: bold;
 }
 
 .nav-items li {
-	padding: 0 10px;
+    padding: 0 10px;
 }
 
 .content {
-   min-height:100%;
-   position:relative;
+    min-height: 100%;
+    position: relative;
 }
 
 .title-logo {
-	font-family: 'Playfair Display SC', georgia;
-  	font-size: 1.3rem;
- 	line-height: 1;
-  	font-weight: 400;
-  	margin-bottom: 1rem;
+    font-family: 'Playfair Display SC', georgia;
+    font-size: 1.3rem;
+    line-height: 1;
+    font-weight: 400;
+    margin-bottom: 1rem;
 }
 
 .main {
-  padding:3rem;
-  padding-bottom:6rem;
+    padding: 3rem;
+    padding-bottom: 6rem;
 }
 
 #footer {
-  position:absolute;
-  bottom:0;
-  width:100%;
-  height:60px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
 }
 
 
 #copyright {
-	padding: 1rem;
-	align-content: center;
+    padding: 1rem;
+    align-content: center;
 }
 
 /* 404 not found */
 .page-wrap {
-	min-height: 100vh;
-	justify-content: center;
+    min-height: 100vh;
+    justify-content: center;
 }
 
 .btn-success {
-  color: darkgreen;
+    color: darkgreen;
 }
 
 .btn-primary {
-  color: darkblue;
+    color: darkblue;
 }
 
 .btn-danger {
-  color: darkred;
+    color: darkred;
 }
 
-.btn-primary:hover, 
+.btn-primary:hover,
 .btn-danger:hover,
 .btn-success:hover {
-  color: white;
+    color: white;
 }
 
 
 .btn-logout {
-	color: rgba(255,255,255,.5);
+    color: rgba(255, 255, 255, .5);
 }
 
 .btn-logout:hover {
-	color: rgba(255,255,255,.75);
+    color: rgba(255, 255, 255, .75);
 }
