@@ -1,18 +1,25 @@
+<%@ page import="java.util.*,domain.Product" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<c:url value="/product" var="linkProductServlet"/>
-<!-- header -->
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
+<c:url value="/product" var="productLink"/>
+<c:url value="/product?action=ListProducts" var="listProducts"/>
+<fmt:parseDate value="${product.registerDate}" type="date" pattern="yyyy-MM-dd" var="parsedDate"/>
+<fmt:formatDate value="${parsedDate}" type="date" pattern="dd-MM-yyyy" var="stdDate"/>
+
 <jsp:include page="../../components/header.jsp"/>
 <div class="main">
-    <form action="${ linkProductServlet }" method="post">
+    <form action="${ productLink }" method="post">
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputName" class="form-label">NAME</label>
-                <input type="text" name="name" class="form-control" id="inputName" placeholder="name" required minlength="4"/>
+                <input type="text" name="name" class="form-control" id="inputName"
+                       placeholder="name" required minlength="4"/>
             </div>
             <div class="mb-3">
                 <label for="inputDescription" class="form-label">DESCRIPTION</label>
-                <textarea name="description" class="form-control" id="inputDescription" placeholder="simple Description" required/>
-                </textarea>
+                <textarea name="description" class="form-control" id="inputDescription"
+                          placeholder="simple Description" required></textarea>
             </div>
             <div class="mb-3">
                 <label for="inputPrice" class="form-label">PRICE</label>
@@ -24,12 +31,12 @@
             </div>
             <div class="mb-3">
                 <label for="inputURL" class="form-label">IMAGE</label>
-                <textarea name="url" class="form-control" id="inputURL" placeholder="URL"/></textarea>
+                <textarea name="url" class="form-control" id="inputURL" placeholder="URL"></textarea>
             </div>
             <!-- action -->
             <input type="hidden" name="action" value="CreateProduct">
             <button type="submit" class="btn btn-primary">Submit</button>
-            <a type="button" href="${ linkProductServlet }?action=ListProducts"
+            <a type="button" href="${ listProducts }"
                class="btn btn-light">Cancel</a>
         </div>
     </form>

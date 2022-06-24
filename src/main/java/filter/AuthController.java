@@ -1,6 +1,8 @@
 package filter;
 
-import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import servlets.Action;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -10,11 +12,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import servlets.Action;
+import java.io.IOException;
 
 public class AuthController implements Filter {
 
@@ -53,9 +51,17 @@ public class AuthController implements Filter {
 			e1.printStackTrace();
 		}
 
-		logger.info("{} - {} - {}",classname, entityName, action);
+		logger.info("{} - {} - {}", classname, entityName, action);
 
-		String[] array = path.split(":");
+		String[] array;
+
+		try {
+			assert path != null;
+			array = path.split(":");
+		} catch (Exception e) {
+			logger.warn("Error on parse url: {}", e.getMessage());
+			throw new ServletException("Cannot parse url: " + path);
+		}
 
 		if (array[0].equals("forward")) {
 			try {

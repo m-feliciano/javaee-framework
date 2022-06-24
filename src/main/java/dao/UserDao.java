@@ -37,7 +37,11 @@ public class UserDao {
 
 	public User findByLogin(String login) {
 		String jpsl = "SELECT u FROM User u WHERE u.login = :login";
-		return em.createQuery(jpsl, User.class).setParameter("login", login).getSingleResult();
+		return em.createQuery(jpsl, User.class)
+				 .setParameter("login", login)
+				 .getResultStream()
+				 .findFirst()
+				 .orElse(null);
 	}
 
 }

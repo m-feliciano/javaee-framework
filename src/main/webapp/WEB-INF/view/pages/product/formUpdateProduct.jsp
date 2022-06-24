@@ -1,10 +1,12 @@
+<%@ page import="java.util.*,domain.Product" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
-<c:url value="/product" var="productServlet"/>
-<fmt:setLocale value="pt-BR" scope="application"/>
+<c:url value="/product" var="productLink"/>
+<fmt:parseDate  value="${product.registerDate}"  type="date" pattern="yyyy-MM-dd" var="parsedDate" />
+<fmt:formatDate value="${parsedDate}" type="date" pattern="dd-MM-yyyy" var="stdDate" />
 
-<!-- header -->
+
 <jsp:include page="../../components/header.jsp"/>
 <div class="main">
     <form action="${ productServlet }" method="post">
@@ -18,7 +20,7 @@
             <div class="mb-3">
                 <label for="inputRegisterDate" class="form-label">REGISTER</label>
                 <input type="text" name="register" class="form-control" id="inputRegisterDate"
-                       value="${ product.registerDate }" required readonly="readonly"/>
+                       value="${ stdDate }" required readonly="readonly"/>
             </div>
             <div class="mb-3">
                 <label for="inputURL" class="form-label">IMAGE</label>
@@ -46,7 +48,7 @@
             <!-- action -->
             <input type="hidden" name="action" value="UpdateProduct">
             <button type="submit" class="btn btn-primary">Submit</button>
-            <a type="button" href="${ productServlet }?action=ListProduct&id=${product.id }" class="btn btn-light">
+            <a type="button" href="${ productLink }?action=ListProduct&id=${product.id }" class="btn btn-light">
                 Cancel
             </a>
         </div>

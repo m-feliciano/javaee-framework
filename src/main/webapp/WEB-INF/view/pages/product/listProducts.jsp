@@ -1,6 +1,6 @@
+<%@ page import="java.util.*,domain.Product" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<%@ page import="java.util.*,domain.Product" %>
 
 <c:url value="/product?action=ListProduct" var="listProduct"/>
 <c:url value="/product?action=ListProducts" var="listProducts"/>
@@ -8,7 +8,7 @@
 <c:url value="/product?action=NewProduct" var="newProduct"/>
 <c:url value="/product?action=ListProductsByName" var="listByName"/>
 
-<fmt:setLocale value="pt-BR" scope="application"/>
+<fmt:formatNumber value="${product.price}" type="currency" minFractionDigits="2" var="parsedPrice"/>
 
 <jsp:include page="../../components/header.jsp"/>
 <div class="main">
@@ -54,7 +54,7 @@
                                              alt="no image available">
                                     </c:if>
                                     <c:if test="${not empty product.url }">
-                                        <img style="max-height: 80px;" src="${ product.url }" alt="product ${ product.name } image">
+                                        <img style="max-height: 80px;" src="${ product.url }" alt="Image of product ${ product.name }">
                                     </c:if>
                                 </a>
                             </td>
