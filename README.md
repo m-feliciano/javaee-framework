@@ -8,33 +8,36 @@ Aplicação Web Servlet (Jakarta Servlet) para controle de produtos utilizando p
 ## Packages
 ```
 C:.
-└───main
-    ├───java
-    │   ├───cache
-    │   │   └───product
-    │   ├───controllers
-    │   ├───crud
-    │   │   ├───category
-    │   │   ├───inventory
-    │   │   └───product
-    │   ├───dao
-    │   ├───dto
-    │   ├───entities
-    │   ├───filter
-    │   ├───infra
-    │   │   └───exceptions
-    │   ├───servlets
-    │   └───utils
-    └───webapp
-        ├───assets
-        ├───css
-        ├───META-INF
-        └───WEB-INF
-            ├───lib
-            └───view
-                ├───components
-                └───pages
-                    ├───category
-                    ├───inventory
-                    └───product
+├───main
+│   ├───java
+│   │   ├───application
+│   │   ├───controllers
+│   │   ├───dao
+│   │   ├───domain
+│   │   │   └───enums
+│   │   ├───dto
+│   │   ├───filter
+│   │   ├───infra
+│   │   │   └───exceptions
+│   │   ├───servlets
+│   │   │   ├───category
+│   │   │   ├───inventory
+│   │   │   └───product
+│   │   └───utils
+│   │       └───cache
+│   ├───resources
+│   │   └───META-INF
+│   └───webapp
+│       ├───assets
+│       ├───css
+│       ├───META-INF
+│       └───WEB-INF
+│           └───view
+│               ├───components
+│               └───pages
+│                   ├───category
+│                   ├───inventory
+│                   └───product
+└───test
+    └───java
 ```
