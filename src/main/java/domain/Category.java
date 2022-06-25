@@ -13,7 +13,6 @@ import java.util.Objects;
 @Getter
 @Setter
 @RequiredArgsConstructor
-@NoArgsConstructor
 @Entity
 @Table(name = "tb_category")
 public class Category implements Serializable {
@@ -50,14 +49,6 @@ public class Category implements Serializable {
             throw new IllegalArgumentException("Product cannot be null");
         }
         products.add(prod);
-    }
-
-    public List<Product> getProducts() {
-        return products;
-    }
-
-    public void setProducts(List<Product> products) {
-        this.products = products;
     }
 
     @Override
