@@ -12,55 +12,56 @@ import java.util.List;
 
 public final class CacheUtil {
 
-	private static final Logger logger = LoggerFactory.getLogger(CacheUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(CacheUtil.class);
 
-	private static List<Product> products = new ArrayList<>();
-	private static List<Category> categories = new ArrayList<>();
+    private static List<Product> products = new ArrayList<>();
+    private static List<Category> categories = new ArrayList<>();
 
-	private CacheUtil() {
-		throw new AssertException("This class must not be instantiated.");
-	}
+    private CacheUtil() {
+        logger.warn("CacheUtil is a utility class and should not be instantiated.");
+        throw new AssertException("CacheUtil is a utility class and should not be instantiated");
+    }
 
-	public static void initProduct(List<Product> list) {
-		logger.info("Product cache initialized.");
-		products = new ArrayList<>(list);
-	}
+    public static void initProduct(List<Product> list) {
+        logger.info("Initializing product cache");
+        products = new ArrayList<>(list);
+    }
 
-	public static void initCategory(List<Category> list) {
-		logger.info("Category cache initialized.");
-		categories = new ArrayList<>(list);
-	}
+    public static void initCategory(List<Category> list) {
+        logger.info("Initializing category cache");
+        categories = new ArrayList<>(list);
+    }
 
-	public static List<Product> getProductsFromCache() {
-		logger.info("Getting products from cache.");
-		return !products.isEmpty() ? Collections.unmodifiableList(products) : null;
-	}
+    public static List<Product> getProductsFromCache() {
+        logger.info("Returning products from cache.");
+        return Collections.unmodifiableList(products);
+    }
 
-	public static List<Category> getCategoriesFromCache() {
-		logger.info("Getting categories from cache.");
-		return !categories.isEmpty() ? Collections.unmodifiableList(categories) : null;
-	}
+    public static List<Category> getCategoriesFromCache() {
+        logger.info("Returning categories from cache.");
+        return Collections.unmodifiableList(categories);
+    }
 
-	public static void invalidateProduct() {
-		logger.info("Invalidating the product cache.");
-		products.clear();
-	}
+    public static void invalidateProduct() {
+        logger.info("Product cache invalidated.");
+        products.clear();
+    }
 
-	public static void invalidateCategory() {
-		logger.info("Invalidating the category cache.");
-		categories.clear();
-	}
+    public static void invalidateCategory() {
+        logger.info("Category cache invalidated.");
+        categories.clear();
+    }
 
-	public static boolean isValidProduct() {
-		boolean valid = !products.isEmpty();
-		logger.info("Checking product cache validity... valid: {}", valid);
-		return valid;
-	}
+    public static boolean isValidProduct() {
+        boolean valid = !products.isEmpty();
+        logger.info("Product cache is valid: {}", valid);
+        return valid;
+    }
 
-	public static boolean isValidCategory() {
-		boolean valid = !categories.isEmpty();
-		logger.info("Checking categories cache validity... valid: {}", valid);
-		return valid;
-	}
+    public static boolean isValidCategory() {
+        boolean valid = !categories.isEmpty();
+        logger.info("Category cache is valid: {}", valid);
+        return valid;
+    }
 
 }

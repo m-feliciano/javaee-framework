@@ -7,16 +7,35 @@ import java.math.RoundingMode;
 
 public final class CurrencyFormatter {
 
-	private CurrencyFormatter() {
-		throw new AssertException("This class must not be instantiated.");
-	}
 
-	public static BigDecimal stringToBigDecimal(String value) {
-		return new BigDecimal(value.replace(',', '.')).setScale(2, RoundingMode.HALF_UP);
-	}
+    private CurrencyFormatter() {
+        throw new AssertException("CurrencyFormatter is a utility class and should not be instantiated");
+    }
 
-	public static String bigDecimalToString(BigDecimal value) {
-		return value.toString().replace('.', ',');
-	}
+    /**
+     * This method is used to format a currency value to a string.
+     * The value is formatted to 2 decimal places.
+     * The value is rounded to the nearest integer.
+     * The value is formatted to a currency format.
+     * The value is formatted to a string.
+     *
+     * @param value
+     * @return String with currency format
+     */
+
+    public static BigDecimal stringToBigDecimal(String value) {
+        return new BigDecimal(value.replace(',', '.')).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * Formats a currency value to a string.
+     *
+     * @param value The value to format.
+     * @return The formatted value.
+     */
+
+    public static String bigDecimalToString(BigDecimal value) {
+        return value.toString().replace('.', ',');
+    }
 
 }

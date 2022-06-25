@@ -14,23 +14,30 @@ import java.math.BigDecimal;
 
 public class CreateItem implements Action {
 
-	private final EntityManager em = JPAUtil.getEntityManager();
-	private final ProductController productController = new ProductController(em);
-	private final InventoryController inventoryController = new InventoryController(em);
+    private final EntityManager em = JPAUtil.getEntityManager();
+    private final ProductController productController = new ProductController(em);
+    private final InventoryController inventoryController = new InventoryController(em);
 
-	@Override
-	public String doService(HttpServletRequest req, HttpServletResponse resp) {
-		System.out.println("doPOST registering new inventory");
+    /**
+     * Execute.
+     *
+     * @param req  the req
+     * @param resp the resp
+     * @return the string
+     */
+    @Override
+    public String execute(HttpServletRequest req, HttpServletResponse resp) {
+        System.out.println("doPOST registering new inventory");
 
-		Long productId = Long.parseLong(req.getParameter("productId"));
-		Product product = productController.findById(productId);
-		int quantity = Integer.parseInt(req.getParameter("quantity"));
-		String description = req.getParameter("description");
-		Inventory item = new Inventory(product, quantity, description, product.getPrice().multiply(new BigDecimal(quantity)));
-		inventoryController.save(item);
+        Long productId = Long.parseLong(req.getParameter("productId"));
+        Product product = productController.findById(productId);
+        int quantity = Integer.parseInt(req.getParameter("quantity"));
+        String description = req.getParameter("description");
+        Inventory item = new Inventory(product, quantity, description, product.getPrice().multiply(new BigDecimal(quantity)));
+        inventoryController.save(item);
 
-		System.out.println("item: " + item);
-		return "redirect:inventory?action=ListItems";
-	}
+        System.out.println("item: " + item);
+        return "redirect:inventory?action=ListItems";
+    }
 
 }

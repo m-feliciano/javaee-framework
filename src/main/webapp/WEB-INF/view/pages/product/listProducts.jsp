@@ -44,17 +44,20 @@
                     </thead>
                     <tbody>
                     <c:forEach items="${ products }" var="product">
-                        <fmt:formatNumber value="${product.price}" type="currency" minFractionDigits="2" var="parsedPrice"/>
+                        <fmt:formatNumber value="${product.price}" type="currency" minFractionDigits="2"
+                                          var="parsedPrice"/>
                         <tr>
                             <th width="7%" scope="row">${ product.id }</th>
                             <td width=10% style="text-align: center;">
                                 <a href="${ listProduct }&id=${ product.id }">
                                     <c:if test="${empty product.url }">
-                                        <img style="max-height: 80px;" src="<c:url value='/assets/no_image_available.png'/>"
+                                        <img style="max-height: 80px;"
+                                             src="<c:url value='/assets/no_image_available.png'/>"
                                              alt="no image available">
                                     </c:if>
                                     <c:if test="${not empty product.url }">
-                                        <img style="max-height: 80px;" src="${ product.url }" alt="Image of product ${ product.name }">
+                                        <img style="max-height: 80px;" src="${ product.url }"
+                                             alt="Image of product ${ product.name }">
                                     </c:if>
                                 </a>
                             </td>

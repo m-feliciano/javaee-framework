@@ -17,7 +17,8 @@
             <div class="mb-3">
                 <label for="inputName" class="form-label">NAME</label>
                 <input type="text" name="name" class="form-control" id="inputName"
-                       placeholder="name" value="${ category.name }" autocomplete="name" required minlength="4" readonly="readonly"/>
+                       placeholder="name" value="${ category.name }" autocomplete="name" required minlength="4"
+                       readonly="readonly"/>
             </div>
 
             <!-- action -->

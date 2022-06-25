@@ -7,34 +7,48 @@ import javax.persistence.EntityManager;
 
 public class UserController {
 
-	private final UserDao userDao;
+    private final UserDao userDao;
 
-	public UserController(EntityManager em) {
-		this.userDao = new UserDao(em);
-	}
+    public UserController(EntityManager em) {
+        this.userDao = new UserDao(em);
+    }
 
-	public void save(User user) {
-		if (user == null) {
-			throw new IllegalArgumentException("The user must not be null.");
-		}
 
-		this.userDao.save(user);
-	}
+    /**
+     * Save.
+     * throws IllegalArgumentException if user is null
+     *
+     * @param user the user
+     */
 
-	public void update(User prod) {
-		this.userDao.update(prod);
-	}
+    public void save(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("The user must not be null.");
+        }
 
-	public void delete(Long id) {
-		this.userDao.delete(id);
-	}
+        this.userDao.save(user);
+    }
 
-	public User findById(Long id) {
-		return this.userDao.findById(id);
-	}
+    public void update(User prod) {
+        this.userDao.update(prod);
+    }
 
-	public User findByLogin(String login) {
-		return userDao.findByLogin(login);
-	}
+    public void delete(Long id) {
+        this.userDao.delete(id);
+    }
+
+    public User findById(Long id) {
+        return this.userDao.findById(id);
+    }
+
+    /**
+     * Find.
+     *
+     * @return the user or null if not found
+     */
+
+    public User findByLogin(String login) {
+        return userDao.findByLogin(login);
+    }
 
 }

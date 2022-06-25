@@ -8,34 +8,34 @@ import java.util.List;
 
 public class InventoryController {
 
-	private final InventoryDao inventoryDao;
+    private final InventoryDao inventoryDao;
 
-	public InventoryController(EntityManager em) {
-		this.inventoryDao = new InventoryDao(em);
-	}
+    public InventoryController(EntityManager em) {
+        this.inventoryDao = new InventoryDao(em);
+    }
 
-	public void save(Inventory inventory) {
-		this.inventoryDao.save(inventory);
-	}
+    public void save(Inventory inventory) {
+        this.inventoryDao.save(inventory);
+    }
 
-	public void delete(Long id) {
-		this.inventoryDao.delete(id);
-	}
+    public void delete(Long id) {
+        this.inventoryDao.delete(id);
+    }
 
-	public List<Inventory> findAll() {
-		return this.inventoryDao.findAll();
-	}
+    public List<Inventory> findAll() {
+        return this.inventoryDao.findAll();
+    }
 
-	public void update(Inventory inventory) {
-		this.inventoryDao.update(inventory);
-	}
+    public void update(Inventory inventory) {
+        this.inventoryDao.update(inventory);
+    }
 
-	public List<Inventory> findByDescription(String description) {
-		return this.inventoryDao.findAllByDescription(description);
-	}
+    public List<Inventory> findByDescription(String description) {
+        return this.inventoryDao.findAllByDescription(description);
+    }
 
-	public Inventory findById(Long id) {
-		return this.inventoryDao.findById(id);
-	}
+    public Inventory findById(Long id) {
+        return this.inventoryDao.findById(id);
+    }
 
 }

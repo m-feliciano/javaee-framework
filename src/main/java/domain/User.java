@@ -1,32 +1,16 @@
 package domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import domain.enums.Perfil;
+import lombok.*;
+import org.hibernate.Hibernate;
+
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import org.hibernate.Hibernate;
-
-import domain.enums.Perfil;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
@@ -37,50 +21,49 @@ import lombok.ToString;
 @Table(name = "tb_user")
 public class User implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Setter(value = AccessLevel.NONE)
-	private Long id;
-	@Column(name = "login")
-	private String login;
-	@JsonIgnore
-	@Column(name = "password")
-	private String password;
-	
-	@ElementCollection(fetch = FetchType.EAGER)
-	@CollectionTable(name = "PERFIS")
-	private final Set<Integer> perfis = new HashSet<>();
+    private static final long serialVersionUID = 1L;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "PERFIS")
+    private final Set<Integer> perfis = new HashSet<>();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Setter(value = AccessLevel.NONE)
+    private Long id;
+    @Column(name = "login")
+    private String login;
+    @JsonIgnore
+    @Column(name = "password")
+    private String password;
 
-	public User(String login, String password) {
-		this.login = login;
-		this.password = password;
-	}
+    public User(String login, String password) {
+        this.login = login;
+        this.password = password;
+    }
 
-	public void addPerfil(Perfil perfil) {
-		perfis.add(perfil.getCod());
-	}
+    public void addPerfil(Perfil perfil) {
+        perfis.add(perfil.getCod());
+    }
 
-	public Set<Perfil> getPerfils() {
-		return perfis.stream().map(Perfil::toEnum).collect(Collectors.toSet());
-	}
+    public Set<Perfil> getPerfils() {
+        return perfis.stream().map(Perfil::toEnum).collect(Collectors.toSet());
+    }
 
-	public boolean equals(String login, String password) {
-		return this.login.equals(login) && this.password.equals(password);
-	}
+    public boolean equals(String login, String password) {
+        return this.login.equals(login) && this.password.equals(password);
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o))
-			return false;
-		User user = (User) o;
-		return id != null && Objects.equals(id, user.id);
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o))
+            return false;
+        User user = (User) o;
+        return id != null && Objects.equals(id, user.id);
+    }
 
-	@Override
-	public int hashCode() {
-		return getClass().hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

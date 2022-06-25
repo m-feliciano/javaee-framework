@@ -7,7 +7,8 @@
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputName" class="form-label">NAME</label>
-                <input type="text" name="name" class="form-control" id="inputName" placeholder="name" required minlength="4"/>
+                <input type="text" name="name" class="form-control" id="inputName" placeholder="name" required
+                       minlength="4"/>
             </div>
             <!-- action -->
             <input type="hidden" name="action" value="CreateCategory">

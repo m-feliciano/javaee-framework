@@ -3,8 +3,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
 <c:url value="/product" var="productLink"/>
-<fmt:parseDate  value="${product.registerDate}"  type="date" pattern="yyyy-MM-dd" var="parsedDate" />
-<fmt:formatDate value="${parsedDate}" type="date" pattern="dd-MM-yyyy" var="stdDate" />
+<fmt:parseDate value="${product.registerDate}" type="date" pattern="yyyy-MM-dd" var="parsedDate"/>
+<fmt:formatDate value="${parsedDate}" type="date" pattern="dd-MM-yyyy" var="stdDate"/>
 
 
 <jsp:include page="../../components/header.jsp"/>

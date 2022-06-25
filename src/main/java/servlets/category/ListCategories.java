@@ -12,15 +12,22 @@ import java.util.List;
 
 public class ListCategories implements Action {
 
-	@Override
-	public String doService(HttpServletRequest req, HttpServletResponse resp) {
-		System.out.println("doGET listing categories");
+    /**
+     * Execute.
+     *
+     * @param req  the req
+     * @param resp the resp
+     * @return the string
+     */
+    @Override
+    public String execute(HttpServletRequest req, HttpServletResponse resp) {
+        System.out.println("doGET listing categories");
 
-		EntityManager em = JPAUtil.getEntityManager();
-		CategoryController controller = new CategoryController(em);
-		List<Category> list = controller.findAll();
-		req.setAttribute("categories", list);
-		return "forward:pages/category/listCategories.jsp";
-	}
+        EntityManager em = JPAUtil.getEntityManager();
+        CategoryController controller = new CategoryController(em);
+        List<Category> list = controller.findAll();
+        req.setAttribute("categories", list);
+        return "forward:pages/category/listCategories.jsp";
+    }
 
 }

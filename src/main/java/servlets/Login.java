@@ -11,24 +11,34 @@ import javax.servlet.http.HttpSession;
 
 public class Login implements Action {
 
-	private final EntityManager em = JPAUtil.getEntityManager();
-	private final UserController userController = new UserController(em);
+    private final EntityManager em = JPAUtil.getEntityManager();
+    private final UserController userController = new UserController(em);
 
-	@Override
-	public String doService(HttpServletRequest req, HttpServletResponse resp) {
-		System.out.println("doPOST valid login");
 
-		String login = req.getParameter("email");
-		String password = req.getParameter("password");
-		User user = userController.findByLogin(login);
-		if (user != null && user.equals(login, password)) {
-			HttpSession session = req.getSession();
-			session.setAttribute("userLogged", user);
-			return "redirect:product?action=ListProducts";
-		}
+    /**
+     * Login.
+     *
+     * @param req  the req
+     * @param resp the resp
+     * @return the string
+     */
 
-		req.setAttribute("error", "User or password invalid.");
-		return "forward:pages/formLogin.jsp";
-	}
+
+    @Override
+    public String execute(HttpServletRequest req, HttpServletResponse resp) {
+        System.out.println("doPOST valid login");
+
+        String login = req.getParameter("email");
+        String password = req.getParameter("password");
+        User user = userController.findByLogin(login);
+        if (user != null && user.equals(login, password)) {
+            HttpSession session = req.getSession();
+            session.setAttribute("userLogged", user);
+            return "redirect:product?action=ListProducts";
+        }
+
+        req.setAttribute("error", "User or password invalid.");
+        return "forward:pages/formLogin.jsp";
+    }
 
 }

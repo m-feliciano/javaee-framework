@@ -4,87 +4,92 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import servlets.Action;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.persistence.Transient;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class AuthController implements Filter {
 
-	final Logger logger = LoggerFactory.getLogger(AuthController.class);
+    @Transient
+    final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
-	@Override
-	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
-			throws IOException, ServletException {
+    /**
+     * @param servletRequest  the <code>ServletRequest</code> object contains the client's request
+     * @param servletResponse the <code>ServletResponse</code> object contains the filter's response
+     * @param chain           the <code>FilterChain</code> for invoking the next filter or the resource
+     * @throws ServletException if an I/O exception has occurred
+     */
+    @Override
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
+            throws ServletException {
 
-		logger.info("Init controller filter");
-		HttpServletRequest req = (HttpServletRequest) servletRequest;
-		HttpServletResponse resp = (HttpServletResponse) servletResponse;
+        logger.info("Init controller filter");
+        HttpServletRequest req = (HttpServletRequest) servletRequest;
+        HttpServletResponse resp = (HttpServletResponse) servletResponse;
 
-		String action = req.getParameter("action");
+        String strAction = req.getParameter("action");
 
-		String classname = null;
-		String entityName = null;
+        String classname = null;
+        String entityName = null;
 
-		// fully qualified name do metodo a ser executado
-		if (!action.contains("Log")) {
-			int entityPos = req.getServletPath().lastIndexOf("/") + 1;
-			entityName = req.getServletPath().substring(entityPos);
-			classname = String.format("servlets.%s.%s", entityName, action);
-		} else {
-			classname = String.format("servlets.%s", action);
-		}
+        // fully qualified name do metodo a ser executado
+        if (!strAction.contains("Log")) {
+            int entityPos = req.getServletPath().lastIndexOf("/") + 1;
+            entityName = req.getServletPath().substring(entityPos);
+            classname = String.format("servlets.%s.%s", entityName, strAction);
+        } else {
+            classname = String.format("servlets.%s", strAction);
+        }
 
-		logger.info("classname: {}", classname);
+        logger.info("classname: {}", classname);
 
-		String path = null;
-		try {
-			Class<?> clazz = Class.forName(classname);
-			Action actionMethod = (Action) clazz.getDeclaredConstructor().newInstance();
-			path = actionMethod.doService(req, resp);
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
+        String path = null;
+        try {
+            Class<?> clazz = Class.forName(classname);
+            Action action = (Action) clazz.getDeclaredConstructor().newInstance();
+            path = action.execute(req, resp);
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
 
-		logger.info("{} - {} - {}", classname, entityName, action);
+        logger.info("class: {} - entity: {} - action: {}", classname, entityName, strAction);
 
-		String[] array;
+        String[] array;
 
-		try {
-			assert path != null;
-			array = path.split(":");
-		} catch (Exception e) {
-			logger.warn("Error on parse url: {}", e.getMessage());
-			throw new ServletException("Cannot parse url: " + path);
-		}
+        try {
+            assert path != null;
+            array = path.split(":");
+        } catch (Exception e) {
+            logger.warn("Error on parse url: {}", e.getMessage());
+            throw new ServletException("Cannot parse url: " + path);
+        }
 
-		if (array[0].equals("forward")) {
-			try {
-				req.getRequestDispatcher("/WEB-INF/view/" + array[1]).forward(req, resp);
-			} catch (IOException | ServletException e) {
-				e.printStackTrace();
-			}
-		} else {
-			try {
-				resp.sendRedirect(array[1]);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+        if (array[0].equals("forward")) {
+            try {
+                req.getRequestDispatcher("/WEB-INF/view/" + array[1]).forward(req, resp);
+            } catch (IOException | ServletException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                resp.sendRedirect(array[1]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
-	}
+    }
 
-	@Override
-	public void destroy() {
-	}
+    @Override
+    public void destroy() {
+        // TODO document why this method is empty
+    }
 
-	@Override
-	public void init(FilterConfig filterConfig) throws ServletException {
-	}
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        // TODO document why this method is empty
+    }
 
 }

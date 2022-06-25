@@ -11,16 +11,24 @@ import javax.servlet.http.HttpServletResponse;
 
 public class CreateCategory implements Action {
 
-	@Override
-	public String doService(HttpServletRequest req, HttpServletResponse resp) {
+    /**
+     * Execute.
+     *
+     * @param req  the req
+     * @param resp the resp
+     * @return the string
+     */
 
-		System.out.println("doPOST registering new category");
-		String name = req.getParameter("name");
-		EntityManager em = JPAUtil.getEntityManager();
-		CategoryController controller = new CategoryController(em);
-		Category cat = new Category(name);
-		controller.save(cat);
-		return "redirect:category?action=ListCategories";
-	}
+    @Override
+    public String execute(HttpServletRequest req, HttpServletResponse resp) {
+
+        System.out.println("doPOST registering new category");
+        String name = req.getParameter("name");
+        EntityManager em = JPAUtil.getEntityManager();
+        CategoryController controller = new CategoryController(em);
+        Category cat = new Category(name);
+        controller.save(cat);
+        return "redirect:category?action=ListCategories";
+    }
 
 }

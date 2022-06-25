@@ -17,30 +17,30 @@
     <title>Servlet CRUD</title>
 </head>
 
-<c:url value="/product" var="linkProductServlet"/>
-<c:url value="/category" var="linkCategoryServlet"/>
-<c:url value="/inventory" var="linkInventoryServlet"/>
+<c:url value="/product" var="productLink"/>
+<c:url value="/category" var="categoryLink"/>
+<c:url value="/inventory" var="inventoryLink"/>
 
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="collapse navbar-collapse nav-items" id="navbarTogglerDemo01">
         <a class="navbar-brand"
-           href="${linkProductServlet}?action=ListProducts">
+           href="${productLink}?action=ListProducts">
             <img src="<c:url value='/assets/logo.svg'/>" width="30" height="30"
                  class="d-inline-block align-top" alt="Bootstrap logo"><span class="title-logo ml-2">Shopping</span>
         </a>
         <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
             <li class="nav-item">
-                <a class="nav-link" href="${linkProductServlet}?action=ListProducts">Products</a>
+                <a class="nav-link" href="${productLink}?action=ListProducts">Products</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="${linkCategoryServlet}?action=ListCategories">Categories</a>
+                <a class="nav-link" href="${categoryLink}?action=ListCategories">Categories</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="${linkInventoryServlet}?action=ListItems">Inventory</a>
+                <a class="nav-link" href="${inventoryLink}?action=ListItems">Inventory</a>
             </li>
         </ul>
-        <a class="nav-link btn-logout" href="${linkProductServlet}?action=Logout">Logout</a>
+        <a class="nav-link btn-logout" href="${productLink}?action=Logout">Logout</a>
     </div>
 </nav>
 

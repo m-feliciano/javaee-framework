@@ -5,6 +5,13 @@ import javax.servlet.http.HttpServletResponse;
 
 public interface Action {
 
-	String doService(HttpServletRequest req, HttpServletResponse resp);
+    /**
+     * Execute.
+     *
+     * @param req  the req
+     * @param resp the resp
+     * @return the string
+     */
+    String execute(HttpServletRequest req, HttpServletResponse resp);
 
 }

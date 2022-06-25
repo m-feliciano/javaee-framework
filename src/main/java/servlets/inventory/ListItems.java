@@ -12,15 +12,22 @@ import java.util.List;
 
 public class ListItems implements Action {
 
-	private final EntityManager em = JPAUtil.getEntityManager();
-	private final InventoryController inventoryController = new InventoryController(em);
+    private final EntityManager em = JPAUtil.getEntityManager();
+    private final InventoryController inventoryController = new InventoryController(em);
 
-	@Override
-	public String doService(HttpServletRequest req, HttpServletResponse resp) {
-		System.out.println("doGET listing inventory items");
-		List<Inventory> items = inventoryController.findAll();
-		req.setAttribute("items", items);
-		return "forward:pages/inventory/listItems.jsp";
-	}
+    /**
+     * Execute.
+     *
+     * @param req  the req
+     * @param resp the resp
+     * @return the string
+     */
+    @Override
+    public String execute(HttpServletRequest req, HttpServletResponse resp) {
+        System.out.println("doGET listing inventory items");
+        List<Inventory> items = inventoryController.findAll();
+        req.setAttribute("items", items);
+        return "forward:pages/inventory/listItems.jsp";
+    }
 
 }

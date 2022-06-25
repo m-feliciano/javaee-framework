@@ -6,11 +6,19 @@ import javax.servlet.http.HttpSession;
 
 public class Logout implements Action {
 
-	@Override
-	public String doService(HttpServletRequest req, HttpServletResponse resp) {
-		HttpSession session = req.getSession();
-		session.invalidate();
-		return "forward:pages/formLogin.jsp";
-	}
+    /**
+     * Logout.
+     *
+     * @param req  the req
+     * @param resp the resp
+     * @return the string
+     */
+
+    @Override
+    public String execute(HttpServletRequest req, HttpServletResponse resp) {
+        HttpSession session = req.getSession();
+        session.invalidate();
+        return "forward:pages/formLogin.jsp";
+    }
 
 }

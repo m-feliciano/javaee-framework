@@ -4,28 +4,35 @@ import controllers.ProductController;
 import domain.Product;
 import servlets.Action;
 import utils.JPAUtil;
-import utils.Validate;
 
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Objects;
 
 public class ListProductsByName implements Action {
 
-	private final EntityManager em = JPAUtil.getEntityManager();
-	private final ProductController productController = new ProductController(em);
+    private final EntityManager em = JPAUtil.getEntityManager();
+    private final ProductController productController = new ProductController(em);
 
-	@Override
-	public String doService(HttpServletRequest req, HttpServletResponse resp) {
-		System.out.println("doGET listing products by name");
-		if (Validate.isValid(req, "name")) {
-			String name = req.getParameter("name");
-			List<Product> list = productController.findAllByName(name);
-			req.setAttribute("products", list);
-		}
+    /**
+     * Execute.
+     *
+     * @param req  the req
+     * @param resp the resp
+     * @return the string
+     */
+    @Override
+    public String execute(HttpServletRequest req, HttpServletResponse resp) {
+        System.out.println("doGET listing products by name");
+        if (!Objects.isNull(req.getParameter("id"))) {
+            String name = req.getParameter("name");
+            List<Product> list = productController.findAllByName(name);
+            req.setAttribute("products", list);
+        }
 
-		return "forward:pages/product/listProducts.jsp";
-	}
+        return "forward:pages/product/listProducts.jsp";
+    }
 
 }

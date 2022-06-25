@@ -33,7 +33,8 @@
             <div class="mb-3">
                 <label for="inputQuantity" class="form-label">DESCRIPTION</label>
                 <input type="text" name="description" class="form-control" id="inputQuantity"
-                       placeholder="simple descripton" value="${ item.description }" readonly="readonly" required minlength="4"/>
+                       placeholder="simple descripton" value="${ item.description }" readonly="readonly" required
+                       minlength="4"/>
             </div>
 
             <!-- action -->
