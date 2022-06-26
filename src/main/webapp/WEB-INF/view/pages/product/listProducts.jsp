@@ -20,10 +20,10 @@
         <p>No one product found.</p>
     </c:if>
     <c:if test="${ not empty products }">
-        <form class="form-inline d-flex flex-row-reverse mb-2" action="${ listProducts }" method="post">
+        <form class="form-inline d-flex flex-row-reverse mb-2" action="${ listByName }" method="post">
             <div class="mb-3">
                 <input type="text" name="name" class="form-control" placeholder="simple name" required minlength="1"/>
-                <input type="hidden" name="action" value="listProductsByName">
+                <input type="hidden" name="action" value="listByName">
                 <button type="submit" class="btn btn-primary">Search</button>
                 <a type="button" href="${listProducts}" class="btn btn-light">Clean</a>
             </div>
