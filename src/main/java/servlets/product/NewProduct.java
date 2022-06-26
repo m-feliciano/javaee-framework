@@ -1,11 +1,9 @@
 package servlets.product;
 
-import servlets.Action;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class NewProduct implements Action {
+public class NewProduct extends BaseProduct {
     /**
      * Execute.
      *
@@ -15,6 +13,7 @@ public class NewProduct implements Action {
      */
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
+        logger.info("doGET redirecting to form createProduct");
         return "forward:pages/product/formCreateProduct.jsp";
     }
 }

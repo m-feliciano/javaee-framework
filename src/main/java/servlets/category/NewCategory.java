@@ -1,13 +1,9 @@
 package servlets.category;
 
-import servlets.Action;
-import utils.JPAUtil;
-
-import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class NewCategory implements Action {
+public class NewCategory extends BaseCategory {
 
     /**
      * Execute.
@@ -18,6 +14,7 @@ public class NewCategory implements Action {
      */
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
+        logger.info("doGET redirecting to form createCategory");
         return "forward:pages/category/formCreateCategory.jsp";
     }
 }

@@ -1,22 +1,14 @@
 package servlets.inventory;
 
-import controllers.InventoryController;
 import controllers.ProductController;
 import domain.Inventory;
 import domain.Product;
-import servlets.Action;
-import utils.JPAUtil;
 
-import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
-import java.util.Objects;
 
-public class UpdateItem implements Action {
-
-    private final EntityManager em = JPAUtil.getEntityManager();
-    private final InventoryController inventoryController = new InventoryController(em);
+public class UpdateItem extends BaseInventory {
     private final ProductController productController = new ProductController(em);
 
     /**
@@ -28,25 +20,21 @@ public class UpdateItem implements Action {
      */
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
-        System.out.println("doPOST editing inventory item");
-
-        if (Objects.isNull(req.getParameter("id"))) {
-            req.setAttribute("error", "Inventory not found");
+        logger.info("doGET updating inventory item");
+        if (!this.validate(req, resp)) {
             return "forward:pages/not-found.jsp";
         }
 
-        Long id = Long.parseLong(req.getParameter("id"));
-        Long productId = Long.parseLong(req.getParameter("productId"));
+        Product product = productController.findById(Long.parseLong(req.getParameter("productId")));
+        Inventory item = controller.findById(Long.parseLong(req.getParameter("id")));
         int quantity = Integer.parseInt(req.getParameter("quantity"));
-        String description = req.getParameter("description");
-        Product product = productController.findById(productId);
-        Inventory item = inventoryController.findById(id);
         item.setProduct(product);
         item.setQuantity(quantity);
-        item.setDescription(description);
-        product.setPrice(product.getPrice().multiply(new BigDecimal(quantity)));
-        inventoryController.update(item);
-        return "redirect:inventory?action=ListItems";
+        item.setDescription(req.getParameter("description"));
+        item.setPrice(product.getPrice().multiply(new BigDecimal(quantity)));
+        controller.update(item);
+        req.setAttribute("item", item);
+        return "redirect:inventory?action=ListItem&id=" + item.getId();
     }
 
 }

@@ -13,10 +13,11 @@ public class CategoryDao {
         this.em = em;
     }
 
-    public void save(Category category) {
+    public Category save(Category category) {
         this.em.getTransaction().begin();
         this.em.persist(category);
         this.em.getTransaction().commit();
+        return this.em.merge(category);
     }
 
     public void update(Category category) {

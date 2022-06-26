@@ -13,10 +13,11 @@ public class ProductDao {
         this.em = em;
     }
 
-    public void save(Product product) {
+    public Product save(Product product) {
         this.em.getTransaction().begin();
         this.em.persist(product);
         this.em.getTransaction().commit();
+        return this.em.merge(product);
     }
 
     public void update(Product product) {

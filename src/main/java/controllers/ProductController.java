@@ -7,6 +7,7 @@ import utils.cache.CacheUtil;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Objects;
 
 public class ProductController {
 
@@ -24,12 +25,10 @@ public class ProductController {
      * @param product the product
      */
 
-    public void save(Product product) {
-        if (product == null) {
-            throw new IllegalArgumentException("The product must not be null.");
-        }
-        this.productDao.save(product);
+    public Product save(Product product) {
+        if (Objects.isNull(product)) throw new IllegalArgumentException("The product must not be null.");
         CacheUtil.invalidateProduct();
+        return this.productDao.save(product);
     }
 
     /**
@@ -56,9 +55,7 @@ public class ProductController {
      * @return the list of products or empty list if not found
      */
     public List<Product> findAll() {
-        if (CacheUtil.isValidProduct()) {
-            return CacheUtil.getProductsFromCache();
-        }
+        if (CacheUtil.isValidProduct()) return CacheUtil.getProductsFromCache();
 
         List<Product> list = this.productDao.findAll();
         CacheUtil.initProduct(list);

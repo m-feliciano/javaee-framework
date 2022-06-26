@@ -1,19 +1,9 @@
 package servlets.product;
 
-import controllers.ProductController;
-import domain.Product;
-import servlets.Action;
-import utils.JPAUtil;
-
-import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Objects;
 
-public class ListProduct implements Action {
-
-    private final EntityManager em = JPAUtil.getEntityManager();
-    private final ProductController productController = new ProductController(em);
+public class ListProduct extends BaseProduct {
 
     /**
      * Execute.
@@ -24,16 +14,12 @@ public class ListProduct implements Action {
      */
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
-        System.out.println("doGET listing single product");
-
-        if (Objects.isNull(req.getParameter("id"))) {
-            req.setAttribute("error", "Product not found");
+        logger.info("doGET listing a product");
+        if (!this.validate(req, resp)) {
             return "forward:pages/not-found.jsp";
         }
 
-        Long id = Long.parseLong(req.getParameter("id"));
-        Product product = productController.findById(id);
-        req.setAttribute("product", product);
+        req.setAttribute("product", controller.findById(Long.parseLong(req.getParameter("id"))));
         return "forward:pages/product/formListProduct.jsp";
     }
 }

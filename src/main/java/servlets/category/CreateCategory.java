@@ -1,17 +1,11 @@
 package servlets.category;
 
-import controllers.CategoryController;
 import domain.Category;
-import servlets.Action;
-import utils.JPAUtil;
 
-import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class CreateCategory implements Action {
-
-    private final EntityManager em = JPAUtil.getEntityManager();
+public class CreateCategory extends BaseCategory {
 
     /**
      * Execute.
@@ -23,13 +17,10 @@ public class CreateCategory implements Action {
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
-
-        System.out.println("doPOST registering new category");
-        String name = req.getParameter("name");
-        CategoryController controller = new CategoryController(em);
-        Category cat = new Category(name);
+        logger.info("doGET creating a category");
+        Category cat = new Category(req.getParameter("name"));
         controller.save(cat);
-        return "redirect:category?action=ListCategories";
+        return "redirect:category?action=ListCategory&id=" + cat.getId();
     }
 
 }

@@ -1,19 +1,12 @@
 package servlets;
 
-import controllers.UserController;
 import domain.User;
-import utils.JPAUtil;
 
-import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-public class Login implements Action {
-
-    private final EntityManager em = JPAUtil.getEntityManager();
-    private final UserController userController = new UserController(em);
-
+public class Login extends BaseLogin {
 
     /**
      * Login.
@@ -22,23 +15,20 @@ public class Login implements Action {
      * @param resp the resp
      * @return the string
      */
-
-
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
-        System.out.println("doPOST valid login");
-
-        String login = req.getParameter("email");
-        String password = req.getParameter("password");
-        User user = userController.findByLogin(login);
-        if (user != null && user.equals(login, password)) {
-            HttpSession session = req.getSession();
-            session.setAttribute("userLogged", user);
-            return "redirect:product?action=ListProducts";
+        logger.info("Validate user to login");
+        User user = controller.findByLogin(req.getParameter("email"));
+        if (user == null || !user.equals(user.getLogin(), req.getParameter("password"))) {
+            req.setAttribute("error", "User or password invalid.");
+            logger.info("User or password invalid.");
+            return "forward:pages/formLogin.jsp";
         }
 
-        req.setAttribute("error", "User or password invalid.");
-        return "forward:pages/formLogin.jsp";
+        HttpSession session = req.getSession();
+        session.setAttribute("userLogged", user);
+        logger.info("User logged: " + user.getLogin());
+        return "redirect:product?action=ListProducts";
     }
 
 }

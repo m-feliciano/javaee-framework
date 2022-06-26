@@ -1,7 +1,7 @@
 package utils;
 
 import com.mchange.util.AssertException;
-import exceptions.CustomRuntimeException;
+import exceptions.RuntimeException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -17,17 +17,17 @@ public final class DateFormatter {
      * This method is used to format a date to a string.
      * The date is formatted to a string.
      *
-     * @param date
+     * @param strDate
      * @return String with date format
      */
 
     public static Date From(String strDate) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = null;
+        Date date;
         try {
             date = sdf.parse(strDate);
         } catch (ParseException e) {
-            throw new CustomRuntimeException("Cannot convert data from: " + date);
+            throw new RuntimeException("Cannot convert data from: " + strDate);
         }
         return date;
     }

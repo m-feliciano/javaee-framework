@@ -3,7 +3,7 @@ package servlets;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class LoginForm implements Action {
+public class LoginForm extends BaseLogin {
 
     /**
      * Login.
@@ -15,6 +15,7 @@ public class LoginForm implements Action {
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
+        logger.info("doGET redirecting to form login");
         return "forward:pages/formLogin.jsp";
     }
 

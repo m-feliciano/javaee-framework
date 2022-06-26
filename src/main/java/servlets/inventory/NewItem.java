@@ -1,11 +1,9 @@
 package servlets.inventory;
 
-import servlets.Action;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class NewItem implements Action {
+public class NewItem extends BaseInventory {
 
     /**
      * Execute.
@@ -16,6 +14,7 @@ public class NewItem implements Action {
      */
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
+        logger.info("doGET redirecting to form createItem");
         return "forward:pages/inventory/formCreateItem.jsp";
     }
 }

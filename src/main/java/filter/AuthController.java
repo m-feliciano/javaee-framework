@@ -25,25 +25,24 @@ public class AuthController implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
             throws ServletException {
 
-        logger.info("Init controller filter");
+        logger.info("Initializing AuthController filter");
         HttpServletRequest req = (HttpServletRequest) servletRequest;
         HttpServletResponse resp = (HttpServletResponse) servletResponse;
 
         String strAction = req.getParameter("action");
+        logger.info("Action: {}", strAction);
 
-        String classname = null;
-        String entityName = null;
-
+        String classname;
         // fully qualified name do metodo a ser executado
         if (!strAction.contains("Log")) {
             int entityPos = req.getServletPath().lastIndexOf("/") + 1;
-            entityName = req.getServletPath().substring(entityPos);
+            String entityName = req.getServletPath().substring(entityPos);
             classname = String.format("servlets.%s.%s", entityName, strAction);
         } else {
             classname = String.format("servlets.%s", strAction);
         }
 
-        logger.info("classname: {}", classname);
+        logger.info("Classname: {}", classname);
 
         String path = null;
         try {
@@ -54,42 +53,34 @@ public class AuthController implements Filter {
             e1.printStackTrace();
         }
 
-        logger.info("class: {} - entity: {} - action: {}", classname, entityName, strAction);
-
         String[] array;
-
         try {
+            logger.info("Path: {}", path);
             assert path != null;
             array = path.split(":");
         } catch (Exception e) {
-            logger.warn("Error on parse url: {}", e.getMessage());
+            logger.error("Error on parse url: {}", e.getMessage());
             throw new ServletException("Cannot parse url: " + path);
         }
 
         if (array[0].equals("forward")) {
             try {
+                logger.info("Forward to: {}", array[1]);
                 req.getRequestDispatcher("/WEB-INF/view/" + array[1]).forward(req, resp);
             } catch (IOException | ServletException e) {
+                logger.error("Error on forward: {}", e.getMessage());
                 e.printStackTrace();
             }
         } else {
             try {
+                logger.info("Redirect to: {}", array[1]);
                 resp.sendRedirect(array[1]);
             } catch (IOException e) {
+                logger.error("Error on redirect: {}", e.getMessage());
                 e.printStackTrace();
             }
         }
 
-    }
-
-    @Override
-    public void destroy() {
-        // TODO document why this method is empty
-    }
-
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        // TODO document why this method is empty
     }
 
 }

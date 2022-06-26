@@ -6,6 +6,7 @@ import utils.cache.CacheUtil;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Objects;
 
 public class CategoryController {
 
@@ -15,13 +16,11 @@ public class CategoryController {
         this.categoryDao = new CategoryDao(em);
     }
 
-    public void save(Category category) {
-        if (category == null) {
-            throw new IllegalArgumentException("The category must not be null.");
-        }
+    public Category save(Category category) {
+        if (Objects.isNull(category)) throw new IllegalArgumentException("The category must not be null.");
 
-        this.categoryDao.save(category);
         CacheUtil.invalidateCategory();
+        return this.categoryDao.save(category);
     }
 
     public void update(Category category) {

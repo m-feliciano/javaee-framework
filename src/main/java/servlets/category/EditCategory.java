@@ -1,18 +1,9 @@
 package servlets.category;
 
-import controllers.CategoryController;
-import domain.Category;
-import servlets.Action;
-import utils.JPAUtil;
-
-import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Objects;
 
-public class EditCategory implements Action {
-
-    private final EntityManager em = JPAUtil.getEntityManager();
+public class EditCategory extends BaseCategory {
 
     /**
      * Execute.
@@ -23,16 +14,12 @@ public class EditCategory implements Action {
      */
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
-        System.out.println("doGET listing single category");
-        if (Objects.isNull(req.getParameter("id"))) {
-            req.setAttribute("error", "Category not found");
+        logger.info("doGET editing a category");
+        if (!this.validate(req, resp)) {
             return "forward:pages/not-found.jsp";
         }
 
-        Long id = Long.parseLong(req.getParameter("id"));
-        CategoryController controller = new CategoryController(em);
-        Category cat = controller.findById(id);
-        req.setAttribute("category", cat);
+        req.setAttribute("category", controller.findById(Long.parseLong(req.getParameter("id"))));
         return "forward:pages/category/formUpdateCategory.jsp";
     }
 

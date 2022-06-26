@@ -36,7 +36,6 @@
                     <thead class="thead-dark">
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">PRODUCT</th>
                         <th scope="col">PRODUCT NAME</th>
                             <%--                        <th scope="col">CATEGORY</th>--%>
                             <%--                        <th scope="col">CATEGORY NAME</th>--%>
@@ -51,8 +50,7 @@
                         <fmt:formatNumber value="${ item.price }" type="currency" minFractionDigits="2"
                                           var="parsedPrice"/>
                         <tr>
-                            <th width="5%" scope="row">${ item.id }</th>
-                            <td width="5%">${ item.getProduct().getId() }</td>
+                            <th width="10%" scope="row">${ item.id }</th>
                             <td width="20%">
                                 <a style="text-decoration: none; color: inherit;  padding: 2rem 0;"
                                    href="${ listProduct }&id=${ item.getProduct().getId() }">${ item.getProduct().getName() }</a>
@@ -63,7 +61,7 @@
                                 <%--                                   href="${ listCategory }&id=${ item.categoryId }">${ item.categoryName }</a>--%>
                                 <%--                            </td>--%>
                             <td width="10%">${ item.quantity }</td>
-                            <td width="15%">${ item.description }</td>
+                            <td width="25%">${ item.description }</td>
                             <td width="10%">${ parsedPrice }</td>
                             <td width="15%">
                                 <a type="button" href="${ listItem }&id=${ item.id }"

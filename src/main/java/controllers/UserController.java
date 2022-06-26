@@ -4,6 +4,7 @@ import dao.UserDao;
 import domain.User;
 
 import javax.persistence.EntityManager;
+import java.util.Objects;
 
 public class UserController {
 
@@ -21,10 +22,7 @@ public class UserController {
      */
 
     public void save(User user) {
-        if (user == null) {
-            throw new IllegalArgumentException("The user must not be null.");
-        }
-
+        if (Objects.isNull(user)) throw new IllegalArgumentException("The user must not be null.");
         this.userDao.save(user);
     }
 
