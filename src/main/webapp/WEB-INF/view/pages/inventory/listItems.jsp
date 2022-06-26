@@ -6,16 +6,16 @@
 <c:url value="/inventory?action=DeleteItem" var="deleteItem"/>
 <c:url value="/inventory?action=NewItem" var="newItem"/>
 <c:url value="/product?action=ListProduct" var="listProduct"/>
-<c:url value="/category?action=ListCategory" var="listCategory"/>
-<c:url value="/inventory?action=ListItem" var="inventoryListItemServlet"/>
+<%--<c:url value="/category?action=ListCategory" var="listCategory"/>--%>
 <c:url value="/inventory?action=ListItemsByDescription" var="listItemsByDescription"/>
+
 
 <fmt:setLocale value="pt-BR" scope="application"/>
 
 <jsp:include page="../../components/header.jsp"/>
 <div class="main">
     <c:if test="${ empty items }">
-        <p>No one new item created.</p>
+        <p>Products not found.</p>
     </c:if>
     <c:if test="${ not empty items }">
         <form class="form-inline d-flex flex-row-reverse mb-2" action="${ listItemsByDescription }" method="post">
@@ -38,29 +38,33 @@
                         <th scope="col">#</th>
                         <th scope="col">PRODUCT</th>
                         <th scope="col">PRODUCT NAME</th>
-                        <th scope="col">CATEGORY</th>
-                        <th scope="col">CATEGORY NAME</th>
+                            <%--                        <th scope="col">CATEGORY</th>--%>
+                            <%--                        <th scope="col">CATEGORY NAME</th>--%>
                         <th scope="col">QUANTITY</th>
                         <th scope="col">DESCRIPTION</th>
+                        <th scope="col">PRICE</th>
                         <th scope="col"></th>
                     </tr>
                     </thead>
                     <tbody>
                     <c:forEach items="${ items }" var="item">
+                        <fmt:formatNumber value="${ item.price }" type="currency" minFractionDigits="2"
+                                          var="parsedPrice"/>
                         <tr>
                             <th width="5%" scope="row">${ item.id }</th>
-                            <td width="5%">${ item.productId }</td>
+                            <td width="5%">${ item.getProduct().getId() }</td>
                             <td width="20%">
                                 <a style="text-decoration: none; color: inherit;  padding: 2rem 0;"
-                                   href="${ listProduct }&id=${ item.productId }">${ item.productName }</a>
+                                   href="${ listProduct }&id=${ item.getProduct().getId() }">${ item.getProduct().getName() }</a>
                             </td>
-                            <td width="10%">${ item.categoryId }</td>
-                            <td width="15%">
-                                <a style="text-decoration: none; color: inherit; padding: 2rem 0;"
-                                   href="${ listCategory }&id=${ item.categoryId }">${ item.categoryName }</a>
-                            </td>
+                                <%--                            <td width="10%">${ listProduct.category.id }</td>--%>
+                                <%--                            <td width="15%">--%>
+                                <%--                                <a style="text-decoration: none; color: inherit; padding: 2rem 0;"--%>
+                                <%--                                   href="${ listCategory }&id=${ item.categoryId }">${ item.categoryName }</a>--%>
+                                <%--                            </td>--%>
                             <td width="10%">${ item.quantity }</td>
                             <td width="15%">${ item.description }</td>
+                            <td width="10%">${ parsedPrice }</td>
                             <td width="15%">
                                 <a type="button" href="${ listItem }&id=${ item.id }"
                                    class="btn btn-primary">
@@ -75,11 +79,11 @@
                     </c:forEach>
                     </tbody>
                 </table>
-                <div class="d-flex flex-row-reverse mt-0">
-                    <a type="button" href="${ newItem }" class="btn btn-success">New</a>
-                </div>
             </div>
         </div>
     </c:if>
+    <div class="d-flex flex-row-reverse mt-0">
+        <a type="button" href="${ newItem }" class="btn btn-success">New</a>
+    </div>
 </div>
 <jsp:include page="../../components/footer.jsp"/>

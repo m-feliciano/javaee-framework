@@ -18,12 +18,8 @@
             <div class="mb-3">
                 <label for="inputProductId" class="form-label">PRODUCT ID</label>
                 <input type="number" name="productId" class="form-control" id="inputProductId"
-                       placeholder="ID" value="${ item.productId }" readonly="readonly" required minlength="1"/>
-            </div>
-            <div class="mb-3">
-                <label for="inputCategoryId" class="form-label">CATEGORY ID</label>
-                <input type="number" name="categoryId" class="form-control" id="inputCategoryId"
-                       placeholder="ID" value="${item.categoryId }" readonly="readonly" required minlength="1"/>
+                       placeholder="ID" value="${ item.getProduct().getId() }" readonly="readonly" required
+                       minlength="1"/>
             </div>
             <div class="mb-3">
                 <label for="inputQuantity" class="form-label">QUANTITY</label>

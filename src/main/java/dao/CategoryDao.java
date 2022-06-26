@@ -14,17 +14,23 @@ public class CategoryDao {
     }
 
     public void save(Category category) {
+        this.em.getTransaction().begin();
         this.em.persist(category);
+        this.em.getTransaction().commit();
     }
 
     public void update(Category category) {
+        this.em.getTransaction().begin();
         this.em.merge(category);
+        this.em.getTransaction().commit();
     }
 
     public boolean delete(Long id) {
         Category category = this.findById(id);
         if (category != null) {
+            this.em.getTransaction().begin();
             this.em.remove(category);
+            this.em.getTransaction().commit();
             return true;
         }
         return false;

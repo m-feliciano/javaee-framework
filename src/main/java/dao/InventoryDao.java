@@ -14,18 +14,23 @@ public class InventoryDao {
     }
 
     public void save(Inventory item) {
+        this.em.getTransaction().begin();
         this.em.persist(item);
+        this.em.getTransaction().commit();
     }
 
     public void update(Inventory item) {
+        this.em.getTransaction().begin();
         this.em.merge(item);
+        this.em.getTransaction().commit();
     }
 
     public boolean delete(Long id) {
         Inventory item = this.findById(id);
         if (item != null) {
+            this.em.getTransaction().begin();
             this.em.remove(item);
-            this.em.flush();
+            this.em.getTransaction().commit();
             return true;
         }
         return false;

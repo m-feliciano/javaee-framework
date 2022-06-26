@@ -1,7 +1,9 @@
 package servlets.category;
 
 import servlets.Action;
+import utils.JPAUtil;
 
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 

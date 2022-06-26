@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 
 public class CreateCategory implements Action {
 
+    private final EntityManager em = JPAUtil.getEntityManager();
+
     /**
      * Execute.
      *
@@ -24,7 +26,6 @@ public class CreateCategory implements Action {
 
         System.out.println("doPOST registering new category");
         String name = req.getParameter("name");
-        EntityManager em = JPAUtil.getEntityManager();
         CategoryController controller = new CategoryController(em);
         Category cat = new Category(name);
         controller.save(cat);

@@ -13,7 +13,6 @@ public class UserController {
         this.userDao = new UserDao(em);
     }
 
-
     /**
      * Save.
      * throws IllegalArgumentException if user is null

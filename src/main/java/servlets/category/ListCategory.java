@@ -12,6 +12,9 @@ import java.util.Objects;
 
 public class ListCategory implements Action {
 
+
+    private final EntityManager em = JPAUtil.getEntityManager();
+
     /**
      * Execute.
      *
@@ -24,19 +27,18 @@ public class ListCategory implements Action {
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
         System.out.println("doGET listing single category");
 
-        if (!Objects.isNull(req.getParameter("id"))) {
-
-            Long id = Long.parseLong(req.getParameter("id"));
-            EntityManager em = JPAUtil.getEntityManager();
-            CategoryController controller = new CategoryController(em);
-            Category cat = controller.findById(id);
-            if (cat != null) {
-                req.setAttribute("category", cat);
-                return "forward:pages/category/formListCategory.jsp";
-            }
+        if (Objects.isNull(req.getParameter("id"))) {
+            req.setAttribute("error", "Category not found");
+            return "forward:pages/not-found.jsp";
         }
 
-        return "forward:pages/not-found.jsp";
+        Long id = Long.parseLong(req.getParameter("id"));
+        CategoryController controller = new CategoryController(em);
+        Category cat = controller.findById(id);
+        if (cat != null) {
+            req.setAttribute("category", cat);
+        }
+        return "forward:pages/category/formListCategory.jsp";
     }
 
 }

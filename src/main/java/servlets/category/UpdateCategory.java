@@ -12,6 +12,9 @@ import java.util.Objects;
 
 public class UpdateCategory implements Action {
 
+
+    private final EntityManager em = JPAUtil.getEntityManager();
+
     /**
      * Execute.
      *
@@ -30,7 +33,6 @@ public class UpdateCategory implements Action {
 
         String name = req.getParameter("name");
         Long id = Long.parseLong(req.getParameter("id"));
-        EntityManager em = JPAUtil.getEntityManager();
         CategoryController controller = new CategoryController(em);
         Category cat = controller.findById(id);
         cat.setName(name);

@@ -1,18 +1,13 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<c:url value="/inventory" var="linkInventoryServlet"/>
+<c:url value="/inventory" var="inventoryLink"/>
 <!-- header -->
 <jsp:include page="../../components/header.jsp"/>
 <div class="main">
-    <form action="${ linkInventoryServlet }" method="post">
+    <form action="${ inventoryLink }" method="post">
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputProductId" class="form-label">PRODUCT ID</label>
                 <input type="number" name="productId" class="form-control" id="inputProductId"
-                       placeholder="ID" required minlength="1"/>
-            </div>
-            <div class="mb-3">
-                <label for="inputCategoryId" class="form-label">CATEGORY ID</label>
-                <input type="number" name="categoryId" class="form-control" id="inputCategoryId"
                        placeholder="ID" required minlength="1"/>
             </div>
             <div class="mb-3">
@@ -28,7 +23,7 @@
             <!-- action -->
             <input type="hidden" name="action" value="CreateItem">
             <button type="submit" class="btn btn-primary">Submit</button>
-            <a type="button" href="${ linkInventoryServlet }?action=ListItems" class="btn btn-light">
+            <a type="button" href="${ inventoryLink }?action=ListItems" class="btn btn-light">
                 Cancel
             </a>
         </div>

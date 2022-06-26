@@ -13,8 +13,9 @@ public class UserDao {
     }
 
     public void save(User user) {
+        this.em.getTransaction().begin();
         this.em.persist(user);
-        this.em.flush();
+        this.em.getTransaction().commit();
     }
 
     public void update(User user) {
@@ -24,8 +25,9 @@ public class UserDao {
     public boolean delete(Long id) {
         User prod = this.findById(id);
         if (prod != null) {
+            this.em.getTransaction().begin();
             this.em.remove(prod);
-            this.em.flush();
+            this.em.getTransaction().commit();
             return true;
         }
         return false;

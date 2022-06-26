@@ -27,6 +27,7 @@ public class ListItems implements Action {
         System.out.println("doGET listing inventory items");
         List<Inventory> items = inventoryController.findAll();
         req.setAttribute("items", items);
+        System.out.println(items);
         return "forward:pages/inventory/listItems.jsp";
     }
 

@@ -66,7 +66,7 @@ public class CategoryController {
 
         List<Category> list = this.categoryDao.findAll();
         CacheUtil.initCategory(list);
-        return this.categoryDao.findAll();
+        return list;
     }
 
 }

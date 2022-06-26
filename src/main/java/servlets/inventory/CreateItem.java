@@ -35,8 +35,7 @@ public class CreateItem implements Action {
         String description = req.getParameter("description");
         Inventory item = new Inventory(product, quantity, description, product.getPrice().multiply(new BigDecimal(quantity)));
         inventoryController.save(item);
-
-        System.out.println("item: " + item);
+        req.setAttribute("item", item);
         return "redirect:inventory?action=ListItems";
     }
 

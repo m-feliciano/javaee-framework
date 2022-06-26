@@ -12,6 +12,8 @@ import java.util.List;
 
 public class ListCategories implements Action {
 
+
+    private final EntityManager em = JPAUtil.getEntityManager();
     /**
      * Execute.
      *
@@ -22,8 +24,6 @@ public class ListCategories implements Action {
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
         System.out.println("doGET listing categories");
-
-        EntityManager em = JPAUtil.getEntityManager();
         CategoryController controller = new CategoryController(em);
         List<Category> list = controller.findAll();
         req.setAttribute("categories", list);

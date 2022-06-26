@@ -1,12 +1,9 @@
-<%@ page import="java.util.*,domain.Product" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <fmt:setLocale value="pt-BR" scope="application"/>
 
 <c:url value="/product" var="productLink"/>
 <c:url value="/product?action=ListProducts" var="listProducts"/>
-<fmt:parseDate value="${product.registerDate}" type="date" pattern="yyyy-MM-dd" var="parsedDate"/>
-<fmt:formatDate value="${parsedDate}" type="date" pattern="dd-MM-yyyy" var="stdDate"/>
 
 <jsp:include page="../../components/header.jsp"/>
 <div class="main">
@@ -37,8 +34,7 @@
             <!-- action -->
             <input type="hidden" name="action" value="CreateProduct">
             <button type="submit" class="btn btn-primary">Submit</button>
-            <a type="button" href="${ listProducts }"
-               class="btn btn-light">Cancel</a>
+            <a type="button" href="${ listProducts }" class="btn btn-light">Cancel</a>
         </div>
     </form>
 </div>

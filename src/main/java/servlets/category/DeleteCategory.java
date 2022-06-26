@@ -11,6 +11,8 @@ import java.util.Objects;
 
 public class DeleteCategory implements Action {
 
+    private final EntityManager em = JPAUtil.getEntityManager();
+
     /**
      * Execute.
      *
@@ -21,13 +23,13 @@ public class DeleteCategory implements Action {
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
         System.out.println("doPOST deleting category");
-        if (!Objects.isNull(req.getParameter("id"))) {
-            Long id = Long.parseLong(req.getParameter("id"));
-            EntityManager em = JPAUtil.getEntityManager();
-            CategoryController controller = new CategoryController(em);
-            controller.delete(id);
+        if (Objects.isNull(req.getParameter("id"))) {
+            req.setAttribute("error", "Category not found");
+            return "forward:pages/not-found.jsp";
         }
-
+        Long id = Long.parseLong(req.getParameter("id"));
+        CategoryController controller = new CategoryController(em);
+        controller.delete(id);
         return "redirect:category?action=ListCategories";
     }
 

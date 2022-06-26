@@ -28,8 +28,9 @@ public class ProductDao {
     public boolean delete(Long id) {
         Product prod = this.findById(id);
         if (prod != null) {
+            this.em.getTransaction().begin();
             this.em.remove(prod);
-            this.em.flush();
+            this.em.getTransaction().commit();
             return true;
         }
         return false;
