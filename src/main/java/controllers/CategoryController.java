@@ -1,60 +1,71 @@
 package controllers;
 
-import java.sql.Connection;
-import java.util.List;
-import java.util.Optional;
+import dao.CategoryDao;
+import domain.Category;
+import utils.cache.CacheUtil;
 
-import cache.CacheUtil;
-import dao.CategoryDAO;
-import entities.Category;
+import javax.persistence.EntityManager;
+import java.util.List;
+import java.util.Objects;
 
 public class CategoryController {
 
-    private final CategoryDAO categoryDAO;
+    private final CategoryDao categoryDao;
 
-    private final Connection conn;
-
-    public CategoryController(Connection conn) {
-        this.conn = conn;
-        this.categoryDAO = new CategoryDAO(conn);
+    public CategoryController(EntityManager em) {
+        this.categoryDao = new CategoryDao(em);
     }
 
-    public void save(Category category) {
-        this.categoryDAO.save(category);
+    public Category save(Category category) {
+        if (Objects.isNull(category)) throw new IllegalArgumentException("The category must not be null.");
+
         CacheUtil.invalidateCategory();
-    }
-
-    public void delete(int id) {
-        this.categoryDAO.delete(id);
-        CacheUtil.invalidateCategory();
-    }
-
-    public Category findById(int id) {
-    	if(CacheUtil.isValidCategory()) {
-			Optional<Category> category = this.list().stream()
-					.filter(p -> p.getId() == id)
-					.findAny();
-			return category.isPresent() ? category.get() : null;
-		}
-		return this.categoryDAO.findById(id);
+        return this.categoryDao.save(category);
     }
 
     public void update(Category category) {
-        this.categoryDAO.update(category);
+        this.categoryDao.update(category);
         CacheUtil.invalidateCategory();
     }
 
-    public List<Category> list() {
-    	if (CacheUtil.isValidCategory()) {
-			return CacheUtil.getCategoriesFromCache();
-		}
-		List<Category> list = this.categoryDAO.list();
-		CacheUtil.initCategory(list);
-        return this.categoryDAO.list();
+    public void delete(Long id) {
+        this.categoryDao.delete(id);
+        CacheUtil.invalidateCategory();
     }
 
-    public List<Category> listProductByCategory() {
-        return this.categoryDAO.listProductByCategory();
+    /**
+     * Find by id.
+     *
+     * @param id the id
+     * @return the category or null if not found
+     */
+
+    public Category findById(Long id) {
+        if (CacheUtil.isValidCategory()) {
+            return this.findAll().stream()
+                    .filter(p -> p.getId().equals(id))
+                    .findAny()
+                    .orElse(null);
+        }
+
+        return this.categoryDao.findById(id);
+    }
+
+    /**
+     * Find all.
+     * try get from cache if not found get from db and put in cache.
+     *
+     * @return the list of categories or empty list if not found
+     */
+
+    public List<Category> findAll() {
+        if (CacheUtil.isValidCategory()) {
+            return CacheUtil.getCategoriesFromCache();
+        }
+
+        List<Category> list = this.categoryDao.findAll();
+        CacheUtil.initCategory(list);
+        return list;
     }
 
 }

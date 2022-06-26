@@ -1,44 +1,41 @@
 package controllers;
 
-import java.sql.Connection;
-import java.util.List;
+import dao.InventoryDao;
+import domain.Inventory;
 
-import dao.InventoryDAO;
-import dto.InventoryDTO;
-import entities.Inventory;
+import javax.persistence.EntityManager;
+import java.util.List;
 
 public class InventoryController {
 
-    private final InventoryDAO inventoryDAO;
-	private final Connection conn;
+    private final InventoryDao inventoryDao;
 
-    public InventoryController(Connection conn) {
-    	this.conn = conn;
-        this.inventoryDAO = new InventoryDAO(conn);
+    public InventoryController(EntityManager em) {
+        this.inventoryDao = new InventoryDao(em);
     }
 
     public void save(Inventory inventory) {
-        this.inventoryDAO.save(inventory);
+        this.inventoryDao.save(inventory);
     }
 
-    public void delete(int id) {
-        this.inventoryDAO.delete(id);
+    public void delete(Long id) {
+        this.inventoryDao.delete(id);
     }
 
-    public List<InventoryDTO> list() {
-        return this.inventoryDAO.list();
+    public List<Inventory> findAll() {
+        return this.inventoryDao.findAll();
     }
 
     public void update(Inventory inventory) {
-        this.inventoryDAO.update(inventory);
+        this.inventoryDao.update(inventory);
     }
 
-    public List<InventoryDTO> findByDescription(String description) {
-		return this.inventoryDAO.findByDescription(description);
+    public List<Inventory> findByDescription(String description) {
+        return this.inventoryDao.findAllByDescription(description);
     }
 
-	public Inventory findById(int id) {
-		return this.inventoryDAO.findById(id);
-	}
+    public Inventory findById(Long id) {
+        return this.inventoryDao.findById(id);
+    }
 
 }
