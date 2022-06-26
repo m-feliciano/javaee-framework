@@ -26,16 +26,14 @@ public class ListProduct implements Action {
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
         System.out.println("doGET listing single product");
 
-        if (!Objects.isNull(req.getParameter("id"))) {
-            Long id = Long.parseLong(req.getParameter("id"));
-            Product product = productController.findById(id);
-            if (product != null) {
-                req.setAttribute("product", product);
-                return "forward:pages/product/formListProduct.jsp";
-            }
+        if (Objects.isNull(req.getParameter("id"))) {
+            req.setAttribute("error", "Product not found");
+            return "forward:pages/not-found.jsp";
         }
 
-        return "forward:pages/not-found.jsp";
+        Long id = Long.parseLong(req.getParameter("id"));
+        Product product = productController.findById(id);
+        req.setAttribute("product", product);
+        return "forward:pages/product/formListProduct.jsp";
     }
-
 }

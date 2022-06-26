@@ -1,6 +1,7 @@
 <%@ page import="java.util.*,domain.Product" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<fmt:setLocale value="pt-BR" scope="application"/>
 
 <c:url value="/product?action=ListProduct" var="listProduct"/>
 <c:url value="/product?action=ListProducts" var="listProducts"/>
@@ -19,7 +20,7 @@
         <p>No one product found.</p>
     </c:if>
     <c:if test="${ not empty products }">
-        <form class="form-inline d-flex flex-row-reverse mb-2" action="${ listByName }" method="post">
+        <form class="form-inline d-flex flex-row-reverse mb-2" action="${ listProducts }" method="post">
             <div class="mb-3">
                 <input type="text" name="name" class="form-control" placeholder="simple name" required minlength="1"/>
                 <input type="hidden" name="action" value="listProductsByName">

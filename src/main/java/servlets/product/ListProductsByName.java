@@ -26,12 +26,15 @@ public class ListProductsByName implements Action {
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
         System.out.println("doGET listing products by name");
-        if (!Objects.isNull(req.getParameter("id"))) {
-            String name = req.getParameter("name");
-            List<Product> list = productController.findAllByName(name);
-            req.setAttribute("products", list);
+
+        String name = req.getParameter("name");
+        if (Objects.isNull(name)) {
+            req.setAttribute("error", "Product not found");
+            return "forward:pages/not-found.jsp";
         }
 
+        List<Product> list = productController.findAllByName(name);
+        req.setAttribute("products", list);
         return "forward:pages/product/listProducts.jsp";
     }
 

@@ -20,7 +20,9 @@ public class ProductDao {
     }
 
     public void update(Product product) {
+        this.em.getTransaction().begin();
         this.em.merge(product);
+        this.em.getTransaction().commit();
     }
 
     public boolean delete(Long id) {

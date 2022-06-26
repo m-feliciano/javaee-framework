@@ -1,4 +1,4 @@
-package infra.exceptions;
+package exceptions;
 
 import java.io.Serial;
 

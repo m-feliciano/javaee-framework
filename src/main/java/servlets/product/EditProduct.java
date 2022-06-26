@@ -25,17 +25,17 @@ public class EditProduct implements Action {
      */
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
-        System.out.println("doGET listing single product");
+        System.out.println("doGET editing single product");
 
-        if (!Objects.isNull(req.getParameter("id"))) {
-            Long id = Long.parseLong(req.getParameter("id"));
-            Product product = productController.findById(id);
-            ProductDTO dto = new ProductDTO(product);
-            req.setAttribute("product", dto);
-            return "forward:pages/product/formUpdateProduct.jsp";
+        if (Objects.isNull(req.getParameter("id"))) {
+            req.setAttribute("error", "Product not found");
+            return "forward:pages/not-found.jsp";
         }
-
-        return "forward:pages/not-found.jsp";
+        Long id = Long.parseLong(req.getParameter("id"));
+        Product product = productController.findById(id);
+        ProductDTO dto = new ProductDTO(product);
+        req.setAttribute("product", dto);
+        return "forward:pages/product/formUpdateProduct.jsp";
     }
 
 }

@@ -1,7 +1,7 @@
 package utils;
 
 import com.mchange.util.AssertException;
-import infra.exceptions.CustomRuntimeException;
+import exceptions.CustomRuntimeException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

@@ -25,7 +25,7 @@ public class UpdateProduct implements Action {
      */
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
-        System.out.println("doPOST editing product");
+        System.out.println("doPOST update product");
 
         if (Objects.isNull(req.getParameter("id"))) {
             req.setAttribute("error", "Product not found");
@@ -43,6 +43,7 @@ public class UpdateProduct implements Action {
         product.setPrice(CurrencyFormatter.stringToBigDecimal(priceString));
         product.setUrl(url);
         productController.update(product);
+        req.setAttribute("product", product);
         return "redirect:product?action=ListProducts";
     }
 

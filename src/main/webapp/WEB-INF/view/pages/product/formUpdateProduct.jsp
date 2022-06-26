@@ -3,13 +3,13 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
 <c:url value="/product" var="productLink"/>
+<fmt:setLocale value="pt-BR" scope="application"/>
 <fmt:parseDate value="${product.registerDate}" type="date" pattern="yyyy-MM-dd" var="parsedDate"/>
 <fmt:formatDate value="${parsedDate}" type="date" pattern="dd-MM-yyyy" var="stdDate"/>
 
-
 <jsp:include page="../../components/header.jsp"/>
 <div class="main">
-    <form action="${ productServlet }" method="post">
+    <form action="${ productLink }" method="post">
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputId" class="form-label">ID</label>
