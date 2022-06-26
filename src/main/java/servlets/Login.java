@@ -26,7 +26,7 @@ public class Login extends BaseLogin {
         }
 
         HttpSession session = req.getSession();
-        session.setAttribute("userLogged", user);
+        session.setAttribute("userLogged", user.getLogin());
         logger.info("User logged: " + user.getLogin());
         return "redirect:product?action=ListProducts";
     }
