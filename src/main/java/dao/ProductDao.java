@@ -17,13 +17,16 @@ public class ProductDao {
         this.em.getTransaction().begin();
         this.em.persist(product);
         this.em.getTransaction().commit();
-        return this.em.merge(product);
+        product = em.merge(product);
+        em.close();
+        return product;
     }
 
     public void update(Product product) {
         this.em.getTransaction().begin();
         this.em.merge(product);
         this.em.getTransaction().commit();
+        em.close();
     }
 
     public boolean delete(Long id) {
@@ -32,6 +35,7 @@ public class ProductDao {
             this.em.getTransaction().begin();
             this.em.remove(prod);
             this.em.getTransaction().commit();
+            em.close();
             return true;
         }
         return false;
@@ -42,18 +46,18 @@ public class ProductDao {
     }
 
     public List<Product> findAll() {
-        String jpsl = "SELECT p FROM Product p";
-        return em.createQuery(jpsl, Product.class).getResultList();
+        String jpql = "SELECT p FROM Product p";
+        return em.createQuery(jpql, Product.class).getResultList();
     }
 
     public List<Product> findAllByName(String name) {
-        String jpsl = "SELECT p FROM Product p WHERE p.name = :name";
-        return em.createQuery(jpsl, Product.class).setParameter("name", name).getResultList();
+        String jpql = "SELECT p FROM Product p WHERE p.name = :name";
+        return em.createQuery(jpql, Product.class).setParameter("name", name).getResultList();
     }
 
     public List<Product> findAllByCategoryName(String name) {
-        String jsql = "SELECT p FROM Product p WHERE p.category.name = :name";
-        return em.createQuery(jsql, Product.class).setParameter("name", name).getResultList();
+        String jpql = "SELECT p FROM Product p WHERE p.category.name = :name";
+        return em.createQuery(jpql, Product.class).setParameter("name", name).getResultList();
     }
 
 }

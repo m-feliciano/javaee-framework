@@ -17,13 +17,16 @@ public class CategoryDao {
         this.em.getTransaction().begin();
         this.em.persist(category);
         this.em.getTransaction().commit();
-        return this.em.merge(category);
+        category = this.em.merge(category);
+        em.close();
+        return category;
     }
 
     public void update(Category category) {
         this.em.getTransaction().begin();
         this.em.merge(category);
         this.em.getTransaction().commit();
+        em.close();
     }
 
     public boolean delete(Long id) {
@@ -32,6 +35,7 @@ public class CategoryDao {
             this.em.getTransaction().begin();
             this.em.remove(category);
             this.em.getTransaction().commit();
+            em.close();
             return true;
         }
         return false;
@@ -42,8 +46,8 @@ public class CategoryDao {
     }
 
     public List<Category> findAll() {
-        String jpsl = "SELECT c FROM Category c";
-        return em.createQuery(jpsl, Category.class).getResultList();
+        String jpql = "SELECT c FROM Category c";
+        return em.createQuery(jpql, Category.class).getResultList();
     }
 
 }

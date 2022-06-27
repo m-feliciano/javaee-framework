@@ -18,7 +18,7 @@ public final class CacheUtil {
     private static List<Category> categories = new ArrayList<>();
 
     private CacheUtil() {
-        logger.warn("CacheUtil is a utility class and should not be instantiated.");
+        logger.error("CacheUtil is a utility class and should not be instantiated.");
         throw new AssertException("CacheUtil is a utility class and should not be instantiated");
     }
 

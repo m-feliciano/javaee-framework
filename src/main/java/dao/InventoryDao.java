@@ -17,12 +17,14 @@ public class InventoryDao {
         this.em.getTransaction().begin();
         this.em.persist(item);
         this.em.getTransaction().commit();
+        em.close();
     }
 
     public void update(Inventory item) {
         this.em.getTransaction().begin();
         this.em.merge(item);
         this.em.getTransaction().commit();
+        em.close();
     }
 
     public boolean delete(Long id) {
@@ -31,6 +33,7 @@ public class InventoryDao {
             this.em.getTransaction().begin();
             this.em.remove(item);
             this.em.getTransaction().commit();
+            em.close();
             return true;
         }
         return false;
@@ -41,18 +44,18 @@ public class InventoryDao {
     }
 
     public List<Inventory> findAll() {
-        String jpsl = "SELECT p FROM Inventory p";
-        return em.createQuery(jpsl, Inventory.class).getResultList();
+        String jpql = "SELECT p FROM Inventory p";
+        return em.createQuery(jpql, Inventory.class).getResultList();
     }
 
     public List<Inventory> findAllByDescription(String description) {
-        String jsql = "SELECT i FROM Inventory i WHERE i.description = :description";
-        return em.createQuery(jsql, Inventory.class).setParameter("description", description).getResultList();
+        String jpql = "SELECT i FROM Inventory i WHERE i.description = :description";
+        return em.createQuery(jpql, Inventory.class).setParameter("description", description).getResultList();
     }
 
     public List<Inventory> findAllByProductName(String name) {
-        String jsql = "SELECT i FROM Inventory i WHERE i.product.name = :name";
-        return em.createQuery(jsql, Inventory.class).setParameter("name", name).getResultList();
+        String jpql = "SELECT i FROM Inventory i WHERE i.product.name = :name";
+        return em.createQuery(jpql, Inventory.class).setParameter("name", name).getResultList();
     }
 
 }

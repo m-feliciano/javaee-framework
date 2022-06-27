@@ -16,10 +16,12 @@ public class UserDao {
         this.em.getTransaction().begin();
         this.em.persist(user);
         this.em.getTransaction().commit();
+        em.close();
     }
 
     public void update(User user) {
         this.em.merge(user);
+        em.close();
     }
 
     public boolean delete(Long id) {
@@ -28,6 +30,7 @@ public class UserDao {
             this.em.getTransaction().begin();
             this.em.remove(prod);
             this.em.getTransaction().commit();
+            em.close();
             return true;
         }
         return false;
@@ -38,8 +41,8 @@ public class UserDao {
     }
 
     public User findByLogin(String login) {
-        String jpsl = "SELECT u FROM User u WHERE u.login = :login";
-        return em.createQuery(jpsl, User.class)
+        String jpql = "SELECT u FROM User u WHERE u.login = :login";
+        return em.createQuery(jpql, User.class)
                 .setParameter("login", login)
                 .getResultStream()
                 .findFirst()

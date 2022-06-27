@@ -10,8 +10,8 @@ public class RuntimeException extends java.lang.RuntimeException {
 
     @Serial
     private static final long serialVersionUID = 1L;
-    @Transient
-    private final Logger logger = LoggerFactory.getLogger(RuntimeException.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(RuntimeException.class);
 
     public RuntimeException(String msg) {
         super(msg);

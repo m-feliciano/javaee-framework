@@ -56,7 +56,6 @@ public class ProductController {
      */
     public List<Product> findAll() {
         if (CacheUtil.isValidProduct()) return CacheUtil.getProductsFromCache();
-
         List<Product> list = this.productDao.findAll();
         CacheUtil.initProduct(list);
         return list;
@@ -82,7 +81,7 @@ public class ProductController {
     }
 
     /**
-     * Find by catwgory name.
+     * Find by name.
      * try get from cache if not found get from db and put in cache.
      *
      * @param name the name
@@ -95,13 +94,12 @@ public class ProductController {
                     .filter(prod -> prod.getName().toLowerCase().contains(name.toLowerCase()))
                     .toList();
         }
-
         return productDao.findAllByName(name);
     }
 
 
     /**
-     * Find by category name.
+     * Find all by category name.
      *
      * @param name the name
      * @return the list of products or empty list if not found
