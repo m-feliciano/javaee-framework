@@ -27,25 +27,32 @@ public class ProductController {
 
     public Product save(Product product) {
         if (Objects.isNull(product)) throw new IllegalArgumentException("The product must not be null.");
-        CacheUtil.invalidateProduct();
+        CacheUtil.clearProduct();
         return this.productDao.save(product);
     }
 
     /**
      * Update.
-     * invalidate cache if found.
+     * invalidate cache after update.
      *
      * @param prod the prod
      */
 
     public void update(Product prod) {
         this.productDao.update(prod);
-        CacheUtil.invalidateProduct();
+        CacheUtil.clearProduct();
     }
+
+    /**
+     * delete by id.
+     * invalidate cache after delete.
+     *
+     * @param id the id
+     */
 
     public void delete(Long id) {
         this.productDao.delete(id);
-        CacheUtil.invalidateProduct();
+        CacheUtil.clearProduct();
     }
 
     /**
@@ -55,10 +62,11 @@ public class ProductController {
      * @return the list of products or empty list if not found
      */
     public List<Product> findAll() {
-        if (CacheUtil.isValidProduct()) return CacheUtil.getProductsFromCache();
-        List<Product> list = this.productDao.findAll();
-        CacheUtil.initProduct(list);
-        return list;
+        List<Product> products = CacheUtil.getProductsFromCache();
+        if (!products.isEmpty()) return products;
+        products = this.productDao.findAll();
+        CacheUtil.initProduct(products);
+        return products;
     }
 
     /**
@@ -70,7 +78,8 @@ public class ProductController {
      */
 
     public Product findById(Long id) {
-        if (CacheUtil.isValidProduct()) {
+        List<Product> products = findAll();
+        if (!products.isEmpty()) {
             return findAll().stream()
                     .filter(p -> p.getId().equals(id))
                     .findAny()
@@ -89,11 +98,13 @@ public class ProductController {
      */
 
     public List<Product> findAllByName(String name) {
-        if (CacheUtil.isValidProduct()) {
+        List<Product> products = findAll();
+        if (!products.isEmpty()) {
             return findAll().stream()
                     .filter(prod -> prod.getName().toLowerCase().contains(name.toLowerCase()))
                     .toList();
         }
+
         return productDao.findAllByName(name);
     }
 
@@ -106,13 +117,15 @@ public class ProductController {
      */
 
     public List<Product> findAllByCategoryName(String name) {
-        if (CacheUtil.isValidProduct()) {
-            return findAll().stream()
+        List<Product> products = findAll();
+        if (!products.isEmpty()) {
+            return products.stream()
                     .filter(prod -> prod.getCategories().stream()
                             .map(Category::getName)
                             .anyMatch(p -> p.equalsIgnoreCase(name)))
                     .toList();
         }
+
         return productDao.findAllByCategoryName(name);
     }
 

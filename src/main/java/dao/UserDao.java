@@ -12,6 +12,12 @@ public class UserDao {
         this.em = em;
     }
 
+    /**
+     * Save.
+     *
+     * @param user the user
+     */
+
     public void save(User user) {
         this.em.getTransaction().begin();
         this.em.persist(user);
@@ -19,10 +25,23 @@ public class UserDao {
         em.close();
     }
 
+    /**
+     * Update.
+     *
+     * @param user the user
+     */
+
     public void update(User user) {
         this.em.merge(user);
         em.close();
     }
+
+    /**
+     * Delete by id.
+     *
+     * @param id the id
+     * @return true if deleted, false if not found
+     */
 
     public boolean delete(Long id) {
         User prod = this.findById(id);
@@ -36,9 +55,23 @@ public class UserDao {
         return false;
     }
 
+    /**
+     * Find by id.
+     *
+     * @param id the id
+     * @return the user found or null if not found
+     */
+
     public User findById(Long id) {
         return this.em.find(User.class, id);
     }
+
+    /**
+     * Find by username.
+     *
+     * @param login the username
+     * @return the user found or null if not found
+     */
 
     public User findByLogin(String login) {
         String jpql = "SELECT u FROM User u WHERE u.login = :login";

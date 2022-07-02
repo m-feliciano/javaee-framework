@@ -16,6 +16,7 @@ public class UserController {
 
     /**
      * Save.
+     * call save method of userDao.
      * throws IllegalArgumentException if user is null
      *
      * @param user the user
@@ -26,13 +27,35 @@ public class UserController {
         this.userDao.save(user);
     }
 
-    public void update(User prod) {
-        this.userDao.update(prod);
+    /**
+     * Update.
+     * call update method of userDao.
+     *
+     * @param user the user
+     */
+
+    public void update(User user) {
+        this.userDao.update(user);
     }
+
+    /**
+     * Delete by id.
+     * call delete method of userDao.
+     *
+     * @param id the id
+     */
 
     public void delete(Long id) {
         this.userDao.delete(id);
     }
+
+    /**
+     * Find by id.
+     * call findById method of userDao.
+     *
+     * @param id the id
+     * @return the user
+     */
 
     public User findById(Long id) {
         return this.userDao.findById(id);

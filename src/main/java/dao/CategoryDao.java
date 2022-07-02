@@ -13,6 +13,12 @@ public class CategoryDao {
         this.em = em;
     }
 
+    /**
+     * Save.
+     *
+     * @param category the category
+     * @return the category saved
+     */
     public Category save(Category category) {
         this.em.getTransaction().begin();
         this.em.persist(category);
@@ -22,12 +28,24 @@ public class CategoryDao {
         return category;
     }
 
+    /**
+     * Update.
+     *
+     * @param category the category
+     */
     public void update(Category category) {
         this.em.getTransaction().begin();
         this.em.merge(category);
         this.em.getTransaction().commit();
         em.close();
     }
+
+    /**
+     * Delete by id.
+     *
+     * @param id the id
+     * @return true if deleted, false if not found
+     */
 
     public boolean delete(Long id) {
         Category category = this.findById(id);
@@ -41,9 +59,22 @@ public class CategoryDao {
         return false;
     }
 
+    /**
+     * Find by id.
+     *
+     * @param id the id
+     * @return the category if found, null if not found
+     */
+
     public Category findById(Long id) {
         return this.em.find(Category.class, id);
     }
+
+    /**
+     * Find all.
+     *
+     * @return all categories
+     */
 
     public List<Category> findAll() {
         String jpql = "SELECT c FROM Category c";

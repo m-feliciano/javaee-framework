@@ -16,21 +16,43 @@ public class CategoryController {
         this.categoryDao = new CategoryDao(em);
     }
 
+    /**
+     * Save.
+     * throws IllegalArgumentException if category is null
+     * clear cache after saved.
+     *
+     * @param category the category
+     */
+
     public Category save(Category category) {
         if (Objects.isNull(category)) throw new IllegalArgumentException("The category must not be null.");
-
-        CacheUtil.invalidateCategory();
+        CacheUtil.clearCategory();
         return this.categoryDao.save(category);
     }
 
+    /**
+     * Update.
+     * clear cache after update.
+     *
+     * @param category the category
+     */
+
+
     public void update(Category category) {
         this.categoryDao.update(category);
-        CacheUtil.invalidateCategory();
+        CacheUtil.clearCategory();
     }
+
+    /**
+     * delete by id.
+     * clear cache after delete.
+     *
+     * @param id the id
+     */
 
     public void delete(Long id) {
         this.categoryDao.delete(id);
-        CacheUtil.invalidateCategory();
+        CacheUtil.clearCategory();
     }
 
     /**
@@ -41,8 +63,9 @@ public class CategoryController {
      */
 
     public Category findById(Long id) {
-        if (CacheUtil.isValidCategory()) {
-            return this.findAll().stream()
+        List<Category> categories = CacheUtil.getCategoriesFromCache();
+        if (!categories.isEmpty()) {
+            return categories.stream()
                     .filter(p -> p.getId().equals(id))
                     .findAny()
                     .orElse(null);
@@ -59,13 +82,14 @@ public class CategoryController {
      */
 
     public List<Category> findAll() {
-        if (CacheUtil.isValidCategory()) {
-            return CacheUtil.getCategoriesFromCache();
+        List<Category> categories = CacheUtil.getCategoriesFromCache();
+        if (!categories.isEmpty()) {
+            return categories;
         }
 
-        List<Category> list = this.categoryDao.findAll();
-        CacheUtil.initCategory(list);
-        return list;
+        categories = this.categoryDao.findAll();
+        CacheUtil.initCategory(categories);
+        return categories;
     }
 
 }

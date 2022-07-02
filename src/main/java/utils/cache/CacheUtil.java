@@ -33,35 +33,23 @@ public final class CacheUtil {
     }
 
     public static List<Product> getProductsFromCache() {
-        logger.info("Returning products from cache.");
+        logger.info("{}", products.isEmpty() ? "Product cache is empty" : "Retrieving products from cache");
         return Collections.unmodifiableList(products);
     }
 
     public static List<Category> getCategoriesFromCache() {
-        logger.info("Returning categories from cache.");
+       logger.info("{}", products.isEmpty() ? "Category cache is empty" : "Retrieving categories from cache");
         return Collections.unmodifiableList(categories);
     }
 
-    public static void invalidateProduct() {
+    public static void clearProduct() {
         logger.info("Product cache invalidated.");
         products.clear();
     }
 
-    public static void invalidateCategory() {
+    public static void clearCategory() {
         logger.info("Category cache invalidated.");
         categories.clear();
-    }
-
-    public static boolean isValidProduct() {
-        boolean valid = !products.isEmpty();
-        logger.info("Product cache is valid: {}", valid);
-        return valid;
-    }
-
-    public static boolean isValidCategory() {
-        boolean valid = !categories.isEmpty();
-        logger.info("Category cache is valid: {}", valid);
-        return valid;
     }
 
 }
