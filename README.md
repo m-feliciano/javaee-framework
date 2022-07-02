@@ -1,8 +1,12 @@
 # servlets
-Aplicação Web Servlet (Jakarta Servlet) para controle de produtos utilizando padrão  MVC, Java Reflection
+Web Servlet Application (Jakarta Servlet) for product control using MVC pattern, Slf4j for Logger and Java Reflection
 
 ## Layout
 ![App](https://iili.io/hr6Hut.png)
+<br>
+
+## Slf4j For Logging;
+![Logging with slf4j](https://i.ibb.co/DLLzvSw/Capture.png)
 <br>
 
 ## Packages
