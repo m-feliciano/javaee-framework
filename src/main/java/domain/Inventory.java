@@ -33,14 +33,10 @@ public class Inventory implements Serializable {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "price")
-    private BigDecimal price;
-
-    public Inventory(Product product, Integer quantity, String description, BigDecimal price) {
+    public Inventory(Product product, Integer quantity, String description) {
         this.product = product;
         this.quantity = quantity;
         this.description = description;
-        this.price = price;
     }
 
     @Override

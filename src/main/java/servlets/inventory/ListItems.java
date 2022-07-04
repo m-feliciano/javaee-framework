@@ -21,7 +21,7 @@ public class ListItems extends BaseInventory {
         logger.info("doGET listing items by filter");
 
         String id = req.getParameter("id");
-        if (this.validate(req, resp)) {
+        if (!Objects.isNull(id)) {
             Inventory inventory = controller.findById(Long.parseLong(id));
             if (Objects.isNull(inventory)) {
                 return "forward:pages/not-found.jsp";
@@ -33,17 +33,17 @@ public class ListItems extends BaseInventory {
 
         String param = req.getParameter("param");
         String value = req.getParameter("value");
+        List<Inventory> inventories;
         if (!Objects.isNull(param) && !Objects.isNull(value)) {
-            List<Inventory> inventories;
             if (param.equals("name")) {
                 inventories = controller.findAllByProductName(value);
             } else {
                 inventories = controller.findAllByDescription(value);
             }
-
             req.setAttribute("items", inventories);
         } else {
-            req.setAttribute("items", controller.findAll());
+            inventories = controller.findAll();
+            req.setAttribute("items", inventories);
         }
 
         return "forward:pages/inventory/listItems.jsp";

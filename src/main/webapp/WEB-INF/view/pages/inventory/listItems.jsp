@@ -50,8 +50,6 @@
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">PRODUCT NAME</th>
-                            <%--                        <th scope="col">CATEGORY</th>--%>
-                            <%--                        <th scope="col">CATEGORY NAME</th>--%>
                         <th scope="col">QUANTITY</th>
                         <th scope="col">DESCRIPTION</th>
                         <th scope="col">PRICE</th>
@@ -60,19 +58,15 @@
                     </thead>
                     <tbody>
                     <c:forEach items="${ items }" var="item">
-                        <fmt:formatNumber value="${ item.price }" type="currency" minFractionDigits="2"
-                                          var="parsedPrice"/>
+                        <fmt:formatNumber
+                                value="${ item.getProduct().getPrice() * item.quantity }"
+                                type="currency" minFractionDigits="2" var="parsedPrice"/>
                         <tr>
                             <th width="10%" scope="row">${ item.id }</th>
                             <td width="20%">
                                 <a style="text-decoration: none; color: inherit;  padding: 2rem 0;"
                                    href="${ listProducts }&id=${ item.getProduct().getId() }">${ item.getProduct().getName() }</a>
                             </td>
-                                <%--                            <td width="10%">${ listProduct.category.id }</td>--%>
-                                <%--                            <td width="15%">--%>
-                                <%--                                <a style="text-decoration: none; color: inherit; padding: 2rem 0;"--%>
-                                <%--                                   href="${ listCategory }&id=${ item.categoryId }">${ item.categoryName }</a>--%>
-                                <%--                            </td>--%>
                             <td width="10%">${ item.quantity }</td>
                             <td width="25%">${ item.description }</td>
                             <td width="10%">${ parsedPrice }</td>

@@ -27,8 +27,7 @@ public class CreateItem extends BaseInventory {
         Inventory item = new Inventory(
                 product,
                 quantity,
-                req.getParameter("description"),
-                product.getPrice().multiply(new BigDecimal(quantity)));
+                req.getParameter("description"));
         controller.save(item);
         req.setAttribute("item", item);
         return "redirect:inventory?action=ListItem&id=" + item.getId();

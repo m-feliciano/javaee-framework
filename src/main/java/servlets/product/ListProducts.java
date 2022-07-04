@@ -21,7 +21,7 @@ public class ListProducts extends BaseProduct {
         logger.info("doGET listing products by filter");
 
         String id = req.getParameter("id");
-        if (this.validate(req, resp)) {
+        if (!Objects.isNull(id)) {
             Product product = controller.findById(Long.parseLong(id));
             if (Objects.isNull(product)) {
                 return "forward:pages/not-found.jsp";
@@ -33,8 +33,8 @@ public class ListProducts extends BaseProduct {
 
         String param = req.getParameter("param");
         String value = req.getParameter("value");
+        List<Product> products;
         if (!Objects.isNull(param) && !Objects.isNull(value)) {
-            List<Product> products;
             if (param.equals("name")) {
                 products = controller.findAllByName(value);
             } else {
@@ -43,7 +43,8 @@ public class ListProducts extends BaseProduct {
 
             req.setAttribute("products", products);
         } else {
-            req.setAttribute("products", controller.findAll());
+            products = controller.findAll();
+            req.setAttribute("products", products);
         }
         return "forward:pages/product/listProducts.jsp";
     }
