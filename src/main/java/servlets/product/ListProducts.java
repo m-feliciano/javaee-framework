@@ -4,6 +4,7 @@ import domain.Product;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 import java.util.Objects;
 
 public class ListProducts extends BaseProduct {
@@ -33,11 +34,14 @@ public class ListProducts extends BaseProduct {
         String param = req.getParameter("param");
         String value = req.getParameter("value");
         if (!Objects.isNull(param) && !Objects.isNull(value)) {
+            List<Product> products;
             if (param.equals("name")) {
-                req.setAttribute("products", controller.findAllByName(value));
+                products = controller.findAllByName(value);
             } else {
-                req.setAttribute("products", controller.findAllByDescription(value));
+                products = controller.findAllByDescription(value);
             }
+
+            req.setAttribute("products", products);
         } else {
             req.setAttribute("products", controller.findAll());
         }

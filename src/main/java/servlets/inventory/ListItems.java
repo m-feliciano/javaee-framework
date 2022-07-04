@@ -4,6 +4,7 @@ import domain.Inventory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 import java.util.Objects;
 
 public class ListItems extends BaseInventory {
@@ -33,11 +34,14 @@ public class ListItems extends BaseInventory {
         String param = req.getParameter("param");
         String value = req.getParameter("value");
         if (!Objects.isNull(param) && !Objects.isNull(value)) {
+            List<Inventory> inventories;
             if (param.equals("name")) {
-                req.setAttribute("items", controller.findAllByProductName(value));
+                inventories = controller.findAllByProductName(value);
             } else {
-                req.setAttribute("items", controller.findAllByDescription(value));
+                inventories = controller.findAllByDescription(value);
             }
+
+            req.setAttribute("items", inventories);
         } else {
             req.setAttribute("items", controller.findAll());
         }
