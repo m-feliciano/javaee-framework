@@ -7,7 +7,7 @@
 <c:url value="/inventory?action=NewItem" var="newItem"/>
 <c:url value="/product?action=ListProduct" var="listProduct"/>
 <%--<c:url value="/category?action=ListCategory" var="listCategory"/>--%>
-<c:url value="/inventory?action=ListItemsByDescription" var="listItemsByDescription"/>
+<c:url value="/inventory?action=ListItemsByName" var="ListItemsByName"/>
 
 
 <fmt:setLocale value="pt-BR" scope="application"/>
@@ -18,11 +18,11 @@
         <p>Products not found.</p>
     </c:if>
     <c:if test="${ not empty items }">
-        <form class="form-inline d-flex flex-row-reverse mb-2" action="${ listItemsByDescription }" method="post">
+        <form class="form-inline d-flex flex-row-reverse mb-2" action="${ ListItemsByName }" method="post">
             <div class="mb-3">
-                <input type="text" name="description" class="form-control" id="inputSearchItem"
-                       placeholder="simple description" required minlength="1"/>
-                <input type="hidden" name="action" value="ListItemsByDescription">
+                <input type="text" name="name" class="form-control" id="inputSearchItem"
+                       placeholder="name" required minlength="1"/>
+                <input type="hidden" name="action" value="ListItemsByName">
                 <button type="submit" class="btn btn-primary">Search</button>
                 <a type="button"
                    href="${ listItems }?action=ListItems"

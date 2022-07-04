@@ -30,8 +30,8 @@ public class InventoryController {
         this.inventoryDao.update(inventory);
     }
 
-    public List<Inventory> findByDescription(String description) {
-        return this.inventoryDao.findAllByDescription(description);
+    public List<Inventory> findAllByProductName(String name) {
+        return this.inventoryDao.findAllByProductName(name);
     }
 
     public Inventory findById(Long id) {

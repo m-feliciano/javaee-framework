@@ -2,8 +2,9 @@ package servlets.inventory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Objects;
 
-public class ListItemsByDescription extends BaseInventory {
+public class ListItemsByName extends BaseInventory {
 
     /**
      * Execute.
@@ -15,12 +16,14 @@ public class ListItemsByDescription extends BaseInventory {
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
-        logger.info("doGET listing items by description");
-        if (!this.validate(req, resp)) {
+        logger.info("doGET listing items by name");
+
+        String name = req.getParameter("name");
+        if (Objects.isNull(name)) {
             return "forward:pages/not-found.jsp";
         }
 
-        req.setAttribute("items", controller.findByDescription(req.getParameter("description")));
+        req.setAttribute("items", controller.findAllByProductName(name));
         return "forward:pages/inventory/listItems.jsp";
     }
 

@@ -90,7 +90,7 @@ public class ProductDao {
      */
 
     public List<Product> findAllByName(String name) {
-        String jpql = "SELECT p FROM Product p WHERE p.name = :name";
+        String jpql = "SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))";
         return em.createQuery(jpql, Product.class).setParameter("name", name).getResultList();
     }
 
@@ -102,7 +102,7 @@ public class ProductDao {
      */
 
     public List<Product> findAllByCategoryName(String name) {
-        String jpql = "SELECT p FROM Product p WHERE p.category.name = :name";
+        String jpql = "SELECT p FROM Product p WHERE LOWER(p.category.name) LIKE LOWER(CONCAT('%', :name, '%'))";
         return em.createQuery(jpql, Product.class).setParameter("name", name).getResultList();
     }
 
