@@ -34,6 +34,10 @@ public class InventoryController {
         return this.inventoryDao.findAllByProductName(name);
     }
 
+    public List<Inventory> findAllByDescription(String description) {
+        return this.inventoryDao.findAllByDescription(description);
+    }
+
     public Inventory findById(Long id) {
         return this.inventoryDao.findById(id);
     }

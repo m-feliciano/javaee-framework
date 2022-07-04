@@ -29,7 +29,7 @@ public class UpdateProduct extends BaseProduct {
         product.setUrl(req.getParameter("url"));
         controller.update(product);
         req.setAttribute("product", product);
-        return "redirect:product?action=ListProduct&id=" + product.getId();
+        return "redirect:product?action=ListProducts&id=" + product.getId();
     }
 
 }

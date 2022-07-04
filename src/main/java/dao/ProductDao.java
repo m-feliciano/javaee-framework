@@ -106,4 +106,15 @@ public class ProductDao {
         return em.createQuery(jpql, Product.class).setParameter("name", name).getResultList();
     }
 
+    /**
+     * Find all by descriprion
+     *
+     * @param description the description
+     * @return the list
+     */
+
+    public List<Product> findAllByDescription(String description) {
+        String jpql = "SELECT p FROM Product p WHERE LOWER(p.description) LIKE LOWER(CONCAT('%', :desc, '%'))";
+        return em.createQuery(jpql, Product.class).setParameter("desc", description).getResultList();
+    }
 }

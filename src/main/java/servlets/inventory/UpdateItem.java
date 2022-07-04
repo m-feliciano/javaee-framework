@@ -34,7 +34,7 @@ public class UpdateItem extends BaseInventory {
         item.setPrice(product.getPrice().multiply(new BigDecimal(quantity)));
         controller.update(item);
         req.setAttribute("item", item);
-        return "redirect:inventory?action=ListItem&id=" + item.getId();
+        return "redirect:inventory?action=ListItems&id=" + item.getId();
     }
 
 }

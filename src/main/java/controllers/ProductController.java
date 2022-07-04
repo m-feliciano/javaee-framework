@@ -108,6 +108,25 @@ public class ProductController {
         return productDao.findAllByName(name);
     }
 
+    /**
+     * Find by description.
+     * try get from cache if not found get from db and put in cache.
+     *
+     * @param description the description
+     * @return the list of products or empty list if not found
+     */
+
+    public List<Product> findAllByDescription(String description) {
+        List<Product> products = findAll();
+        if (!products.isEmpty()) {
+            return findAll().stream()
+                    .filter(prod -> prod.getDescription().toLowerCase().contains(description.toLowerCase()))
+                    .toList();
+        }
+
+        return productDao.findAllByDescription(description);
+    }
+
 
     /**
      * Find all by category name.
