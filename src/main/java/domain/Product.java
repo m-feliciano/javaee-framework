@@ -31,9 +31,9 @@ public class Product implements Serializable {
     private Long id;
     @Column(name = "name", length = 100)
     private String name;
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
-    @Column(name = "url_img")
+    @Column(name = "url_img", columnDefinition = "TEXT")
     private String url;
     @Column(name = "created_at")
     private LocalDate registerDate;

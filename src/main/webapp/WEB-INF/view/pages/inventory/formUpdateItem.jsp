@@ -26,14 +26,14 @@
             </div>
             <div class="mb-3">
                 <label for="inputQuantity" class="form-label">DESCRIPTION</label>
-                <input type="text" name="description" class="form-control" id="inputQuantity"
-                       placeholder="simple descripton" value="${ item.description }" required minlength="4"/>
+                <input type="text" name="description" class="form-control" id="inputDescription"
+                       placeholder="descripton" value="${ item.description }" required minlength="4"/>
             </div>
 
             <!-- action -->
             <input type="hidden" name="action" value="UpdateItem">
             <button type="submit" class="btn btn-primary">Submit</button>
-            <a type="button" href="${ inventoryServlet }?action=ListItem&id=${ item.id }" class="btn btn-light">
+            <a type="button" href="${ inventoryServlet }?action=ListItems&id=${ item.id }" class="btn btn-light">
                 Cancel
             </a>
         </div>

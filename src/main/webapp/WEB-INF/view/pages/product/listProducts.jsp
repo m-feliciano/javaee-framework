@@ -79,8 +79,8 @@
                                     </c:if>
                                 </a>
                             </td>
-                            <td width=25%>${ product.name }</td>
-                            <td width=25%>${ product.description }</td>
+                            <td width=25%><div id="prod-name">${ product.name }</div></td>
+                            <td width=25%> <div id="prod-desc">${ product.description }</div></td>
                             <td width=10%>${ parsedPrice }</td>
                             <td width=10%>${ product.registerDate }</td>
                             <td width=20%>

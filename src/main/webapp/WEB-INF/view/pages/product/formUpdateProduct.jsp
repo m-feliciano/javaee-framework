@@ -35,7 +35,7 @@
             <div class="mb-3">
                 <label for="inputDescription" class="form-label">DESCRIPTION</label>
                 <textarea name="description" class="form-control" id="inputDescription"
-                          placeholder="Simple Description" rows="" cols="" required>${ product.description }</textarea>
+                          placeholder="Simple Description" rows="4" cols="auto" required>${ product.description }</textarea>
             </div>
             <div class="mb-3">
                 <label for="inputPrice" class="form-label">PRICE</label>
@@ -48,7 +48,7 @@
             <!-- action -->
             <input type="hidden" name="action" value="UpdateProduct">
             <button type="submit" class="btn btn-primary">Submit</button>
-            <a type="button" href="${ productLink }?action=ListProduct&id=${product.id }" class="btn btn-light">
+            <a type="button" href="${ productLink }?action=ListProducts&id=${product.id }" class="btn btn-light">
                 Cancel
             </a>
         </div>

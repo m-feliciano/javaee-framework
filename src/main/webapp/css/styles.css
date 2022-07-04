@@ -113,3 +113,13 @@ html, body {
 .btn-logout:hover {
     color: rgba(255, 255, 255, .75);
 }
+
+#prod-desc {
+    height:80px;
+    overflow: hidden;
+}
+
+#prod-name {
+    height:60px;
+    overflow: hidden;
+}
