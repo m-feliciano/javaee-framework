@@ -3,10 +3,10 @@
 <!------ Include the above in your HEAD tag ---------->
 
 <c:url value="/user" var="path"/>
-<c:url value="/product" var="loginPage"/>
+<c:url value="/product?action=LoginForm" var="loginPage"/>
 
-<div class="sidenav">
-    <div class="login-main-text">
+<div class="register sidenav">
+    <div class="register-main-text">
         <h2>
             Servlet<br> Register Page
         </h2>
@@ -38,7 +38,8 @@
                 </c:if>
                 <div>
                     <a type="button" href="${ loginPage }"  class="btn btn-black">Login</a>
-                    <button type="submit" class="btn btn-secondary">Register</button>
+                    <span class="ml-1"></span>
+                    <button type="submit" class="btn btn-blue">Register</button>
                 </div>
             </form>
         </div>

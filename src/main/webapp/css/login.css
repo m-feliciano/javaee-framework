@@ -58,17 +58,33 @@ body {
     }
 }
 
-.login-main-text {
+.login-main-text,
+.register-main-text {
     margin-top: 20%;
     padding: 60px;
     color: #fff;
 }
 
-.login-main-text h2 {
+.login-main-text,
+.register-main-text h2 {
     font-weight: 300;
 }
 
 .btn-black {
     background-color: #343a40;
     color: #fff;
+}
+
+.btn-blue {
+    background-color: #3385e3;
+    color: #fff;
+}
+
+.register,
+.register-main-text {
+    background-color: #3385e3;
+}
+
+.btn:hover {
+    border: solid 1px;
 }

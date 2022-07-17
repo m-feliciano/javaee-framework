@@ -5,4 +5,5 @@
 <link
         href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
         rel="stylesheet" id="bootstrap-css">
+<link rel="stylesheet" href="<c:url value='/css/styles.css'/>">
 <link rel="stylesheet" href="<c:url value='/css/login.css'/>">

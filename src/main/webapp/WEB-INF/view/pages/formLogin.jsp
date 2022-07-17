@@ -42,7 +42,8 @@
                 </c:if>
                 <div>
                     <button type="submit" class="btn btn-black">Login</button>
-                    <a type="button" href="${ registerPage }" class="btn btn-secondary">Register</a>
+                    <span class="ml-1"></span>
+                    <a type="button" href="${ registerPage }" class="btn btn-blue">Register</a>
                 </div>
             </form>
         </div>

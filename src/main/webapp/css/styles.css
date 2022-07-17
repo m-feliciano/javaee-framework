@@ -11,6 +11,15 @@
     font-family: 'Open Sans', sans-serif;
 }
 
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    color: #FFF;
+    text-decoration: none;
+}
+
 ul {
     list-style: none;
 }
@@ -56,7 +65,7 @@ html, body {
 }
 
 .title-logo {
-    font-family: 'Playfair Display SC', georgia;
+    font-family: 'Playfair Display SC', georgia, serif;
     font-size: 1.3rem;
     line-height: 1;
     font-weight: 400;
