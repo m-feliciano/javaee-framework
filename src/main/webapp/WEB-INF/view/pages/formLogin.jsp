@@ -18,7 +18,7 @@
         <div class="login-form">
             <form action="${ loginPage }?action=Login" method="post">
                 <div class="form-group">
-                    <label for="inputEmail">Email</label> <input type="text"
+                    <label for="inputEmail">Email</label> <input type="email"
                                                                  id="inputEmail" name="email"
                                                                  class="form-control hidden-alert"
                                                                  placeholder="Email" required>

@@ -32,7 +32,9 @@ public class UserDao {
      */
 
     public void update(User user) {
+        this.em.getTransaction().begin();
         this.em.merge(user);
+        this.em.getTransaction().commit();
         em.close();
     }
 
@@ -63,7 +65,9 @@ public class UserDao {
      */
 
     public User findById(Long id) {
-        return this.em.find(User.class, id);
+        User user = this.em.find(User.class, id);
+        em.close();
+        return user;
     }
 
     /**
@@ -75,11 +79,13 @@ public class UserDao {
 
     public User findByLogin(String login) {
         String jpql = "SELECT u FROM User u WHERE u.login = :login";
-        return em.createQuery(jpql, User.class)
+        User user = em.createQuery(jpql, User.class)
                 .setParameter("login", login)
                 .getResultStream()
                 .findFirst()
                 .orElse(null);
+        em.close();
+        return user;
     }
 
 }

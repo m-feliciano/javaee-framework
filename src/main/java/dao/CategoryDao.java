@@ -67,7 +67,9 @@ public class CategoryDao {
      */
 
     public Category findById(Long id) {
-        return this.em.find(Category.class, id);
+        Category category = this.em.find(Category.class, id);
+        em.close();
+        return category;
     }
 
     /**
@@ -78,7 +80,9 @@ public class CategoryDao {
 
     public List<Category> findAll() {
         String jpql = "SELECT c FROM Category c";
-        return em.createQuery(jpql, Category.class).getResultList();
+        List<Category> categories = em.createQuery(jpql, Category.class).getResultList();
+        em.close();
+        return categories;
     }
 
 }
