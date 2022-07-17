@@ -32,7 +32,7 @@ public class CreateProduct extends BaseProduct {
 
         Product saved = controller.save(product);
         req.setAttribute("product", saved);
-        return "redirect:product?action=ListProduct&id=" + saved.getId();
+        return "redirect:product?action=ListProducts&id=" + saved.getId();
     }
 
 }

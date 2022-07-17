@@ -30,7 +30,7 @@ public class CreateItem extends BaseInventory {
                 req.getParameter("description"));
         controller.save(item);
         req.setAttribute("item", item);
-        return "redirect:inventory?action=ListItem&id=" + item.getId();
+        return "redirect:inventory?action=ListItems&id=" + item.getId();
     }
 
 }
