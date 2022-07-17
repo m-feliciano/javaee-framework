@@ -68,7 +68,9 @@ public class ProductDao {
      */
 
     public Product findById(Long id) {
-        return this.em.find(Product.class, id);
+        Product product = this.em.find(Product.class, id);
+        em.close();
+        return product;
     }
 
     /**
