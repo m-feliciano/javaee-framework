@@ -5,22 +5,22 @@ Web Servlet Application (Jakarta Servlet) for product control using MVC pattern,
 
 ### Login
 
-#### url example: http://localhost:8080/servlets/product?action=Login
-![App login page](https://i.ibb.co/Hg39yDS/Capture2.png)
+#### path example: http://localhost:8080/servlets/product?action=Login
+![App login page](https://i.ibb.co/R0xM6Ps/Screenshot-2022-07-17-034301.png)
 <br>
 
 ### Home
-#### url example: http://localhost:8080/servlets/product?action=ListProducts
+#### path example: http://localhost:8080/servlets/product?action=ListProducts
 ![App home page](https://i.ibb.co/0ZsvDjp/Capture.png)
 <br>
 
 ### Product
-#### url example: http://localhost:8080/servlets/product?action=ListProducts&id=2
+#### path example: http://localhost:8080/servlets/product?action=ListProducts&id=2
 ![App prolist list page](https://i.ibb.co/yp6HW1q/Capture3.png)
 <br>
 
 ### Not Found
-#### url example: http://localhost:8080/servlets/product?action=ListProducts&id=<some_invalid_id>
+#### path example: http://localhost:8080/servlets/product?action=ListProducts&id=<some_invalid_id>
 ![App not found page](https://i.ibb.co/th8R564/Capture5.png)
 <br>
 
