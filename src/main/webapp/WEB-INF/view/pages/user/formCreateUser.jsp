@@ -19,6 +19,7 @@
             <form action="${ path }?action=CreateUser" method="post">
                 <div class="form-group">
                     <label for="inputEmail">Email</label> <input type="email"
+                                                                 value="${ email }"
                                                                  id="inputEmail" name="email"
                                                                  class="form-control hidden-alert"
                                                                  placeholder="Email" required>
@@ -28,6 +29,14 @@
                                                                        id="inputPassword" name="password"
                                                                        class="form-control hidden-alert"
                                                                        placeholder="Password" required
+<%--                                                                       pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"--%>
+                                                                       minlength="3">
+                </div>
+                <div class="form-group">
+                    <label for="inputConfirmPassword">Confirm password</label> <input type="password"
+                                                                       id="inputConfirmPassword" name="confirmPassword"
+                                                                       class="form-control hidden-alert"
+                                                                       placeholder="Confirm" required
 <%--                                                                       pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"--%>
                                                                        minlength="3">
                 </div>
