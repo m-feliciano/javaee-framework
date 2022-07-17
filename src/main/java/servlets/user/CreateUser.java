@@ -4,6 +4,7 @@ import domain.User;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Objects;
 
 public class CreateUser extends BaseUser {
 
@@ -26,6 +27,7 @@ public class CreateUser extends BaseUser {
 
         if (!this.validatePassword(req)) {
             req.setAttribute(EMAIL, req.getParameter(EMAIL));
+            logger.warn("Passwords do not match - redirecting to register user page");
             return "forward:pages/user/formCreateUser.jsp";
         }
 
@@ -44,7 +46,7 @@ public class CreateUser extends BaseUser {
 
     private boolean validatePassword(HttpServletRequest req) {
         if (req.getParameter(PASSWORD) != null && req.getParameter(CONFIRM_PASSWORD) != null) {
-            if (!req.getParameter(PASSWORD).equals(req.getParameter(CONFIRM_PASSWORD))) {
+            if (!Objects.equals(req.getParameter(PASSWORD), req.getParameter(CONFIRM_PASSWORD))) {
                 req.setAttribute(ERROR, "Passwords do not match");
                 return false;
             }
