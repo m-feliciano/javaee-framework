@@ -17,6 +17,12 @@ public class Login extends BaseLogin {
      */
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
+
+        if (req.getParameter("success") != null) {
+            logger.info("forward to login page");
+            return "forward:pages/formLogin.jsp";
+        }
+
         logger.info("Validate user to login");
         User user = controller.findByLogin(req.getParameter("email"));
         if (user == null || !user.equals(user.getLogin(), req.getParameter("password"))) {

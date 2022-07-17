@@ -67,4 +67,24 @@
         <filter-name>ACFINVENTORY</filter-name>
         <url-pattern>/inventory</url-pattern>
     </filter-mapping>
+
+    <filter>
+        <filter-name>AFUSER</filter-name>
+        <filter-class>filter.Auth</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>AFUSER</filter-name>
+        <url-pattern>/user</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>ACFUSER</filter-name>
+        <filter-class>filter.AuthController</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>ACFUSER</filter-name>
+        <url-pattern>/user</url-pattern>
+    </filter-mapping>
 </web-app>

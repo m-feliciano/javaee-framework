@@ -1,24 +1,24 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<jsp:include page="common-imports.jsp"/>
+<jsp:include page="../common-imports.jsp"/>
 <!------ Include the above in your HEAD tag ---------->
 
+<c:url value="/user" var="path"/>
 <c:url value="/product" var="loginPage"/>
-<c:url value="/user?action=NewUser" var="registerPage"/>
 
 <div class="sidenav">
     <div class="login-main-text">
         <h2>
-            Servlet<br> Login Page
+            Servlet<br> Register Page
         </h2>
-        <p>Login from here to access.</p>
+        <p>Register from here to access.</p>
     </div>
 </div>
 <div class="main">
     <div class="col-md-6 col-sm-12">
         <div class="login-form">
-            <form action="${ loginPage }?action=Login" method="post">
+            <form action="${ path }?action=CreateUser" method="post">
                 <div class="form-group">
-                    <label for="inputEmail">Email</label> <input type="text"
+                    <label for="inputEmail">Email</label> <input type="email"
                                                                  id="inputEmail" name="email"
                                                                  class="form-control hidden-alert"
                                                                  placeholder="Email" required>
@@ -28,6 +28,7 @@
                                                                        id="inputPassword" name="password"
                                                                        class="form-control hidden-alert"
                                                                        placeholder="Password" required
+<%--                                                                       pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"--%>
                                                                        minlength="3">
                 </div>
                 <c:if test="${not empty error}">
@@ -35,14 +36,9 @@
                         <c:out value="${error}"/>
                     </div>
                 </c:if>
-                <c:if test="${not empty success}">
-                    <div class="alert alert-success hidden-alert" role="alert">
-                        <c:out value="${success}"/>
-                    </div>
-                </c:if>
                 <div>
-                    <button type="submit" class="btn btn-black">Login</button>
-                    <a type="button" href="${ registerPage }" class="btn btn-secondary">Register</a>
+                    <a type="button" href="${ loginPage }"  class="btn btn-black">Login</a>
+                    <button type="submit" class="btn btn-secondary">Register</button>
                 </div>
             </form>
         </div>

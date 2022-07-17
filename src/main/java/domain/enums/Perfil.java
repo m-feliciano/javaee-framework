@@ -7,7 +7,6 @@ import lombok.Setter;
 import javax.persistence.*;
 
 @Getter
-@Entity
 public enum Perfil {
 
     ADMIN(1, "ROLE_ADMIN"),

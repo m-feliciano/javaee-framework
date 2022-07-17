@@ -8,10 +8,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.List;
 
 //@WebFilter(urlPatterns = "/company")
 public class Auth implements Filter {
     private final Logger logger = LoggerFactory.getLogger(Auth.class);
+    private static final List<String> AUTHORIZED_ACTIONS = List.of("Login", "LoginForm", "NewUser", "CreateUser");
 
     /**
      * Do filter.
@@ -38,7 +40,8 @@ public class Auth implements Filter {
 
         logger.info("User: {}", !userNotSignIn ? session.getAttribute("userLogged").toString() : "not logged");
 
-        boolean filter = strAction.equals("Login") || strAction.equals("LoginForm");
+        boolean filter = AUTHORIZED_ACTIONS.stream().anyMatch(strAction::equals);
+
         if (!filter && userNotSignIn) {
             try {
                 logger.warn("Redirecting user to login page.");

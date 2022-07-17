@@ -6,6 +6,7 @@ import lombok.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 @Table(name = "tb_user")
 public class User implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "PERFIS")
@@ -38,6 +40,7 @@ public class User implements Serializable {
     public User(String login, String password) {
         this.login = login;
         this.password = password;
+        this.addPerfil(Perfil.CLIENT);
     }
 
     public void addPerfil(Perfil perfil) {
