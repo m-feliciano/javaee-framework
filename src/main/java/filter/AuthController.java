@@ -16,6 +16,9 @@ public class AuthController implements Filter {
     final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * build the request and response objects and pass them to the execute method.
+     *
      * @param servletRequest  the <code>ServletRequest</code> object contains the client's request
      * @param servletResponse the <code>ServletResponse</code> object contains the filter's response
      * @param chain           the <code>FilterChain</code> for invoking the next filter or the resource
@@ -37,7 +40,7 @@ public class AuthController implements Filter {
         if (!strAction.contains("Log")) {
             int entityPos = req.getServletPath().lastIndexOf("/") + 1;
             String entityName = req.getServletPath().substring(entityPos);
-            classname = String.format("servlets.%s.%s", entityName, strAction);
+            classname = String.format("servlets.%s.%s", entityName, getServletClass(entityName));
         } else {
             classname = String.format("servlets.%s", strAction);
         }
@@ -81,6 +84,16 @@ public class AuthController implements Filter {
             }
         }
 
+    }
+
+    /**
+     * format the class name to be used in the classpath
+     *
+     * @param entityName the entity name
+     * @return the servlet class
+     */
+    private String getServletClass(String entityName) {
+        return entityName.substring(0, 1).toUpperCase() + entityName.substring(1).concat("Servlet");
     }
 
 }

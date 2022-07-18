@@ -22,7 +22,7 @@ public class UserDao {
         this.em.getTransaction().begin();
         this.em.persist(user);
         this.em.getTransaction().commit();
-        em.close();
+        this.em.close();
     }
 
     /**
@@ -35,7 +35,7 @@ public class UserDao {
         this.em.getTransaction().begin();
         this.em.merge(user);
         this.em.getTransaction().commit();
-        em.close();
+        this.em.close();
     }
 
     /**
@@ -51,7 +51,7 @@ public class UserDao {
             this.em.getTransaction().begin();
             this.em.remove(prod);
             this.em.getTransaction().commit();
-            em.close();
+            this.em.close();
             return true;
         }
         return false;
@@ -65,9 +65,7 @@ public class UserDao {
      */
 
     public User findById(Long id) {
-        User user = this.em.find(User.class, id);
-        em.close();
-        return user;
+        return this.em.find(User.class, id);
     }
 
     /**
@@ -84,7 +82,7 @@ public class UserDao {
                 .getResultStream()
                 .findFirst()
                 .orElse(null);
-        em.close();
+        this.em.close();
         return user;
     }
 

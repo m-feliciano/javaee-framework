@@ -23,6 +23,22 @@ public class BaseProduct implements Action, RequestValidation {
     protected final ProductController controller = new ProductController(em);
     protected Logger logger = LoggerFactory.getLogger(BaseProduct.class);
 
+    protected static final String FORWARD_PAGES_NOT_FOUND_JSP = "forward:pages/not-found.jsp";
+    protected static final String FORWARD_PAGES_PRODUCT_FORM_LIST_PRODUCT_JSP = "forward:pages/product/formListProduct.jsp";
+    protected static final String FORWARD_PAGES_PRODUCT_LIST_PRODUCTS_JSP = "forward:pages/product/listProducts.jsp";
+    protected static final String FORWARD_PAGES_PRODUCT_FORM_UPDATE_PRODUCT_JSP = "forward:pages/product/formUpdateProduct.jsp";
+    protected static final String FORWARD_PAGES_PRODUCT_FORM_CREATE_PRODUCT_JSP = "forward:pages/product/formCreateProduct.jsp";
+    protected static final String REDIRECT_PRODUCT_ACTION_LIST_PRODUCTS = "redirect:product?action=ListProducts";
+    protected static final String REDIRECT_PRODUCT_ACTION_LIST_PRODUCTS_BY_ID = "redirect:product?action=ListProducts&id=";
+    protected static final String ID = "id";
+    protected static final String PRODUCT = "product";
+    protected static final String PRODUCTS = "products";
+    protected static final String ERROR = "error";
+    protected static final String NAME = "name";
+    protected static final String DESCRIPTION = "description";
+    protected static final String URL = "url";
+    protected static final String PRICE = "price";
+
     /**
      * Execute.
      *
@@ -39,9 +55,9 @@ public class BaseProduct implements Action, RequestValidation {
 
     @Override
     public boolean validate(HttpServletRequest req, HttpServletResponse resp) {
-        if (Objects.isNull(req.getParameter("id"))) {
+        if (Objects.isNull(req.getParameter(ID))) {
             logger.warn("Error: Id can't be null");
-            req.setAttribute("error", "Product not found");
+            req.setAttribute(ERROR, "Product not found");
             return false;
         }
         return true;

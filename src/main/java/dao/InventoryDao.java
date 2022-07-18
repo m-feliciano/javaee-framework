@@ -24,7 +24,7 @@ public class InventoryDao {
         this.em.getTransaction().begin();
         this.em.persist(item);
         this.em.getTransaction().commit();
-        em.close();
+        this.em.close();
     }
 
     /**
@@ -38,7 +38,7 @@ public class InventoryDao {
         this.em.getTransaction().begin();
         this.em.merge(item);
         this.em.getTransaction().commit();
-        em.close();
+        this.em.close();
     }
 
     /**
@@ -54,7 +54,7 @@ public class InventoryDao {
             this.em.getTransaction().begin();
             this.em.remove(item);
             this.em.getTransaction().commit();
-            em.close();
+            this.em.close();
             return true;
         }
         return false;
@@ -69,9 +69,7 @@ public class InventoryDao {
      */
 
     public Inventory findById(Long id) {
-        Inventory inventory = this.em.find(Inventory.class, id);
-        em.close();
-        return inventory;
+        return this.em.find(Inventory.class, id);
     }
 
     /**
@@ -84,7 +82,7 @@ public class InventoryDao {
     public List<Inventory> findAll() {
         String jpql = "SELECT p FROM Inventory p";
         List<Inventory> inventories = em.createQuery(jpql, Inventory.class).getResultList();
-        em.close();
+        this.em.close();
         return inventories;
     }
 
@@ -99,7 +97,7 @@ public class InventoryDao {
     public List<Inventory> findAllByProductName(String name) {
         String jpql = "SELECT i FROM Inventory i WHERE LOWER(i.product.name) LIKE LOWER(CONCAT('%', :name, '%'))";
         List<Inventory> inventories = em.createQuery(jpql, Inventory.class).setParameter("name", name).getResultList();
-        em.close();
+        this.em.close();
         return inventories;
     }
 
@@ -114,7 +112,7 @@ public class InventoryDao {
     public List<Inventory> findAllByDescription(String description) {
         String jpql = "SELECT i FROM Inventory i WHERE LOWER(i.description) LIKE LOWER(CONCAT('%', :description, '%'))";
         List<Inventory> inventories = em.createQuery(jpql, Inventory.class).setParameter("description", description + '%').getResultList();
-        em.close();
+        this.em.close();
         return inventories;
     }
 

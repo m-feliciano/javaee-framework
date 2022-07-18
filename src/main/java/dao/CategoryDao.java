@@ -24,7 +24,7 @@ public class CategoryDao {
         this.em.persist(category);
         this.em.getTransaction().commit();
         category = this.em.merge(category);
-        em.close();
+        this.em.close();
         return category;
     }
 
@@ -37,7 +37,7 @@ public class CategoryDao {
         this.em.getTransaction().begin();
         this.em.merge(category);
         this.em.getTransaction().commit();
-        em.close();
+        this.em.close();
     }
 
     /**
@@ -53,7 +53,7 @@ public class CategoryDao {
             this.em.getTransaction().begin();
             this.em.remove(category);
             this.em.getTransaction().commit();
-            em.close();
+            this.em.close();
             return true;
         }
         return false;
@@ -67,9 +67,7 @@ public class CategoryDao {
      */
 
     public Category findById(Long id) {
-        Category category = this.em.find(Category.class, id);
-        em.close();
-        return category;
+        return this.em.find(Category.class, id);
     }
 
     /**
@@ -81,7 +79,7 @@ public class CategoryDao {
     public List<Category> findAll() {
         String jpql = "SELECT c FROM Category c";
         List<Category> categories = em.createQuery(jpql, Category.class).getResultList();
-        em.close();
+        this.em.close();
         return categories;
     }
 
