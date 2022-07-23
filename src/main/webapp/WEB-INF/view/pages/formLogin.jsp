@@ -30,9 +30,9 @@
                                                                        placeholder="Password" required
                                                                        minlength="3">
                 </div>
-                <c:if test="${not empty error}">
+                <c:if test="${not empty invalid}">
                     <div class="alert alert-danger hidden-alert" role="alert">
-                        <c:out value="${error}"/>
+                        <c:out value="${invalid}"/>
                     </div>
                 </c:if>
                 <c:if test="${not empty success}">

@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 public class Login extends BaseLogin {
+    public static final String EMAIL = "email";
+    public static final String PASSWORD = "password";
 
     /**
      * Login.
@@ -24,9 +26,9 @@ public class Login extends BaseLogin {
         }
 
         logger.info("Validate user to login");
-        User user = controller.findByLogin(req.getParameter("email"));
-        if (user == null || !user.equals(user.getLogin(), req.getParameter("password"))) {
-            req.setAttribute("error", "User or password invalid.");
+        User user = controller.findByLogin(req.getParameter(EMAIL));
+        if (user == null || !user.equals(user.getLogin(), req.getParameter(PASSWORD))) {
+            req.setAttribute("invalid", "User or password invalid.");
             logger.info("User or password invalid.");
             return "forward:pages/formLogin.jsp";
         }
