@@ -1,55 +1,57 @@
 package utils.cache;
 
 import com.mchange.util.AssertException;
+import com.mchange.v1.util.ArrayUtils;
 import domain.Category;
 import domain.Product;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.lang.reflect.Array;
+import java.util.*;
 
 public final class CacheUtil {
-
     private static final Logger logger = LoggerFactory.getLogger(CacheUtil.class);
-
-    private static List<Product> products = new ArrayList<>();
-    private static List<Category> categories = new ArrayList<>();
+    private static Map<String, List<?>> cache = Collections.synchronizedMap(new HashMap<>());
 
     private CacheUtil() {
         logger.error("CacheUtil is a utility class and should not be instantiated.");
         throw new AssertException("CacheUtil is a utility class and should not be instantiated");
     }
 
-    public static void initProduct(List<Product> list) {
+    public static void initCache(String key, List<?> list) {
         logger.info("Initializing product cache");
-        products = new ArrayList<>(list);
+        if (cache.containsKey(key)) {
+            logger.info("Cache already initialized");
+            return;
+        }
+
+        if (list == null) {
+            logger.info("List {} is null", key);
+        }
+        cache.put(key, list);
     }
 
-    public static void initCategory(List<Category> list) {
-        logger.info("Initializing category cache");
-        categories = new ArrayList<>(list);
+    public static List<?> getFromCache(String key) {
+        logger.info("Retrieving {} from cache", key);
+
+        if (!cache.containsKey(key)) {
+            logger.error("Cache not initialized");
+            return Collections.emptyList();
+        }
+
+        return Collections.unmodifiableList(cache.get(key));
     }
 
-    public static List<Product> getProductsFromCache() {
-        logger.info("{}", products.isEmpty() ? "Product cache is empty" : "Retrieving products from cache");
-        return Collections.unmodifiableList(products);
-    }
+    public static void clearCache(String key) {
+        logger.info("cache {} invalidated.", key);
 
-    public static List<Category> getCategoriesFromCache() {
-       logger.info("{}", products.isEmpty() ? "Category cache is empty" : "Retrieving categories from cache");
-        return Collections.unmodifiableList(categories);
-    }
-
-    public static void clearProduct() {
-        logger.info("Product cache invalidated.");
-        products.clear();
-    }
-
-    public static void clearCategory() {
-        logger.info("Category cache invalidated.");
-        categories.clear();
+        if (cache.containsKey(key)) {
+            cache.remove(key);
+        } else {
+            logger.error("Cache {} not found.", key);
+            throw new AssertException("Cache not found");
+        }
     }
 
 }

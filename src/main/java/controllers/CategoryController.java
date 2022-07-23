@@ -11,6 +11,7 @@ import java.util.Objects;
 public class CategoryController {
 
     private final CategoryDao categoryDao;
+    private static final String CACHE_KEY = "categories";
 
     public CategoryController(EntityManager em) {
         this.categoryDao = new CategoryDao(em);
@@ -26,7 +27,7 @@ public class CategoryController {
 
     public Category save(Category category) {
         if (Objects.isNull(category)) throw new IllegalArgumentException("The category must not be null.");
-        CacheUtil.clearCategory();
+        CacheUtil.clearCache(CACHE_KEY);
         return this.categoryDao.save(category);
     }
 
@@ -40,7 +41,7 @@ public class CategoryController {
 
     public void update(Category category) {
         this.categoryDao.update(category);
-        CacheUtil.clearCategory();
+        CacheUtil.clearCache(CACHE_KEY);
     }
 
     /**
@@ -52,7 +53,7 @@ public class CategoryController {
 
     public void delete(Long id) {
         this.categoryDao.delete(id);
-        CacheUtil.clearCategory();
+        CacheUtil.clearCache(CACHE_KEY);
     }
 
     /**
@@ -63,7 +64,7 @@ public class CategoryController {
      */
 
     public Category findById(Long id) {
-        List<Category> categories = CacheUtil.getCategoriesFromCache();
+        List<Category> categories = (List<Category>) CacheUtil.getFromCache(CACHE_KEY);
         if (!categories.isEmpty()) {
             return categories.stream()
                     .filter(p -> p.getId().equals(id))
@@ -82,13 +83,13 @@ public class CategoryController {
      */
 
     public List<Category> findAll() {
-        List<Category> categories = CacheUtil.getCategoriesFromCache();
+        List<Category> categories = (List<Category>) CacheUtil.getFromCache(CACHE_KEY);
         if (!categories.isEmpty()) {
             return categories;
         }
 
         categories = this.categoryDao.findAll();
-        CacheUtil.initCategory(categories);
+        CacheUtil.initCache(CACHE_KEY, categories);
         return categories;
     }
 

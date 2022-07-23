@@ -12,6 +12,7 @@ import java.util.Objects;
 public class ProductController {
 
     private final ProductDao productDao;
+    private static final String CACHE_KEY = "products";
 
     public ProductController(EntityManager em) {
         this.productDao = new ProductDao(em);
@@ -27,7 +28,7 @@ public class ProductController {
 
     public Product save(Product product) {
         if (Objects.isNull(product)) throw new IllegalArgumentException("The product must not be null.");
-        CacheUtil.clearProduct();
+        CacheUtil.clearCache(CACHE_KEY);
         return this.productDao.save(product);
     }
 
@@ -40,7 +41,7 @@ public class ProductController {
 
     public void update(Product prod) {
         this.productDao.update(prod);
-        CacheUtil.clearProduct();
+        CacheUtil.clearCache(CACHE_KEY);
     }
 
     /**
@@ -52,7 +53,7 @@ public class ProductController {
 
     public void delete(Long id) {
         this.productDao.delete(id);
-        CacheUtil.clearProduct();
+        CacheUtil.clearCache(CACHE_KEY);
     }
 
     /**
@@ -62,10 +63,10 @@ public class ProductController {
      * @return the list of products or empty list if not found
      */
     public List<Product> findAll() {
-        List<Product> products = CacheUtil.getProductsFromCache();
+        List<Product> products = (List<Product>) CacheUtil.getFromCache(CACHE_KEY);
         if (!products.isEmpty()) return products;
         products = this.productDao.findAll();
-        CacheUtil.initProduct(products);
+        CacheUtil.initCache(CACHE_KEY, products);
         return products;
     }
 
