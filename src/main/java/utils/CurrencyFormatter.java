@@ -13,11 +13,10 @@ public final class CurrencyFormatter {
     }
 
     /**
-     * This method is used to format a currency value to a string.
+     * This method is used to format a string to a currency value.
      * The value is formatted to 2 decimal places.
      * The value is rounded to the nearest integer.
      * The value is formatted to a currency format.
-     * The value is formatted to a string.
      *
      * @param value
      * @return String with currency format

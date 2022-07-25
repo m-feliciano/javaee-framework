@@ -20,7 +20,7 @@ public final class CacheUtil {
     }
 
     public static void initCache(String key, List<?> list) {
-        logger.info("Initializing product cache");
+        logger.info("Initializing {} cache", key);
         if (cache.containsKey(key)) {
             logger.info("Cache already initialized");
             return;

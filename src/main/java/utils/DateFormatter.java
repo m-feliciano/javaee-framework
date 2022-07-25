@@ -14,7 +14,7 @@ public final class DateFormatter {
     }
 
     /**
-     * This method is used to format a date to a string.
+     * This method is used get a date from a string.
      * The date is formatted to a string.
      *
      * @param strDate
