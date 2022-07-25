@@ -3,6 +3,7 @@ package controllers;
 import dao.ProductDao;
 import domain.Category;
 import domain.Product;
+import utils.ArrayUtils;
 import utils.cache.CacheUtil;
 
 import javax.persistence.EntityManager;
@@ -64,7 +65,7 @@ public class ProductController {
      */
     public List<Product> findAll() {
         List<Product> products = (List<Product>) CacheUtil.getFromCache(CACHE_KEY);
-        if (!products.isEmpty()) return products;
+        if (!ArrayUtils.isArrayNullOrEmpty(products)) return products;
         products = this.productDao.findAll();
         CacheUtil.initCache(CACHE_KEY, products);
         return products;
@@ -80,8 +81,8 @@ public class ProductController {
 
     public Product findById(Long id) {
         List<Product> products = findAll();
-        if (!products.isEmpty()) {
-            return findAll().stream()
+        if (!ArrayUtils.isArrayNullOrEmpty(products)) {
+            return products.stream()
                     .filter(p -> p.getId().equals(id))
                     .findAny()
                     .orElse(null);
@@ -100,8 +101,8 @@ public class ProductController {
 
     public List<Product> findAllByName(String name) {
         List<Product> products = findAll();
-        if (!products.isEmpty()) {
-            return findAll().stream()
+        if (!ArrayUtils.isArrayNullOrEmpty(products)) {
+            return products.stream()
                     .filter(prod -> prod.getName().toLowerCase().contains(name.toLowerCase()))
                     .toList();
         }
@@ -119,8 +120,8 @@ public class ProductController {
 
     public List<Product> findAllByDescription(String description) {
         List<Product> products = findAll();
-        if (!products.isEmpty()) {
-            return findAll().stream()
+        if (!ArrayUtils.isArrayNullOrEmpty(products)) {
+            return products.stream()
                     .filter(prod -> prod.getDescription().toLowerCase().contains(description.toLowerCase()))
                     .toList();
         }
@@ -138,7 +139,7 @@ public class ProductController {
 
     public List<Product> findAllByCategoryName(String name) {
         List<Product> products = findAll();
-        if (!products.isEmpty()) {
+        if (!ArrayUtils.isArrayNullOrEmpty(products)) {
             return products.stream()
                     .filter(prod -> prod.getCategories().stream()
                             .map(Category::getName)
