@@ -1,5 +1,5 @@
-# servlets
-Web Servlet Application (Jakarta Servlet) for product control using MVC pattern, Slf4j for Logger and Java Reflection
+# servlets (Jakarta Servlet)
+Web Servlet Application (Full Java) for product control using MVC pattern, Slf4j for Logger and Java Reflection to build and process all requests
 
 ## Layout
 
@@ -39,13 +39,15 @@ C:.
 │   │   ├───domain
 │   │   │   └───enums
 │   │   ├───dto
+│   │   ├───exceptions
 │   │   ├───filter
-│   │   ├───infra
-│   │   │   └───exceptions
 │   │   ├───servlets
+│   │   │   ├───base
 │   │   │   ├───category
 │   │   │   ├───inventory
-│   │   │   └───product
+│   │   │   ├───product
+│   │   │   ├───user
+│   │   │   └───utils
 │   │   └───utils
 │   │       └───cache
 │   ├───resources
@@ -60,7 +62,11 @@ C:.
 │               └───pages
 │                   ├───category
 │                   ├───inventory
-│                   └───product
+│                   ├───product
+│                   └───user
 └───test
     └───java
+        ├───controllers
+        ├───servlets
+        └───utils
 ```
