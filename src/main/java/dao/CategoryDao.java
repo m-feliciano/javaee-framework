@@ -5,12 +5,9 @@ import domain.Category;
 import javax.persistence.EntityManager;
 import java.util.List;
 
-public class CategoryDao {
-
-    private final EntityManager em;
-
+public class CategoryDao extends BaseDao {
     public CategoryDao(EntityManager em) {
-        this.em = em;
+        super(em);
     }
 
     /**
@@ -20,11 +17,11 @@ public class CategoryDao {
      * @return the category saved
      */
     public Category save(Category category) {
-        this.em.getTransaction().begin();
+        begin();
         this.em.persist(category);
-        this.em.getTransaction().commit();
+        commit();
         category = this.em.merge(category);
-        this.em.close();
+        close();
         return category;
     }
 
@@ -34,10 +31,10 @@ public class CategoryDao {
      * @param category the category
      */
     public void update(Category category) {
-        this.em.getTransaction().begin();
+        begin();
         this.em.merge(category);
-        this.em.getTransaction().commit();
-        this.em.close();
+        commit();
+        close();
     }
 
     /**
@@ -50,10 +47,10 @@ public class CategoryDao {
     public boolean delete(Long id) {
         Category category = this.findById(id);
         if (category != null) {
-            this.em.getTransaction().begin();
+            begin();
             this.em.remove(category);
-            this.em.getTransaction().commit();
-            this.em.close();
+            commit();
+            close();
             return true;
         }
         return false;
@@ -79,7 +76,7 @@ public class CategoryDao {
     public List<Category> findAll() {
         String jpql = "SELECT c FROM Category c";
         List<Category> categories = em.createQuery(jpql, Category.class).getResultList();
-        this.em.close();
+        close();
         return categories;
     }
 

@@ -5,12 +5,10 @@ import domain.Inventory;
 import javax.persistence.EntityManager;
 import java.util.List;
 
-public class InventoryDao {
-
-    private final EntityManager em;
+public class InventoryDao extends BaseDao {
 
     public InventoryDao(EntityManager em) {
-        this.em = em;
+        super(em);
     }
 
     /**
@@ -21,10 +19,10 @@ public class InventoryDao {
      */
 
     public void save(Inventory item) {
-        this.em.getTransaction().begin();
+        begin();
         this.em.persist(item);
-        this.em.getTransaction().commit();
-        this.em.close();
+        commit();
+        close();
     }
 
     /**
@@ -35,10 +33,10 @@ public class InventoryDao {
      */
 
     public void update(Inventory item) {
-        this.em.getTransaction().begin();
+        begin();
         this.em.merge(item);
-        this.em.getTransaction().commit();
-        this.em.close();
+        commit();
+        close();
     }
 
     /**
@@ -51,10 +49,10 @@ public class InventoryDao {
     public boolean delete(Long id) {
         Inventory item = this.findById(id);
         if (item != null) {
-            this.em.getTransaction().begin();
+            begin();
             this.em.remove(item);
-            this.em.getTransaction().commit();
-            this.em.close();
+            commit();
+            close();
             return true;
         }
         return false;
@@ -82,7 +80,7 @@ public class InventoryDao {
     public List<Inventory> findAll() {
         String jpql = "SELECT p FROM Inventory p";
         List<Inventory> inventories = em.createQuery(jpql, Inventory.class).getResultList();
-        this.em.close();
+        close();
         return inventories;
     }
 
@@ -97,7 +95,7 @@ public class InventoryDao {
     public List<Inventory> findAllByProductName(String name) {
         String jpql = "SELECT i FROM Inventory i WHERE LOWER(i.product.name) LIKE LOWER(CONCAT('%', :name, '%'))";
         List<Inventory> inventories = em.createQuery(jpql, Inventory.class).setParameter("name", name).getResultList();
-        this.em.close();
+        close();
         return inventories;
     }
 
@@ -112,7 +110,7 @@ public class InventoryDao {
     public List<Inventory> findAllByDescription(String description) {
         String jpql = "SELECT i FROM Inventory i WHERE LOWER(i.description) LIKE LOWER(CONCAT('%', :description, '%'))";
         List<Inventory> inventories = em.createQuery(jpql, Inventory.class).setParameter("description", description + '%').getResultList();
-        this.em.close();
+        close();
         return inventories;
     }
 

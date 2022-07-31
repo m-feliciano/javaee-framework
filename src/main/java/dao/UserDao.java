@@ -4,12 +4,9 @@ import domain.User;
 
 import javax.persistence.EntityManager;
 
-public class UserDao {
-
-    private final EntityManager em;
-
+public class UserDao extends BaseDao {
     public UserDao(EntityManager em) {
-        this.em = em;
+        super(em);
     }
 
     /**
@@ -19,10 +16,10 @@ public class UserDao {
      */
 
     public void save(User user) {
-        this.em.getTransaction().begin();
+        begin();
         this.em.persist(user);
-        this.em.getTransaction().commit();
-        this.em.close();
+        commit();
+        close();
     }
 
     /**
@@ -32,10 +29,10 @@ public class UserDao {
      */
 
     public void update(User user) {
-        this.em.getTransaction().begin();
+        begin();
         this.em.merge(user);
-        this.em.getTransaction().commit();
-        this.em.close();
+        commit();
+        close();
     }
 
     /**
@@ -48,10 +45,10 @@ public class UserDao {
     public boolean delete(Long id) {
         User prod = this.findById(id);
         if (prod != null) {
-            this.em.getTransaction().begin();
+            begin();
             this.em.remove(prod);
-            this.em.getTransaction().commit();
-            this.em.close();
+            commit();
+            close();
             return true;
         }
         return false;
@@ -82,7 +79,7 @@ public class UserDao {
                 .getResultStream()
                 .findFirst()
                 .orElse(null);
-        this.em.close();
+        close();
         return user;
     }
 

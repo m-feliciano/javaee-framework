@@ -5,12 +5,10 @@ import domain.Product;
 import javax.persistence.EntityManager;
 import java.util.List;
 
-public class ProductDao {
-
-    private final EntityManager em;
+public class ProductDao extends BaseDao {
 
     public ProductDao(EntityManager em) {
-        this.em = em;
+        super(em);
     }
 
     /**
@@ -21,11 +19,11 @@ public class ProductDao {
      */
 
     public Product save(Product product) {
-        this.em.getTransaction().begin();
+        begin();
         this.em.persist(product);
-        this.em.getTransaction().commit();
+        commit();
         product = em.merge(product);
-        this.em.close();
+        close();
         return product;
     }
 
@@ -36,10 +34,10 @@ public class ProductDao {
      */
 
     public void update(Product product) {
-        this.em.getTransaction().begin();
+        begin();
         this.em.merge(product);
-        this.em.getTransaction().commit();
-        this.em.close();
+        commit();
+        close();
     }
 
     /**
@@ -52,10 +50,10 @@ public class ProductDao {
     public boolean delete(Long id) {
         Product prod = this.findById(id);
         if (prod != null) {
-            this.em.getTransaction().begin();
+            begin();
             this.em.remove(prod);
-            this.em.getTransaction().commit();
-            this.em.close();
+            commit();
+            close();
             return true;
         }
         return false;
@@ -79,7 +77,7 @@ public class ProductDao {
     public List<Product> findAll() {
         String jpql = "SELECT p FROM Product p";
         List<Product> products = em.createQuery(jpql, Product.class).getResultList();
-        this.em.close();
+        close();
         return products;
     }
 
@@ -94,7 +92,7 @@ public class ProductDao {
     public List<Product> findAllByName(String name) {
         String jpql = "SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))";
         List<Product> products = em.createQuery(jpql, Product.class).setParameter("name", name).getResultList();
-        this.em.close();
+        close();
         return products;
     }
 
@@ -108,7 +106,7 @@ public class ProductDao {
     public List<Product> findAllByCategoryName(String name) {
         String jpql = "SELECT p FROM Product p WHERE LOWER(p.category.name) LIKE LOWER(CONCAT('%', :name, '%'))";
         List<Product> products = em.createQuery(jpql, Product.class).setParameter("name", name).getResultList();
-        this.em.close();
+        close();
         return products;
     }
 
@@ -122,7 +120,7 @@ public class ProductDao {
     public List<Product> findAllByDescription(String description) {
         String jpql = "SELECT p FROM Product p WHERE LOWER(p.description) LIKE LOWER(CONCAT('%', :desc, '%'))";
         List<Product> products = em.createQuery(jpql, Product.class).setParameter("desc", description).getResultList();
-        this.em.close();
+        close();
         return products;
     }
 }
