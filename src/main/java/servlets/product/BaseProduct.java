@@ -15,6 +15,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
 
+import static servlets.base.Base.ERROR;
+import static servlets.base.Base.ID;
+
 @Getter
 @RequiredArgsConstructor
 public class BaseProduct implements Action, RequestValidation {
@@ -22,23 +25,6 @@ public class BaseProduct implements Action, RequestValidation {
     private final EntityManager em = JPAUtil.getEntityManager();
     protected final ProductController controller = new ProductController(em);
     protected Logger logger = LoggerFactory.getLogger(BaseProduct.class);
-
-    protected static final String FORWARD_PAGES_NOT_FOUND_JSP = "forward:pages/not-found.jsp";
-    protected static final String FORWARD_PAGES_PRODUCT_FORM_LIST_PRODUCT_JSP = "forward:pages/product/formListProduct.jsp";
-    protected static final String FORWARD_PAGES_PRODUCT_LIST_PRODUCTS_JSP = "forward:pages/product/listProducts.jsp";
-    protected static final String FORWARD_PAGES_PRODUCT_FORM_UPDATE_PRODUCT_JSP = "forward:pages/product/formUpdateProduct.jsp";
-    protected static final String FORWARD_PAGES_PRODUCT_FORM_CREATE_PRODUCT_JSP = "forward:pages/product/formCreateProduct.jsp";
-    protected static final String REDIRECT_PRODUCT_ACTION_LIST_PRODUCTS = "redirect:product?action=ListProducts";
-    protected static final String REDIRECT_PRODUCT_ACTION_LIST_PRODUCTS_BY_ID = "redirect:product?action=ListProducts&id=";
-    protected static final String ID = "id";
-    protected static final String PRODUCT = "product";
-    protected static final String PRODUCTS = "products";
-    protected static final String ERROR = "error";
-    protected static final String NAME = "name";
-    protected static final String DESCRIPTION = "description";
-    protected static final String URL = "url";
-    protected static final String PRICE = "price";
-
     /**
      * Execute.
      *

@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Objects;
 
+import static servlets.base.Base.*;
+
 public class InventoryServlet extends BaseInventory {
     protected final EntityManager emp = JPAUtil.getEntityManager();
     private final ProductController productController = new ProductController(emp);

@@ -1,5 +1,6 @@
 package filter;
 
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import servlets.Action;
@@ -12,6 +13,7 @@ import java.io.IOException;
 
 public class AuthController implements Filter {
 
+    public static final String LOGIN_SERVLET = "servlets.LoginServlet";
     @Transient
     final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
@@ -34,56 +36,96 @@ public class AuthController implements Filter {
 
         String strAction = req.getParameter("action");
         logger.info("Action: {}", strAction);
-
-        String classname;
-        // fully qualified name do metodo a ser executado
-        if (!strAction.contains("Log")) {
-            int entityPos = req.getServletPath().lastIndexOf("/") + 1;
-            String entityName = req.getServletPath().substring(entityPos);
-            classname = String.format("servlets.%s.%s", entityName, getServletClass(entityName));
-        } else {
-            classname = String.format("servlets.%s", strAction);
-        }
-
+        String classname = getClassname(req, strAction);
         logger.info("Classname: {}", classname);
+        String fullpath = executeAction(req, resp, classname);
+        logger.info("Fullpath: {}", fullpath);
+        processRequest(req, resp, fullpath);
+    }
 
-        String path = null;
+    @Nullable
+    private String executeAction(HttpServletRequest req, HttpServletResponse resp, String classname) {
+        String fullpath = null;
         try {
             Class<?> clazz = Class.forName(classname);
             Action action = (Action) clazz.getDeclaredConstructor().newInstance();
-            path = action.execute(req, resp);
+            fullpath = action.execute(req, resp);
         } catch (Exception e1) {
             e1.printStackTrace();
         }
+        return fullpath;
+    }
 
-        String[] array;
-        try {
-            logger.info("Path: {}", path);
-            assert path != null;
-            array = path.split(":");
-        } catch (Exception e) {
-            logger.error("Error on parse url: {}", e.getMessage());
-            throw new ServletException("Cannot parse url: " + path);
-        }
-
-        if (array[0].equals("forward")) {
-            try {
-                logger.info("Forward to: {}", array[1]);
-                req.getRequestDispatcher("/WEB-INF/view/" + array[1]).forward(req, resp);
-            } catch (IOException | ServletException e) {
-                logger.error("Error on forward: {}", e.getMessage());
-                e.printStackTrace();
-            }
+    /**
+     * Get the classname
+     *
+     * @param req
+     * @param strAction
+     * @return String
+     */
+    private String getClassname(HttpServletRequest req, String strAction) {
+        String classname;
+        // fully qualified name do metodo a ser executado
+        if (strAction.contains("Log")) {
+            classname = LOGIN_SERVLET;
         } else {
+            int entityPos = req.getServletPath().lastIndexOf("/") + 1;
+            String entityName = req.getServletPath().substring(entityPos);
+            classname = String.format("servlets.%s.%s", entityName, getServletClass(entityName));
+        }
+        return classname;
+    }
+
+    /**
+     * Process the request and redirect to
+     *
+     * @param req
+     * @param resp
+     * @param fullpath
+     * @throws ServletException
+     */
+    private void processRequest(HttpServletRequest req, HttpServletResponse resp, String fullpath) throws ServletException {
+
+        if (fullpath == null) {
+            logger.error("error on AuthController filter");
+            fullpath = "forward:pages/not-found.jsp";
             try {
-                logger.info("Redirect to: {}", array[1]);
-                resp.sendRedirect(array[1]);
+                req.getRequestDispatcher("/WEB-INF/view/" + fullpath).forward(req, resp);
             } catch (IOException e) {
                 logger.error("Error on redirect: {}", e.getMessage());
                 e.printStackTrace();
             }
         }
 
+        String[] path;
+        try {
+            logger.info("Path: {}", fullpath);
+            path = fullpath.split(":");
+        } catch (Exception e) {
+            logger.error("Error on parse url: {}", e.getMessage());
+            throw new ServletException("Cannot parse url: " + fullpath);
+        }
+
+        String pathAction = path[0];
+        String pathUrl = path[1];
+
+        if (pathAction.equals("forward")) {
+            try {
+                logger.info("Forward to: {}", pathUrl);
+                req.getRequestDispatcher("/WEB-INF/view/" + pathUrl).forward(req, resp);
+            } catch (IOException | ServletException e) {
+                logger.error("Error on forward: {}", e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                logger.info("Redirect to: {}", pathUrl);
+                resp.sendRedirect(pathUrl);
+            } catch (IOException e) {
+                logger.error("Error on redirect: {}", e.getMessage());
+                e.printStackTrace();
+            }
+        }
     }
 
     /**

@@ -5,6 +5,8 @@ import domain.Category;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static servlets.base.Base.*;
+
 public class CategoryServlet extends BaseCategory {
 
     /**

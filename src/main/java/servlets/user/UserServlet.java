@@ -6,6 +6,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
 
+import static servlets.base.Base.*;
+
 public class UserServlet extends BaseUser {
 
     /**
