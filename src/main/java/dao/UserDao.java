@@ -74,13 +74,11 @@ public class UserDao extends BaseDao {
 
     public User findByLogin(String login) {
         String jpql = "SELECT u FROM User u WHERE u.login = :login";
-        User user = em.createQuery(jpql, User.class)
+        return em.createQuery(jpql, User.class)
                 .setParameter("login", login)
                 .getResultStream()
                 .findFirst()
                 .orElse(null);
-        close();
-        return user;
     }
 
 }

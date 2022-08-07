@@ -1,6 +1,7 @@
 package servlets.user;
 
 import domain.User;
+import servlets.utils.EncryptDecrypt;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,7 +18,6 @@ public class UserServlet extends BaseUser {
      * @param resp the resp
      * @return the string
      */
-
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
         if (req.getParameter("action") == null) {
@@ -55,7 +55,6 @@ public class UserServlet extends BaseUser {
      *
      * @return the string
      */
-
     public String newUser() {
         logger.info("doGET redirecting to form createUser");
         return FORWARD_PAGES_USER_FORM_CREATE_USER_JSP;
@@ -68,7 +67,6 @@ public class UserServlet extends BaseUser {
      * @param resp the resp
      * @return the string
      */
-
     private String createUser(HttpServletRequest req, HttpServletResponse resp) {
         logger.info("doGET creating a user");
 
@@ -78,7 +76,16 @@ public class UserServlet extends BaseUser {
             return FORWARD_PAGES_USER_FORM_CREATE_USER_JSP;
         }
 
+        User alreadyExists = controller.findByLogin(req.getParameter(EMAIL));
+
+        if (alreadyExists != null) {
+            req.setAttribute(ERROR, "User already exists");
+            logger.warn("User already exists - redirecting to register user page");
+            return FORWARD_PAGES_USER_FORM_CREATE_USER_JSP;
+        }
+
         User user = new User(req.getParameter(EMAIL).toLowerCase(), req.getParameter(PASSWORD));
+        user.setPassword(EncryptDecrypt.encrypt(user.getPassword()));
         try {
             controller.save(user);
         } catch (IllegalArgumentException e) {
@@ -98,7 +105,6 @@ public class UserServlet extends BaseUser {
      * @param resp the resp
      * @return the string
      */
-
     private String updateUser(HttpServletRequest req, HttpServletResponse resp) {
         logger.info("doGET updating user");
         if (!this.validate(req, resp)) {
@@ -106,7 +112,7 @@ public class UserServlet extends BaseUser {
         }
         User user = controller.findById(Long.parseLong(req.getParameter(ID)));
         user.setLogin(req.getParameter(EMAIL).toLowerCase());
-        user.setPassword(req.getParameter(PASSWORD));
+        user.setPassword(EncryptDecrypt.encrypt(req.getParameter(PASSWORD)));
         controller.update(user);
         req.setAttribute(USER, user);
         return REDIRECT_USER_ACTION_LIST_USER_BY_ID + user.getId();
@@ -119,7 +125,6 @@ public class UserServlet extends BaseUser {
      * @param resp the resp
      * @return the string
      */
-
     private String listUser(HttpServletRequest req, HttpServletResponse resp) {
         logger.info("doGET listing a user");
 
@@ -138,7 +143,6 @@ public class UserServlet extends BaseUser {
      * @param resp the resp
      * @return the string
      */
-
     private String editUser(HttpServletRequest req, HttpServletResponse resp) {
         logger.info("doGET editing a user");
         if (!this.validate(req, resp)) {
@@ -155,7 +159,6 @@ public class UserServlet extends BaseUser {
      * @param req the req
      * @return the boolean
      */
-
     private boolean validatePassword(HttpServletRequest req) {
         if (req.getParameter(PASSWORD) != null && req.getParameter(CONFIRM_PASSWORD) != null) {
             if (!Objects.equals(req.getParameter(PASSWORD), req.getParameter(CONFIRM_PASSWORD))) {

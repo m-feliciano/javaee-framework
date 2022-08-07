@@ -20,6 +20,7 @@
                 <div class="form-group">
                     <label for="inputEmail">Email</label> <input type="email"
                                                                  id="inputEmail" name="email"
+                                                                 value="${ email }"
                                                                  class="form-control hidden-alert"
                                                                  placeholder="Email" required>
                 </div>

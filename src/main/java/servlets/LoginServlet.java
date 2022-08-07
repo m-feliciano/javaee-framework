@@ -1,6 +1,7 @@
 package servlets;
 
 import domain.User;
+import servlets.utils.EncryptDecrypt;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -56,15 +57,16 @@ public class LoginServlet extends BaseLogin {
 
         logger.info("Validate user to login");
         User user = controller.findByLogin(req.getParameter(EMAIL));
-        if (user == null || !user.equals(user.getLogin(), req.getParameter(PASSWORD))) {
+        if (user == null || !user.equals(user.getLogin(), user.getPassword())) {
             req.setAttribute("invalid", "User or password invalid.");
             logger.info("User or password invalid.");
+            req.setAttribute(EMAIL, req.getParameter(EMAIL));
             return FORWARD_PAGES_FORM_LOGIN_JSP;
         }
 
         HttpSession session = req.getSession();
         session.setAttribute("userLogged", user.getLogin());
-        logger.info("User logged: " + user.getLogin());
+        logger.info("User logged: {}", user.getLogin());
         return REDIRECT_PRODUCT_ACTION_LIST_PRODUCTS;
     }
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import domain.enums.Perfil;
 import lombok.*;
 import org.hibernate.Hibernate;
+import servlets.utils.EncryptDecrypt;
 
 import javax.persistence.*;
 import java.io.Serial;
@@ -52,7 +53,7 @@ public class User implements Serializable {
     }
 
     public boolean equals(String login, String password) {
-        return this.login.equals(login) && this.password.equals(password);
+        return this.login.equals(login) && Objects.equals(EncryptDecrypt.decrypt(this.password), EncryptDecrypt.decrypt(password));
     }
 
     @Override
