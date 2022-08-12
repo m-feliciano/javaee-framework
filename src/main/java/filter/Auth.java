@@ -1,57 +1,63 @@
 package filter;
 
-import java.io.IOException;
+import org.apache.commons.lang3.time.StopWatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.List;
 
-@WebFilter(urlPatterns = "/company")
+//@WebFilter(urlPatterns = "/company")
 public class Auth implements Filter {
+    private final Logger logger = LoggerFactory.getLogger(Auth.class);
+    private static final List<String> AUTHORIZED_ACTIONS = List.of("login", "loginForm", "new", "create");
 
-	@Override
-	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
-			throws IOException, ServletException {
+    /**
+     * Do filter.
+     *
+     * @param servletRequest  the servlet request
+     * @param servletResponse the servlet response
+     * @param chain           the filter chain
+     * @throws IOException      Signals that an I/O exception has occurred.
+     * @throws ServletException the servlet exception
+     */
 
-		System.out.println("Auth Filter");
-		HttpServletRequest req = (HttpServletRequest) servletRequest;
-		HttpServletResponse resp = (HttpServletResponse) servletResponse;
+    @Override
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
+            throws IOException, ServletException {
+        StopWatch sw = new StopWatch();
+        sw.start();
 
-		String param = req.getParameter("action");
+        logger.info("Initializing Auth filter");
+        HttpServletRequest req = (HttpServletRequest) servletRequest;
+        HttpServletResponse resp = (HttpServletResponse) servletResponse;
 
-		HttpSession session = req.getSession();
-		boolean userNotSignIn = (session.getAttribute("userLogged") == null);
-		boolean filter = param.equals("Login") || param.equals("LoginForm");
+        String strAction = req.getParameter("action");
 
-		if (!filter && userNotSignIn) {
-			try {
-				resp.sendRedirect("company?action=LoginForm");
-				return;
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		chain.doFilter(servletRequest, servletResponse);
+        HttpSession session = req.getSession();
+        boolean userNotSignIn = (session.getAttribute("userLogged") == null);
 
-	}
+        logger.info("User: {}", !userNotSignIn ? session.getAttribute("userLogged").toString() : "not logged");
 
-	@Override
-	public void destroy() {
-		// TODO Auto-generated method stub
+        boolean filter = AUTHORIZED_ACTIONS.stream().anyMatch(strAction::equals);
 
-	}
-
-	@Override
-	public void init(FilterConfig filterConfig) throws ServletException {
-		// TODO Auto-generated method stub
-
-	}
+        if (!filter && userNotSignIn) {
+            try {
+                logger.warn("Redirecting user to login page.");
+                resp.sendRedirect("login?action=loginForm");
+                return;
+            } catch (IOException e) {
+                logger.error("Error redirecting to login page.");
+                e.printStackTrace();
+            }
+        }
+        chain.doFilter(servletRequest, servletResponse);
+        sw.stop();
+        logger.info("Auth filter execution time: {}ms", sw.getTime());
+    }
 
 }
