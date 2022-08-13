@@ -1,6 +1,7 @@
 package utils.cache;
 
 import com.mchange.util.AssertException;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,8 +21,7 @@ public final class CacheUtil {
 
     public static void initCache(String key, String userKey, List<?> list) {
         logger.info("User: {} : Initializing {} cache", userKey, key);
-        Map<String, String> map = new HashMap<>();
-        map.put(key, userKey);
+        Map<String, String> map = getMapKey(key, userKey);
         if (SYNCHRONIZED_CACHE.containsKey(map)) {
             logger.info("User: {} : Cache already initialized", userKey);
             return;
@@ -35,8 +35,7 @@ public final class CacheUtil {
 
     public static List<?> getFromCache(String key, String userKey) {
         logger.info("User: {} : Retrieving {} from cache", userKey, key);
-        Map<String, String> map = new HashMap<>();
-        map.put(key, userKey);
+        Map<String, String> map = getMapKey(key, userKey);
         if (!SYNCHRONIZED_CACHE.containsKey(map)) {
             logger.error("User: {} : Cache not initialized", userKey);
             return Collections.emptyList();
@@ -45,10 +44,16 @@ public final class CacheUtil {
         return Collections.unmodifiableList(SYNCHRONIZED_CACHE.get(map));
     }
 
-    public static void clearCache(String key, String userKey) {
-        logger.info("User: {} : Cache {} invalidated.", userKey, key);
+    @NotNull
+    private static Map<String, String> getMapKey(String key, String userKey) {
         Map<String, String> map = new HashMap<>();
         map.put(key, userKey);
+        return map;
+    }
+
+    public static void clearCache(String key, String userKey) {
+        logger.info("User: {} : Cache {} invalidated.", userKey, key);
+        Map<String, String> map = getMapKey(key, userKey);
         if (SYNCHRONIZED_CACHE.containsKey(map)) {
             SYNCHRONIZED_CACHE.remove(map);
         } else {

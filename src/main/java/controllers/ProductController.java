@@ -116,6 +116,11 @@ public class ProductController {
         return productDao.findAllByCategory(category);
     }
 
+    /**
+     * Clear cache.
+     *
+     * @param product the product
+     */
     private void clearCache(Product product) {
         CacheUtil.clearCache(CACHE_KEY, product.getUser().getLogin());
     }
