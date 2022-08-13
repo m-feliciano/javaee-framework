@@ -25,7 +25,8 @@ public class User implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ToString.Exclude
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "PERFIS")
     private final Set<Integer> perfis = new HashSet<>();
     @Id
@@ -35,6 +36,7 @@ public class User implements Serializable {
     @Column(name = "login")
     private String login;
     @JsonIgnore
+    @ToString.Exclude
     @Column(name = "password")
     private String password;
 

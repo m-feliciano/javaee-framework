@@ -92,7 +92,7 @@ public class ProductController {
      */
 
     public Product find(Product product) {
-        List<Product> products = findAll(product);
+        List<Product> products = (List<Product>) CacheUtil.getFromCache(CACHE_KEY, product.getUser().getLogin());
         if (!ArrayUtils.isArrayNullOrEmpty(products)) {
             return products.stream().filter(p -> p.getId().equals(product.getId())).findAny().orElse(null);
         }

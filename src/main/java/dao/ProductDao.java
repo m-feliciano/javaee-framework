@@ -2,6 +2,7 @@ package dao;
 
 import domain.Category;
 import domain.Product;
+import domain.User;
 import domain.enums.Status;
 
 import javax.persistence.EntityManager;
@@ -80,8 +81,8 @@ public class ProductDao extends BaseDao {
         Root<Product> prod = c.from(Product.class);
 
         List<Predicate> predicates = new ArrayList<>();
-        predicates.add(cb.equal(prod.get("user"), product.getUser()));
-        predicates.add(cb.equal(prod.get("id"), product.getId()));
+        predicates.add(cb.equal(prod.<User>get("user").<Long>get("id"), product.getUser().getId()));
+        predicates.add(cb.equal(prod.<Long>get("id"), product.getId()));
         c.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Product> q = em.createQuery(c);
         return q.getSingleResult();
@@ -98,15 +99,15 @@ public class ProductDao extends BaseDao {
         Root<Product> prod = c.from(Product.class);
 
         List<Predicate> predicates = new ArrayList<>();
-        predicates.add(cb.equal(prod.get("user"), product.getUser()));
+        predicates.add(cb.equal(prod.<User>get("user").<Long>get("id"), product.getUser().getId()));
         if (product.getStatus() != null) {
-            predicates.add(cb.equal(prod.get("status"), product.getStatus()));
+            predicates.add(cb.equal(prod.<String>get("status"), product.getStatus()));
         } else {
-            predicates.add(cb.equal(prod.get("status"), Status.ACTIVE.getDescription()));
+            predicates.add(cb.equal(prod.<String>get("status"), Status.ACTIVE.getDescription()));
         }
 
         c.where(cb.and(predicates.toArray(new Predicate[0])));
-        c.orderBy(cb.asc(prod.get("id")));
+        c.orderBy(cb.asc(prod.<Long>get("id")));
 
         TypedQuery<Product> q = em.createQuery(c);
         return q.getResultList();
