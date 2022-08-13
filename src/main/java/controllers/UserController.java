@@ -67,6 +67,15 @@ public class UserController {
      * @return the user or null if not found
      */
 
+    public User find(User login) {
+        return userDao.find(login);
+    }
+
+    /**
+     * Find.
+     *
+     * @return the user or null if not found
+     */
     public User findByLogin(String login) {
         return userDao.findByLogin(login);
     }

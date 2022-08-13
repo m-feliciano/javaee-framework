@@ -5,7 +5,7 @@ Web Servlet Application (Full Java/JSP) for product control using MVC pattern, S
 
 ### Login
 
-#### path example: http://localhost:8080/login?action=Login
+#### path example: http://localhost:8080/login?action=loginForm
 ![App login page](https://i.ibb.co/R0xM6Ps/Screenshot-2022-07-17-034301.png)
 <br>
 

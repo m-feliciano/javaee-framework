@@ -51,8 +51,8 @@ public class LoginServlet extends BaseLogin {
     /**
      * Login.
      *
-     * @param req
-     * @param resp
+     * @param req  the req
+     * @param resp the resp
      * @return the path to the next page
      */
     private String login(HttpServletRequest req, HttpServletResponse resp) {
@@ -65,7 +65,9 @@ public class LoginServlet extends BaseLogin {
         sw.start();
 
         logger.info("Validate user to login");
-        User user = controller.findByLogin(req.getParameter(EMAIL));
+        User user = new User();
+        user.setLogin(req.getParameter(EMAIL));
+        user = controller.find(user);
         if (user == null || !user.equals(user.getLogin(), req.getParameter(PASSWORD))) {
             req.setAttribute("invalid", "User or password invalid.");
             logger.info("User or password invalid.");
@@ -76,7 +78,7 @@ public class LoginServlet extends BaseLogin {
         }
 
         HttpSession session = req.getSession();
-        session.setAttribute("userLogged", user.getLogin());
+        session.setAttribute("userLogged", new User(user.getId(), user.getLogin()));
         logger.info("User logged: {}", user.getLogin());
 
         sw.stop();
@@ -88,8 +90,8 @@ public class LoginServlet extends BaseLogin {
     /**
      * Logout.
      *
-     * @param req
-     * @param resp
+     * @param req  the req
+     * @param resp the resp
      * @return the path to login page
      */
     private String logout(HttpServletRequest req, HttpServletResponse resp) {

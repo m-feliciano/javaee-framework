@@ -21,7 +21,7 @@ public class CategoryDao extends BaseDao {
         this.em.persist(category);
         commit();
         category = this.em.merge(category);
-        close();
+        this.em.clear();
         return category;
     }
 
@@ -34,7 +34,6 @@ public class CategoryDao extends BaseDao {
         begin();
         this.em.merge(category);
         commit();
-        close();
     }
 
     /**
@@ -50,7 +49,6 @@ public class CategoryDao extends BaseDao {
             begin();
             this.em.remove(category);
             commit();
-            close();
             return true;
         }
         return false;
@@ -75,9 +73,7 @@ public class CategoryDao extends BaseDao {
 
     public List<Category> findAll() {
         String jpql = "SELECT c FROM Category c";
-        List<Category> categories = em.createQuery(jpql, Category.class).getResultList();
-        close();
-        return categories;
+        return em.createQuery(jpql, Category.class).getResultList();
     }
 
 }

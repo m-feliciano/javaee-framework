@@ -1,55 +1,58 @@
 package utils.cache;
 
 import com.mchange.util.AssertException;
-import com.mchange.v1.util.ArrayUtils;
-import domain.Category;
-import domain.Product;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Array;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public final class CacheUtil {
     private static final Logger logger = LoggerFactory.getLogger(CacheUtil.class);
-    private static Map<String, List<?>> cache = Collections.synchronizedMap(new HashMap<>());
+    private static final Map<Map<String, String>, List<?>> SYNCHRONIZED_CACHE = Collections.synchronizedMap(new HashMap<>());
 
     private CacheUtil() {
         logger.error("CacheUtil is a utility class and should not be instantiated.");
         throw new AssertException("CacheUtil is a utility class and should not be instantiated");
     }
 
-    public static void initCache(String key, List<?> list) {
-        logger.info("Initializing {} cache", key);
-        if (cache.containsKey(key)) {
-            logger.info("Cache already initialized");
+    public static void initCache(String key, String userKey, List<?> list) {
+        logger.info("User: {} : Initializing {} cache", userKey, key);
+        Map<String, String> map = new HashMap<>();
+        map.put(key, userKey);
+        if (SYNCHRONIZED_CACHE.containsKey(map)) {
+            logger.info("User: {} : Cache already initialized", userKey);
             return;
         }
 
         if (list == null) {
-            logger.info("List {} is null", key);
+            logger.info("User: {} : The list {} is null", userKey, key);
         }
-        cache.put(key, list);
+        SYNCHRONIZED_CACHE.put(map, list);
     }
 
-    public static List<?> getFromCache(String key) {
-        logger.info("Retrieving {} from cache", key);
-
-        if (!cache.containsKey(key)) {
-            logger.error("Cache not initialized");
+    public static List<?> getFromCache(String key, String userKey) {
+        logger.info("User: {} : Retrieving {} from cache", userKey, key);
+        Map<String, String> map = new HashMap<>();
+        map.put(key, userKey);
+        if (!SYNCHRONIZED_CACHE.containsKey(map)) {
+            logger.error("User: {} : Cache not initialized", userKey);
             return Collections.emptyList();
         }
 
-        return Collections.unmodifiableList(cache.get(key));
+        return Collections.unmodifiableList(SYNCHRONIZED_CACHE.get(map));
     }
 
-    public static void clearCache(String key) {
-        logger.info("cache {} invalidated.", key);
-
-        if (cache.containsKey(key)) {
-            cache.remove(key);
+    public static void clearCache(String key, String userKey) {
+        logger.info("User: {} : Cache {} invalidated.", userKey, key);
+        Map<String, String> map = new HashMap<>();
+        map.put(key, userKey);
+        if (SYNCHRONIZED_CACHE.containsKey(map)) {
+            SYNCHRONIZED_CACHE.remove(map);
         } else {
-            logger.error("Cache {} not found.", key);
+            logger.error("User: {} : Cache {} not found.", userKey, key);
             throw new AssertException("Cache not found");
         }
     }

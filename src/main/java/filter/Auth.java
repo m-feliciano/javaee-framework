@@ -41,7 +41,7 @@ public class Auth implements Filter {
         HttpSession session = req.getSession();
         boolean userNotSignIn = (session.getAttribute("userLogged") == null);
 
-        logger.info("User: {}", !userNotSignIn ? session.getAttribute("userLogged").toString() : "not logged");
+        logger.info("User: {}", !userNotSignIn ? session.getAttribute("userLogged") : "not logged");
 
         boolean filter = AUTHORIZED_ACTIONS.stream().anyMatch(strAction::equals);
 

@@ -19,10 +19,16 @@ public class BaseDao {
     }
 
     protected void commit() {
+        if (!this.em.getTransaction().isActive()) {
+            this.em.getTransaction().begin();
+        }
         this.em.getTransaction().commit();
+        this.em.close();
     }
 
     protected void begin() {
-        this.em.getTransaction().begin();
+        if (!this.em.getTransaction().isActive()) {
+            this.em.getTransaction().begin();
+        }
     }
 }

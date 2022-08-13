@@ -2,7 +2,6 @@ package controllers;
 
 import dao.CategoryDao;
 import domain.Category;
-import utils.ArrayUtils;
 import utils.cache.CacheUtil;
 
 import javax.persistence.EntityManager;
@@ -28,7 +27,7 @@ public class CategoryController {
 
     public Category save(Category category) {
         if (Objects.isNull(category)) throw new IllegalArgumentException("The category must not be null.");
-        CacheUtil.clearCache(CACHE_KEY);
+        CacheUtil.clearCache(CACHE_KEY, "");
         return this.categoryDao.save(category);
     }
 
@@ -42,7 +41,7 @@ public class CategoryController {
 
     public void update(Category category) {
         this.categoryDao.update(category);
-        CacheUtil.clearCache(CACHE_KEY);
+        CacheUtil.clearCache(CACHE_KEY, "");
     }
 
     /**
@@ -54,7 +53,6 @@ public class CategoryController {
 
     public void delete(Long id) {
         this.categoryDao.delete(id);
-        CacheUtil.clearCache(CACHE_KEY);
     }
 
     /**
@@ -65,14 +63,6 @@ public class CategoryController {
      */
 
     public Category findById(Long id) {
-        List<Category> categories = (List<Category>) CacheUtil.getFromCache(CACHE_KEY);
-       if (!ArrayUtils.isArrayNullOrEmpty(categories)) {
-            return categories.stream()
-                    .filter(p -> p.getId().equals(id))
-                    .findAny()
-                    .orElse(null);
-        }
-
         return this.categoryDao.findById(id);
     }
 
@@ -84,14 +74,7 @@ public class CategoryController {
      */
 
     public List<Category> findAll() {
-        List<Category> categories = (List<Category>) CacheUtil.getFromCache(CACHE_KEY);
-       if (!ArrayUtils.isArrayNullOrEmpty(categories)) {
-            return categories;
-        }
-
-        categories = this.categoryDao.findAll();
-        CacheUtil.initCache(CACHE_KEY, categories);
-        return categories;
+        return this.categoryDao.findAll();
     }
 
 }

@@ -44,6 +44,11 @@ public class User implements Serializable {
         this.addPerfil(Perfil.CLIENT);
     }
 
+    public User(Long id, String login) {
+        this.id = id;
+        this.login = login;
+    }
+
     public void addPerfil(Perfil perfil) {
         perfis.add(perfil.getCod());
     }

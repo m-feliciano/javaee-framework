@@ -1,8 +1,16 @@
 package dao;
 
+import domain.Category;
 import domain.Product;
+import domain.enums.Status;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProductDao extends BaseDao {
@@ -20,10 +28,11 @@ public class ProductDao extends BaseDao {
 
     public Product save(Product product) {
         begin();
+        product.setStatus(Status.ACTIVE.getDescription());
         this.em.persist(product);
         commit();
         product = em.merge(product);
-        close();
+        this.em.clear();
         return product;
     }
 
@@ -37,23 +46,22 @@ public class ProductDao extends BaseDao {
         begin();
         this.em.merge(product);
         commit();
-        close();
     }
 
     /**
      * delete by id.
      *
-     * @param id the id
+     * @param product the product
      * @return true if deleted, false if not found
      */
 
-    public boolean delete(Long id) {
-        Product prod = this.findById(id);
+    public boolean delete(Product product) {
+        Product prod = this.find(product);
         if (prod != null) {
             begin();
-            this.em.remove(prod);
+            prod = em.merge(prod);
+            prod.setStatus(Status.DELETED.getDescription());
             commit();
-            close();
             return true;
         }
         return false;
@@ -62,11 +70,21 @@ public class ProductDao extends BaseDao {
     /**
      * Find by id.
      *
+     * @param product the product
      * @return product with the given id
      */
 
-    public Product findById(Long id) {
-        return this.em.find(Product.class, id);
+    public Product find(Product product) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Product> c = cb.createQuery(Product.class);
+        Root<Product> prod = c.from(Product.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(prod.get("user"), product.getUser()));
+        predicates.add(cb.equal(prod.get("id"), product.getId()));
+        c.where(cb.and(predicates.toArray(new Predicate[0])));
+        TypedQuery<Product> q = em.createQuery(c);
+        return q.getSingleResult();
     }
 
     /**
@@ -74,53 +92,35 @@ public class ProductDao extends BaseDao {
      *
      * @return the list of products
      */
-    public List<Product> findAll() {
-        String jpql = "SELECT p FROM Product p ORDER BY p.id";
-        List<Product> products = em.createQuery(jpql, Product.class).getResultList();
-        close();
-        return products;
+    public List<Product> findAll(Product product) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Product> c = cb.createQuery(Product.class);
+        Root<Product> prod = c.from(Product.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(prod.get("user"), product.getUser()));
+        if (product.getStatus() != null) {
+            predicates.add(cb.equal(prod.get("status"), product.getStatus()));
+        } else {
+            predicates.add(cb.equal(prod.get("status"), Status.ACTIVE.getDescription()));
+        }
+
+        c.where(cb.and(predicates.toArray(new Predicate[0])));
+        c.orderBy(cb.asc(prod.get("id")));
+
+        TypedQuery<Product> q = em.createQuery(c);
+        return q.getResultList();
     }
 
     /**
-     * Find all by name.
-     * receives a name and returns the product with that name.
+     * Find all by category category
      *
-     * @param name the description
-     * @return list of products
-     */
-
-    public List<Product> findAllByName(String name) {
-        String jpql = "SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))";
-        List<Product> products = em.createQuery(jpql, Product.class).setParameter("name", name).getResultList();
-        close();
-        return products;
-    }
-
-    /**
-     * Find all by category name
-     *
-     * @param name the category name
+     * @param category the category category
      * @return the list
      */
-
-    public List<Product> findAllByCategoryName(String name) {
+    public List<Product> findAllByCategory(Category category) {
         String jpql = "SELECT p FROM Product p WHERE LOWER(p.category.name) LIKE LOWER(CONCAT('%', :name, '%'))";
-        List<Product> products = em.createQuery(jpql, Product.class).setParameter("name", name).getResultList();
-        close();
-        return products;
+        return em.createQuery(jpql, Product.class).setParameter("name", category.getName()).getResultList();
     }
 
-    /**
-     * Find all by descriprion
-     *
-     * @param description the description
-     * @return the list
-     */
-
-    public List<Product> findAllByDescription(String description) {
-        String jpql = "SELECT p FROM Product p WHERE LOWER(p.description) LIKE LOWER(CONCAT('%', :desc, '%'))";
-        List<Product> products = em.createQuery(jpql, Product.class).setParameter("desc", description).getResultList();
-        close();
-        return products;
-    }
 }

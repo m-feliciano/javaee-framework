@@ -24,7 +24,6 @@ public class Product implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Setter(value = AccessLevel.NONE)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -39,6 +38,13 @@ public class Product implements Serializable {
     private LocalDate registerDate;
     @Column(name = "price")
     private BigDecimal price;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @Column(name = "status")
+    private String status;
 
     @Transient
     @Setter(value = AccessLevel.NONE)

@@ -59,7 +59,7 @@ public class InventoryServlet extends BaseInventory {
     }
 
     /**
-     * Gets the item.
+     * Create the item.
      *
      * @param req  the request
      * @param resp the response
@@ -68,8 +68,8 @@ public class InventoryServlet extends BaseInventory {
 
     private String create(HttpServletRequest req, HttpServletResponse resp) {
         logger.info("doPOST creating a inventory item");
-
-        Product product = productController.findById(Long.parseLong(req.getParameter(PRODUCT_ID)));
+        Product product = new Product();
+        product = productController.find(product);
         int quantity = Integer.parseInt(req.getParameter(QUANTITY));
         Inventory item = new Inventory(product, quantity, req.getParameter(DESCRIPTION));
         controller.save(item);
@@ -143,8 +143,8 @@ public class InventoryServlet extends BaseInventory {
         if (!this.validate(req, resp)) {
             return FORWARD_PAGES_NOT_FOUND_JSP;
         }
-
-        Product product = productController.findById(Long.parseLong(req.getParameter(PRODUCT_ID)));
+        Product product = new Product();
+        product = productController.find(product);
         Inventory item = controller.findById(Long.parseLong(req.getParameter(ID)));
         int quantity = Integer.parseInt(req.getParameter(QUANTITY));
         item.setProduct(product);

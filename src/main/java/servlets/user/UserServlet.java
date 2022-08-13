@@ -75,16 +75,18 @@ public class UserServlet extends BaseUser {
             return FORWARD_PAGES_USER_FORM_CREATE_USER_JSP;
         }
 
-        User alreadyExists = controller.findByLogin(req.getParameter(EMAIL));
+        User user = new User();
+        user.setLogin(req.getParameter(EMAIL).toLowerCase());
+        user = controller.find(user);
 
-        if (alreadyExists != null) {
+        if (user != null) {
             req.setAttribute(ERROR, "User already exists");
-            logger.warn("User {} already exists - redirecting to register user page", alreadyExists.getLogin());
+            logger.warn("User {} already exists - redirecting to register user page", user.getLogin());
             return FORWARD_PAGES_USER_FORM_CREATE_USER_JSP;
         }
 
-        User user = new User(req.getParameter(EMAIL).toLowerCase(), req.getParameter(PASSWORD));
-        user.setPassword(EncryptDecrypt.encrypt(user.getPassword()));
+        user = new User(req.getParameter(EMAIL).toLowerCase(), EncryptDecrypt.encrypt(req.getParameter(PASSWORD)));
+
         try {
             controller.save(user);
         } catch (IllegalArgumentException e) {

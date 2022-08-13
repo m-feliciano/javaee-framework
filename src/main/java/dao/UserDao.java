@@ -19,7 +19,6 @@ public class UserDao extends BaseDao {
         begin();
         this.em.persist(user);
         commit();
-        close();
     }
 
     /**
@@ -32,7 +31,6 @@ public class UserDao extends BaseDao {
         begin();
         this.em.merge(user);
         commit();
-        close();
     }
 
     /**
@@ -48,7 +46,6 @@ public class UserDao extends BaseDao {
             begin();
             this.em.remove(prod);
             commit();
-            close();
             return true;
         }
         return false;
@@ -71,9 +68,8 @@ public class UserDao extends BaseDao {
      * @param login the username
      * @return the user found or null if not found
      */
-
     public User findByLogin(String login) {
-        String jpql = "SELECT u FROM User u WHERE u.login = :login";
+        String jpql = "SELECT NEW User(u.id, u.login) FROM User u WHERE u.login = :login";
         return em.createQuery(jpql, User.class)
                 .setParameter("login", login)
                 .getResultStream()
@@ -81,4 +77,18 @@ public class UserDao extends BaseDao {
                 .orElse(null);
     }
 
+    /**
+     * Find by username.
+     *
+     * @param user the user
+     * @return the user found or null if not found
+     */
+    public User find(User user) {
+        String jpql = "SELECT u FROM User u WHERE u.login = :login";
+        return em.createQuery(jpql, User.class)
+                .setParameter("login", user.getLogin())
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
+    }
 }
