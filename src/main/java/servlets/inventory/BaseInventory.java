@@ -13,6 +13,7 @@ import utils.JPAUtil;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Objects;
 
 import static servlets.base.Base.ERROR;
@@ -35,7 +36,7 @@ public class BaseInventory implements Action, RequestValidation {
      */
 
     @Override
-    public String execute(HttpServletRequest req, HttpServletResponse resp) {
+    public String execute(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         logger.error("Error: BaseProduct.execute() is not implemented");
         throw new AssertException("This method should be overridden");
     }

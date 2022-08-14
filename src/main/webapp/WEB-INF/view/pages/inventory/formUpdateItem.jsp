@@ -25,10 +25,17 @@
                        placeholder="quantity" value="${ item.quantity }" required minlength="1"/>
             </div>
             <div class="mb-3">
-                <label for="inputQuantity" class="form-label">DESCRIPTION</label>
-                <input type="text" name="description" class="form-control" id="inputDescription"
-                       placeholder="descripton" value="${ item.description }" required minlength="4"/>
+                <label for="inputDescription" class="form-label">DESCRIPTION</label>
+                <textarea name="description" class="form-control" id="inputDescription"
+                          placeholder="descripton" rows="4" required
+                          minlength="4" maxlength="1400">${ item.description }</textarea>
             </div>
+
+            <c:if test="${not empty error}">
+                <div class="alert alert-danger hidden-alert" role="alert">
+                    <c:out value="${error}"/>
+                </div>
+            </c:if>
 
             <!-- action -->
             <input type="hidden" name="action" value="update">

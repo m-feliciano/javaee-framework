@@ -94,7 +94,31 @@ public class ProductController {
     public Product find(Product product) {
         List<Product> products = (List<Product>) CacheUtil.getFromCache(CACHE_KEY, product.getUser().getLogin());
         if (!ArrayUtils.isArrayNullOrEmpty(products)) {
-            return products.stream().filter(p -> p.getId().equals(product.getId())).findAny().orElse(null);
+            Product result = null;
+            if (product.getId() != null) {
+                result = products.stream()
+                        .filter(p -> p.getId().equals(product.getId()))
+                        .findFirst()
+                        .orElse(null);
+            } else {
+                if (product.getName() != null) {
+                    result = products.stream()
+                            .filter(p -> p.getName().toLowerCase().contains(product.getName().toLowerCase()))
+                            .findFirst()
+                            .orElse(null);
+                }
+
+                if (product.getDescription() != null) {
+                    result = products.stream()
+                            .filter(p -> p.getDescription().toLowerCase().contains(product.getDescription().toLowerCase()))
+                            .findAny()
+                            .orElse(null);
+                }
+            }
+
+            if (result != null) {
+                return result;
+            }
         }
 
         return this.productDao.find(product);

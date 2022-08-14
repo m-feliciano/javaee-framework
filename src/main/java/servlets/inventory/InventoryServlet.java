@@ -3,15 +3,18 @@ package servlets.inventory;
 import controllers.ProductController;
 import domain.Inventory;
 import domain.Product;
+import domain.User;
 import utils.JPAUtil;
 
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
 import static servlets.base.Base.*;
+import static servlets.product.ProductServlet.USER_LOGGED;
 
 public class InventoryServlet extends BaseInventory {
     protected final EntityManager emp = JPAUtil.getEntityManager();
@@ -26,7 +29,7 @@ public class InventoryServlet extends BaseInventory {
      */
 
     @Override
-    public String execute(HttpServletRequest req, HttpServletResponse resp) {
+    public String execute(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (req.getParameter("action") == null) {
             logger.error("Error: action can't be null");
             req.setAttribute(ERROR, "Action can't be null");
@@ -138,18 +141,33 @@ public class InventoryServlet extends BaseInventory {
      * @return the string
      */
 
-    private String update(HttpServletRequest req, HttpServletResponse resp) {
+    private String update(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         logger.info("doPOST updating inventory item");
         if (!this.validate(req, resp)) {
             return FORWARD_PAGES_NOT_FOUND_JSP;
         }
-        Product product = new Product();
-        product = productController.find(product);
+
         Inventory item = controller.findById(Long.parseLong(req.getParameter(ID)));
-        int quantity = Integer.parseInt(req.getParameter(QUANTITY));
-        item.setProduct(product);
-        item.setQuantity(quantity);
+        item.setQuantity(Integer.parseInt(req.getParameter(QUANTITY)));
         item.setDescription(req.getParameter(DESCRIPTION));
+
+        Product product = new Product();
+        long idProduct = Long.parseLong(req.getParameter(PRODUCT_ID));
+        product.setId(idProduct);
+        User user = (User) req.getSession().getAttribute(USER_LOGGED);
+        product.setUser(user);
+
+        try {
+            product = productController.find(product);
+        } catch (Exception e) {
+            logger.error("User: {} : product id {} not found.", user, idProduct);
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            req.setAttribute(ERROR, "ERROR: Product ID " + idProduct + " was not found.");
+            req.setAttribute(ITEM, item);
+            return FORWARD_PAGES_INVENTORY_FORM_UPDATE_ITEM_JSP;
+        }
+
+        item.setProduct(product);
         controller.update(item);
         req.setAttribute(ITEM, item);
         return REDIRECT_INVENTORY_ACTION_LIST_ITEMS_BY_ID + item.getId();

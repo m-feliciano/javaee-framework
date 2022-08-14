@@ -27,10 +27,10 @@
                        placeholder="quantity" value="${ item.quantity }" readonly="readonly" required minlength="1"/>
             </div>
             <div class="mb-3">
-                <label for="inputQuantity" class="form-label">DESCRIPTION</label>
-                <input type="text" name="description" class="form-control" id="inputDescription"
-                       placeholder="simple descripton" value="${ item.description }" readonly="readonly" required
-                       minlength="4"/>
+                <label for="inputDescription" class="form-label">DESCRIPTION</label>
+                <textarea name="description" class="form-control" id="inputDescription"
+                          placeholder="descripton" required readonly
+                          rows="4" minlength="4">${ item.description }</textarea>
             </div>
 
             <!-- action -->

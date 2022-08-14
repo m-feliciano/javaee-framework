@@ -82,7 +82,10 @@ public class ProductDao extends BaseDao {
 
         List<Predicate> predicates = new ArrayList<>();
         predicates.add(cb.equal(prod.<User>get("user").<Long>get("id"), product.getUser().getId()));
-        predicates.add(cb.equal(prod.<Long>get("id"), product.getId()));
+
+        if (product.getId() != null) {
+            predicates.add(cb.equal(prod.<Long>get("id"), product.getId()));
+        }
         c.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Product> q = em.createQuery(c);
         return q.getSingleResult();
