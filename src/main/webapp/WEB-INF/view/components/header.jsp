@@ -20,6 +20,7 @@
 <c:url value="/product" var="productLink"/>
 <c:url value="/category" var="categoryLink"/>
 <c:url value="/inventory" var="inventoryLink"/>
+<c:url value="/user" var="userLink"/>
 
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -40,6 +41,7 @@
                 <a class="nav-link" href="${inventoryLink}?action=list">Inventory</a>
             </li>
         </ul>
+        <a class="nav-link btn-logout mr-2" href="${userLink}?action=list">Perfil</a>
         <a class="nav-link btn-logout" href="${productLink}?action=logout">Logout</a>
     </div>
 </nav>

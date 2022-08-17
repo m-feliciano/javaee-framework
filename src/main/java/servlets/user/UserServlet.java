@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
 
 import static servlets.base.Base.*;
+import static servlets.product.ProductServlet.USER_LOGGED;
 
 public class UserServlet extends BaseUser {
 
@@ -108,12 +109,19 @@ public class UserServlet extends BaseUser {
      */
     private String update(HttpServletRequest req, HttpServletResponse resp) {
         logger.info("doPOST updating user");
-        if (!this.validate(req, resp)) {
-            return FORWARD_PAGES_NOT_FOUND_JSP;
-        }
-        User user = controller.findById(Long.parseLong(req.getParameter(ID)));
+
+        User user = (User) req.getSession().getAttribute(USER_LOGGED);
         user.setLogin(req.getParameter(EMAIL).toLowerCase());
+
+        if (!this.validatePassword(req)) {
+            req.setAttribute(USER, user);
+            logger.warn("Passwords do not match - redirecting to list user page");
+            req.setAttribute("invalid", "Passwords do not match");
+            return FORWARD_PAGES_USER_FORM_LIST_USER_JSP;
+        }
+
         user.setPassword(EncryptDecrypt.encrypt(req.getParameter(PASSWORD)));
+
         controller.update(user);
         req.setAttribute(USER, user);
         return REDIRECT_USER_ACTION_LIST_USER_BY_ID + user.getId();
@@ -128,12 +136,8 @@ public class UserServlet extends BaseUser {
      */
     private String list(HttpServletRequest req, HttpServletResponse resp) {
         logger.info("doPOST listing a user");
-
-        if (!this.validate(req, resp)) {
-            return FORWARD_PAGES_NOT_FOUND_JSP;
-        }
-
-        req.setAttribute(USER, controller.findById(Long.parseLong(req.getParameter(ID))));
+        User user = (User) req.getSession().getAttribute(USER_LOGGED);
+        req.setAttribute(USER, controller.find(user));
         return FORWARD_PAGES_USER_FORM_LIST_USER_JSP;
     }
 
