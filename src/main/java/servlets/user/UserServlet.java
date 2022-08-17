@@ -120,7 +120,7 @@ public class UserServlet extends BaseUser {
             return FORWARD_PAGES_USER_FORM_LIST_USER_JSP;
         }
 
-        user.setPassword(EncryptDecrypt.encrypt(req.getParameter(PASSWORD)));
+        user.setPassword(EncryptDecrypt.encrypt(req.getParameter(CONFIRM_PASSWORD)));
 
         controller.update(user);
         req.setAttribute(USER, user);
@@ -165,12 +165,19 @@ public class UserServlet extends BaseUser {
      * @return the boolean
      */
     private boolean validatePassword(HttpServletRequest req) {
+        boolean valid = false;
         if (req.getParameter(PASSWORD) != null && req.getParameter(CONFIRM_PASSWORD) != null) {
-            if (!Objects.equals(req.getParameter(PASSWORD), req.getParameter(CONFIRM_PASSWORD))) {
-                req.setAttribute(ERROR, "Passwords do not match");
-                return false;
+            if (Objects.equals(req.getParameter(PASSWORD), req.getParameter(CONFIRM_PASSWORD))) {
+                valid = true;
+            } else if (Objects.equals(EncryptDecrypt.decrypt(req.getParameter(PASSWORD)), req.getParameter(CONFIRM_PASSWORD))) {
+                valid = true;
             }
         }
-        return true;
+
+        if (!valid) {
+            req.setAttribute(ERROR, "Passwords do not match");
+        }
+
+        return valid;
     }
 }
