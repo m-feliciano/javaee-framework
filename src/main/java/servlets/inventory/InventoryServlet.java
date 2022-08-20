@@ -154,9 +154,9 @@ public class InventoryServlet extends BaseInventory {
         item.setDescription(req.getParameter(DESCRIPTION));
         Product product = Product.getProductFromRequest(req);
 
-        try {
-            product = productController.find(product);
-        } catch (Exception e) {
+
+        product = productController.find(product);
+        if (Objects.isNull(product)) {
             logger.error("Product id {} was not found.", req.getParameter(PRODUCT_ID));
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             req.setAttribute(ERROR, "ERROR: Product ID " + req.getParameter(PRODUCT_ID) + " was not found.");
