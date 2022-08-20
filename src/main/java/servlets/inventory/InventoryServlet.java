@@ -4,7 +4,7 @@ import controllers.InventoryController;
 import controllers.ProductController;
 import domain.Inventory;
 import domain.Product;
-import domain.User;
+import org.apache.commons.lang3.time.StopWatch;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static servlets.base.Base.*;
-import static servlets.product.ProductServlet.USER_LOGGED;
 
 public class InventoryServlet extends BaseInventory {
     private final ProductController productController = new ProductController(getEm());
@@ -67,12 +66,17 @@ public class InventoryServlet extends BaseInventory {
      * @return string
      */
     private String create(HttpServletRequest req, HttpServletResponse resp) {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         logger.info("doPOST creating a inventory item");
-        Product product = getProductFromRequest(req);
+        Product product = Product.getProductFromRequest(req);
+        product = productController.find(product);
         int quantity = Integer.parseInt(req.getParameter(QUANTITY));
         Inventory item = new Inventory(product, quantity, req.getParameter(DESCRIPTION));
         controller.save(item);
         req.setAttribute(ITEM, item);
+        stopWatch.stop();
+        logger.info("doPOST creating a inventory item took {} ms", stopWatch.getTime());
         return REDIRECT_INVENTORY_ACTION_LIST_ITEMS_BY_ID + item.getId();
     }
 
@@ -84,6 +88,8 @@ public class InventoryServlet extends BaseInventory {
      * @return the string
      */
     private String list(HttpServletRequest req, HttpServletResponse resp) {
+        StopWatch sw = new StopWatch();
+        sw.start();
         logger.info("doPOST listing items by filter");
 
         String id = req.getParameter(ID);
@@ -113,7 +119,8 @@ public class InventoryServlet extends BaseInventory {
             inventories = controller.findAll();
             req.setAttribute(ITEMS, inventories);
         }
-
+        sw.stop();
+        logger.info("doPOST listing items by filter - time: {}ms", sw.getTime());
         return FORWARD_PAGES_INVENTORY_LIST_ITEMS_JSP;
     }
 
@@ -135,6 +142,8 @@ public class InventoryServlet extends BaseInventory {
      * @return the string
      */
     private String update(HttpServletRequest req, HttpServletResponse resp) {
+        StopWatch sw = new StopWatch();
+        sw.start();
         logger.info("doPOST updating inventory item");
         if (!this.validate(req, resp)) {
             return FORWARD_PAGES_NOT_FOUND_JSP;
@@ -143,7 +152,7 @@ public class InventoryServlet extends BaseInventory {
         Inventory item = controller.findById(Long.parseLong(req.getParameter(ID)));
         item.setQuantity(Integer.parseInt(req.getParameter(QUANTITY)));
         item.setDescription(req.getParameter(DESCRIPTION));
-        Product product = getProductFromRequest(req);
+        Product product = Product.getProductFromRequest(req);
 
         try {
             product = productController.find(product);
@@ -158,6 +167,8 @@ public class InventoryServlet extends BaseInventory {
         item.setProduct(product);
         controller.update(item);
         req.setAttribute(ITEM, item);
+        sw.stop();
+        logger.info("doPOST updating inventory item - time: {}ms", sw.getTime());
         return REDIRECT_INVENTORY_ACTION_LIST_ITEMS_BY_ID + item.getId();
     }
 
@@ -193,13 +204,5 @@ public class InventoryServlet extends BaseInventory {
 
         controller.delete(Long.parseLong(req.getParameter(ID)));
         return REDIRECT_INVENTORY_ACTION_LIST_ITEMS;
-    }
-
-    private Product getProductFromRequest(HttpServletRequest req) {
-        Product product = new Product();
-        product.setId(Long.parseLong(req.getParameter(PRODUCT_ID)));
-        product.setUser((User) req.getSession().getAttribute(USER_LOGGED));
-        product = productController.find(product);
-        return product;
     }
 }

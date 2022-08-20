@@ -7,6 +7,7 @@ import org.hibernate.Hibernate;
 import utils.CurrencyFormatter;
 
 import javax.persistence.*;
+import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,6 +15,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import static servlets.base.Base.PRODUCT_ID;
+import static servlets.product.ProductServlet.USER_LOGGED;
 
 @Getter
 @Setter
@@ -95,6 +99,13 @@ public class Product implements Serializable {
 
     public void setCategories(List<Category> categories) {
         this.categories = categories;
+    }
+
+    public static Product getProductFromRequest(HttpServletRequest req) {
+        Product product = new Product();
+        product.setId(Long.parseLong(req.getParameter(PRODUCT_ID)));
+        product.setUser((User) req.getSession().getAttribute(USER_LOGGED));
+        return product;
     }
 
     @Override
