@@ -65,7 +65,6 @@
                 <button type="submit" class="btn btn-primary mr-2">Submit</button>
                 <a type="button" href="${ productLink }?action=list&id=${product.id }" class="btn btn-light">Cancel</a>
             </div>
-
         </div>
     </form>
 </div>

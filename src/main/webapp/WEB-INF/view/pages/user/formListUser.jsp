@@ -21,7 +21,7 @@
                     </c:if>
                 </div>
                 <div class="col-md-10">
-                    <label for="imgUrl" class="form-label">URL Image</label>
+                    <label for="imgUrl" class="form-label">Image</label>
                     <textarea rows="2" name="imgUrl" class="form-control" minlength="5"
                               maxlength="255" id="imgUrl" placeholder="URL">${user.imgUrl}</textarea>
                 </div>
@@ -41,7 +41,7 @@
             <div class="mb-3">
                 <label for="inputConfirmPaassword" class="form-label">CONFIRM PASSWORD</label>
                 <input type="password" name="confirmPassword" class="form-control" id="inputConfirmPaassword"
-                       placeholder="confirm password" required/>
+                       placeholder="password" required/>
             </div>
             <c:if test="${not empty invalid}">
                 <div class="alert alert-danger hidden-alert" role="alert">
@@ -50,11 +50,11 @@
             </c:if>
 
             <!-- action -->
-            <input type="hidden" name="action" value="update">
-            <button type="submit" class="btn btn-primary">Submit</button>
-            <a type="button" href="${ listProducts }" class="btn btn-light">
-                Go back
-            </a>
+            <div class="row justify-content-end mr-0">
+                <input type="hidden" name="action" value="update">
+                <button type="submit" class="btn btn-primary mr-2">Submit</button>
+                <a type="button" href="${ listProducts }" class="btn btn-light">Go back</a>
+            </div>
         </div>
     </form>
 </div>
