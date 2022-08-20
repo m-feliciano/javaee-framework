@@ -23,9 +23,7 @@ public class BaseUser implements Action, RequestValidation {
 
     public static final String ID = "id";
     protected final Logger logger = LoggerFactory.getLogger(BaseUser.class);
-    private final EntityManager em = JPAUtil.getEntityManager();
-    protected final UserController controller = new UserController(em);
-
+    protected final EntityManager em = JPAUtil.getEntityManager();
     /**
      * Execute.
      *

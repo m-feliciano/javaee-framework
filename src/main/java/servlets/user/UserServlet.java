@@ -1,5 +1,6 @@
 package servlets.user;
 
+import controllers.UserController;
 import domain.User;
 import servlets.utils.EncryptDecrypt;
 
@@ -11,6 +12,8 @@ import static servlets.base.Base.*;
 import static servlets.product.ProductServlet.USER_LOGGED;
 
 public class UserServlet extends BaseUser {
+
+    protected final UserController controller = new UserController(em);
 
     /**
      * Execute.
@@ -87,6 +90,7 @@ public class UserServlet extends BaseUser {
         }
 
         user = new User(req.getParameter(EMAIL).toLowerCase(), EncryptDecrypt.encrypt(req.getParameter(PASSWORD)));
+        user.setImgUrl(req.getParameter("imgUrl"));
 
         try {
             controller.save(user);
@@ -112,6 +116,7 @@ public class UserServlet extends BaseUser {
 
         User user = (User) req.getSession().getAttribute(USER_LOGGED);
         user.setLogin(req.getParameter(EMAIL).toLowerCase());
+        user.setImgUrl(req.getParameter("imgUrl"));
 
         if (!this.validatePassword(req)) {
             req.setAttribute(USER, user);
@@ -128,7 +133,7 @@ public class UserServlet extends BaseUser {
     }
 
     /**
-     * List user by id.
+     * List user by session.
      *
      * @param req  the req
      * @param resp the resp

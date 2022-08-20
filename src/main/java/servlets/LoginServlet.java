@@ -78,7 +78,7 @@ public class LoginServlet extends BaseLogin {
         }
 
         HttpSession session = req.getSession();
-        session.setAttribute("userLogged", new User(user.getId(), user.getLogin()));
+        session.setAttribute("userLogged", new User(user.getId(), user.getLogin(), user.getImgUrl()));
         logger.info("User logged: {}", user.getLogin());
 
         sw.stop();

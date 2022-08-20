@@ -1,16 +1,17 @@
 package servlets.category;
 
+import controllers.CategoryController;
 import domain.Category;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.util.Objects;
 
 import static servlets.base.Base.*;
 
 public class CategoryServlet extends BaseCategory {
 
+    private final CategoryController controller = new CategoryController(em);
     /**
      * Execute.
      *

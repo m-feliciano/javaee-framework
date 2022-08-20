@@ -1,7 +1,6 @@
 package servlets.category;
 
 import com.mchange.util.AssertException;
-import controllers.CategoryController;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -22,8 +21,7 @@ import static servlets.base.Base.ERROR;
 public class BaseCategory implements Action, RequestValidation {
 
     protected final Logger logger = LoggerFactory.getLogger(BaseCategory.class);
-    private final EntityManager em = JPAUtil.getEntityManager();
-    protected final CategoryController controller = new CategoryController(em);
+    protected final EntityManager em = JPAUtil.getEntityManager();
 
     /**
      * Execute.

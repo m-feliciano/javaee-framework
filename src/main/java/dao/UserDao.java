@@ -16,9 +16,10 @@ public class UserDao extends BaseDao {
      */
 
     public void save(User user) {
-        begin();
+        beginTransaction();
         this.em.persist(user);
-        commit();
+        commitTransaction();
+        closeTransaction();
     }
 
     /**
@@ -28,9 +29,10 @@ public class UserDao extends BaseDao {
      */
 
     public void update(User user) {
-        begin();
+        beginTransaction();
         this.em.merge(user);
-        commit();
+        commitTransaction();
+        closeTransaction();
     }
 
     /**
@@ -43,11 +45,13 @@ public class UserDao extends BaseDao {
     public boolean delete(Long id) {
         User prod = this.findById(id);
         if (prod != null) {
-            begin();
+            beginTransaction();
             this.em.remove(prod);
-            commit();
+            commitTransaction();
+            closeTransaction();
             return true;
         }
+        closeTransaction();
         return false;
     }
 
@@ -59,7 +63,9 @@ public class UserDao extends BaseDao {
      */
 
     public User findById(Long id) {
-        return this.em.find(User.class, id);
+        User user = this.em.find(User.class, id);
+        closeTransaction();
+        return user;
     }
 
     /**
@@ -69,12 +75,14 @@ public class UserDao extends BaseDao {
      * @return the user found or null if not found
      */
     public User findByLogin(String login) {
-        String jpql = "SELECT NEW User(u.id, u.login) FROM User u WHERE u.login = :login";
-        return em.createQuery(jpql, User.class)
-                .setParameter("login", login)
+        String jpql = "SELECT NEW User(u.id, u.login) FROM User u WHERE lower(u.login) = :login";
+        User user = em.createQuery(jpql, User.class)
+                .setParameter("login", login.toLowerCase())
                 .getResultStream()
                 .findFirst()
                 .orElse(null);
+        closeTransaction();
+        return user;
     }
 
     /**
@@ -84,11 +92,13 @@ public class UserDao extends BaseDao {
      * @return the user found or null if not found
      */
     public User find(User user) {
-        String jpql = "SELECT u FROM User u WHERE u.login = :login";
-        return em.createQuery(jpql, User.class)
-                .setParameter("login", user.getLogin())
+        String jpql = "SELECT u FROM User u WHERE lower(u.login) = :login";
+        User login = em.createQuery(jpql, User.class)
+                .setParameter("login", user.getLogin().toLowerCase())
                 .getResultStream()
                 .findFirst()
                 .orElse(null);
+        closeTransaction();
+        return login;
     }
 }

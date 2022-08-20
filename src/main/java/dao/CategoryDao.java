@@ -17,11 +17,12 @@ public class CategoryDao extends BaseDao {
      * @return the category saved
      */
     public Category save(Category category) {
-        begin();
+        beginTransaction();
         this.em.persist(category);
-        commit();
+        commitTransaction();
         category = this.em.merge(category);
         this.em.clear();
+        closeTransaction();
         return category;
     }
 
@@ -31,9 +32,10 @@ public class CategoryDao extends BaseDao {
      * @param category the category
      */
     public void update(Category category) {
-        begin();
+        beginTransaction();
         this.em.merge(category);
-        commit();
+        commitTransaction();
+        closeTransaction();
     }
 
     /**
@@ -46,9 +48,10 @@ public class CategoryDao extends BaseDao {
     public boolean delete(Long id) {
         Category category = this.findById(id);
         if (category != null) {
-            begin();
+            beginTransaction();
             this.em.remove(category);
-            commit();
+            commitTransaction();
+            closeTransaction();
             return true;
         }
         return false;
@@ -62,7 +65,9 @@ public class CategoryDao extends BaseDao {
      */
 
     public Category findById(Long id) {
-        return this.em.find(Category.class, id);
+        Category category = this.em.find(Category.class, id);
+        closeTransaction();
+        return category;
     }
 
     /**
@@ -73,7 +78,9 @@ public class CategoryDao extends BaseDao {
 
     public List<Category> findAll() {
         String jpql = "SELECT c FROM Category c";
-        return em.createQuery(jpql, Category.class).getResultList();
+        List<Category> list = em.createQuery(jpql, Category.class).getResultList();
+        closeTransaction();
+        return list;
     }
 
 }

@@ -14,21 +14,15 @@ public class BaseDao {
         return em;
     }
 
-    protected void close() {
-        this.em.close();
-    }
-
-    protected void commit() {
-        if (!this.em.getTransaction().isActive()) {
-            this.em.getTransaction().begin();
-        }
+    protected void commitTransaction() {
         this.em.getTransaction().commit();
-        this.em.close();
     }
 
-    protected void begin() {
-        if (!this.em.getTransaction().isActive()) {
-            this.em.getTransaction().begin();
-        }
+    protected void beginTransaction() {
+        this.em.getTransaction().begin();
+    }
+
+    protected void closeTransaction() {
+        this.em.close();
     }
 }

@@ -24,7 +24,6 @@ import static servlets.base.Base.ID;
 public class BaseInventory implements Action, RequestValidation {
 
     protected final EntityManager em = JPAUtil.getEntityManager();
-    protected final InventoryController controller = new InventoryController(em);
     protected final Logger logger = LoggerFactory.getLogger(BaseInventory.class);
 
     /**

@@ -19,10 +19,10 @@ public class InventoryDao extends BaseDao {
      */
 
     public void save(Inventory item) {
-        begin();
+        beginTransaction();
         this.em.persist(item);
-        commit();
-        close();
+        commitTransaction();
+        closeTransaction();
     }
 
     /**
@@ -33,10 +33,10 @@ public class InventoryDao extends BaseDao {
      */
 
     public void update(Inventory item) {
-        begin();
+        beginTransaction();
         this.em.merge(item);
-        commit();
-        close();
+        commitTransaction();
+        closeTransaction();
     }
 
     /**
@@ -49,12 +49,13 @@ public class InventoryDao extends BaseDao {
     public boolean delete(Long id) {
         Inventory item = this.findById(id);
         if (item != null) {
-            begin();
+            beginTransaction();
             this.em.remove(item);
-            commit();
-            close();
+            commitTransaction();
+            closeTransaction();
             return true;
         }
+        closeTransaction();
         return false;
     }
 
@@ -67,7 +68,9 @@ public class InventoryDao extends BaseDao {
      */
 
     public Inventory findById(Long id) {
-        return this.em.find(Inventory.class, id);
+        Inventory inventory = this.em.find(Inventory.class, id);
+        closeTransaction();
+        return inventory;
     }
 
     /**
@@ -80,7 +83,7 @@ public class InventoryDao extends BaseDao {
     public List<Inventory> findAll() {
         String jpql = "SELECT p FROM Inventory p ORDER BY p.id";
         List<Inventory> inventories = em.createQuery(jpql, Inventory.class).getResultList();
-        close();
+        closeTransaction();
         return inventories;
     }
 
@@ -95,7 +98,7 @@ public class InventoryDao extends BaseDao {
     public List<Inventory> findAllByProductName(String name) {
         String jpql = "SELECT i FROM Inventory i WHERE LOWER(i.product.name) LIKE LOWER(CONCAT('%', :name, '%'))";
         List<Inventory> inventories = em.createQuery(jpql, Inventory.class).setParameter("name", name).getResultList();
-        close();
+        closeTransaction();
         return inventories;
     }
 
@@ -110,7 +113,7 @@ public class InventoryDao extends BaseDao {
     public List<Inventory> findAllByDescription(String description) {
         String jpql = "SELECT i FROM Inventory i WHERE LOWER(i.description) LIKE LOWER(CONCAT('%', :description, '%'))";
         List<Inventory> inventories = em.createQuery(jpql, Inventory.class).setParameter("description", description + '%').getResultList();
-        close();
+        closeTransaction();
         return inventories;
     }
 

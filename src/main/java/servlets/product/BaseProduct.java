@@ -1,7 +1,6 @@
 package servlets.product;
 
 import com.mchange.util.AssertException;
-import controllers.ProductController;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -22,8 +21,7 @@ import static servlets.base.Base.ID;
 @RequiredArgsConstructor
 public class BaseProduct implements Action, RequestValidation {
 
-    private final EntityManager em = JPAUtil.getEntityManager();
-    protected final ProductController controller = new ProductController(em);
+    protected final EntityManager em = JPAUtil.getEntityManager();
     protected Logger logger = LoggerFactory.getLogger(BaseProduct.class);
     /**
      * Execute.

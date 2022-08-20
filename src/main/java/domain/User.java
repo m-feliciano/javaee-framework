@@ -2,6 +2,7 @@ package domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import domain.enums.Perfil;
+import domain.enums.Status;
 import lombok.*;
 import org.hibernate.Hibernate;
 import servlets.utils.EncryptDecrypt;
@@ -40,15 +41,28 @@ public class User implements Serializable {
     @Column(name = "password")
     private String password;
 
+    @Column(name = "status")
+    private Status status;
+
+    @Column(name = "image_url", columnDefinition = "TEXT")
+    private String imgUrl;
+
     public User(String login, String password) {
         this.login = login;
         this.password = password;
+        this.setStatus(Status.ACTIVE);
         this.addPerfil(Perfil.CLIENT);
     }
 
     public User(Long id, String login) {
         this.id = id;
         this.login = login;
+    }
+
+    public User(Long id, String login, String imgUrl) {
+        this.id = id;
+        this.login = login;
+        this.imgUrl = imgUrl;
     }
 
     public void addPerfil(Perfil perfil) {

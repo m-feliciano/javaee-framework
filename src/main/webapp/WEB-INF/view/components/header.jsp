@@ -41,7 +41,16 @@
                 <a class="nav-link" href="${inventoryLink}?action=list">Inventory</a>
             </li>
         </ul>
-        <a class="nav-link btn-logout mr-2" href="${userLink}?action=list">Perfil</a>
+        <div class="d-flex">
+            <div class="avatar mt-1 mx30">
+                <c:if test="${not empty userLogged }">
+                    <a href="${userLink}?action=list">
+                        <img src="${userLogged.getImgUrl()}" alt="user" class="avatar-img rounded-circle">
+                    </a>
+                </c:if>
+            </div>
+            <a class="nav-link btn-logout mr-2" href="${userLink}?action=list">Perfil</a>
+        </div>
         <a class="nav-link btn-logout" href="${productLink}?action=logout">Logout</a>
     </div>
 </nav>

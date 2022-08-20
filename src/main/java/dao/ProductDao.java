@@ -28,12 +28,13 @@ public class ProductDao extends BaseDao {
      */
 
     public Product save(Product product) {
-        begin();
+        beginTransaction();
         product.setStatus(Status.ACTIVE.getDescription());
         this.em.persist(product);
-        commit();
+        commitTransaction();
         product = em.merge(product);
         this.em.clear();
+        closeTransaction();
         return product;
     }
 
@@ -44,9 +45,10 @@ public class ProductDao extends BaseDao {
      */
 
     public void update(Product product) {
-        begin();
+        beginTransaction();
         this.em.merge(product);
-        commit();
+        commitTransaction();
+        closeTransaction();
     }
 
     /**
@@ -59,12 +61,13 @@ public class ProductDao extends BaseDao {
     public boolean delete(Product product) {
         Product prod = this.find(product);
         if (prod != null) {
-            begin();
+            beginTransaction();
             prod = em.merge(prod);
             prod.setStatus(Status.DELETED.getDescription());
-            commit();
+            commitTransaction();
             return true;
         }
+        closeTransaction();
         return false;
     }
 
@@ -124,7 +127,9 @@ public class ProductDao extends BaseDao {
      */
     public List<Product> findAllByCategory(Category category) {
         String jpql = "SELECT p FROM Product p WHERE LOWER(p.category.name) LIKE LOWER(CONCAT('%', :name, '%'))";
-        return em.createQuery(jpql, Product.class).setParameter("name", category.getName()).getResultList();
+        List<Product> resultList = em.createQuery(jpql, Product.class).setParameter("name", category.getName()).getResultList();
+        closeTransaction();
+        return resultList;
     }
 
 }

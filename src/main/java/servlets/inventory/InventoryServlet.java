@@ -1,12 +1,11 @@
 package servlets.inventory;
 
+import controllers.InventoryController;
 import controllers.ProductController;
 import domain.Inventory;
 import domain.Product;
 import domain.User;
-import utils.JPAUtil;
 
-import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -17,8 +16,8 @@ import static servlets.base.Base.*;
 import static servlets.product.ProductServlet.USER_LOGGED;
 
 public class InventoryServlet extends BaseInventory {
-    protected final EntityManager emp = JPAUtil.getEntityManager();
-    private final ProductController productController = new ProductController(emp);
+    private final ProductController productController = new ProductController(em);
+    private final InventoryController controller = new InventoryController(em);
 
     /**
      * Execute.

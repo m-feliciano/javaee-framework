@@ -1,5 +1,6 @@
 package servlets.product;
 
+import controllers.ProductController;
 import controllers.UserController;
 import domain.Product;
 import domain.User;
@@ -18,6 +19,7 @@ import static servlets.base.Base.*;
 
 public class ProductServlet extends BaseProduct {
 
+    private final ProductController controller = new ProductController(em);
     public static final String USER_LOGGED = "userLogged";
     /**
      * Execute.
