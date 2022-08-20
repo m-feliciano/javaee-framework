@@ -1,7 +1,6 @@
 package servlets.user;
 
 import com.mchange.util.AssertException;
-import controllers.UserController;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -23,7 +22,7 @@ public class BaseUser implements Action, RequestValidation {
 
     public static final String ID = "id";
     protected final Logger logger = LoggerFactory.getLogger(BaseUser.class);
-    protected final EntityManager em = JPAUtil.getEntityManager();
+    private final EntityManager em = JPAUtil.getEntityManager();
     /**
      * Execute.
      *
@@ -46,5 +45,13 @@ public class BaseUser implements Action, RequestValidation {
             return false;
         }
         return true;
+    }
+
+    public EntityManager getEm() {
+        if (em.isOpen()) {
+            return em;
+        } else {
+            return JPAUtil.getEntityManager();
+        }
     }
 }

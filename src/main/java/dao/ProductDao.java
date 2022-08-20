@@ -86,12 +86,27 @@ public class ProductDao extends BaseDao {
         List<Predicate> predicates = new ArrayList<>();
         predicates.add(cb.equal(prod.<User>get("user").<Long>get("id"), product.getUser().getId()));
 
+        if (product.getStatus() != null) {
+            predicates.add(cb.equal(prod.<String>get("status"), product.getStatus()));
+        } else {
+            predicates.add(cb.equal(prod.<String>get("status"), Status.ACTIVE.getDescription()));
+        }
+
         if (product.getId() != null) {
             predicates.add(cb.equal(prod.<Long>get("id"), product.getId()));
+        } else {
+            if (product.getName() != null) {
+                predicates.add(cb.equal(prod.<String>get("name"), product.getName()));
+            }
+
+            if (product.getDescription() != null) {
+                predicates.add(cb.equal(prod.<String>get("description"), product.getDescription()));
+            }
         }
+
         c.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Product> q = em.createQuery(c);
-        return q.getSingleResult();
+        return q.getResultStream().findFirst().orElse(null);
     }
 
     /**

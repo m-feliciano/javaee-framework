@@ -68,9 +68,7 @@ public class InventoryDao extends BaseDao {
      */
 
     public Inventory findById(Long id) {
-        Inventory inventory = this.em.find(Inventory.class, id);
-        closeTransaction();
-        return inventory;
+        return this.em.find(Inventory.class, id);
     }
 
     /**

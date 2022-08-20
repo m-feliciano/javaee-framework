@@ -21,7 +21,7 @@ import static servlets.base.Base.ID;
 @RequiredArgsConstructor
 public class BaseProduct implements Action, RequestValidation {
 
-    protected final EntityManager em = JPAUtil.getEntityManager();
+    private final EntityManager em = JPAUtil.getEntityManager();
     protected Logger logger = LoggerFactory.getLogger(BaseProduct.class);
     /**
      * Execute.
@@ -45,5 +45,13 @@ public class BaseProduct implements Action, RequestValidation {
             return false;
         }
         return true;
+    }
+
+    public EntityManager getEm() {
+        if (em.isOpen()) {
+            return em;
+        } else {
+            return JPAUtil.getEntityManager();
+        }
     }
 }

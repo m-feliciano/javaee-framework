@@ -19,7 +19,7 @@ import static servlets.base.Base.*;
 
 public class ProductServlet extends BaseProduct {
 
-    private final ProductController controller = new ProductController(em);
+    private final ProductController controller = new ProductController(getEm());
     public static final String USER_LOGGED = "userLogged";
     /**
      * Execute.

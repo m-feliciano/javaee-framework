@@ -10,10 +10,6 @@ public class BaseDao {
         this.em = em;
     }
 
-    protected EntityManager getEm() {
-        return em;
-    }
-
     protected void commitTransaction() {
         this.em.getTransaction().commit();
     }

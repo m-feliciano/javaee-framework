@@ -13,7 +13,7 @@ import static servlets.product.ProductServlet.USER_LOGGED;
 
 public class UserServlet extends BaseUser {
 
-    protected final UserController controller = new UserController(em);
+    protected final UserController controller = new UserController(getEm());
 
     /**
      * Execute.

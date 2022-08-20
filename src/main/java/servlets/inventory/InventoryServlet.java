@@ -16,8 +16,8 @@ import static servlets.base.Base.*;
 import static servlets.product.ProductServlet.USER_LOGGED;
 
 public class InventoryServlet extends BaseInventory {
-    private final ProductController productController = new ProductController(em);
-    private final InventoryController controller = new InventoryController(em);
+    private final ProductController productController = new ProductController(getEm());
+    private final InventoryController controller = new InventoryController(getEm());
 
     /**
      * Execute.
@@ -26,7 +26,6 @@ public class InventoryServlet extends BaseInventory {
      * @param resp the resp
      * @return the string
      */
-
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (req.getParameter("action") == null) {
@@ -67,11 +66,9 @@ public class InventoryServlet extends BaseInventory {
      * @param resp the response
      * @return string
      */
-
     private String create(HttpServletRequest req, HttpServletResponse resp) {
         logger.info("doPOST creating a inventory item");
-        Product product = new Product();
-        product = productController.find(product);
+        Product product = getProductFromRequest(req);
         int quantity = Integer.parseInt(req.getParameter(QUANTITY));
         Inventory item = new Inventory(product, quantity, req.getParameter(DESCRIPTION));
         controller.save(item);
@@ -86,7 +83,6 @@ public class InventoryServlet extends BaseInventory {
      * @param resp the resp
      * @return the string
      */
-
     private String list(HttpServletRequest req, HttpServletResponse resp) {
         logger.info("doPOST listing items by filter");
 
@@ -126,7 +122,6 @@ public class InventoryServlet extends BaseInventory {
      *
      * @return the string
      */
-
     private String add() {
         logger.info("doPOST redirecting to form createItem");
         return FORWARD_PAGES_INVENTORY_FORM_CREATE_ITEM_JSP;
@@ -139,8 +134,7 @@ public class InventoryServlet extends BaseInventory {
      * @param resp the resp
      * @return the string
      */
-
-    private String update(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    private String update(HttpServletRequest req, HttpServletResponse resp) {
         logger.info("doPOST updating inventory item");
         if (!this.validate(req, resp)) {
             return FORWARD_PAGES_NOT_FOUND_JSP;
@@ -149,19 +143,14 @@ public class InventoryServlet extends BaseInventory {
         Inventory item = controller.findById(Long.parseLong(req.getParameter(ID)));
         item.setQuantity(Integer.parseInt(req.getParameter(QUANTITY)));
         item.setDescription(req.getParameter(DESCRIPTION));
-
-        Product product = new Product();
-        long idProduct = Long.parseLong(req.getParameter(PRODUCT_ID));
-        product.setId(idProduct);
-        User user = (User) req.getSession().getAttribute(USER_LOGGED);
-        product.setUser(user);
+        Product product = getProductFromRequest(req);
 
         try {
             product = productController.find(product);
         } catch (Exception e) {
-            logger.error("User: {} : product id {} not found.", user, idProduct);
+            logger.error("Product id {} was not found.", req.getParameter(PRODUCT_ID));
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            req.setAttribute(ERROR, "ERROR: Product ID " + idProduct + " was not found.");
+            req.setAttribute(ERROR, "ERROR: Product ID " + req.getParameter(PRODUCT_ID) + " was not found.");
             req.setAttribute(ITEM, item);
             return FORWARD_PAGES_INVENTORY_FORM_UPDATE_ITEM_JSP;
         }
@@ -179,7 +168,6 @@ public class InventoryServlet extends BaseInventory {
      * @param resp the resp
      * @return the string
      */
-
     private String edit(HttpServletRequest req, HttpServletResponse resp) {
         logger.info("doPOST editing item");
         if (!this.validate(req, resp)) {
@@ -197,7 +185,6 @@ public class InventoryServlet extends BaseInventory {
      * @param resp the resp
      * @return the string
      */
-
     private String delete(HttpServletRequest req, HttpServletResponse resp) {
         logger.info("doPOST deleting item");
         if (!this.validate(req, resp)) {
@@ -206,5 +193,13 @@ public class InventoryServlet extends BaseInventory {
 
         controller.delete(Long.parseLong(req.getParameter(ID)));
         return REDIRECT_INVENTORY_ACTION_LIST_ITEMS;
+    }
+
+    private Product getProductFromRequest(HttpServletRequest req) {
+        Product product = new Product();
+        product.setId(Long.parseLong(req.getParameter(PRODUCT_ID)));
+        product.setUser((User) req.getSession().getAttribute(USER_LOGGED));
+        product = productController.find(product);
+        return product;
     }
 }

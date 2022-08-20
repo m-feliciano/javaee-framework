@@ -11,7 +11,7 @@ import static servlets.base.Base.*;
 
 public class CategoryServlet extends BaseCategory {
 
-    private final CategoryController controller = new CategoryController(em);
+    private final CategoryController controller = new CategoryController(getEm());
     /**
      * Execute.
      *

@@ -21,7 +21,7 @@ import static servlets.base.Base.ERROR;
 public class BaseCategory implements Action, RequestValidation {
 
     protected final Logger logger = LoggerFactory.getLogger(BaseCategory.class);
-    protected final EntityManager em = JPAUtil.getEntityManager();
+    private final EntityManager em = JPAUtil.getEntityManager();
 
     /**
      * Execute.
@@ -45,5 +45,13 @@ public class BaseCategory implements Action, RequestValidation {
             return false;
         }
         return true;
+    }
+
+    public EntityManager getEm() {
+        if (em.isOpen()) {
+            return em;
+        } else {
+            return JPAUtil.getEntityManager();
+        }
     }
 }

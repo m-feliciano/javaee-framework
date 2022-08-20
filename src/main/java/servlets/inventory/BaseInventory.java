@@ -1,7 +1,6 @@
 package servlets.inventory;
 
 import com.mchange.util.AssertException;
-import controllers.InventoryController;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -50,4 +49,11 @@ public class BaseInventory implements Action, RequestValidation {
         return true;
     }
 
+    public EntityManager getEm() {
+        if (em.isOpen()) {
+            return em;
+        } else {
+            return JPAUtil.getEntityManager();
+        }
+    }
 }
