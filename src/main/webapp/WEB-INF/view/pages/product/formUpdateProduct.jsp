@@ -12,15 +12,18 @@
     <form action="${ productLink }" method="post">
         <div class="col-md-6">
             <div class="mb-3">
-                <label for="inputId" class="form-label">ID</label>
-                <input type="text" name="id" class="form-control col-md-3" id="inputId"
-                       value="${ product.id }" readonly="readonly"/>
-            </div>
-
-            <div class="mb-3">
-                <label for="inputRegisterDate" class="form-label">REGISTER</label>
-                <input type="text" name="register" class="form-control" id="inputRegisterDate"
-                       value="${ stdDate }" required readonly="readonly"/>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="inputId" class="form-label">ID</label>
+                        <input type="text" name="id" class="form-control text-right" id="inputId"
+                               value="${ product.id }" readonly/>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="inputRegisterDate" class="form-label">REGISTER</label>
+                        <input type="text" name="register" class="form-control text-right" id="inputRegisterDate"
+                               value="${ stdDate }" required readonly/>
+                    </div>
+                </div>
             </div>
             <div class="mb-3">
                 <label for="inputURL" class="form-label">IMAGE</label>
@@ -35,22 +38,34 @@
             <div class="mb-3">
                 <label for="inputDescription" class="form-label">DESCRIPTION</label>
                 <textarea name="description" class="form-control" id="inputDescription"
-                          placeholder="Simple Description" rows="4" cols="auto" required>${ product.description }</textarea>
+                          placeholder="Simple Description" rows="4" cols="auto"
+                          required>${ product.description }</textarea>
             </div>
-            <div class="mb-3">
-                <label for="inputPrice" class="form-label">PRICE</label>
-                <input name="price" class="form-control" id="inputPrice"
-                       placeholder="1000,00" value="${ product.price }" min="0" max="10000" step="any"
-                       pattern="^\s*(?:[1-9]\d{0,2}(?:\,\d{3})*|0)(?:.\d{1,2})?$"
-                       title="Currency should only contain numbers and (comma/doc) e.g. 1000,00"
-                       required/>
+            <div class="mb-4">
+                <div class="row justify-content-end">
+                    <div class="col-md-6">
+                        <label for="inputCategory" class="form-label">CATEGORY</label>
+                        <select name="category" class="form-control text-center" id="inputCategory" required>
+                            <option value="null" selected>${"SELECT"}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="inputPrice" class="form-label">PRICE</label>
+                        <input name="price" class="form-control" id="inputPrice"
+                               placeholder="1000,00" value="${ product.price }" min="0" max="10000" step="any"
+                               pattern="^\s*(?:[1-9]\d{0,2}(?:\,\d{3})*|0)(?:.\d{1,2})?$"
+                               title="Currency should only contain numbers and (comma/doc) e.g. 1000,00"
+                               required/>
+                    </div>
+                </div>
             </div>
             <!-- action -->
-            <input type="hidden" name="action" value="update">
-            <button type="submit" class="btn btn-primary">Submit</button>
-            <a type="button" href="${ productLink }?action=list&id=${product.id }" class="btn btn-light">
-                Cancel
-            </a>
+            <div class="row justify-content-end mr-0">
+                <input type="hidden" name="action" value="update">
+                <button type="submit" class="btn btn-primary mr-2">Submit</button>
+                <a type="button" href="${ productLink }?action=list&id=${product.id }" class="btn btn-light">Cancel</a>
+            </div>
+
         </div>
     </form>
 </div>

@@ -43,9 +43,14 @@
         </ul>
         <div class="d-flex">
             <div class="avatar mt-1 mx30">
-                <c:if test="${not empty userLogged }">
+                <c:if test="${not empty userLogged.getImgUrl() }">
                     <a href="${userLink}?action=list">
                         <img src="${userLogged.getImgUrl()}" alt="user" class="avatar-img rounded-circle">
+                    </a>
+                </c:if>
+                <c:if test="${empty userLogged.getImgUrl() }">
+                    <a href="${userLink}?action=list">
+                        <img src="<c:url value='/assets/avatar2.png'/>" alt="user" class="avatar-img rounded-circle">
                     </a>
                 </c:if>
             </div>

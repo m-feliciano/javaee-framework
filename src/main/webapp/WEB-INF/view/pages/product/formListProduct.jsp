@@ -15,17 +15,21 @@
     <form action="${ productLink }" method="post">
         <div class="col-md-6">
             <div class="mb-3">
-                <label for="inputId" class="form-label">ID</label>
-                <input type="text" name="id" class="form-control col-md-3" id="inputId"
-                       value="${ product.id }" readonly="readonly"/>
-            </div>
-            <div class="mb-3">
-                <label for="inputRegisterDate" class="form-label">REGISTER</label>
-                <input type="text" name="register" class="form-control" id="inputRegisterDate"
-                       value="${ stdDate }" required readonly="readonly"/>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="inputId" class="form-label">ID</label>
+                        <input type="text" name="id" class="form-control text-right" id="inputId"
+                               value="${ product.id }" readonly="readonly"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="inputRegisterDate" class="form-label">REGISTER</label>
+                        <input type="text" name="register" class="form-control text-right" id="inputRegisterDate"
+                               value="${ stdDate }" required readonly="readonly"/>
+                    </div>
+                </div>
             </div>
             <c:if test="${ not empty product.url }">
-                <div class="mb-3 text-center p-3">
+                <div class="text-center p-3">
                     <img class="img-square fit-img" src="${ product.url }" alt="Image of product ${ product.name }">
                 </div>
             </c:if>
@@ -42,18 +46,28 @@
                           placeholder="Simple Description" readonly="readonly" rows="4" cols="auto"
                           required>${ product.description }</textarea>
             </div>
-            <div class="mb-3">
-                <label for="inputPrice" class="form-label">PRICE</label>
-                <input name="price" class="form-control" id="inputPrice"
-                       placeholder="price" value="${parsedNumber}" required readonly="readonly"/>
+            <div class="mb-4">
+                <div class="row justify-content-end">
+                    <div class="col-md-6">
+                        <label for="inputCategory" class="form-label">CATEGORY</label>
+                        <select name="category" class="form-control text-center" id="inputCategory" required disabled>
+                            <option value="${parsedNumber}" selected>AUTO</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="inputPrice" class="form-label">PRICE</label>
+                        <input name="price" class="form-control text-right" id="inputPrice"
+                               placeholder="price" value="${parsedNumber}" required readonly="readonly"/>
+                    </div>
+                </div>
             </div>
             <!-- action -->
-            <a type="button" href="${ editProduct }&id=${ product.id }" class="btn btn-success">
-                Edit <i class="bi bi-pencil-square"></i>
-            </a>
-            <a type="button" href="${ listProducts }" class="btn btn-light">
-                Go back
-            </a>
+            <div class="row justify-content-end mr-0">
+                <a type="button" href="${ editProduct }&id=${ product.id }" class="btn btn-success mr-2">
+                    Edit <i class="bi bi-pencil-square"></i>
+                </a>
+                <a type="button" href="${ listProducts }" class="btn btn-light">Go back</a>
+            </div>
         </div>
     </form>
 </div>

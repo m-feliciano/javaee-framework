@@ -13,13 +13,17 @@
         <div class="col-md-6">
             <div class="row ml5 mb-3">
                 <div class="avatar mr-3 mt5">
-                    <img src="${user.getImgUrl() != null ? user.getImgUrl() : 'https://bootdey.com/img/Content/avatar/avatar2.png' }"
-                         alt="user" class="avatar-img rounded-circle">
+                    <c:if test="${not empty userLogged.getImgUrl() }">
+                        <img src="${userLogged.getImgUrl()}" alt="user" class="avatar-img rounded-circle">
+                    </c:if>
+                    <c:if test="${empty userLogged.getImgUrl() }">
+                        <img src="<c:url value='/assets/avatar2.png'/>" alt="user" class="avatar-img rounded-circle">
+                    </c:if>
                 </div>
                 <div class="col-md-10">
                     <label for="imgUrl" class="form-label">URL Image</label>
                     <textarea rows="2" name="imgUrl" class="form-control" minlength="5"
-                                maxlength="255" id="imgUrl" placeholder="URL">${user.imgUrl}</textarea>
+                              maxlength="255" id="imgUrl" placeholder="URL">${user.imgUrl}</textarea>
                 </div>
             </div>
             <div class="mb-3">
