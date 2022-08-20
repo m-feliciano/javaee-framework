@@ -13,7 +13,7 @@ import static servlets.product.ProductServlet.USER_LOGGED;
 
 public class UserServlet extends BaseUser {
 
-    protected final UserController controller = new UserController(getEm());
+    private final UserController controller = new UserController(getEm());
 
     /**
      * Execute.
@@ -81,7 +81,7 @@ public class UserServlet extends BaseUser {
 
         User user = new User();
         user.setLogin(req.getParameter(EMAIL).toLowerCase());
-        user = controller.find(user);
+        user = getController().find(user);
 
         if (user != null) {
             req.setAttribute(ERROR, "User already exists");
@@ -90,10 +90,9 @@ public class UserServlet extends BaseUser {
         }
 
         user = new User(req.getParameter(EMAIL).toLowerCase(), EncryptDecrypt.encrypt(req.getParameter(PASSWORD)));
-        user.setImgUrl(req.getParameter("imgUrl"));
 
         try {
-            controller.save(user);
+            getController().save(user);
         } catch (IllegalArgumentException e) {
             logger.error(e.getMessage());
             req.setAttribute(ERROR, e.getMessage());
@@ -127,7 +126,7 @@ public class UserServlet extends BaseUser {
 
         user.setPassword(EncryptDecrypt.encrypt(req.getParameter(CONFIRM_PASSWORD)));
 
-        controller.update(user);
+        getController().update(user);
         req.setAttribute(USER, user);
         return REDIRECT_USER_ACTION_LIST_USER_BY_ID + user.getId();
     }
@@ -159,7 +158,7 @@ public class UserServlet extends BaseUser {
             return FORWARD_PAGES_NOT_FOUND_JSP;
         }
 
-        req.setAttribute(USER, controller.findById(Long.parseLong(req.getParameter(ID))));
+        req.setAttribute(USER, getController().findById(Long.parseLong(req.getParameter(ID))));
         return FORWARD_PAGES_USER_FORM_UPDATE_USER_JSP;
     }
 
@@ -174,7 +173,9 @@ public class UserServlet extends BaseUser {
         if (req.getParameter(PASSWORD) != null && req.getParameter(CONFIRM_PASSWORD) != null) {
             if (Objects.equals(req.getParameter(PASSWORD), req.getParameter(CONFIRM_PASSWORD))) {
                 valid = true;
-            } else if (Objects.equals(EncryptDecrypt.decrypt(req.getParameter(PASSWORD)), req.getParameter(CONFIRM_PASSWORD))) {
+            }
+
+            if (Objects.equals(EncryptDecrypt.decrypt(req.getParameter(PASSWORD)), req.getParameter(CONFIRM_PASSWORD))) {
                 valid = true;
             }
         }
@@ -184,5 +185,13 @@ public class UserServlet extends BaseUser {
         }
 
         return valid;
+    }
+
+    public UserController getController() {
+        if (getEm().getTransaction().isActive()) {
+            return controller;
+        }
+
+        return new UserController(getEm());
     }
 }
