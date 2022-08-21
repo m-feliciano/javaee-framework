@@ -21,6 +21,7 @@ public class ProductDTO implements Serializable {
     private LocalDate registerDate;
     private String price;
     private Category category;
+    private String status;
 
     /**
      * Instantiates a new Product dTO.
@@ -35,6 +36,7 @@ public class ProductDTO implements Serializable {
         this.price = CurrencyFormatter.bigDecimalToString(product.getPrice());
         this.url = product.getUrl();
         this.category = product.getCategory();
+        this.status = product.getStatus();
     }
 
 }

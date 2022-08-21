@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
-@ToString
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -26,9 +25,9 @@ public class User implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
-    @ToString.Exclude
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "PERFIS")
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column(name = "perfis")
+    @CollectionTable(name = "PERFIS_USERS", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
     private final Set<Integer> perfis = new HashSet<>();
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,7 +42,7 @@ public class User implements Serializable {
 
     @Column(name = "status")
     @ToString.Exclude
-    private Status status;
+    private String status;
 
     @Column(name = "image_url", columnDefinition = "TEXT")
     @ToString.Exclude
@@ -52,7 +51,7 @@ public class User implements Serializable {
     public User(String login, String password) {
         this.login = login;
         this.password = password;
-        this.setStatus(Status.ACTIVE);
+        this.setStatus(Status.ACTIVE.getDescription());
         this.addPerfil(Perfil.CLIENT);
     }
 
@@ -67,16 +66,31 @@ public class User implements Serializable {
         this.imgUrl = imgUrl;
     }
 
+    public User(Long id, String login, Set<Integer> perfis) {
+        this.id = id;
+        this.login = login;
+        this.perfis.addAll(perfis);
+    }
+
     public void addPerfil(Perfil perfil) {
         perfis.add(perfil.getCod());
     }
 
-    public Set<Perfil> getPerfils() {
+    public Set<Perfil> getPerfis() {
         return perfis.stream().map(Perfil::toEnum).collect(Collectors.toSet());
     }
 
     public boolean equals(String login, String password) {
         return this.login.equals(login) && Objects.equals(EncryptDecrypt.decrypt(this.password), password);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", login='" + login + '\'' +
+                ", perfis=" + getPerfis() +
+                '}';
     }
 
     @Override

@@ -92,7 +92,7 @@ public class UserServlet extends BaseUser {
         user = new User(req.getParameter(EMAIL).toLowerCase(), EncryptDecrypt.encrypt(req.getParameter(PASSWORD)));
 
         try {
-            getController().save(user);
+            user = getController().save(user);
         } catch (IllegalArgumentException e) {
             logger.error(e.getMessage());
             req.setAttribute(ERROR, e.getMessage());
@@ -126,7 +126,7 @@ public class UserServlet extends BaseUser {
 
         user.setPassword(EncryptDecrypt.encrypt(req.getParameter(CONFIRM_PASSWORD)));
 
-        getController().update(user);
+        user = getController().update(user);
         req.setAttribute(USER, user);
         return REDIRECT_USER_ACTION_LIST_USER_BY_ID + user.getId();
     }

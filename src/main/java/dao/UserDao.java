@@ -14,12 +14,13 @@ public class UserDao extends BaseDao {
      *
      * @param user the user
      */
-
-    public void save(User user) {
+    public User save(User user) {
         beginTransaction();
         this.em.persist(user);
         commitTransaction();
+        user = em.merge(user);
         closeTransaction();
+        return user;
     }
 
     /**
@@ -27,12 +28,12 @@ public class UserDao extends BaseDao {
      *
      * @param user the user
      */
-
-    public void update(User user) {
+    public User update(User user) {
         beginTransaction();
         this.em.merge(user);
         commitTransaction();
         closeTransaction();
+        return user;
     }
 
     /**
@@ -41,7 +42,6 @@ public class UserDao extends BaseDao {
      * @param id the id
      * @return true if deleted, false if not found
      */
-
     public boolean delete(Long id) {
         User prod = this.findById(id);
         if (prod != null) {
@@ -61,7 +61,6 @@ public class UserDao extends BaseDao {
      * @param id the id
      * @return the user found or null if not found
      */
-
     public User findById(Long id) {
         User user = this.em.find(User.class, id);
         closeTransaction();
@@ -92,7 +91,7 @@ public class UserDao extends BaseDao {
      * @return the user found or null if not found
      */
     public User find(User user) {
-        String jpql = "SELECT u FROM User u WHERE lower(u.login) = :login";
+        String jpql = "SELECT u FROM User u JOIN FETCH u.perfis p WHERE lower(u.login) = :login";
         User login = em.createQuery(jpql, User.class)
                 .setParameter("login", user.getLogin().toLowerCase())
                 .getResultStream()

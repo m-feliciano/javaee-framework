@@ -22,9 +22,9 @@ public class UserController {
      * @param user the user
      */
 
-    public void save(User user) {
+    public User save(User user) {
         if (Objects.isNull(user)) throw new IllegalArgumentException("The user must not be null.");
-        this.userDao.save(user);
+        return this.userDao.save(user);
     }
 
     /**
@@ -34,8 +34,8 @@ public class UserController {
      * @param user the user
      */
 
-    public void update(User user) {
-        this.userDao.update(user);
+    public User update(User user) {
+        return this.userDao.update(user);
     }
 
     /**
