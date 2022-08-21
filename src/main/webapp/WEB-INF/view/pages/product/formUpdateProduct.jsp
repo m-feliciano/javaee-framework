@@ -46,6 +46,7 @@
                     <div class="col-md-6">
                         <label for="inputCategory" class="form-label">CATEGORY</label>
                         <select name="category" class="form-control text-center" id="inputCategory" required>
+                            <option value="${null}" selected>${"< SELECT >"}</option>
                             <c:forEach items="${ categories }" var="category">
                                 <c:choose>
                                     <c:when test="${ category.id == product.category.id }">

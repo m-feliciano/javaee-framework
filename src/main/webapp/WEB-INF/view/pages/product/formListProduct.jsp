@@ -24,7 +24,7 @@
                     <div class="col-md-6">
                         <label for="inputRegisterDate" class="form-label">REGISTER</label>
                         <input type="text" name="register" class="form-control text-right" id="inputRegisterDate"
-                               value="${ stdDate }" required readonly="readonly"/>
+                               value="${ stdDate }" readonly/>
                     </div>
                 </div>
             </div>
@@ -38,25 +38,25 @@
                 <label for="inputName" class="form-label">NAME</label>
                 <input type="text" name="name" class="form-control" id="inputName"
                        placeholder="Product name" value="${ product.name }" autocomplete="name"
-                       minlength="4" readonly="readonly" required/>
+                       minlength="4" readonly />
             </div>
             <div class="mb-3">
                 <label for="inputDescription" class="form-label">DESCRIPTION</label>
                 <textarea name="description" class="form-control" id="inputDescription"
-                          placeholder="Simple Description" readonly="readonly" rows="4" cols="auto"
-                          required>${ product.description }</textarea>
+                          placeholder="Simple Description" readonly rows="4" cols="auto">
+                          ${ product.description }</textarea>
             </div>
             <div class="mb-4">
                 <div class="row justify-content-end">
                     <div class="col-md-6">
                         <label for="inputCategory" class="form-label">CATEGORY</label>
                         <input type="text" name="category" class="form-control text-center" id="inputCategory"
-                               value="${ product.category.name }" autocomplete="name" readonly required/>
+                               value="${ product.category.name }" autocomplete="name" readonly/>
                     </div>
                     <div class="col-md-6">
                         <label for="inputPrice" class="form-label">PRICE</label>
                         <input name="price" class="form-control text-right" id="inputPrice"
-                               placeholder="price" value="${parsedNumber}" required readonly="readonly"/>
+                               placeholder="price" value="${parsedNumber}" readonly/>
                     </div>
                 </div>
             </div>
