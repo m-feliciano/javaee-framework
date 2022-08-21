@@ -42,9 +42,11 @@ public class User implements Serializable {
     private String password;
 
     @Column(name = "status")
+    @ToString.Exclude
     private Status status;
 
     @Column(name = "image_url", columnDefinition = "TEXT")
+    @ToString.Exclude
     private String imgUrl;
 
     public User(String login, String password) {
