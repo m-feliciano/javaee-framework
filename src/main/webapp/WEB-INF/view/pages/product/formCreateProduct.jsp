@@ -20,12 +20,25 @@
                           placeholder="simple Description" required></textarea>
             </div>
             <div class="mb-3">
-                <label for="inputPrice" class="form-label">PRICE</label>
-                <input name="price" class="form-control" id="inputPrice"
-                       placeholder="1000,00" min="0" max="10000" step="any"
-                       pattern="^\s*(?:[1-9]\d{0,2}(?:\,\d{3})*|0)(?:.\d{1,2})?$"
-                       title="Currency should only contain numbers and (comma/doc) e.g. 1000,00"
-                       required/>
+                <div class="row justify-content-end">
+                    <div class="col-md-6">
+                        <label for="inputCategory" class="form-label">CATEGORY</label>
+                        <select name="category" class="form-control text-center" id="inputCategory" required>
+                            <option value="${null}" selected>${"< SELECT >"}</option>
+                            <c:forEach items="${ categories }" var="category">
+                                <option value="${category.id}">${category.name}</option>
+                            </c:forEach>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="inputPrice" class="form-label">PRICE</label>
+                        <input name="price" class="form-control text-right" id="inputPrice"
+                               placeholder="1000,00" min="0" max="10000" step="any"
+                               pattern="^\s*(?:[1-9]\d{0,2}(?:\,\d{3})*|0)(?:.\d{1,2})?$"
+                               title="Currency should only contain numbers and (comma/doc) e.g. 1000,00"
+                               required/>
+                    </div>
+                </div>
             </div>
             <div class="mb-3">
                 <label for="inputURL" class="form-label">IMAGE</label>

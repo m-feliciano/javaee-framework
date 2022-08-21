@@ -1,5 +1,6 @@
 package servlets.product;
 
+import controllers.CategoryController;
 import controllers.ProductController;
 import controllers.UserController;
 import domain.Product;
@@ -20,6 +21,7 @@ import static servlets.base.Base.*;
 public class ProductServlet extends BaseProduct {
 
     private final ProductController controller = new ProductController(getEm());
+    private final CategoryController categoryController = new CategoryController(getEm());
     public static final String USER_LOGGED = "userLogged";
     /**
      * Execute.
@@ -50,7 +52,7 @@ public class ProductServlet extends BaseProduct {
                 return update(req, resp);
             }
             case "new" -> {
-                return add();
+                return add(req, resp);
             }
             case "edit" -> {
                 return edit(req, resp);
@@ -76,7 +78,8 @@ public class ProductServlet extends BaseProduct {
 
         Product product = new Product(req.getParameter(NAME), req.getParameter(DESCRIPTION), req.getParameter(URL), parsedDate, CurrencyFormatter.stringToBigDecimal(req.getParameter(PRICE)));
         product.setUser((User) req.getSession().getAttribute(USER_LOGGED));
-        product = controller.save(product);
+        product.setCategory(categoryController.findById(Long.parseLong(req.getParameter(CATEGORY))));
+        product = getController().save(product);
         req.setAttribute(PRODUCT, product);
         sw.stop();
         logger.info("doPOST product created in {} ms", sw.getTime());
@@ -99,7 +102,8 @@ public class ProductServlet extends BaseProduct {
         Product product = new Product();
         product.setId(Long.parseLong(id));
         product.setUser((User) req.getSession().getAttribute(USER_LOGGED));
-        product = controller.find(product);
+        product = getController().find(product);
+        req.setAttribute(CATEGORIES, categoryController.findAll());
         req.setAttribute(PRODUCT, new ProductDTO(product));
         return FORWARD_PAGES_PRODUCT_FORM_UPDATE_PRODUCT_JSP;
     }
@@ -113,7 +117,7 @@ public class ProductServlet extends BaseProduct {
         String id = req.getParameter(ID);
         if (!Objects.isNull(id)) {
             product.setId(Long.parseLong(id));
-            product = controller.find(product);
+            product = getController().find(product);
             if (Objects.isNull(product)) {
                 return FORWARD_PAGES_NOT_FOUND_JSP;
             }
@@ -130,13 +134,14 @@ public class ProductServlet extends BaseProduct {
                 product.setDescription(value);
             }
         }
-        List<Product> products = controller.findAll(product);
+        List<Product> products = getController().findAll(product);
         req.setAttribute(PRODUCTS, products);
         return FORWARD_PAGES_PRODUCT_LIST_PRODUCTS_JSP;
     }
 
-    private String add() {
+    private String add(HttpServletRequest req, HttpServletResponse resp) {
         logger.info("doPOST redirecting to form createProduct");
+        req.setAttribute(CATEGORIES, categoryController.findAll());
         return FORWARD_PAGES_PRODUCT_FORM_CREATE_PRODUCT_JSP;
     }
 
@@ -152,14 +157,15 @@ public class ProductServlet extends BaseProduct {
         product.setId(Long.parseLong(req.getParameter(ID)));
         product.setUser((User) req.getSession().getAttribute(USER_LOGGED));
 
-        product = controller.find(product);
+        product = getController().find(product);
 
         product.setName(req.getParameter(NAME));
         product.setDescription(req.getParameter(DESCRIPTION));
         product.setPrice(CurrencyFormatter.stringToBigDecimal(req.getParameter(PRICE)));
         product.setUrl(req.getParameter(URL));
+        product.setCategory(categoryController.findById(Long.parseLong(req.getParameter(CATEGORY))));
 
-        controller.update(product);
+        getController().update(product);
         req.setAttribute(PRODUCT, product);
         sw.stop();
         logger.info("doPOST product updated in {} ms", sw.getTime());
@@ -176,7 +182,15 @@ public class ProductServlet extends BaseProduct {
         Product product = new Product();
         product.setId(Long.parseLong(req.getParameter(ID)));
         product.setUser((User) req.getSession().getAttribute(USER_LOGGED));
-        controller.delete(product);
+        getController().delete(product);
         return REDIRECT_PRODUCT_ACTION_LIST_PRODUCTS;
+    }
+
+    public ProductController getController() {
+        if (getEm().getTransaction().isActive()) {
+            return controller;
+        }
+
+        return new ProductController(getEm());
     }
 }

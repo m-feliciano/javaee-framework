@@ -1,8 +1,10 @@
 package domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import dto.ProductDTO;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.Hibernate;
 import utils.CurrencyFormatter;
 
@@ -11,9 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 
 import static servlets.base.Base.PRODUCT_ID;
@@ -23,6 +22,7 @@ import static servlets.product.ProductServlet.USER_LOGGED;
 @Setter
 @RequiredArgsConstructor
 @Entity
+@ToString
 @Table(name = "tb_product")
 public class Product implements Serializable {
 
@@ -50,13 +50,10 @@ public class Product implements Serializable {
     @Column(name = "status")
     private String status;
 
-    @Transient
-    @Setter(value = AccessLevel.NONE)
-    @JsonIgnore // deny serialization
-    @ManyToMany
-    @JoinTable(name = "PRODUCT_CATEGORY", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
     @ToString.Exclude
-    private List<Category> categories = new ArrayList<>();
+    private Category category;
 
     public Product(String name, String description, String url, LocalDate registerDate, BigDecimal price) {
         super();
@@ -86,19 +83,9 @@ public class Product implements Serializable {
         this.url = dto.getUrl();
     }
 
-    public void addCategory(Category category) {
-        if (category == null) {
-            throw new IllegalArgumentException("Category must not be null.");
-        }
-        this.categories.add(category);
-    }
-
-    public List<Category> getCategories() {
-        return Collections.unmodifiableList(categories);
-    }
-
-    public void setCategories(List<Category> categories) {
-        this.categories = categories;
+    public void setCategory(Category category) {
+        this.category = category;
+        category.getProducts().add(this);
     }
 
     public static Product getProductFromRequest(HttpServletRequest req) {
@@ -106,12 +93,6 @@ public class Product implements Serializable {
         product.setId(Long.parseLong(req.getParameter(PRODUCT_ID)));
         product.setUser((User) req.getSession().getAttribute(USER_LOGGED));
         return product;
-    }
-
-    @Override
-    public String toString() {
-        return "Product{" + "id=" + id + ", name='" + name + '\'' + ", description='" + description + '\'' + ", url='" + url + '\''
-                + ", registerDate=" + registerDate + ", price=" + price + '}';
     }
 
     @Override

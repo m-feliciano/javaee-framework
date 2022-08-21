@@ -26,7 +26,6 @@ public class ProductController {
      *
      * @param product the product
      */
-
     public Product save(Product product) {
         if (Objects.isNull(product)) throw new IllegalArgumentException("The product must not be null.");
         clearCache(product);
@@ -39,7 +38,6 @@ public class ProductController {
      *
      * @param prod the prod
      */
-
     public void update(Product prod) {
         this.productDao.update(prod);
         clearCache(prod);
@@ -90,7 +88,6 @@ public class ProductController {
      * @param product the product
      * @return the product or null if not found
      */
-
     public Product find(Product product) {
         List<Product> products = (List<Product>) CacheUtil.getFromCache(CACHE_KEY, product.getUser().getLogin());
         if (!ArrayUtils.isArrayNullOrEmpty(products)) {
@@ -122,22 +119,6 @@ public class ProductController {
         }
 
         return this.productDao.find(product);
-    }
-
-    /**
-     * Find all by category.
-     *
-     * @param category the category
-     * @return the list of products or empty list if not found
-     */
-
-    public List<Product> findAllByCategory(Category category) {
-        List<Product> products = findAll(new Product());
-        if (!ArrayUtils.isArrayNullOrEmpty(products)) {
-            return products.stream().filter(prod -> prod.getCategories().stream().map(Category::getName).anyMatch(p -> p.equalsIgnoreCase(category.getName()))).toList();
-        }
-
-        return productDao.findAllByCategory(category);
     }
 
     /**

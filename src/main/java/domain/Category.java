@@ -1,5 +1,6 @@
 package domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.Hibernate;
 
@@ -14,6 +15,7 @@ import java.util.Objects;
 @Setter
 @RequiredArgsConstructor
 @Entity
+@ToString
 @Table(name = "tb_category")
 public class Category implements Serializable {
 
@@ -29,31 +31,12 @@ public class Category implements Serializable {
     @Column(name = "name")
     private String name;
 
-    @Transient
-    @Setter(value = AccessLevel.NONE)
-    @ManyToMany(mappedBy = "categories")
+    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
     @ToString.Exclude
     private List<Product> products = new ArrayList<>();
 
     public Category(String name) {
         this.name = name;
-    }
-
-    public Category(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public void addProduct(Product prod) {
-        if (prod == null) {
-            throw new IllegalArgumentException("Product cannot be null");
-        }
-        products.add(prod);
-    }
-
-    @Override
-    public String toString() {
-        return "Category{" + "id=" + id + ", name='" + name + '\'' + '}';
     }
 
     @Override

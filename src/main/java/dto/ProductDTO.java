@@ -1,5 +1,6 @@
 package dto;
 
+import domain.Category;
 import domain.Product;
 import lombok.Data;
 import utils.CurrencyFormatter;
@@ -16,17 +17,16 @@ public class ProductDTO implements Serializable {
     private Long id;
     private String name;
     private String description;
-
     private String url;
     private LocalDate registerDate;
     private String price;
+    private Category category;
 
     /**
      * Instantiates a new Product dTO.
      *
      * @param product the product
      */
-
     public ProductDTO(Product product) {
         this.id = product.getId();
         this.name = product.getName();
@@ -34,6 +34,7 @@ public class ProductDTO implements Serializable {
         this.registerDate = product.getRegisterDate();
         this.price = CurrencyFormatter.bigDecimalToString(product.getPrice());
         this.url = product.getUrl();
+        this.category = product.getCategory();
     }
 
 }

@@ -50,9 +50,8 @@
                 <div class="row justify-content-end">
                     <div class="col-md-6">
                         <label for="inputCategory" class="form-label">CATEGORY</label>
-                        <select name="category" class="form-control text-center" id="inputCategory" required disabled>
-                            <option value="${parsedNumber}" selected>AUTO</option>
-                        </select>
+                        <input type="text" name="category" class="form-control text-center" id="inputCategory"
+                               value="${ product.category.name }" autocomplete="name" readonly required/>
                     </div>
                     <div class="col-md-6">
                         <label for="inputPrice" class="form-label">PRICE</label>

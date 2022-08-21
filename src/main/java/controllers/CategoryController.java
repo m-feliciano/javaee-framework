@@ -11,7 +11,6 @@ import java.util.Objects;
 public class CategoryController {
 
     private final CategoryDao categoryDao;
-    private static final String CACHE_KEY = "categories";
 
     public CategoryController(EntityManager em) {
         this.categoryDao = new CategoryDao(em);
@@ -27,7 +26,6 @@ public class CategoryController {
 
     public Category save(Category category) {
         if (Objects.isNull(category)) throw new IllegalArgumentException("The category must not be null.");
-        CacheUtil.clearCache(CACHE_KEY, "");
         return this.categoryDao.save(category);
     }
 
@@ -41,7 +39,6 @@ public class CategoryController {
 
     public void update(Category category) {
         this.categoryDao.update(category);
-        CacheUtil.clearCache(CACHE_KEY, "");
     }
 
     /**
