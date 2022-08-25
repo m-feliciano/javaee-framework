@@ -62,7 +62,7 @@ public class ProductController {
      * @return the list of products or empty list if not found
      */
     public List<Product> findAll(Product product) {
-        List<Product> products = (List<Product>) CacheUtil.getFromCache(CACHE_KEY, product.getUser().getLogin());
+        List<Product> products = CacheUtil.getFromCache(CACHE_KEY, product.getUser().getLogin());
         if (!ArrayUtils.isArrayNullOrEmpty(products)) {
 
             if (product.getName() != null) {
@@ -89,7 +89,7 @@ public class ProductController {
      * @return the product or null if not found
      */
     public Product find(Product product) {
-        List<Product> products = (List<Product>) CacheUtil.getFromCache(CACHE_KEY, product.getUser().getLogin());
+        List<Product> products = CacheUtil.getFromCache(CACHE_KEY, product.getUser().getLogin());
         if (!ArrayUtils.isArrayNullOrEmpty(products)) {
             Product result = null;
             if (product.getId() != null) {

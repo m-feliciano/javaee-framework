@@ -81,6 +81,7 @@ public class Product implements Serializable {
         this.registerDate = dto.getRegisterDate();
         this.price = CurrencyFormatter.stringToBigDecimal(dto.getPrice());
         this.url = dto.getUrl();
+        this.status = dto.getStatus();
     }
 
     public void setCategory(Category category) {

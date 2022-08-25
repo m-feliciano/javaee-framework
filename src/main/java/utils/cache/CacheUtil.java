@@ -33,7 +33,7 @@ public final class CacheUtil {
         SYNCHRONIZED_CACHE.put(map, list);
     }
 
-    public static List<?> getFromCache(String key, String userKey) {
+    public static <T> List<T> getFromCache(String key, String userKey) {
         logger.info("User: {} : Retrieving {} from cache", userKey, key);
         Map<String, String> map = getMapKey(key, userKey);
         if (!SYNCHRONIZED_CACHE.containsKey(map)) {
@@ -41,7 +41,7 @@ public final class CacheUtil {
             return Collections.emptyList();
         }
 
-        return Collections.unmodifiableList(SYNCHRONIZED_CACHE.get(map));
+        return (List<T>) Collections.unmodifiableList(SYNCHRONIZED_CACHE.get(map));
     }
 
     @NotNull
