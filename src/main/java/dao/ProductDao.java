@@ -60,15 +60,16 @@ public class ProductDao extends BaseDao {
 
     public boolean delete(Product product) {
         Product prod = this.find(product);
+        boolean deleted = false;
         if (prod != null) {
             beginTransaction();
             prod = em.merge(prod);
             prod.setStatus(Status.DELETED.getDescription());
             commitTransaction();
-            return true;
+            deleted = true;
         }
         closeTransaction();
-        return false;
+        return deleted;
     }
 
     /**

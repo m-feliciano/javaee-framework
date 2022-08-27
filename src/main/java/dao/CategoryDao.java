@@ -47,14 +47,15 @@ public class CategoryDao extends BaseDao {
 
     public boolean delete(Long id) {
         Category category = this.findById(id);
+        boolean deleted = false;
         if (category != null) {
             beginTransaction();
             this.em.remove(category);
             commitTransaction();
-            closeTransaction();
-            return true;
+            deleted = true;
         }
-        return false;
+        closeTransaction();
+        return deleted;
     }
 
     /**

@@ -1,6 +1,7 @@
 package dao;
 
 import domain.User;
+import domain.enums.Status;
 
 import javax.persistence.EntityManager;
 
@@ -15,6 +16,7 @@ public class UserDao extends BaseDao {
      * @param user the user
      */
     public User save(User user) {
+        user.setStatus(Status.ACTIVE.getDescription());
         beginTransaction();
         this.em.persist(user);
         commitTransaction();
@@ -43,16 +45,17 @@ public class UserDao extends BaseDao {
      * @return true if deleted, false if not found
      */
     public boolean delete(Long id) {
-        User prod = this.findById(id);
-        if (prod != null) {
+        User user = this.findById(id);
+        boolean deleted = false;
+        if (user != null) {
             beginTransaction();
-            this.em.remove(prod);
+            user = this.em.merge(user);
+            user.setStatus(Status.DELETED.getDescription());
             commitTransaction();
-            closeTransaction();
-            return true;
+            deleted = true;
         }
         closeTransaction();
-        return false;
+        return deleted;
     }
 
     /**
