@@ -3,6 +3,7 @@ package servlets.product;
 import controllers.CategoryController;
 import controllers.ProductController;
 import controllers.UserController;
+import domain.Category;
 import domain.Product;
 import domain.User;
 import dto.ProductDTO;
@@ -133,9 +134,17 @@ public class ProductServlet extends BaseProduct {
             } else {
                 product.setDescription(value);
             }
+
+            if (!Objects.isNull(req.getParameter(CATEGORY)) && !req.getParameter(CATEGORY).isEmpty()) {
+                Category categoryFilter = new Category();
+                categoryFilter.setId(Long.parseLong(req.getParameter(CATEGORY)));
+                product.setCategory(categoryFilter);
+            }
         }
+
         List<Product> products = getController().findAll(product);
         req.setAttribute(PRODUCTS, products);
+        req.setAttribute(CATEGORIES, categoryController.findAll());
         return FORWARD_PAGES_PRODUCT_LIST_PRODUCTS_JSP;
     }
 

@@ -128,6 +128,10 @@ public class ProductDao extends BaseDao {
             predicates.add(cb.equal(prod.<String>get("status"), Status.ACTIVE.getDescription()));
         }
 
+        if (product.getCategory() != null) {
+            predicates.add(cb.equal(prod.<Category>get("category").get("id"), product.getCategory().getId()));
+        }
+
         c.where(cb.and(predicates.toArray(new Predicate[0])));
         c.orderBy(cb.asc(prod.<Long>get("id")));
 

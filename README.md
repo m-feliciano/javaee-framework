@@ -70,3 +70,20 @@ C:.
         ├───servlets
         └───utils
 ```
+
+## Script to create the database
+```docker
+
+## create nw
+docker network create -d bridge servlet
+
+## run container
+docker run --name servlet \
+--network=servlet -p 5432:5432 \
+-e "POSTGRES_USER=postgres" \
+-e "POSTGRES_PASSWORD=password" \
+-d postgres
+
+## exec 
+docker exec -it servlet psql -U postgres
+```

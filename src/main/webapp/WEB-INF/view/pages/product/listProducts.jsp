@@ -20,9 +20,21 @@
         <p>No one product found.</p>
     </c:if>
     <c:if test="${ not empty products }">
+        <!-- Form/Filter list products -->
         <form class="form-inline d-flex flex-row-reverse mb-2 pr-2" action="${ listProducts }" method="post">
             <div class="mb-3 form-row">
+                <!-- combo category -->
                 <div class="form-row mr-2">
+                    <c:if test="${ not empty categories }">
+                        <div class="form-check col mr-2">
+                            <select name="category" class="form-control text-center" id="inputCategory">
+                                <option value="${ null }" selected>All</option>
+                                <c:forEach items="${ categories }" var="category">
+                                    <option value="${ category.id }">${ category.name }</option>
+                                </c:forEach>
+                            </select>
+                        </div>
+                    </c:if>
                     <div class="form-check col mr-2">
                         <input class="form-check-input" type="radio" name="param" id="radioName"
                                value="name" checked>
