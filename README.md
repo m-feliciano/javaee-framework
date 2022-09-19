@@ -1,26 +1,31 @@
-# servlets (Jakarta Servlet)
+# Servlets (Java/JSP)
 Web Servlet Application (Full Java/JSP) for product control using MVC pattern, Slf4j for Logger, Java Reflection to build and process all requests and StopWatch to collecting and recording app metrics
 
 ## Layout
 
 ### Login
 
-#### path example: http://server/login?action=loginForm
+#### server/login?action=loginForm
 ![App login page](https://i.ibb.co/R0xM6Ps/Screenshot-2022-07-17-034301.png)
 <br>
 
 ### Home
-#### path example: http://sever/product?action=list
-![App home page](https://i.ibb.co/PZHJjKc/Screenshot-2022-08-20-153909.png)
+#### server/product?action=list
+![App home page](https://i.ibb.co/LQmByN2/temp.png)
 <br>
 
 ### Product
-#### path example: http://server/product?action=list&id=2
+#### server/product?action=list&id=2
 ![App prolist list page](https://i.ibb.co/1fy8JtG/Screenshot.png)
 <br>
 
+### User
+#### server/user?action=list
+![App prolist list page](https://i.ibb.co/nBbGMtG/temp.png)
+<br>
+
 ### Not Found
-#### path example: http://server/product?action=list&id=/some_invalid_id/
+#### server/product?action=list&id=some_invalid_id
 ![App not found page](https://i.ibb.co/th8R564/Capture5.png)
 <br>
 
