@@ -6,6 +6,9 @@ import domain.enums.Status;
 import javax.persistence.EntityManager;
 
 public class UserDao extends BaseDao {
+
+    public static final String LOGIN = "login";
+
     public UserDao(EntityManager em) {
         super(em);
     }
@@ -79,7 +82,7 @@ public class UserDao extends BaseDao {
     public User findByLogin(String login) {
         String jpql = "SELECT NEW User(u.id, u.login) FROM User u WHERE lower(u.login) = :login";
         User user = em.createQuery(jpql, User.class)
-                .setParameter("login", login.toLowerCase())
+                .setParameter(LOGIN, login.toLowerCase())
                 .getResultStream()
                 .findFirst()
                 .orElse(null);
@@ -96,7 +99,7 @@ public class UserDao extends BaseDao {
     public User find(User user) {
         String jpql = "SELECT u FROM User u JOIN FETCH u.perfis p WHERE lower(u.login) = :login";
         User login = em.createQuery(jpql, User.class)
-                .setParameter("login", user.getLogin().toLowerCase())
+                .setParameter(LOGIN, user.getLogin().toLowerCase())
                 .getResultStream()
                 .findFirst()
                 .orElse(null);

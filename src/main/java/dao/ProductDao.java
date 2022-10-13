@@ -16,6 +16,11 @@ import java.util.List;
 
 public class ProductDao extends BaseDao {
 
+    public static final String STATUS = "status";
+    public static final String ID = "id";
+    public static final String USER = "user";
+    public static final String NAME = "name";
+
     public ProductDao(EntityManager em) {
         super(em);
     }
@@ -85,19 +90,19 @@ public class ProductDao extends BaseDao {
         Root<Product> prod = c.from(Product.class);
 
         List<Predicate> predicates = new ArrayList<>();
-        predicates.add(cb.equal(prod.<User>get("user").<Long>get("id"), product.getUser().getId()));
+        predicates.add(cb.equal(prod.<User>get(USER).<Long>get(ID), product.getUser().getId()));
 
         if (product.getStatus() != null) {
-            predicates.add(cb.equal(prod.<String>get("status"), product.getStatus()));
+            predicates.add(cb.equal(prod.<String>get(STATUS), product.getStatus()));
         } else {
-            predicates.add(cb.equal(prod.<String>get("status"), Status.ACTIVE.getDescription()));
+            predicates.add(cb.equal(prod.<String>get(STATUS), Status.ACTIVE.getDescription()));
         }
 
         if (product.getId() != null) {
-            predicates.add(cb.equal(prod.<Long>get("id"), product.getId()));
+            predicates.add(cb.equal(prod.<Long>get(ID), product.getId()));
         } else {
             if (product.getName() != null) {
-                predicates.add(cb.equal(prod.<String>get("name"), product.getName()));
+                predicates.add(cb.equal(prod.<String>get(NAME), product.getName()));
             }
 
             if (product.getDescription() != null) {
@@ -121,19 +126,19 @@ public class ProductDao extends BaseDao {
         Root<Product> prod = c.from(Product.class);
 
         List<Predicate> predicates = new ArrayList<>();
-        predicates.add(cb.equal(prod.<User>get("user").<Long>get("id"), product.getUser().getId()));
+        predicates.add(cb.equal(prod.<User>get(USER).<Long>get(ID), product.getUser().getId()));
         if (product.getStatus() != null) {
-            predicates.add(cb.equal(prod.<String>get("status"), product.getStatus()));
+            predicates.add(cb.equal(prod.<String>get(STATUS), product.getStatus()));
         } else {
-            predicates.add(cb.equal(prod.<String>get("status"), Status.ACTIVE.getDescription()));
+            predicates.add(cb.equal(prod.<String>get(STATUS), Status.ACTIVE.getDescription()));
         }
 
         if (product.getCategory() != null) {
-            predicates.add(cb.equal(prod.<Category>get("category").get("id"), product.getCategory().getId()));
+            predicates.add(cb.equal(prod.<Category>get("category").get(ID), product.getCategory().getId()));
         }
 
         c.where(cb.and(predicates.toArray(new Predicate[0])));
-        c.orderBy(cb.asc(prod.<Long>get("id")));
+        c.orderBy(cb.asc(prod.<Long>get(ID)));
 
         TypedQuery<Product> q = em.createQuery(c);
         return q.getResultList();
@@ -147,7 +152,7 @@ public class ProductDao extends BaseDao {
      */
     public List<Product> findAllByCategory(Category category) {
         String jpql = "SELECT p FROM Product p WHERE LOWER(p.category.name) LIKE LOWER(CONCAT('%', :name, '%'))";
-        List<Product> resultList = em.createQuery(jpql, Product.class).setParameter("name", category.getName()).getResultList();
+        List<Product> resultList = em.createQuery(jpql, Product.class).setParameter(NAME, category.getName()).getResultList();
         closeTransaction();
         return resultList;
     }
