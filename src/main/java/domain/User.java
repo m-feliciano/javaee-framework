@@ -5,7 +5,6 @@ import domain.enums.Perfil;
 import domain.enums.Status;
 import lombok.*;
 import org.hibernate.Hibernate;
-import servlets.utils.EncryptDecrypt;
 
 import javax.persistence.*;
 import java.io.Serial;
@@ -26,14 +25,14 @@ public class User implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "users_perfis", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "perfis")
-    @CollectionTable(name = "PERFIS_USERS", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
     private final Set<Integer> perfis = new HashSet<>();
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(value = AccessLevel.NONE)
     private Long id;
-    @Column(name = "login")
+    @Column(name = "login", unique = true)
     private String login;
     @JsonIgnore
     @ToString.Exclude
@@ -66,6 +65,12 @@ public class User implements Serializable {
         this.imgUrl = imgUrl;
     }
 
+    public User(String login, String password, String imgUrl) {
+        this.password = password;
+        this.login = login;
+        this.imgUrl = imgUrl;
+    }
+
     public User(Long id, String login, Set<Integer> perfis) {
         this.id = id;
         this.login = login;
@@ -76,12 +81,13 @@ public class User implements Serializable {
         perfis.add(perfil.getCod());
     }
 
-    public Set<Perfil> getPerfis() {
-        return perfis.stream().map(Perfil::toEnum).collect(Collectors.toSet());
+    public void setPerfis(Set<Perfil> perfis) {
+        this.perfis.clear();
+        perfis.forEach(this::addPerfil);
     }
 
-    public boolean equals(String login, String password) {
-        return this.login.equals(login) && Objects.equals(EncryptDecrypt.decrypt(this.password), password);
+    public Set<Perfil> getPerfis() {
+        return perfis.stream().map(Perfil::toEnum).collect(Collectors.toSet());
     }
 
     @Override

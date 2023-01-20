@@ -140,8 +140,7 @@ public class UserServlet extends BaseUser {
      */
     private String list(HttpServletRequest req, HttpServletResponse resp) {
         logger.info("doPOST listing a user");
-        User user = (User) req.getSession().getAttribute(USER_LOGGED);
-        req.setAttribute(USER, controller.find(user));
+        req.setAttribute(USER, (User) req.getSession().getAttribute(USER_LOGGED));
         return FORWARD_PAGES_USER_FORM_LIST_USER_JSP;
     }
 

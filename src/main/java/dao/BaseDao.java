@@ -19,6 +19,7 @@ public class BaseDao {
     }
 
     protected void closeTransaction() {
+        this.em.clear();
         this.em.close();
     }
 }

@@ -2,8 +2,12 @@ package dao;
 
 import domain.User;
 import domain.enums.Status;
+import org.hibernate.jpa.QueryHints;
+import servlets.utils.EncryptDecrypt;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import javax.persistence.QueryHint;
 
 public class UserDao extends BaseDao {
 
@@ -21,9 +25,8 @@ public class UserDao extends BaseDao {
     public User save(User user) {
         user.setStatus(Status.ACTIVE.getDescription());
         beginTransaction();
-        this.em.persist(user);
-        commitTransaction();
         user = em.merge(user);
+        commitTransaction();
         closeTransaction();
         return user;
     }
@@ -31,11 +34,12 @@ public class UserDao extends BaseDao {
     /**
      * Update.
      *
-     * @param user the user
+     * @param user the userToUpdate
      */
     public User update(User user) {
+        user.setStatus(Status.ACTIVE.getDescription());
         beginTransaction();
-        this.em.merge(user);
+        user = em.merge(user);
         commitTransaction();
         closeTransaction();
         return user;
@@ -76,18 +80,25 @@ public class UserDao extends BaseDao {
     /**
      * Find by username.
      *
-     * @param login the username
+     * @param user the user and password
      * @return the user found or null if not found
      */
-    public User findByLogin(String login) {
-        String jpql = "SELECT NEW User(u.id, u.login) FROM User u WHERE lower(u.login) = :login";
-        User user = em.createQuery(jpql, User.class)
-                .setParameter(LOGIN, login.toLowerCase())
+    public User findByLogin(User user) {
+        String jpql = """
+                 SELECT u FROM User u
+                 WHERE u.login = :login
+                 AND u.status = :status
+                 AND u.password = :password
+                """;
+
+        return em.createQuery(jpql, User.class)
+                .setParameter(LOGIN, user.getLogin().toLowerCase())
+                .setParameter("password", user.getPassword())
+                .setParameter("status", Status.ACTIVE.getDescription())
+                .setHint(QueryHints.HINT_READONLY, true)
                 .getResultStream()
                 .findFirst()
                 .orElse(null);
-        closeTransaction();
-        return user;
     }
 
     /**
@@ -98,12 +109,11 @@ public class UserDao extends BaseDao {
      */
     public User find(User user) {
         String jpql = "SELECT u FROM User u JOIN FETCH u.perfis p WHERE lower(u.login) = :login";
-        User login = em.createQuery(jpql, User.class)
+        return em.createQuery(jpql, User.class)
                 .setParameter(LOGIN, user.getLogin().toLowerCase())
+                .setHint(QueryHints.HINT_READONLY, true)
                 .getResultStream()
                 .findFirst()
                 .orElse(null);
-        closeTransaction();
-        return login;
     }
 }

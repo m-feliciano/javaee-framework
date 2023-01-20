@@ -1,10 +1,6 @@
 package domain.enums;
 
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
-
-import javax.persistence.*;
 
 @Getter
 public enum Perfil {
@@ -13,12 +9,8 @@ public enum Perfil {
     CLIENT(2, "ROLE_CLIENT"),
     MODERATOR(2, "ROLE_MODERATOR");
 
-    @Setter(value = AccessLevel.NONE)
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private final int cod;
 
-    @Column(name = "description")
     private final String description;
 
     Perfil(int cod, String descricao) {

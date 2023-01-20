@@ -2,6 +2,7 @@ package servlets;
 
 import domain.User;
 import org.apache.commons.lang3.time.StopWatch;
+import servlets.utils.EncryptDecrypt;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -65,10 +66,12 @@ public class LoginServlet extends BaseLogin {
         sw.start();
 
         logger.info("Validate user to login");
+
         User user = new User();
         user.setLogin(req.getParameter(EMAIL));
-        user = controller.find(user);
-        if (user == null || !user.equals(user.getLogin(), req.getParameter(PASSWORD))) {
+        user.setPassword(EncryptDecrypt.encrypt(req.getParameter(PASSWORD)));
+        user = controller.findByLogin(user);
+        if (user == null) {
             req.setAttribute("invalid", "User or password invalid.");
             logger.info("User or password invalid.");
             req.setAttribute(EMAIL, req.getParameter(EMAIL));
@@ -78,7 +81,7 @@ public class LoginServlet extends BaseLogin {
         }
 
         HttpSession session = req.getSession();
-        session.setAttribute("userLogged", new User(user.getId(), user.getLogin(), user.getImgUrl()));
+        session.setAttribute("userLogged", user);
         logger.info("User logged: {}", user.getLogin());
 
         sw.stop();
