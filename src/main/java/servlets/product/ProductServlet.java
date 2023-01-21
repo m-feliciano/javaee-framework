@@ -21,6 +21,29 @@ import static servlets.base.Base.*;
 
 public class ProductServlet extends BaseProduct {
 
+    public static final String ACTION = "action";
+    public static final String ERROR_ACTION_CAN_T_BE_NULL = "Error: action can't be null";
+    public static final String ACTION_CAN_T_BE_NULL = "Action can't be null";
+    public static final String CREATE = "create";
+    public static final String LIST = "list";
+    public static final String UPDATE = "update";
+    public static final String NEW = "new";
+    public static final String EDIT = "edit";
+    public static final String DELETE = "delete";
+    public static final String ERROR_ACTION_NOT_FOUND = "Error: action not found";
+    public static final String ACTION_NOT_FOUND = "Action not found";
+    public static final String DO_POST_CREATING_PRODUCT = "doPOST creating product";
+    public static final String DD_MM_YYYY = "dd/MM/yyyy";
+    public static final String DO_POST_EDITING_PRODUCT = "doPOST editing product";
+    public static final String ERROR_ID_CAN_T_BE_NULL = "Error: id can't be null";
+    public static final String ID_CAN_T_BE_NULL = "Id can't be null";
+    public static final String DO_POST_LISTING_PRODUCTS_BY_FILTER = "doPOST listing products by filter";
+    public static final String PARAM = "param";
+    public static final String VALUE = "value";
+    public static final String DO_POST_REDIRECTING_TO_FORM_CREATE_PRODUCT = "doPOST redirecting to form createProduct";
+    public static final String DO_POST_UPDATING_PRODUCT = "doPOST updating product";
+    public static final String DO_POST_PRODUCT_UPDATED_IN_MS = "doPOST product updated in {} ms";
+    public static final String DO_POST_DELETING_PRODUCT = "doPOST deleting product";
     private final ProductController controller = new ProductController(getEm());
     private final CategoryController categoryController = new CategoryController(getEm());
     public static final String USER_LOGGED = "userLogged";
@@ -36,34 +59,34 @@ public class ProductServlet extends BaseProduct {
 
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
-        if (req.getParameter("action") == null) {
-            logger.error("Error: action can't be null");
-            req.setAttribute(ERROR, "Action can't be null");
+        if (req.getParameter(ACTION) == null) {
+            logger.error(ERROR_ACTION_CAN_T_BE_NULL);
+            req.setAttribute(ERROR, ACTION_CAN_T_BE_NULL);
             return FORWARD_PAGES_NOT_FOUND_JSP;
         }
 
-        switch (req.getParameter("action")) {
-            case "create" -> {
+        switch (req.getParameter(ACTION)) {
+            case CREATE -> {
                 return create(req, resp);
             }
-            case "list" -> {
+            case LIST -> {
                 return list(req, resp);
             }
-            case "update" -> {
+            case UPDATE -> {
                 return update(req, resp);
             }
-            case "new" -> {
+            case NEW -> {
                 return add(req, resp);
             }
-            case "edit" -> {
+            case EDIT -> {
                 return edit(req, resp);
             }
-            case "delete" -> {
+            case DELETE -> {
                 return delete(req, resp);
             }
             default -> {
-                logger.error("Error: action not found");
-                req.setAttribute(ERROR, "Action not found");
+                logger.error(ERROR_ACTION_NOT_FOUND);
+                req.setAttribute(ERROR, ACTION_NOT_FOUND);
             }
         }
         return FORWARD_PAGES_NOT_FOUND_JSP;
@@ -73,8 +96,8 @@ public class ProductServlet extends BaseProduct {
     public String create(HttpServletRequest req, HttpServletResponse resp) {
         StopWatch sw = new StopWatch();
         sw.start();
-        logger.info("doPOST creating product");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        logger.info(DO_POST_CREATING_PRODUCT);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DD_MM_YYYY);
         LocalDate parsedDate = LocalDate.parse(LocalDate.now().format(formatter), formatter);
 
         Product product = new Product(req.getParameter(NAME), req.getParameter(DESCRIPTION), req.getParameter(URL), parsedDate, CurrencyFormatter.stringToBigDecimal(req.getParameter(PRICE)));
@@ -88,15 +111,15 @@ public class ProductServlet extends BaseProduct {
     }
 
     public String edit(HttpServletRequest req, HttpServletResponse resp) {
-        logger.info("doPOST editing product");
+        logger.info(DO_POST_EDITING_PRODUCT);
         if (!this.validate(req, resp)) {
             return FORWARD_PAGES_NOT_FOUND_JSP;
         }
 
         String id = req.getParameter(ID);
         if (Objects.isNull(id)) {
-            logger.error("Error: id can't be null");
-            req.setAttribute(ERROR, "Id can't be null");
+            logger.error(ERROR_ID_CAN_T_BE_NULL);
+            req.setAttribute(ERROR, ID_CAN_T_BE_NULL);
             return FORWARD_PAGES_NOT_FOUND_JSP;
         }
 
@@ -110,7 +133,7 @@ public class ProductServlet extends BaseProduct {
     }
 
     private String list(HttpServletRequest req, HttpServletResponse resp) {
-        logger.info("doPOST listing products by filter");
+        logger.info(DO_POST_LISTING_PRODUCTS_BY_FILTER);
 
         Product product = new Product();
         product.setUser((User) req.getSession().getAttribute(USER_LOGGED));
@@ -126,8 +149,8 @@ public class ProductServlet extends BaseProduct {
             return FORWARD_PAGES_PRODUCT_FORM_LIST_PRODUCT_JSP;
         }
 
-        String param = req.getParameter("param");
-        String value = req.getParameter("value");
+        String param = req.getParameter(PARAM);
+        String value = req.getParameter(VALUE);
         if (!Objects.isNull(param) && !Objects.isNull(value)) {
             if (param.equals(NAME)) {
                 product.setName(value);
@@ -149,7 +172,7 @@ public class ProductServlet extends BaseProduct {
     }
 
     private String add(HttpServletRequest req, HttpServletResponse resp) {
-        logger.info("doPOST redirecting to form createProduct");
+        logger.info(DO_POST_REDIRECTING_TO_FORM_CREATE_PRODUCT);
         req.setAttribute(CATEGORIES, categoryController.findAll());
         return FORWARD_PAGES_PRODUCT_FORM_CREATE_PRODUCT_JSP;
     }
@@ -157,7 +180,7 @@ public class ProductServlet extends BaseProduct {
     private String update(HttpServletRequest req, HttpServletResponse resp) {
         StopWatch sw = new StopWatch();
         sw.start();
-        logger.info("doPOST updating product");
+        logger.info(DO_POST_UPDATING_PRODUCT);
         if (!this.validate(req, resp)) {
             return FORWARD_PAGES_NOT_FOUND_JSP;
         }
@@ -177,12 +200,12 @@ public class ProductServlet extends BaseProduct {
         getController().update(product);
         req.setAttribute(PRODUCT, product);
         sw.stop();
-        logger.info("doPOST product updated in {} ms", sw.getTime());
+        logger.info(DO_POST_PRODUCT_UPDATED_IN_MS, sw.getTime());
         return REDIRECT_PRODUCT_ACTION_LIST_PRODUCTS_BY_ID + product.getId();
     }
 
     private String delete(HttpServletRequest req, HttpServletResponse resp) {
-        logger.info("doPOST deleting product");
+        logger.info(DO_POST_DELETING_PRODUCT);
 
         if (!this.validate(req, resp)) {
             return FORWARD_PAGES_NOT_FOUND_JSP;

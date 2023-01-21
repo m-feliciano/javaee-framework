@@ -21,6 +21,8 @@ import static servlets.base.Base.ERROR;
 public class BaseUser implements Action, RequestValidation {
 
     public static final String ID = "id";
+    public static final String ERROR_ID_CAN_T_BE_NULL = "Error: Id can't be null";
+    public static final String USER_NOT_FOUND = "User not found";
     protected final Logger logger = LoggerFactory.getLogger(BaseUser.class);
     private final EntityManager em = JPAUtil.getEntityManager();
     /**
@@ -40,8 +42,8 @@ public class BaseUser implements Action, RequestValidation {
     @Override
     public boolean validate(HttpServletRequest req, HttpServletResponse resp) {
         if (Objects.isNull(req.getParameter(ID))) {
-            logger.warn("Error: Id can't be null");
-            req.setAttribute(ERROR, "User not found");
+            logger.warn(ERROR_ID_CAN_T_BE_NULL);
+            req.setAttribute(ERROR, USER_NOT_FOUND);
             return false;
         }
         return true;

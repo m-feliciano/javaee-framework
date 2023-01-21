@@ -13,6 +13,28 @@ import static servlets.product.ProductServlet.USER_LOGGED;
 
 public class UserServlet extends BaseUser {
 
+    public static final String ACTION = "action";
+    public static final String ERROR_ACTION_CAN_T_BE_NULL = "Error: action can't be null";
+    public static final String ACTION_CAN_T_BE_NULL = "Action can't be null";
+    public static final String CREATE = "create";
+    public static final String LIST = "list";
+    public static final String UPDATE = "update";
+    public static final String NEW = "new";
+    public static final String EDIT = "edit";
+    public static final String ERROR_ACTION_NOT_FOUND = "Error: action not found";
+    public static final String ACTION_NOT_FOUND = "Action not found";
+    public static final String DO_POST_REDIRECTING_TO_FORM_CREATE_USER = "doPOST redirecting to form createUser";
+    public static final String DO_POST_CREATING_A_USER = "doPOST creating a user";
+    public static final String PASSWORDS_DO_NOT_MATCH_REDIRECTING_TO_REGISTER_USER_PAGE = "Passwords do not match - redirecting to register user page";
+    public static final String USER_ALREADY_EXISTS = "User already exists";
+    public static final String USER_ALREADY_EXISTS_REDIRECTING_TO_REGISTER_USER_PAGE = "User {} already exists - redirecting to register user page";
+    public static final String USER_CREATED_SUCCESSFULLY = "User {} created successfully";
+    public static final String DO_POST_UPDATING_USER = "doPOST updating user";
+    public static final String PASSWORDS_DO_NOT_MATCH_REDIRECTING_TO_LIST_USER_PAGE = "Passwords do not match - redirecting to list user page";
+    public static final String INVALID = "invalid";
+    public static final String PASSWORDS_DO_NOT_MATCH = "Passwords do not match";
+    public static final String DO_POST_LISTING_A_USER = "doPOST listing a user";
+    public static final String DO_POST_EDITING_A_USER = "doPOST editing a user";
     private final UserController controller = new UserController(getEm());
 
     /**
@@ -24,30 +46,30 @@ public class UserServlet extends BaseUser {
      */
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) {
-        if (req.getParameter("action") == null) {
-            logger.error("Error: action can't be null");
-            req.setAttribute(ERROR, "Action can't be null");
+        if (req.getParameter(ACTION) == null) {
+            logger.error(ERROR_ACTION_CAN_T_BE_NULL);
+            req.setAttribute(ERROR, ACTION_CAN_T_BE_NULL);
             return FORWARD_PAGES_FORM_LOGIN_JSP;
         }
-        switch (req.getParameter("action")) {
-            case "create" -> {
+        switch (req.getParameter(ACTION)) {
+            case CREATE -> {
                 return create(req, resp);
             }
-            case "list" -> {
+            case LIST -> {
                 return list(req, resp);
             }
-            case "update" -> {
+            case UPDATE -> {
                 return update(req, resp);
             }
-            case "new" -> {
+            case NEW -> {
                 return add();
             }
-            case "edit" -> {
+            case EDIT -> {
                 return edit(req, resp);
             }
             default -> {
-                logger.error("Error: action not found");
-                req.setAttribute(ERROR, "Action not found");
+                logger.error(ERROR_ACTION_NOT_FOUND);
+                req.setAttribute(ERROR, ACTION_NOT_FOUND);
             }
         }
         return FORWARD_PAGES_NOT_FOUND_JSP;
@@ -59,7 +81,7 @@ public class UserServlet extends BaseUser {
      * @return the string
      */
     public String add() {
-        logger.info("doPOST redirecting to form createUser");
+        logger.info(DO_POST_REDIRECTING_TO_FORM_CREATE_USER);
         return FORWARD_PAGES_USER_FORM_CREATE_USER_JSP;
     }
 
@@ -71,11 +93,11 @@ public class UserServlet extends BaseUser {
      * @return the string
      */
     private String create(HttpServletRequest req, HttpServletResponse resp) {
-        logger.info("doPOST creating a user");
+        logger.info(DO_POST_CREATING_A_USER);
 
         if (!this.validatePassword(req)) {
             req.setAttribute(EMAIL, req.getParameter(EMAIL));
-            logger.warn("Passwords do not match - redirecting to register user page");
+            logger.warn(PASSWORDS_DO_NOT_MATCH_REDIRECTING_TO_REGISTER_USER_PAGE);
             return FORWARD_PAGES_USER_FORM_CREATE_USER_JSP;
         }
 
@@ -84,8 +106,8 @@ public class UserServlet extends BaseUser {
         user = getController().find(user);
 
         if (user != null) {
-            req.setAttribute(ERROR, "User already exists");
-            logger.warn("User {} already exists - redirecting to register user page", user.getLogin());
+            req.setAttribute(ERROR, USER_ALREADY_EXISTS);
+            logger.warn(USER_ALREADY_EXISTS_REDIRECTING_TO_REGISTER_USER_PAGE, user.getLogin());
             return FORWARD_PAGES_USER_FORM_CREATE_USER_JSP;
         }
 
@@ -98,7 +120,7 @@ public class UserServlet extends BaseUser {
             req.setAttribute(ERROR, e.getMessage());
             return REDIRECT_PRODUCT_ACTION_CREATE_USER;
         }
-        logger.info("User {} created successfully", user.getLogin());
+        logger.info(USER_CREATED_SUCCESSFULLY, user.getLogin());
         req.setAttribute(SUCCESS, "User " + user.getLogin() + " created successfully");
         return FORWARD_PAGES_FORM_LOGIN_JSP;
     }
@@ -111,7 +133,7 @@ public class UserServlet extends BaseUser {
      * @return the string
      */
     private String update(HttpServletRequest req, HttpServletResponse resp) {
-        logger.info("doPOST updating user");
+        logger.info(DO_POST_UPDATING_USER);
 
         User user = (User) req.getSession().getAttribute(USER_LOGGED);
         user.setLogin(req.getParameter(EMAIL).toLowerCase());
@@ -119,8 +141,8 @@ public class UserServlet extends BaseUser {
 
         if (!this.validatePassword(req)) {
             req.setAttribute(USER, user);
-            logger.warn("Passwords do not match - redirecting to list user page");
-            req.setAttribute("invalid", "Passwords do not match");
+            logger.warn(PASSWORDS_DO_NOT_MATCH_REDIRECTING_TO_LIST_USER_PAGE);
+            req.setAttribute(INVALID, PASSWORDS_DO_NOT_MATCH);
             return FORWARD_PAGES_USER_FORM_LIST_USER_JSP;
         }
 
@@ -139,7 +161,7 @@ public class UserServlet extends BaseUser {
      * @return the string
      */
     private String list(HttpServletRequest req, HttpServletResponse resp) {
-        logger.info("doPOST listing a user");
+        logger.info(DO_POST_LISTING_A_USER);
         req.setAttribute(USER, (User) req.getSession().getAttribute(USER_LOGGED));
         return FORWARD_PAGES_USER_FORM_LIST_USER_JSP;
     }
@@ -152,7 +174,7 @@ public class UserServlet extends BaseUser {
      * @return the string
      */
     private String edit(HttpServletRequest req, HttpServletResponse resp) {
-        logger.info("doPOST editing a user");
+        logger.info(DO_POST_EDITING_A_USER);
         if (!this.validate(req, resp)) {
             return FORWARD_PAGES_NOT_FOUND_JSP;
         }
@@ -180,7 +202,7 @@ public class UserServlet extends BaseUser {
         }
 
         if (!valid) {
-            req.setAttribute(ERROR, "Passwords do not match");
+            req.setAttribute(ERROR, PASSWORDS_DO_NOT_MATCH);
         }
 
         return valid;

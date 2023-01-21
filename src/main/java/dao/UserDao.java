@@ -3,15 +3,14 @@ package dao;
 import domain.User;
 import domain.enums.Status;
 import org.hibernate.jpa.QueryHints;
-import servlets.utils.EncryptDecrypt;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import javax.persistence.QueryHint;
 
 public class UserDao extends BaseDao {
 
     public static final String LOGIN = "login";
+    public static final String PASSWORD = "password";
+    public static final String STATUS = "status";
 
     public UserDao(EntityManager em) {
         super(em);
@@ -25,7 +24,7 @@ public class UserDao extends BaseDao {
     public User save(User user) {
         user.setStatus(Status.ACTIVE.getDescription());
         beginTransaction();
-        user = em.merge(user);
+        em.persist(user);
         commitTransaction();
         closeTransaction();
         return user;
@@ -37,7 +36,9 @@ public class UserDao extends BaseDao {
      * @param user the userToUpdate
      */
     public User update(User user) {
-        user.setStatus(Status.ACTIVE.getDescription());
+        if (user.getStatus() == null) {
+            user.setStatus(Status.ACTIVE.getDescription());
+        }
         beginTransaction();
         user = em.merge(user);
         commitTransaction();
@@ -72,9 +73,7 @@ public class UserDao extends BaseDao {
      * @return the user found or null if not found
      */
     public User findById(Long id) {
-        User user = this.em.find(User.class, id);
-        closeTransaction();
-        return user;
+        return this.em.find(User.class, id);
     }
 
     /**
@@ -93,8 +92,8 @@ public class UserDao extends BaseDao {
 
         return em.createQuery(jpql, User.class)
                 .setParameter(LOGIN, user.getLogin().toLowerCase())
-                .setParameter("password", user.getPassword())
-                .setParameter("status", Status.ACTIVE.getDescription())
+                .setParameter(PASSWORD, user.getPassword())
+                .setParameter(STATUS, Status.ACTIVE.getDescription())
                 .setHint(QueryHints.HINT_READONLY, true)
                 .getResultStream()
                 .findFirst()

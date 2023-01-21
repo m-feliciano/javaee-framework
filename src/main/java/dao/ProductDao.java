@@ -20,6 +20,8 @@ public class ProductDao extends BaseDao {
     public static final String ID = "id";
     public static final String USER = "user";
     public static final String NAME = "name";
+    public static final String DESCRIPTION = "description";
+    public static final String CATEGORY = "category";
 
     public ProductDao(EntityManager em) {
         super(em);
@@ -37,8 +39,6 @@ public class ProductDao extends BaseDao {
         product.setStatus(Status.ACTIVE.getDescription());
         this.em.persist(product);
         commitTransaction();
-        product = em.merge(product);
-        this.em.clear();
         closeTransaction();
         return product;
     }
@@ -51,6 +51,9 @@ public class ProductDao extends BaseDao {
 
     public void update(Product product) {
         beginTransaction();
+        if (product.getStatus() == null) {
+            product.setStatus(Status.ACTIVE.getDescription());
+        }
         this.em.merge(product);
         commitTransaction();
         closeTransaction();
@@ -85,11 +88,11 @@ public class ProductDao extends BaseDao {
      */
 
     public Product find(Product product) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Product> c = cb.createQuery(Product.class);
-        Root<Product> prod = c.from(Product.class);
+        var cb = em.getCriteriaBuilder();
+        var c = cb.createQuery(Product.class);
+        var prod = c.from(Product.class);
 
-        List<Predicate> predicates = new ArrayList<>();
+        var predicates = new ArrayList<Predicate>();
         predicates.add(cb.equal(prod.<User>get(USER).<Long>get(ID), product.getUser().getId()));
 
         if (product.getStatus() != null) {
@@ -106,11 +109,11 @@ public class ProductDao extends BaseDao {
             }
 
             if (product.getDescription() != null) {
-                predicates.add(cb.equal(prod.<String>get("description"), product.getDescription()));
+                predicates.add(cb.equal(prod.<String>get(DESCRIPTION), product.getDescription()));
             }
         }
 
-        c.where(cb.and(predicates.toArray(new Predicate[0])));
+        c.where(predicates.toArray(new Predicate[0]));
         TypedQuery<Product> q = em.createQuery(c);
         return q.getResultStream().findFirst().orElse(null);
     }
@@ -134,7 +137,7 @@ public class ProductDao extends BaseDao {
         }
 
         if (product.getCategory() != null) {
-            predicates.add(cb.equal(prod.<Category>get("category").get(ID), product.getCategory().getId()));
+            predicates.add(cb.equal(prod.<Category>get(CATEGORY).get(ID), product.getCategory().getId()));
         }
 
         c.where(cb.and(predicates.toArray(new Predicate[0])));

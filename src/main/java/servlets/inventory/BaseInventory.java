@@ -22,6 +22,8 @@ import static servlets.base.Base.ID;
 @RequiredArgsConstructor
 public class BaseInventory implements Action, RequestValidation {
 
+    public static final String ERROR_ID_CAN_T_BE_NULL = "Error: Id can't be null";
+    public static final String ITEM_NOT_FOUND = "Item not found";
     protected final EntityManager em = JPAUtil.getEntityManager();
     protected final Logger logger = LoggerFactory.getLogger(BaseInventory.class);
 
@@ -42,8 +44,8 @@ public class BaseInventory implements Action, RequestValidation {
     @Override
     public boolean validate(HttpServletRequest req, HttpServletResponse resp) {
         if (Objects.isNull(req.getParameter(ID))) {
-            logger.warn("Error: Id can't be null");
-            req.setAttribute(ERROR, "Item not found");
+            logger.warn(ERROR_ID_CAN_T_BE_NULL);
+            req.setAttribute(ERROR, ITEM_NOT_FOUND);
             return false;
         }
         return true;

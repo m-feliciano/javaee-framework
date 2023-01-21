@@ -20,8 +20,6 @@ public class CategoryDao extends BaseDao {
         beginTransaction();
         this.em.persist(category);
         commitTransaction();
-        category = this.em.merge(category);
-        this.em.clear();
         closeTransaction();
         return category;
     }
@@ -33,7 +31,7 @@ public class CategoryDao extends BaseDao {
      */
     public void update(Category category) {
         beginTransaction();
-        this.em.merge(category);
+        category = this.em.merge(category);
         commitTransaction();
         closeTransaction();
     }
@@ -66,9 +64,7 @@ public class CategoryDao extends BaseDao {
      */
 
     public Category findById(Long id) {
-        Category category = this.em.find(Category.class, id);
-        closeTransaction();
-        return category;
+        return this.em.find(Category.class, id);
     }
 
     /**

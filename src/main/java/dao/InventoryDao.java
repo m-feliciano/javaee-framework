@@ -7,6 +7,8 @@ import java.util.List;
 
 public class InventoryDao extends BaseDao {
 
+    public static final String DESCRIPTION = "description";
+
     public InventoryDao(EntityManager em) {
         super(em);
     }
@@ -110,7 +112,7 @@ public class InventoryDao extends BaseDao {
 
     public List<Inventory> findAllByDescription(String description) {
         String jpql = "SELECT i FROM Inventory i WHERE LOWER(i.description) LIKE LOWER(CONCAT('%', :description, '%'))";
-        List<Inventory> inventories = em.createQuery(jpql, Inventory.class).setParameter("description", description + '%').getResultList();
+        List<Inventory> inventories = em.createQuery(jpql, Inventory.class).setParameter(DESCRIPTION, description + '%').getResultList();
         closeTransaction();
         return inventories;
     }

@@ -21,17 +21,22 @@ public class EncryptDecrypt {
     // TODO: Change this to your own salt/key and do not share it with anyone.
     private static final String SECRET_KEY = "$KJDN.LDNSpçÇCX.!@3MLkn*%151l$!@#$%^&*()_+";
     private static final String SALT = "LHDkdn@1220-90isphyuigkjn5976T8PYIHU";
+    public static final String AES_CBC_PKCS_5_PADDING = "AES/CBC/PKCS5Padding";
+    public static final String ERROR_WHILE_ENCRYPTING = "Error while encrypting: ";
+    public static final String ERROR_WHILE_DECRYPTING = "Error while decrypting: ";
+    public static final String PBKDF_2_WITH_HMAC_SHA_256 = "PBKDF2WithHmacSHA256";
+    public static final String AES = "AES";
 
     // This method use to encrypt to string
     public static String encrypt(String strToEncrypt) {
         try {
 
             // Create default byte array
-            Cipher cipher = getCipher("AES/CBC/PKCS5Padding", Cipher.ENCRYPT_MODE);
+            Cipher cipher = getCipher(AES_CBC_PKCS_5_PADDING, Cipher.ENCRYPT_MODE);
             // Return encrypted string
             return Base64.getEncoder().encodeToString(cipher.doFinal(strToEncrypt.getBytes(StandardCharsets.UTF_8)));
         } catch (Exception e) {
-            System.err.println("Error while encrypting: " + e);
+            System.err.println(ERROR_WHILE_ENCRYPTING + e);
         }
         return null;
     }
@@ -44,11 +49,11 @@ public class EncryptDecrypt {
      */
     public static String decrypt(String strToDecrypt) {
         try {
-            Cipher cipher = getCipher("AES/CBC/PKCS5PADDING", Cipher.DECRYPT_MODE);
+            Cipher cipher = getCipher(AES_CBC_PKCS_5_PADDING, Cipher.DECRYPT_MODE);
             // Return decrypted string
             return new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
         } catch (Exception e) {
-            System.err.println("Error while decrypting: " + e);
+            System.err.println(ERROR_WHILE_DECRYPTING + e);
         }
         return null;
     }
@@ -74,13 +79,13 @@ public class EncryptDecrypt {
         byte[] iv = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
         // Create SecretKeyFactory Object
-        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        SecretKeyFactory factory = SecretKeyFactory.getInstance(PBKDF_2_WITH_HMAC_SHA_256);
 
         // Create KeySpec object and assign with constructor
         KeySpec spec = new PBEKeySpec(SECRET_KEY.toCharArray(), SALT.getBytes(), 65536, 256);
 
         Cipher cipher = Cipher.getInstance(transformation);
-        cipher.init(decryptMode, new SecretKeySpec(factory.generateSecret(spec).getEncoded(), "AES"), new IvParameterSpec(iv));
+        cipher.init(decryptMode, new SecretKeySpec(factory.generateSecret(spec).getEncoded(), AES), new IvParameterSpec(iv));
         return cipher;
     }
 }

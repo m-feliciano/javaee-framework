@@ -15,6 +15,30 @@ import java.util.Objects;
 import static servlets.base.Base.*;
 
 public class InventoryServlet extends BaseInventory {
+    public static final String ACTION = "action";
+    public static final String ERROR_ACTION_CAN_T_BE_NULL = "Error: action can't be null";
+    public static final String ACTION_CAN_T_BE_NULL = "Action can't be null";
+    public static final String ACTION1 = "action";
+    public static final String CREATE = "create";
+    public static final String LIST = "list";
+    public static final String UPDATE = "update";
+    public static final String NEW = "new";
+    public static final String EDIT = "edit";
+    public static final String DELETE = "delete";
+    public static final String ERROR_ACTION_NOT_FOUND = "Error: action not found";
+    public static final String ACTION_NOT_FOUND = "Action not found";
+    public static final String DO_POST_CREATING_A_INVENTORY_ITEM = "doPOST creating a inventory item";
+    public static final String DO_POST_CREATING_A_INVENTORY_ITEM_TOOK_MS = "doPOST creating a inventory item took {} ms";
+    public static final String DO_POST_LISTING_ITEMS_BY_FILTER = "doPOST listing items by filter";
+    public static final String PARAM = "param";
+    public static final String VALUE = "value";
+    public static final String DO_POST_LISTING_ITEMS_BY_FILTER_TIME_MS = "doPOST listing items by filter - time: {}ms";
+    public static final String DO_POST_REDIRECTING_TO_FORM_CREATE_ITEM = "doPOST redirecting to form createItem";
+    public static final String DO_POST_UPDATING_INVENTORY_ITEM = "doPOST updating inventory item";
+    public static final String PRODUCT_ID_WAS_NOT_FOUND = "Product id {} was not found.";
+    public static final String DO_POST_UPDATING_INVENTORY_ITEM_TIME_MS = "doPOST updating inventory item - time: {}ms";
+    public static final String DO_POST_EDITING_ITEM = "doPOST editing item";
+    public static final String DO_POST_DELETING_ITEM = "doPOST deleting item";
     private final ProductController productController = new ProductController(getEm());
     private final InventoryController controller = new InventoryController(getEm());
 
@@ -27,32 +51,32 @@ public class InventoryServlet extends BaseInventory {
      */
     @Override
     public String execute(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if (req.getParameter("action") == null) {
-            logger.error("Error: action can't be null");
-            req.setAttribute(ERROR, "Action can't be null");
+        if (req.getParameter(ACTION) == null) {
+            logger.error(ERROR_ACTION_CAN_T_BE_NULL);
+            req.setAttribute(ERROR, ACTION_CAN_T_BE_NULL);
         }
-        switch (req.getParameter("action")) {
-            case "create" -> {
+        switch (req.getParameter(ACTION1)) {
+            case CREATE -> {
                 return create(req, resp);
             }
-            case "list" -> {
+            case LIST -> {
                 return list(req, resp);
             }
-            case "update" -> {
+            case UPDATE -> {
                 return update(req, resp);
             }
-            case "new" -> {
+            case NEW -> {
                 return add();
             }
-            case "edit" -> {
+            case EDIT -> {
                 return edit(req, resp);
             }
-            case "delete" -> {
+            case DELETE -> {
                 return delete(req, resp);
             }
             default -> {
-                logger.error("Error: action not found");
-                req.setAttribute(ERROR, "Action not found");
+                logger.error(ERROR_ACTION_NOT_FOUND);
+                req.setAttribute(ERROR, ACTION_NOT_FOUND);
             }
         }
         return FORWARD_PAGES_NOT_FOUND_JSP;
@@ -68,7 +92,7 @@ public class InventoryServlet extends BaseInventory {
     private String create(HttpServletRequest req, HttpServletResponse resp) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        logger.info("doPOST creating a inventory item");
+        logger.info(DO_POST_CREATING_A_INVENTORY_ITEM);
         Product product = Product.getProductFromRequest(req);
         product = productController.find(product);
         int quantity = Integer.parseInt(req.getParameter(QUANTITY));
@@ -76,7 +100,7 @@ public class InventoryServlet extends BaseInventory {
         controller.save(item);
         req.setAttribute(ITEM, item);
         stopWatch.stop();
-        logger.info("doPOST creating a inventory item took {} ms", stopWatch.getTime());
+        logger.info(DO_POST_CREATING_A_INVENTORY_ITEM_TOOK_MS, stopWatch.getTime());
         return REDIRECT_INVENTORY_ACTION_LIST_ITEMS_BY_ID + item.getId();
     }
 
@@ -90,7 +114,7 @@ public class InventoryServlet extends BaseInventory {
     private String list(HttpServletRequest req, HttpServletResponse resp) {
         StopWatch sw = new StopWatch();
         sw.start();
-        logger.info("doPOST listing items by filter");
+        logger.info(DO_POST_LISTING_ITEMS_BY_FILTER);
 
         String id = req.getParameter(ID);
         if (!Objects.isNull(id)) {
@@ -103,8 +127,8 @@ public class InventoryServlet extends BaseInventory {
             return FORWARD_PAGES_INVENTORY_FORM_LIST_ITEM_JSP;
         }
 
-        String param = req.getParameter("param");
-        String value = req.getParameter("value");
+        String param = req.getParameter(PARAM);
+        String value = req.getParameter(VALUE);
         List<Inventory> inventories;
         if (!Objects.isNull(param) && !Objects.isNull(value)) {
             if (param.equals(NAME)) {
@@ -120,7 +144,7 @@ public class InventoryServlet extends BaseInventory {
             req.setAttribute(ITEMS, inventories);
         }
         sw.stop();
-        logger.info("doPOST listing items by filter - time: {}ms", sw.getTime());
+        logger.info(DO_POST_LISTING_ITEMS_BY_FILTER_TIME_MS, sw.getTime());
         return FORWARD_PAGES_INVENTORY_LIST_ITEMS_JSP;
     }
 
@@ -130,7 +154,7 @@ public class InventoryServlet extends BaseInventory {
      * @return the string
      */
     private String add() {
-        logger.info("doPOST redirecting to form createItem");
+        logger.info(DO_POST_REDIRECTING_TO_FORM_CREATE_ITEM);
         return FORWARD_PAGES_INVENTORY_FORM_CREATE_ITEM_JSP;
     }
 
@@ -144,7 +168,7 @@ public class InventoryServlet extends BaseInventory {
     private String update(HttpServletRequest req, HttpServletResponse resp) {
         StopWatch sw = new StopWatch();
         sw.start();
-        logger.info("doPOST updating inventory item");
+        logger.info(DO_POST_UPDATING_INVENTORY_ITEM);
         if (!this.validate(req, resp)) {
             return FORWARD_PAGES_NOT_FOUND_JSP;
         }
@@ -157,7 +181,7 @@ public class InventoryServlet extends BaseInventory {
 
         product = productController.find(product);
         if (Objects.isNull(product)) {
-            logger.error("Product id {} was not found.", req.getParameter(PRODUCT_ID));
+            logger.error(PRODUCT_ID_WAS_NOT_FOUND, req.getParameter(PRODUCT_ID));
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             req.setAttribute(ERROR, "ERROR: Product ID " + req.getParameter(PRODUCT_ID) + " was not found.");
             req.setAttribute(ITEM, item);
@@ -168,7 +192,7 @@ public class InventoryServlet extends BaseInventory {
         controller.update(item);
         req.setAttribute(ITEM, item);
         sw.stop();
-        logger.info("doPOST updating inventory item - time: {}ms", sw.getTime());
+        logger.info(DO_POST_UPDATING_INVENTORY_ITEM_TIME_MS, sw.getTime());
         return REDIRECT_INVENTORY_ACTION_LIST_ITEMS_BY_ID + item.getId();
     }
 
@@ -180,7 +204,7 @@ public class InventoryServlet extends BaseInventory {
      * @return the string
      */
     private String edit(HttpServletRequest req, HttpServletResponse resp) {
-        logger.info("doPOST editing item");
+        logger.info(DO_POST_EDITING_ITEM);
         if (!this.validate(req, resp)) {
             return FORWARD_PAGES_NOT_FOUND_JSP;
         }
@@ -197,7 +221,7 @@ public class InventoryServlet extends BaseInventory {
      * @return the string
      */
     private String delete(HttpServletRequest req, HttpServletResponse resp) {
-        logger.info("doPOST deleting item");
+        logger.info(DO_POST_DELETING_ITEM);
         if (!this.validate(req, resp)) {
             return FORWARD_PAGES_NOT_FOUND_JSP;
         }

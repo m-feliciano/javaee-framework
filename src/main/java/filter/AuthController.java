@@ -15,6 +15,26 @@ import java.io.IOException;
 public class AuthController implements Filter {
 
     public static final String LOGIN_SERVLET = "servlets.LoginServlet";
+    public static final String FORWARD = "forward";
+    public static final String REDIRECT_TO = "Redirect to: {}";
+    public static final String ERROR_ON_REDIRECT = "Error on redirect: {}";
+    public static final String ERROR_ON_FORWARD = "Error on forward: {}";
+    public static final String FORWARD_TO = "Forward to: {}";
+    public static final String WEB_INF_VIEW = "/WEB-INF/view/";
+    public static final String SERVLET = "Servlet";
+    public static final String PATH = "Path: {}";
+    public static final String ERROR_ON_PARSE_URL = "Error on parse url: {}";
+    public static final String CANNOT_PARSE_URL = "Cannot parse url: ";
+    public static final String FORWARD_PAGES_NOT_FOUND_JSP = "forward:pages/not-found.jsp";
+    public static final String SERVLETS_S_S = "servlets.%s.%s";
+    public static final String LOG = "log";
+    public static final String AUTH_CONTROLLER_FILTER_AND_PROCESS_REQUEST_EXECUTION_TIME_MS = "AuthController filter and process request execution time: {}ms";
+    public static final String FULLPATH = "Fullpath: {}";
+    public static final String CLASSNAME = "Classname: {}";
+    public static final String ACTION = "Action: {}";
+    public static final String ACTION_REQUEST = "action";
+    public static final String INITIALIZING_AUTH_CONTROLLER_FILTER = "Initializing AuthController filter";
+    public static final String ERROR_ON_AUTH_CONTROLLER_FILTER = "error on AuthController filter";
     @Transient
     final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
@@ -33,20 +53,20 @@ public class AuthController implements Filter {
         StopWatch sw = new StopWatch();
         sw.start();
 
-        logger.info("Initializing AuthController filter");
+        logger.info(INITIALIZING_AUTH_CONTROLLER_FILTER);
         HttpServletRequest req = (HttpServletRequest) servletRequest;
         HttpServletResponse resp = (HttpServletResponse) servletResponse;
 
-        String strAction = req.getParameter("action");
-        logger.info("Action: {}", strAction);
+        String strAction = req.getParameter(ACTION_REQUEST);
+        logger.info(ACTION, strAction);
         String classname = getClassname(req, strAction);
-        logger.info("Classname: {}", classname);
+        logger.info(CLASSNAME, classname);
         String fullpath = executeAction(req, resp, classname);
-        logger.info("Fullpath: {}", fullpath);
+        logger.info(FULLPATH, fullpath);
         processRequest(req, resp, fullpath);
 
         sw.stop();
-        logger.info("AuthController filter and process request execution time: {}ms", sw.getTime());
+        logger.info(AUTH_CONTROLLER_FILTER_AND_PROCESS_REQUEST_EXECUTION_TIME_MS, sw.getTime());
     }
 
     @Nullable
@@ -72,12 +92,12 @@ public class AuthController implements Filter {
     private String getClassname(HttpServletRequest req, String strAction) {
         String classname;
         // fully qualified name do metodo a ser executado
-        if (strAction.contains("log")) {
+        if (strAction.contains(LOG)) {
             classname = LOGIN_SERVLET;
         } else {
             int entityPos = req.getServletPath().lastIndexOf("/") + 1;
             String entityName = req.getServletPath().substring(entityPos);
-            classname = String.format("servlets.%s.%s", entityName, getServletClass(entityName));
+            classname = String.format(SERVLETS_S_S, entityName, getServletClass(entityName));
         }
         return classname;
     }
@@ -93,42 +113,42 @@ public class AuthController implements Filter {
     private void processRequest(HttpServletRequest req, HttpServletResponse resp, String fullpath) throws ServletException {
 
         if (fullpath == null) {
-            logger.error("error on AuthController filter");
-            fullpath = "forward:pages/not-found.jsp";
+            logger.error(ERROR_ON_AUTH_CONTROLLER_FILTER);
+            fullpath = FORWARD_PAGES_NOT_FOUND_JSP;
             try {
-                req.getRequestDispatcher("/WEB-INF/view/" + fullpath).forward(req, resp);
+                req.getRequestDispatcher(WEB_INF_VIEW + fullpath).forward(req, resp);
             } catch (IOException e) {
-                logger.error("Error on redirect: {}", e.getMessage());
+                logger.error(ERROR_ON_FORWARD, e.getMessage());
                 e.printStackTrace();
             }
         }
 
         String[] path;
         try {
-            logger.info("Path: {}", fullpath);
+            logger.info(PATH, fullpath);
             path = fullpath.split(":");
         } catch (Exception e) {
-            logger.error("Error on parse url: {}", e.getMessage());
-            throw new ServletException("Cannot parse url: " + fullpath);
+            logger.error(ERROR_ON_PARSE_URL, e.getMessage());
+            throw new ServletException(CANNOT_PARSE_URL + fullpath);
         }
 
         String pathAction = path[0];
         String pathUrl = path[1];
 
-        if (pathAction.equals("forward")) {
+        if (pathAction.equals(FORWARD)) {
             try {
-                logger.info("Forward to: {}", pathUrl);
-                req.getRequestDispatcher("/WEB-INF/view/" + pathUrl).forward(req, resp);
+                logger.info(FORWARD_TO, pathUrl);
+                req.getRequestDispatcher(WEB_INF_VIEW + pathUrl).forward(req, resp);
             } catch (IOException | ServletException e) {
-                logger.error("Error on forward: {}", e.getMessage());
+                logger.error(ERROR_ON_FORWARD, e.getMessage());
                 e.printStackTrace();
             }
         } else {
             try {
-                logger.info("Redirect to: {}", pathUrl);
+                logger.info(REDIRECT_TO, pathUrl);
                 resp.sendRedirect(pathUrl);
             } catch (IOException e) {
-                logger.error("Error on redirect: {}", e.getMessage());
+                logger.error(ERROR_ON_REDIRECT, e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -141,7 +161,7 @@ public class AuthController implements Filter {
      * @return the servlet class
      */
     private String getServletClass(String entityName) {
-        return entityName.substring(0, 1).toUpperCase() + entityName.substring(1).concat("Servlet");
+        return entityName.substring(0, 1).toUpperCase() + entityName.substring(1).concat(SERVLET);
     }
 
 }
