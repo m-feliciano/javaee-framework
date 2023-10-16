@@ -2,8 +2,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <fmt:setLocale value="pt-BR" scope="application"/>
 
-<c:url value="/product" var="productLink"/>
-<c:url value="/product?action=list" var="listProducts"/>
+<c:url value="/productView" var="productLink"/>
+<c:url value="/productView?action=list" var="listProducts"/>
 
 <jsp:include page="../../components/header.jsp"/>
 <div class="main">

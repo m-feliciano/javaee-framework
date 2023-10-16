@@ -2,8 +2,8 @@
 <jsp:include page="../common-imports.jsp"/>
 <!------ Include the above in your HEAD tag ---------->
 
-<c:url value="/user" var="path"/>
-<c:url value="/product?action=loginForm" var="loginPage"/>
+<c:url value="/userView" var="path"/>
+<c:url value="/loginView?action=loginForm" var="loginPage"/>
 
 <div class="register sidenav">
     <div class="register-main-text">
@@ -24,7 +24,7 @@
                                                                  class="form-control hidden-alert"
                                                                  placeholder="Email" required>
                 </div>
-                <div class="form-group">
+             <div class="form-group">
                     <label for="inputPassword">Password</label> <input type="password"
                                                                        id="inputPassword" name="password"
                                                                        class="form-control hidden-alert"

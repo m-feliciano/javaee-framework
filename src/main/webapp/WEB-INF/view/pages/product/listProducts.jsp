@@ -1,11 +1,11 @@
-<%@ page import="java.util.*,domain.Product" %>
+<%@ page import="java.util.*,com.dev.servlet.domain.Product" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <fmt:setLocale value="pt-BR" scope="application"/>
 
-<c:url value="/product?action=list" var="listProducts"/>
-<c:url value="/product?action=delete" var="deleteProduct"/>
-<c:url value="/product?action=new" var="newProduct"/>
+<c:url value="/productView?action=list" var="listProducts"/>
+<c:url value="/productView?action=delete" var="deleteProduct"/>
+<c:url value="/productView?action=new" var="newProduct"/>
 
 <fmt:formatNumber value="${product.price}" type="currency" minFractionDigits="2" var="parsedPrice"/>
 

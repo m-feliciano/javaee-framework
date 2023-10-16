@@ -2,8 +2,8 @@
 <jsp:include page="common-imports.jsp"/>
 <!------ Include the above in your HEAD tag ---------->
 
-<c:url value="/product" var="loginPage"/>
-<c:url value="/user?action=new" var="registerPage"/>
+<c:url value="/loginView" var="loginPage"/>
+<c:url value="/userView?action=new" var="registerPage"/>
 
 <div class="sidenav">
     <div class="login-main-text">

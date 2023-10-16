@@ -1,8 +1,8 @@
-<%@ page import="java.util.*,domain.Product" %>
+<%@ page import="java.util.*,com.dev.servlet.domain.Product" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
-<c:url value="/product" var="productLink"/>
+<c:url value="/productView" var="productLink"/>
 <fmt:setLocale value="pt-BR" scope="application"/>
 <fmt:parseDate value="${product.registerDate}" type="date" pattern="yyyy-MM-dd" var="parsedDate"/>
 <fmt:formatDate value="${parsedDate}" type="date" pattern="dd-MM-yyyy" var="stdDate"/>

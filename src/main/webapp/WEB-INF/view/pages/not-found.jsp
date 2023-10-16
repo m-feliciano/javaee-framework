@@ -1,7 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <jsp:include page="common-imports.jsp"/>
 
-<c:url value="/product?action=list" var="listProducts"/>
+<c:url value="/productView?action=list" var="listProducts"/>
 <div class="page-wrap d-flex flex-row align-items-center bodyt">
     <div class="container">
         <div class="row justify-content-center">

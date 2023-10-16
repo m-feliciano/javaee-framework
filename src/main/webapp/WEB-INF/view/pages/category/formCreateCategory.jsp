@@ -1,5 +1,5 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<c:url value="/category" var="linkCategoryServlet"/>
+<c:url value="/categoryView" var="linkCategoryServlet"/>
 <!-- header -->
 <jsp:include page="../../components/header.jsp"/>
 <div class="main">

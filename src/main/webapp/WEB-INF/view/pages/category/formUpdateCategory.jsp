@@ -1,7 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
-<c:url value="/category" var="categoryServlet"/>
+<c:url value="/categoryView" var="categoryServlet"/>
 <fmt:setLocale value="pt-BR" scope="application"/>
 
 <!-- header -->

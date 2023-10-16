@@ -17,10 +17,11 @@
     <title>Servlet CRUD</title>
 </head>
 
-<c:url value="/product" var="productLink"/>
-<c:url value="/category" var="categoryLink"/>
-<c:url value="/inventory" var="inventoryLink"/>
-<c:url value="/user" var="userLink"/>
+<c:url value="/productView" var="productLink"/>
+<c:url value="/categoryView" var="categoryLink"/>
+<c:url value="/inventoryView" var="inventoryLink"/>
+<c:url value="/userView" var="userLink"/>
+<c:url value="/loginView" var="loginLink"/>
 
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -56,7 +57,7 @@
             </div>
             <a class="nav-link btn-logout mr-2" href="${userLink}?action=list">Perfil</a>
         </div>
-        <a class="nav-link btn-logout" href="${productLink}?action=logout">Logout</a>
+        <a class="nav-link btn-logout" href="${loginLink}?action=logout">Logout</a>
     </div>
 </nav>
 

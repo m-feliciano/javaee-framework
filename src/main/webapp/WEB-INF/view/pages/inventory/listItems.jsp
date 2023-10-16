@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<%@ page import="java.util.*,domain.Inventory" %>
+<%@ page import="java.util.*, com.dev.servlet.domain.Inventory" %>
 
 <c:url value="/inventory?action=delete" var="deleteItem"/>
 <c:url value="/inventory?action=new" var="newItem"/>

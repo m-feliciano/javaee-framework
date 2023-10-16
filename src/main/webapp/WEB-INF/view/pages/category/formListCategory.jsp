@@ -1,8 +1,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
-<c:url value="/category" var="categoryServlet"/>
-<c:url value="/category?action=edit" var="editCategory"/>
+<c:url value="/categoryView" var="categoryServlet"/>
+<c:url value="/categoryView?action=edit" var="editCategory"/>
 <fmt:setLocale value="pt-BR" scope="application"/>
 <!-- header -->
 <jsp:include page="../../components/header.jsp"/>

@@ -1,10 +1,10 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<%@ page import="java.util.*,domain.Category" %>
+<%@ page import="java.util.*, com.dev.servlet.domain.Category" %>
 
-<c:url value="/category?action=list" var="listCategory"/>
-<c:url value="/category?action=delete" var="deleteCategory"/>
-<c:url value="/category?action=new" var="newCategory"/>
+<c:url value="/categoryView?action=list" var="listCategory"/>
+<c:url value="/categoryView?action=delete" var="deleteCategory"/>
+<c:url value="/categoryView?action=new" var="newCategory"/>
 <fmt:setLocale value="pt-BR" scope="application"/>
 
 <jsp:include page="../../components/header.jsp"/>
