@@ -33,18 +33,9 @@ public class UserView extends BaseRequest {
 		case UPDATE -> doUpdate(req, resp);
 		case EDIT -> doEdit(req, resp);
 		case DELETE -> doDelete(req, resp);
-		case NEW -> add();
+		case NEW -> FORWARD_PAGES_USER_FORM_CREATE_USER_JSP;
 		default -> FORWARD_PAGES_NOT_FOUND_JSP;
 		};
-	}
-
-	/**
-	 * Redirect to Create user.
-	 *
-	 * @return the string
-	 */
-	public String add() {
-		return FORWARD_PAGES_USER_FORM_CREATE_USER_JSP;
 	}
 
 	/**
@@ -58,7 +49,7 @@ public class UserView extends BaseRequest {
 
 		var password = req.getParameter("password");
 		var confirmPassword = req.getParameter("confirmPassword");
-		
+
 		boolean passwordValid = password != null && password.equals(confirmPassword);
 		if (!passwordValid) {
 			req.setAttribute("email", req.getParameter("email"));
@@ -103,7 +94,8 @@ public class UserView extends BaseRequest {
 		user.setLogin(req.getParameter("email").toLowerCase());
 		user.setImgUrl(req.getParameter("imgUrl"));
 
-		boolean passwordValid = PasswordUtils.validate(user.getPassword(),
+		boolean passwordValid = PasswordUtils.validate(
+				user.getPassword(),
 				(String) req.getAttribute("confirmPassword"));
 
 		if (!passwordValid) {

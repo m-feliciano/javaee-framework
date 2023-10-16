@@ -26,8 +26,7 @@ public class CategoryView extends BaseRequest {
 	public CategoryView() {
 		super();
 	}
-	
-	
+
 	@Override
 	public String execute(HttpServletRequest req, HttpServletResponse resp) {
 		return switch (req.getParameter(ACTION)) {
@@ -36,13 +35,9 @@ public class CategoryView extends BaseRequest {
 		case UPDATE -> doUpdate(req, resp);
 		case EDIT -> doEdit(req, resp);
 		case DELETE -> doDelete(req, resp);
-		case NEW -> add();
+		case NEW -> FORWARD_PAGES_CATEGORY_FORM_CREATE_CATEGORY_JSP;
 		default -> FORWARD_PAGES_NOT_FOUND_JSP;
 		};
-	}
-
-	public String add() {
-		return FORWARD_PAGES_CATEGORY_FORM_CREATE_CATEGORY_JSP;
 	}
 
 	/**
@@ -53,12 +48,8 @@ public class CategoryView extends BaseRequest {
 	public String doUpdate(HttpServletRequest req, HttpServletResponse resp) {
 		var category = controller.findById(Long.parseLong(req.getParameter("id")));
 		category.setName(req.getParameter("name"));
-		
-		em.getTransaction().begin();
 		controller.update(category);
 		req.setAttribute(CATEGORY, new CategoryDTO(category));
-		em.getTransaction().commit();
-		em.close();
 		return REDIRECT_CATEGORY_ACTION_LIST_CATEGORY_BY_ID + category.getId();
 	}
 
@@ -94,13 +85,8 @@ public class CategoryView extends BaseRequest {
 	 * @return the string
 	 */
 	public String doDelete(HttpServletRequest req, HttpServletResponse resp) {
-		em.getTransaction().begin();
-
 		Category cat = new Category(Long.valueOf(req.getParameter("id")));
 		controller.delete(cat);
-		
-		em.getTransaction().commit();
-		em.close();
 		return REDIRECT_CATEGORY_ACTION_LIST_CATEGORIES;
 	}
 
@@ -112,12 +98,7 @@ public class CategoryView extends BaseRequest {
 	public String doCreate(HttpServletRequest req, HttpServletResponse resp) {
 		Category cat = new Category(req.getParameter("name"));
 		cat.setStatus(Status.ACTIVE.getDescription());
-
-		em.getTransaction().begin();
 		controller.save(cat);
-		em.getTransaction().commit();
-		em.close();
-
 		return REDIRECT_CATEGORY_ACTION_LIST_CATEGORY_BY_ID + cat.getId();
 	}
 }

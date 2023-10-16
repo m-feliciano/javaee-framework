@@ -2,6 +2,7 @@ package com.dev.servlet.filter;
 
 import java.io.IOException;
 
+import javax.persistence.EntityManager;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -10,6 +11,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.dev.servlet.utils.JPAUtil;
 import com.dev.servlet.view.interfaces.IAction;
 
 public class AuthController implements Filter {
@@ -32,7 +34,7 @@ public class AuthController implements Filter {
 	 * @param chain           the <code>FilterChain</code> for invoking the next
 	 *                        filter or the resource
 	 * @throws ServletException if an I/O exception has occurred
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
@@ -44,18 +46,33 @@ public class AuthController implements Filter {
 		String strAction = req.getParameter(ACTION_REQUEST);
 		String classname = getClassname(req, strAction);
 		String fullpath = executeAction(req, resp, classname);
-		processRequest(req, resp, fullpath);
+		processResponse(req, resp, fullpath);
 	}
 
 	private String executeAction(HttpServletRequest req, HttpServletResponse resp, String classname) {
+		final EntityManager entityManager = JPAUtil.getEntityManager();
+
 		String fullpath = null;
 		try {
 			Class<?> clazz = Class.forName(classname);
 			IAction action = (IAction) clazz.getDeclaredConstructor().newInstance();
+
+			// OpenSessionInView
+			entityManager.getTransaction().begin();
 			fullpath = action.execute(req, resp);
+			entityManager.getTransaction().commit();
 		} catch (Exception e1) {
+			if (entityManager != null && entityManager.getTransaction().isActive()) {
+				entityManager.getTransaction().rollback();
+			}
 			e1.printStackTrace();
+
+		} finally {
+			if (entityManager != null && entityManager.isOpen()) {
+				entityManager.close();
+			}
 		}
+
 		return fullpath;
 	}
 
@@ -82,13 +99,13 @@ public class AuthController implements Filter {
 	 * @param resp
 	 * @param fullpath
 	 * @throws ServletException
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	private void processRequest(HttpServletRequest req, HttpServletResponse resp, String fullpath)
+	private void processResponse(HttpServletRequest req, HttpServletResponse resp, String fullpath)
 			throws ServletException, IOException {
 		if (fullpath == null) {
 			fullpath = "forward:pages/not-found.jsp";
-		}  
+		}
 
 		String[] path;
 		try {

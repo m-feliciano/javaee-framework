@@ -29,6 +29,7 @@
                                                                        id="inputPassword" name="password"
                                                                        class="form-control hidden-alert"
                                                                        placeholder="Password" required
+                                                                       readonly="readonly" disabled="disabled"
 <%--                                                                       pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"--%>
                                                                        minlength="3">
                 </div>

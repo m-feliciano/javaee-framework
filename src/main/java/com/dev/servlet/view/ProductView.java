@@ -42,7 +42,7 @@ public class ProductView extends BaseRequest {
 		case UPDATE -> doUpdate(req, resp);
 		case EDIT -> doEdit(req, resp);
 		case DELETE -> doDelete(req, resp);
-		case NEW -> add();
+		case NEW -> FORWARD_PAGES_PRODUCT_FORM_CREATE_PRODUCT_JSP;
 		default -> FORWARD_PAGES_NOT_FOUND_JSP;
 		};
 	}
@@ -64,7 +64,7 @@ public class ProductView extends BaseRequest {
 
 	public String doEdit(HttpServletRequest req, HttpServletResponse resp) {
 		String id = req.getParameter("id");
-		if (Objects.isNull(id)) {
+		if (id != null) {
 			req.setAttribute("error", "id can't be null");
 			return FORWARD_PAGES_NOT_FOUND_JSP;
 		}
@@ -83,7 +83,7 @@ public class ProductView extends BaseRequest {
 		Product product = new Product();
 
 		String id = req.getParameter("id");
-		if (!Objects.isNull(id)) {
+		if (id != null) {
 			product = controller.findById(Long.valueOf(id));
 			if (Objects.isNull(product)) {
 				return FORWARD_PAGES_NOT_FOUND_JSP;
@@ -95,7 +95,7 @@ public class ProductView extends BaseRequest {
 
 		String param = req.getParameter(PARAM);
 		String value = req.getParameter(VALUE);
-		if (!Objects.isNull(param) && !Objects.isNull(value)) {
+		if (param != null && value != null) {
 			product = new Product();
 
 			if (param.equals("name")) {
@@ -144,9 +144,5 @@ public class ProductView extends BaseRequest {
 		product.setId(Long.parseLong(req.getParameter("id")));
 		controller.delete(product);
 		return REDIRECT_PRODUCT_ACTION_LIST_PRODUCTS;
-	}
-
-	protected String add() {
-		return FORWARD_PAGES_PRODUCT_FORM_CREATE_PRODUCT_JSP;
 	}
 }

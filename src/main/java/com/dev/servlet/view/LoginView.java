@@ -35,13 +35,9 @@ public class LoginView extends BaseRequest {
 		return switch (request) {
 		case LOGIN -> login(req, resp);
 		case LOGOUT -> logout(req, resp);
-		case LOGIN_FORM -> loginForm();
+		case LOGIN_FORM -> FORWARD_PAGES_FORM_LOGIN_JSP;
 		default -> FORWARD_PAGES_NOT_FOUND_JSP;
 		};
-	}
-
-	private String loginForm() {
-		return FORWARD_PAGES_FORM_LOGIN_JSP;
 	}
 
 	/**

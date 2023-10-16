@@ -35,7 +35,7 @@ public class InventoryView extends BaseRequest {
 		case UPDATE -> doUpdate(req, resp);
 		case EDIT -> doEdit(req, resp);
 		case DELETE -> doDelete(req, resp);
-		case NEW -> add();
+		case NEW -> FORWARD_PAGES_INVENTORY_FORM_CREATE_ITEM_JSP;
 		default -> FORWARD_PAGES_NOT_FOUND_JSP;
 		};
 	}
@@ -68,7 +68,7 @@ public class InventoryView extends BaseRequest {
 	 */
 	public String doList(HttpServletRequest req, HttpServletResponse resp) {
 		String id = req.getParameter("id");
-		if (!Objects.isNull(id)) {
+		if (id != null) {
 			Inventory inventory = controller.findById(Long.parseLong(id));
 			if (Objects.isNull(inventory)) {
 				return FORWARD_PAGES_NOT_FOUND_JSP;
@@ -96,15 +96,6 @@ public class InventoryView extends BaseRequest {
 		}
 
 		return FORWARD_PAGES_INVENTORY_LIST_ITEMS_JSP;
-	}
-
-	/**
-	 * redirect to form create item.
-	 *
-	 * @return the string
-	 */
-	public String add() {
-		return FORWARD_PAGES_INVENTORY_FORM_CREATE_ITEM_JSP;
 	}
 
 	/**
