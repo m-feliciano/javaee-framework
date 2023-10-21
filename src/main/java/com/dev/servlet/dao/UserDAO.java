@@ -4,8 +4,6 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
-import org.hibernate.jpa.QueryHints;
-
 import com.dev.servlet.domain.User;
 import com.dev.servlet.domain.enums.Status;
 
@@ -33,14 +31,10 @@ public class UserDAO extends BaseDAO<User, Long> {
 				 AND u.password = :password
 				""";
 
-		User obj = em.createQuery(jpql, User.class)
-				.setParameter(LOGIN, user.getLogin().toLowerCase())
-				.setParameter(PASSWORD, user.getPassword())
-				.setParameter(STATUS, Status.ACTIVE.getDescription())
-				.setHint(QueryHints.HINT_READONLY, true)
-				.getResultStream()
-				.findFirst()
-				.orElse(null);
+		User obj = em.createQuery(jpql, User.class).setParameter(LOGIN, user.getLogin().toLowerCase())
+				.setParameter(PASSWORD, user.getPassword()).setParameter(STATUS, Status.ACTIVE.getDescription())
+				.getResultList().stream().findFirst().orElse(null);
+
 		return obj;
 	}
 
@@ -53,12 +47,8 @@ public class UserDAO extends BaseDAO<User, Long> {
 	public User find(User user) {
 		String jpql = "SELECT u FROM User u JOIN FETCH u.perfis p WHERE lower(u.login) = :login";
 
-		return em.createQuery(jpql, User.class)
-				.setParameter(LOGIN, user.getLogin().toLowerCase())
-				.setHint(QueryHints.HINT_READONLY, true)
-				.getResultStream()
-				.findFirst()
-				.orElse(null);
+		return em.createQuery(jpql, User.class).setParameter(LOGIN, user.getLogin().toLowerCase()).getResultList()
+				.stream().findFirst().orElse(null);
 	}
 
 	@Override
@@ -69,6 +59,6 @@ public class UserDAO extends BaseDAO<User, Long> {
 
 	public void delete(User object) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

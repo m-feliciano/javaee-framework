@@ -22,9 +22,7 @@ public class InventoryDAO extends BaseDAO<Inventory, Long> {
 	public List<Inventory> findAllByProductName(String name) {
 		String jpql = "SELECT i FROM Inventory i WHERE LOWER(i.product.name) LIKE CONCAT('%', LOWER(:name), '%')";
 
-		return em.createQuery(jpql, Inventory.class)
-				.setParameter("name", name)
-				.getResultList();
+		return em.createQuery(jpql, Inventory.class).setParameter("name", name).getResultList();
 	}
 
 	/**
@@ -32,14 +30,12 @@ public class InventoryDAO extends BaseDAO<Inventory, Long> {
 	 * that name.
 	 *
 	 * @param description
-	 * @return 
+	 * @return
 	 */
 	public List<Inventory> findAllByDescription(String description) {
 		String jpql = "SELECT i FROM Inventory i WHERE LOWER(i.description) LIKE CONCAT('%', LOWER(:description), '%')";
 
-		return em.createQuery(jpql, Inventory.class)
-				.setParameter("description", description)
-				.getResultList();
+		return em.createQuery(jpql, Inventory.class).setParameter("description", description).getResultList();
 	}
 
 	@Override

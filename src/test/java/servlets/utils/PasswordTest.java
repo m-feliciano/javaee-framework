@@ -7,10 +7,10 @@ import com.dev.servlet.utils.PasswordUtils;
 class PasswordTest {
 
     @org.junit.jupiter.api.Test
-    void encryptDecrypt() {
-        String strToEncrypt = "Hello World";
-        String encrypted = PasswordUtils.encrypt(strToEncrypt);
+    void encryptDecrypt() throws Exception {
+        String encrypt = "Hello World";
+        String encrypted = PasswordUtils.encrypt(encrypt);
         String decrypted = PasswordUtils.decrypt(encrypted);
-        assertEquals(strToEncrypt, decrypted);
+        assertEquals(encrypt, decrypted);
     }
 }

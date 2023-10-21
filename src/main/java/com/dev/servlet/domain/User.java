@@ -1,5 +1,6 @@
 package com.dev.servlet.domain;
 
+import java.io.Serializable;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -13,12 +14,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.dev.servlet.domain.enums.Perfil;
 
 @Table(name = "tb_user")
 @Entity
-public class User {
+public class User implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,6 +45,9 @@ public class User {
 	@Column(name = "perfis")
 	private Set<Integer> perfis;
 
+	@Transient
+	private String token;
+
 	public User() {
 	}
 
@@ -53,6 +60,10 @@ public class User {
 		this.id = id;
 		this.login = login;
 		this.perfis.addAll(perfis);
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public void addPerfil(Perfil perfil) {
@@ -97,5 +108,13 @@ public class User {
 
 	public Long getId() {
 		return id;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String newToken) {
+		this.token = newToken;
 	}
 }

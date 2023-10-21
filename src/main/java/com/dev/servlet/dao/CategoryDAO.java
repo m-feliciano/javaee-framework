@@ -18,18 +18,27 @@ public class CategoryDAO extends BaseDAO<Category, Long> {
 	public List<Category> findAll(Category object) {
 		String jpql = "SELECT i FROM Category i where i.status <> :status";
 
-		return em.createQuery(jpql, Category.class)
-				.setParameter("status", Status.DELETED.getDescription())
+		return em.createQuery(jpql, Category.class).setParameter("status", Status.DELETED.getDescription())
 				.getResultList();
 	}
 
 	public void delete(Category cat) {
-		beginTransaction();
-		Query query = em.createQuery(
-			      "UPDATE Category SET status = :status WHERE id = :id")
-				.setParameter("status", Status.DELETED.getDescription())
-				.setParameter("id", cat.getId());
-		query.executeUpdate();
-		commitTransaction();
+		try {
+			this.em.getTransaction().begin();
+			Query query = em.createQuery("UPDATE Category SET status = :status WHERE id = :id")
+					.setParameter("status", Status.DELETED.getDescription()).setParameter("id", cat.getId());
+
+			query.executeUpdate();
+			this.em.getTransaction().commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (this.em.getTransaction().isActive()) {
+				this.em.getTransaction().rollback();
+			}
+		} finally {
+			if (this.em.isOpen()) {
+				this.em.close();
+			}
+		}
 	}
 }

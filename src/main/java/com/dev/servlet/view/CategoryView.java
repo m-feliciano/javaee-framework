@@ -1,23 +1,23 @@
 package com.dev.servlet.view;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.dev.servlet.controllers.CategoryController;
 import com.dev.servlet.domain.Category;
 import com.dev.servlet.domain.enums.Status;
-import com.dev.servlet.dto.CategoryDTO;
+import com.dev.servlet.filter.BusinessRequest;
+import com.dev.servlet.interfaces.ResquestPath;
 import com.dev.servlet.view.base.BaseRequest;
 
 public class CategoryView extends BaseRequest {
 
-	private static final String FORWARD_PAGES_CATEGORY_FORM_CREATE_CATEGORY_JSP = "forward:pages/category/formCreateCategory.jsp";
-	private static final String FORWARD_PAGES_CATEGORY_LIST_CATEGORIES_JSP = "forward:pages/category/listCategories.jsp";
-	private static final String FORWARD_PAGES_CATEGORY_FORM_LIST_CATEGORY_JSP = "forward:pages/category/formListCategory.jsp";
-	private static final String FORWARD_PAGES_CATEGORY_FORM_UPDATE_CATEGORY_JSP = "forward:pages/category/formUpdateCategory.jsp";
+	private static final String FORWARD_PAGE_CREATE = "forward:pages/category/formCreateCategory.jsp";
+	private static final String FORWARD_PAGE_LIST = "forward:pages/category/listCategories.jsp";
+	private static final String FORWARD_PAGE_LIST_BY_ID = "forward:pages/category/formListCategory.jsp";
+	private static final String FORWARD_PAGE_UPDATE = "forward:pages/category/formUpdateCategory.jsp";
 
-	private static final String REDIRECT_CATEGORY_ACTION_LIST_CATEGORIES = "redirect:categoryView?action=list";
-	private static final String REDIRECT_CATEGORY_ACTION_LIST_CATEGORY_BY_ID = "redirect:categoryView?action=list&id=";
+	private static final String REDIRECT_ACTION_LIST_ALL = "redirect:categoryView?action=list";
+	private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:categoryView?action=list&id=";
 
 	private static final String CATEGORY = "category";
 
@@ -27,78 +27,96 @@ public class CategoryView extends BaseRequest {
 		super();
 	}
 
-	@Override
-	public String execute(HttpServletRequest req, HttpServletResponse resp) {
-		return switch (req.getParameter(ACTION)) {
-		case CREATE -> doCreate(req, resp);
-		case LIST -> doList(req, resp);
-		case UPDATE -> doUpdate(req, resp);
-		case EDIT -> doEdit(req, resp);
-		case DELETE -> doDelete(req, resp);
-		case NEW -> FORWARD_PAGES_CATEGORY_FORM_CREATE_CATEGORY_JSP;
-		default -> FORWARD_PAGES_NOT_FOUND_JSP;
-		};
+	/**
+	 * forward form create
+	 *
+	 * @param businessRequest
+	 * @return the string
+	 */
+	@ResquestPath(value = NEW)
+	public String forwardCreate(BusinessRequest businessRequest) {
+		return FORWARD_PAGE_CREATE;
 	}
 
 	/**
 	 * update category.
 	 *
+	 * @param businessRequest
 	 * @return the string
 	 */
-	public String doUpdate(HttpServletRequest req, HttpServletResponse resp) {
+	@ResquestPath(value = UPDATE)
+	public String doUpdate(BusinessRequest businessRequest) {
+		HttpServletRequest req = businessRequest.getRequest();
+
 		var category = controller.findById(Long.parseLong(req.getParameter("id")));
 		category.setName(req.getParameter("name"));
 		controller.update(category);
-		req.setAttribute(CATEGORY, new CategoryDTO(category));
-		return REDIRECT_CATEGORY_ACTION_LIST_CATEGORY_BY_ID + category.getId();
+		req.setAttribute(CATEGORY, category);
+		return REDIRECT_ACTION_LIST_BY_ID + category.getId();
 	}
 
 	/**
 	 * List category by id.
 	 *
+	 * @param businessRequest
 	 * @return the string
 	 */
-	public String doList(HttpServletRequest req, HttpServletResponse resp) {
+	@ResquestPath(value = LIST)
+	public String doList(BusinessRequest businessRequest) {
+		HttpServletRequest req = businessRequest.getRequest();
+
 		String id = req.getParameter("id");
 		if (id != null) {
 			req.setAttribute(CATEGORY, controller.findById(Long.valueOf(id)));
-			return FORWARD_PAGES_CATEGORY_FORM_LIST_CATEGORY_JSP;
+			return FORWARD_PAGE_LIST_BY_ID;
 		}
 
 		req.setAttribute("categories", controller.findAll(null));
-		return FORWARD_PAGES_CATEGORY_LIST_CATEGORIES_JSP;
+		return FORWARD_PAGE_LIST;
 	}
 
 	/**
 	 * Edit category by id.
 	 *
+	 * @param businessRequest
 	 * @return the string
 	 */
-	public String doEdit(HttpServletRequest req, HttpServletResponse resp) {
-		req.setAttribute(CATEGORY, controller.findById(Long.parseLong(req.getParameter("id"))));
-		return FORWARD_PAGES_CATEGORY_FORM_UPDATE_CATEGORY_JSP;
+	@ResquestPath(value = EDIT)
+	public String doEdit(BusinessRequest businessRequest) {
+		HttpServletRequest req = businessRequest.getRequest();
+
+		req.setAttribute(CATEGORY, controller.findById(Long.valueOf(req.getParameter("id"))));
+		return FORWARD_PAGE_UPDATE;
 	}
 
 	/**
 	 * delete category by id.
 	 *
+	 * @param businessRequest
 	 * @return the string
 	 */
-	public String doDelete(HttpServletRequest req, HttpServletResponse resp) {
+	@ResquestPath(value = DELETE)
+	public String doDelete(BusinessRequest businessRequest) {
+		HttpServletRequest req = businessRequest.getRequest();
+
 		Category cat = new Category(Long.valueOf(req.getParameter("id")));
 		controller.delete(cat);
-		return REDIRECT_CATEGORY_ACTION_LIST_CATEGORIES;
+		return REDIRECT_ACTION_LIST_ALL;
 	}
 
 	/**
 	 * create category.
-	 *
+	 * 
+	 ** @param businessRequest
 	 * @return the string
 	 */
-	public String doCreate(HttpServletRequest req, HttpServletResponse resp) {
+	@ResquestPath(value = CREATE)
+	public String doCreate(BusinessRequest businessRequest) {
+		HttpServletRequest req = businessRequest.getRequest();
+
 		Category cat = new Category(req.getParameter("name"));
 		cat.setStatus(Status.ACTIVE.getDescription());
 		controller.save(cat);
-		return REDIRECT_CATEGORY_ACTION_LIST_CATEGORY_BY_ID + cat.getId();
+		return REDIRECT_ACTION_LIST_BY_ID + cat.getId();
 	}
 }

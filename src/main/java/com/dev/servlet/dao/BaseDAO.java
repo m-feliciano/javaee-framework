@@ -15,32 +15,43 @@ public abstract class BaseDAO<T, I> {
 		this.clazz = clazz;
 	}
 
-	protected void commitTransaction() {
-		this.em.clear();
-		this.em.flush();
-		this.em.getTransaction().commit();
-		this.closeTransaction();
-	}
-
-	protected void beginTransaction() {
-		this.em.getTransaction().begin();
-	}
-
-	protected void closeTransaction() {
-		this.em.close();
-	}
-
 	public T findById(I id) {
 		return this.em.find(clazz, id);
 	}
 
 	public T save(T object) {
-		this.em.persist(object);
+		try {
+			this.em.getTransaction().begin();
+			this.em.persist(object);
+			this.em.getTransaction().commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (this.em.getTransaction().isActive()) {
+				this.em.getTransaction().rollback();
+			}
+		} finally {
+			if (this.em.isOpen()) {
+				this.em.close();
+			}
+		}
 		return object;
 	}
 
 	public void update(T object) {
-		this.em.merge(object);
+		try {
+			this.em.getTransaction().begin();
+			this.em.merge(object);
+			this.em.getTransaction().commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (this.em.getTransaction().isActive()) {
+				this.em.getTransaction().rollback();
+			}
+		} finally {
+			if (this.em.isOpen()) {
+				this.em.close();
+			}
+		}
 	}
 
 	public abstract List<T> findAll(T object);

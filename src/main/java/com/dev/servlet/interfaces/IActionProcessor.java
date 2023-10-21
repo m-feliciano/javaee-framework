@@ -1,19 +1,17 @@
-package com.dev.servlet.view.interfaces;
+package com.dev.servlet.interfaces;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.dev.servlet.filter.BusinessRequest;
 
-public interface IAction {
+public interface IActionProcessor {
 
-    /**
-     * Execute.
-     *
-     * @param req  the req
-     * @param resp the resp
-     * @return the string
-     */
-    String execute(HttpServletRequest req, HttpServletResponse resp) throws IOException;
+	/**
+	 * Process
+	 *
+	 * @param businessRequest
+	 * @return the string
+	 */
+	String process(BusinessRequest businessRequest) throws IOException;
 
 }

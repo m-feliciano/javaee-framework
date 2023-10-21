@@ -1,5 +1,7 @@
 package com.dev.servlet.domain;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -12,7 +14,9 @@ import javax.persistence.Table;
 
 @Table(name = "tb_inventory")
 @Entity
-public class Inventory {
+public class Inventory implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +32,7 @@ public class Inventory {
 	@JoinColumn(name = "product")
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Product product;
-	
+
 	@Column(name = "status")
 	private String status;
 

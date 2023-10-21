@@ -31,10 +31,8 @@ public class ProductDAO extends BaseDAO<Product, Long> {
 	 */
 	public List<Product> findAllByCategory(Category category) {
 		String jpql = "SELECT p FROM Product p WHERE LOWER(p.category.name) LIKE LOWER(CONCAT('%', :name, '%'))";
-		List<Product> resultList = em.createQuery(jpql, Product.class)
-				.setParameter(NAME, category.getName())
+		List<Product> resultList = em.createQuery(jpql, Product.class).setParameter(NAME, category.getName())
 				.getResultList();
-		closeTransaction();
 		return resultList;
 	}
 
@@ -50,16 +48,14 @@ public class ProductDAO extends BaseDAO<Product, Long> {
 		CriteriaQuery<Product> query = builder.createQuery(Product.class);
 		Root<Product> root = query.from(Product.class);
 
-		query.where(builder.equal(root.get("user"), product.getUser()))
-			.select(root)
-			.distinct(true);
+		query.where(builder.equal(root.get("user"), product.getUser())).select(root).distinct(true);
 
 		return em.createQuery(query).getResultList();
 	}
 
 	public void delete(Product product) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

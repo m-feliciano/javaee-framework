@@ -1,108 +1,96 @@
 package com.dev.servlet.utils;
 
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
 import java.util.Base64;
+import java.util.HexFormat;
+import java.util.UUID;
 
 import javax.crypto.Cipher;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
 public final class PasswordUtils {
 
-	private static final String SECRET_KEY = "$KJDN.LDNSpçÇCX.";
-	private static final String SALT = "LHDkdn@1220-90isphyu";
-	public static final String AES_CBC_PKCS_5_PADDING = "AES/CBC/PKCS5Padding";
-	public static final String PBKDF_2_WITH_HMAC_SHA_256 = "PBKDF2WithHmacSHA256";
-	public static final String AES = "AES";
+	private static final String KEY = "lkuhJblhB562vhytit6767";
+	private static final char[] hexArray = "0UIYW7YWIUKUSDUF".toCharArray();
 
 	private PasswordUtils() {
 	}
 
-	/**
-	 * Validate if the password is the same.
-	 *
-	 * @param encrypted
-	 * @param password
-	 * @return the boolean
-	 */
-	public static boolean validate(String encrypted, String password) {
-		boolean valid = false;
-		if (encrypted == null || password == null) {
-			return valid;
-		}
-
-		return password.equals(decrypt(encrypted));
+	public static byte[] decodebase64(String str) {
+		return Base64.getDecoder().decode(str);
 	}
 
-	/**
-	 * This method encrypt the string
-	 *
-	 * @param strToEncrypt
-	 * @return
-	 */
-	public static String encrypt(String strToEncrypt) {
+	public static String encondeBase64(byte[] bytes) {
+		return Base64.getEncoder().encodeToString(bytes);
+	}
+
+	public static byte[] hexToBytes(String str) {
+		return HexFormat.of().parseHex(str);
+	}
+
+	public static String decrypt(String text) {
 		try {
+			SecretKeySpec key = new SecretKeySpec(KEY.getBytes(), "Blowfish");
+			Cipher cipher = Cipher.getInstance("Blowfish");
+			cipher.init(Cipher.DECRYPT_MODE, key);
+			byte[] decrypted = cipher.doFinal(hexToBytes(text));
+			return new String(decrypted);
 
-			// Create default byte array
-			Cipher cipher = getCipher(AES_CBC_PKCS_5_PADDING, Cipher.ENCRYPT_MODE);
-			// Return encrypted string
-			return Base64.getEncoder().encodeToString(cipher.doFinal(strToEncrypt.getBytes(StandardCharsets.UTF_8)));
 		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
+	public static String encrypt(String text) {
+		try {
+			SecretKeySpec key = new SecretKeySpec(KEY.getBytes(), "Blowfish");
+			Cipher cipher = Cipher.getInstance("Blowfish");
+			cipher.init(Cipher.ENCRYPT_MODE, key);
+			byte[] encrypted = cipher.doFinal(text.getBytes());
+			return bytesToHex(encrypted);
+
+		} catch (Exception e) {
+			new RuntimeException(e);
 		}
 		return null;
 	}
 
 	/**
-	 * This method decrypt an encripted string
-	 *
-	 * @param strToDecrypt
+	 * Get a new token
+	 * 
+	 * @param userDTO
 	 * @return
 	 */
-	public static String decrypt(String strToDecrypt) {
-		try {
-			Cipher cipher = getCipher(AES_CBC_PKCS_5_PADDING, Cipher.DECRYPT_MODE);
-			// Return decrypted string
-			return new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
-		} catch (Exception e) {
-
-		}
-		return null;
+	public static String getNewToken() {
+		String uuid = UUID.randomUUID().toString();
+		CacheUtil.storeToken(uuid);
+		return uuid;
 	}
 
 	/**
-	 * This method use to get cipher
-	 *
-	 * @param transformation
-	 * @param decryptMode
-	 * @return Cipher
-	 * @throws NoSuchPaddingException
-	 * @throws NoSuchAlgorithmException
-	 * @throws InvalidKeyException
-	 * @throws InvalidAlgorithmParameterException
+	 * Verify if the token really exists
+	 * 
+	 * @param parameter
+	 * @return
 	 */
-	private static Cipher getCipher(String transformation, int decryptMode) throws NoSuchAlgorithmException,
-			InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
-		// Default byte array
-		byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	public static boolean isValidToken(String token) {
+		if (token == null) {
+			return false;
+		}
+		return CacheUtil.hasToken(token);
+	}
 
-		// Create SecretKeyFactory Object
-		SecretKeyFactory factory = SecretKeyFactory.getInstance(PBKDF_2_WITH_HMAC_SHA_256);
+	private static String bytesToHex(byte[] bytes) {
+		char[] hexChars = new char[bytes.length * 2];
+		for (int j = 0; j < bytes.length; j++) {
+			int v = bytes[j] & 0xFF;
+			hexChars[j * 2] = hexArray[v >>> 4];
+			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+		}
+		return new String(hexChars);
+	}
 
-		// Create KeySpec object and assign with constructor
-		KeySpec spec = new PBEKeySpec(SECRET_KEY.toCharArray(), SALT.getBytes(), 65536, 256);
-
-		Cipher cipher = Cipher.getInstance(transformation);
-		cipher.init(decryptMode, new SecretKeySpec(factory.generateSecret(spec).getEncoded(), AES),
-				new IvParameterSpec(iv));
-		return cipher;
+	public static boolean validate(String planText, String cipherText) {
+		String encrypt = encrypt(planText);
+		return encrypt != null && encrypt.equals(cipherText);
 	}
 }

@@ -25,25 +25,25 @@ public class ProductController implements IController<Product> {
 
 	@Override
 	public void save(Product product) {
-		CacheUtil.clearCache(CACHE_KEY, product.getUser().getLogin());
+		CacheUtil.clear(CACHE_KEY, product.getUser().getLogin());
 		this.productDao.save(product);
 	}
 
 	@Override
 	public void update(Product product) {
 		this.productDao.update(product);
-		CacheUtil.clearCache(CACHE_KEY, product.getUser().getLogin());
+		CacheUtil.clear(CACHE_KEY, product.getUser().getLogin());
 	}
 
 	@Override
 	public void delete(Product product) {
 		this.productDao.delete(product);
-		CacheUtil.clearCache(CACHE_KEY, product.getUser().getLogin());
+		CacheUtil.clear(CACHE_KEY, product.getUser().getLogin());
 	}
 
 	@Override
 	public List<Product> findAll(Product product) {
-		return  this.productDao.findAll(product);
+		return this.productDao.findAll(product);
 	}
 
 }

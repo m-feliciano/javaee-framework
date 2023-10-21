@@ -1,5 +1,6 @@
 package com.dev.servlet.domain;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -13,12 +14,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.dev.servlet.dto.ProductDTO;
-import com.dev.servlet.utils.CurrencyFormatter;
-
 @Entity
 @Table(name = "tb_product")
-public class Product {
+public class Product implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -70,16 +70,6 @@ public class Product {
 		this.url = url;
 		this.registerDate = registerDate;
 		this.price = price;
-	}
-
-	public Product(ProductDTO dto) {
-		this.id = dto.getId();
-		this.name = dto.getName();
-		this.description = dto.getDescription();
-		this.registerDate = dto.getRegisterDate();
-		this.price = CurrencyFormatter.stringToBigDecimal(dto.getPrice());
-		this.url = dto.getUrl();
-		this.status = dto.getStatus();
 	}
 
 	public void setCategory(Category category) {

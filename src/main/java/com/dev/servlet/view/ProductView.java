@@ -13,19 +13,20 @@ import com.dev.servlet.controllers.ProductController;
 import com.dev.servlet.domain.Category;
 import com.dev.servlet.domain.Product;
 import com.dev.servlet.domain.User;
-import com.dev.servlet.dto.ProductDTO;
+import com.dev.servlet.filter.BusinessRequest;
+import com.dev.servlet.interfaces.ResquestPath;
 import com.dev.servlet.utils.CurrencyFormatter;
 import com.dev.servlet.view.base.BaseRequest;
 
 public class ProductView extends BaseRequest {
 
-	private static final String FORWARD_PAGES_PRODUCT_FORM_LIST_PRODUCT_JSP = "forward:pages/product/formListProduct.jsp";
-	private static final String FORWARD_PAGES_PRODUCT_LIST_PRODUCTS_JSP = "forward:pages/product/listProducts.jsp";
-	private static final String FORWARD_PAGES_PRODUCT_FORM_UPDATE_PRODUCT_JSP = "forward:pages/product/formUpdateProduct.jsp";
-	private static final String FORWARD_PAGES_PRODUCT_FORM_CREATE_PRODUCT_JSP = "forward:pages/product/formCreateProduct.jsp";
+	private static final String FORWARD_PAGE_LIST = "forward:pages/product/formListProduct.jsp";
+	private static final String FORWARD_PAGE_LIST_PRODUCTS = "forward:pages/product/listProducts.jsp";
+	private static final String FORWARD_PAGE_UPDATE = "forward:pages/product/formUpdateProduct.jsp";
+	private static final String FORWARD_PAGE_CREATE = "forward:pages/product/formCreateProduct.jsp";
 
-	private static final String REDIRECT_PRODUCT_ACTION_LIST_PRODUCTS = "redirect:productView?action=list";
-	private static final String REDIRECT_PRODUCT_ACTION_LIST_PRODUCTS_BY_ID = "redirect:productView?action=list&id=";
+	private static final String REDIRECT_ACTION_LIST_ALL = "redirect:productView?action=list";
+	private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:productView?action=list&id=";
 
 	private final ProductController controller = new ProductController(em);
 	private final CategoryController categoryController = new CategoryController(em);
@@ -34,20 +35,10 @@ public class ProductView extends BaseRequest {
 		super();
 	}
 
-	@Override
-	public String execute(HttpServletRequest req, HttpServletResponse resp) {
-		return switch (req.getParameter(ACTION)) {
-		case CREATE -> doCreate(req, resp);
-		case LIST -> doList(req, resp);
-		case UPDATE -> doUpdate(req, resp);
-		case EDIT -> doEdit(req, resp);
-		case DELETE -> doDelete(req, resp);
-		case NEW -> FORWARD_PAGES_PRODUCT_FORM_CREATE_PRODUCT_JSP;
-		default -> FORWARD_PAGES_NOT_FOUND_JSP;
-		};
-	}
+	@ResquestPath(value = CREATE)
+	public String doCreate(BusinessRequest businessRequest) {
+		HttpServletRequest req = businessRequest.getRequest();
 
-	public String doCreate(HttpServletRequest req, HttpServletResponse resp) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 		LocalDate parsedDate = LocalDate.parse(LocalDate.now().format(formatter), formatter);
 
@@ -59,38 +50,42 @@ public class ProductView extends BaseRequest {
 		controller.save(product);
 		req.setAttribute("product", product);
 
-		return REDIRECT_PRODUCT_ACTION_LIST_PRODUCTS_BY_ID + product.getId();
+		return REDIRECT_ACTION_LIST_BY_ID + product.getId();
 	}
 
+	@ResquestPath(value = EDIT)
 	public String doEdit(HttpServletRequest req, HttpServletResponse resp) {
 		String id = req.getParameter("id");
 		if (id != null) {
 			req.setAttribute("error", "id can't be null");
-			return FORWARD_PAGES_NOT_FOUND_JSP;
+			return FORWARD_PAGES_NOT_FOUND;
 		}
 
 		Product product = new Product();
 		product.setId(Long.parseLong(id));
 		product = controller.findById(product.getId());
 
-		req.setAttribute("product", new ProductDTO(product));
+		req.setAttribute("product", product);
 		req.setAttribute("categories", categoryController.findAll(null));
 
-		return FORWARD_PAGES_PRODUCT_FORM_UPDATE_PRODUCT_JSP;
+		return FORWARD_PAGE_UPDATE;
 	}
 
-	public String doList(HttpServletRequest req, HttpServletResponse resp) {
+	@ResquestPath(value = LIST)
+	public String doList(BusinessRequest businessRequest) {
+
+		HttpServletRequest req = businessRequest.getRequest();
 		Product product = new Product();
 
 		String id = req.getParameter("id");
 		if (id != null) {
 			product = controller.findById(Long.valueOf(id));
 			if (Objects.isNull(product)) {
-				return FORWARD_PAGES_NOT_FOUND_JSP;
+				return FORWARD_PAGES_NOT_FOUND;
 			}
 
 			req.setAttribute("product", product);
-			return FORWARD_PAGES_PRODUCT_FORM_LIST_PRODUCT_JSP;
+			return FORWARD_PAGE_LIST;
 		}
 
 		String param = req.getParameter(PARAM);
@@ -116,15 +111,18 @@ public class ProductView extends BaseRequest {
 		req.setAttribute("products", products);
 		req.setAttribute("categories", categoryController.findAll(null));
 
-		return FORWARD_PAGES_PRODUCT_LIST_PRODUCTS_JSP;
+		return FORWARD_PAGE_LIST_PRODUCTS;
 	}
 
+	@ResquestPath(value = NEW)
 	public String add(HttpServletRequest req, HttpServletResponse resp) {
 		req.setAttribute("categories", categoryController.findAll(null));
-		return FORWARD_PAGES_PRODUCT_FORM_CREATE_PRODUCT_JSP;
+		return FORWARD_PAGE_CREATE;
 	}
 
-	public String doUpdate(HttpServletRequest req, HttpServletResponse resp) {
+	@ResquestPath(value = UPDATE)
+	public String doUpdate(BusinessRequest businessRequest) {
+		HttpServletRequest req = businessRequest.getRequest();
 
 		Product product = controller.findById(Long.parseLong(req.getParameter("id")));
 		product.setName(req.getParameter("name"));
@@ -136,13 +134,16 @@ public class ProductView extends BaseRequest {
 		controller.update(product);
 		req.setAttribute("product", product);
 
-		return REDIRECT_PRODUCT_ACTION_LIST_PRODUCTS_BY_ID + product.getId();
+		return REDIRECT_ACTION_LIST_BY_ID + product.getId();
 	}
 
-	public String doDelete(HttpServletRequest req, HttpServletResponse resp) {
+	@ResquestPath(value = EDIT)
+	public String doDelete(BusinessRequest businessRequest) {
+		HttpServletRequest req = businessRequest.getRequest();
+
 		Product product = new Product();
 		product.setId(Long.parseLong(req.getParameter("id")));
 		controller.delete(product);
-		return REDIRECT_PRODUCT_ACTION_LIST_PRODUCTS;
+		return REDIRECT_ACTION_LIST_ALL;
 	}
 }
