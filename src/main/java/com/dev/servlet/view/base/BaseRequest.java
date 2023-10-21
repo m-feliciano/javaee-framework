@@ -1,17 +1,14 @@
 package com.dev.servlet.view.base;
 
 import javax.persistence.EntityManager;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dev.servlet.utils.JPAUtil;
-import com.dev.servlet.view.interfaces.IAction;
 import com.google.gson.Gson;
 
-public abstract class BaseRequest implements IAction {
+public abstract class BaseRequest {
 
 	protected final EntityManager em;
 	protected final Logger logger;
@@ -34,14 +31,11 @@ public abstract class BaseRequest implements IAction {
 	protected static final String PARAM = "param";
 	protected static final String VALUE = "value";
 
-	protected static final String FORWARD_PAGES_NOT_FOUND_JSP = "forward:pages/not-found.jsp";
-	protected static final String FORWARD_PAGES_FORM_LOGIN_JSP = "forward:pages/formLogin.jsp";
+	protected static final String FORWARD_PAGES_NOT_FOUND = "forward:pages/not-found.jsp";
+	protected static final String FORWARD_PAGES_FORM_LOGIN = "forward:pages/formLogin.jsp";
 
 	protected BaseRequest() {
 		this.em = JPAUtil.getEntityManager();
 		this.logger = LoggerFactory.getLogger(BaseRequest.class.getName());
 	}
-
-	@Override
-	public abstract String execute(HttpServletRequest req, HttpServletResponse resp);
 }
