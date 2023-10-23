@@ -1,13 +1,15 @@
 package com.dev.servlet.view;
 
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import com.dev.servlet.controllers.UserController;
 import com.dev.servlet.domain.User;
+import com.dev.servlet.domain.enums.Perfil;
 import com.dev.servlet.domain.enums.Status;
 import com.dev.servlet.filter.BusinessRequest;
-import com.dev.servlet.interfaces.ResquestPath;
+import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.utils.PasswordUtils;
 import com.dev.servlet.view.base.BaseRequest;
 
@@ -20,20 +22,24 @@ public class UserView extends BaseRequest {
 
 	private static final String REDIRECT_PRODUCT_ACTION_CREATE = "redirect:productView?action=create";
 
-	private final UserController controller = new UserController(em);
+	private UserController controller;
 
 	public UserView() {
 		super();
 	}
 
+	public UserView(EntityManager em) {
+		super();
+		controller = new UserController(em);
+	}
+
 	/**
 	 * Forward to create
 	 * 
-	 * @param businessRequest
 	 * @return
 	 */
-	@ResquestPath(value = NEW)
-	public String forward(BusinessRequest businessRequest) {
+	@ResourcePath(value = NEW, forward = true)
+	public String forwardRegister() {
 		return FORWARD_PAGE_CREATE;
 	}
 
@@ -44,9 +50,8 @@ public class UserView extends BaseRequest {
 	 * @return the string
 	 * @throws Exception
 	 */
-	@ResquestPath(value = CREATE)
-	public String doCreate(BusinessRequest businessRequest) throws Exception {
-
+	@ResourcePath(value = CREATE)
+	public String registerOne(BusinessRequest businessRequest) {
 		HttpServletRequest req = businessRequest.getRequest();
 
 		var password = req.getParameter("password");
@@ -59,6 +64,7 @@ public class UserView extends BaseRequest {
 		}
 
 		User user = new User();
+		user.addPerfil(Perfil.USER);
 		String email = req.getParameter("email").toLowerCase();
 		user.setLogin(email);
 		user = controller.find(user);
@@ -89,8 +95,8 @@ public class UserView extends BaseRequest {
 	 * @return the string
 	 * @throws Exception
 	 */
-	@ResquestPath(value = UPDATE)
-	public String doUpdate(BusinessRequest businessRequest) throws Exception {
+	@ResourcePath(value = UPDATE)
+	public String updateOne(BusinessRequest businessRequest) {
 		HttpServletRequest req = businessRequest.getRequest();
 		HttpSession session = req.getSession();
 
@@ -111,8 +117,8 @@ public class UserView extends BaseRequest {
 	 * @param businessRequest
 	 * @return the string
 	 */
-	@ResquestPath(value = LIST)
-	public String doList(BusinessRequest businessRequest) {
+	@ResourcePath(value = LIST)
+	public String findAll(BusinessRequest businessRequest) {
 		HttpServletRequest req = businessRequest.getRequest();
 
 		User user = (User) req.getSession().getAttribute(USER_LOGGED);
@@ -126,8 +132,8 @@ public class UserView extends BaseRequest {
 	 * @param businessRequest
 	 * @return the string
 	 */
-	@ResquestPath(value = EDIT)
-	public String doEdit(BusinessRequest businessRequest) {
+	@ResourcePath(value = EDIT)
+	public String editOne(BusinessRequest businessRequest) {
 		HttpServletRequest req = businessRequest.getRequest();
 
 		req.setAttribute("user", controller.findById(Long.parseLong(req.getParameter("id"))));
@@ -139,8 +145,8 @@ public class UserView extends BaseRequest {
 	 * @param businessRequest
 	 * @return
 	 */
-	@ResquestPath(value = DELETE)
-	public String doDelete(BusinessRequest businessRequest) {
+	@ResourcePath(value = DELETE)
+	public String deleteOne(BusinessRequest businessRequest) {
 		HttpServletRequest req = businessRequest.getRequest();
 
 		User user = (User) req.getSession().getAttribute(USER_LOGGED);

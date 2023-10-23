@@ -1,12 +1,12 @@
 package com.dev.servlet.view;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.persistence.EntityManager;
 
 import com.dev.servlet.controllers.CategoryController;
 import com.dev.servlet.domain.Category;
 import com.dev.servlet.domain.enums.Status;
 import com.dev.servlet.filter.BusinessRequest;
-import com.dev.servlet.interfaces.ResquestPath;
+import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.view.base.BaseRequest;
 
 public class CategoryView extends BaseRequest {
@@ -21,21 +21,41 @@ public class CategoryView extends BaseRequest {
 
 	private static final String CATEGORY = "category";
 
-	private final CategoryController controller = new CategoryController(em);
+	private CategoryController controller;
 
 	public CategoryView() {
 		super();
 	}
 
+	public CategoryView(EntityManager em) {
+		super();
+		this.controller = new CategoryController(em);
+	}
+
 	/**
-	 * forward form create
+	 * Forward
 	 *
-	 * @param businessRequest
+	 * @return the next path
+	 */
+	@ResourcePath(value = NEW, forward = true)
+	public String forwardRegister() {
+		return FORWARD_PAGE_CREATE;
+	}
+
+	/**
+	 * create category.
+	 * 
+	 ** @param businessRequest
 	 * @return the string
 	 */
-	@ResquestPath(value = NEW)
-	public String forwardCreate(BusinessRequest businessRequest) {
-		return FORWARD_PAGE_CREATE;
+	@ResourcePath(value = CREATE)
+	public String registerOne(BusinessRequest businessRequest) {
+		var request = businessRequest.getRequest();
+
+		Category cat = new Category(request.getParameter("name"));
+		cat.setStatus(Status.ACTIVE.getDescription());
+		controller.save(cat);
+		return REDIRECT_ACTION_LIST_BY_ID + cat.getId();
 	}
 
 	/**
@@ -44,14 +64,14 @@ public class CategoryView extends BaseRequest {
 	 * @param businessRequest
 	 * @return the string
 	 */
-	@ResquestPath(value = UPDATE)
-	public String doUpdate(BusinessRequest businessRequest) {
-		HttpServletRequest req = businessRequest.getRequest();
+	@ResourcePath(value = UPDATE)
+	public String updateOne(BusinessRequest businessRequest) {
+		var request = businessRequest.getRequest();
 
-		var category = controller.findById(Long.parseLong(req.getParameter("id")));
-		category.setName(req.getParameter("name"));
+		var category = controller.findById(Long.parseLong(request.getParameter("id")));
+		category.setName(request.getParameter("name"));
 		controller.update(category);
-		req.setAttribute(CATEGORY, category);
+		request.setAttribute(CATEGORY, category);
 		return REDIRECT_ACTION_LIST_BY_ID + category.getId();
 	}
 
@@ -61,17 +81,17 @@ public class CategoryView extends BaseRequest {
 	 * @param businessRequest
 	 * @return the string
 	 */
-	@ResquestPath(value = LIST)
-	public String doList(BusinessRequest businessRequest) {
-		HttpServletRequest req = businessRequest.getRequest();
+	@ResourcePath(value = LIST)
+	public String findAll(BusinessRequest businessRequest) {
+		var request = businessRequest.getRequest();
 
-		String id = req.getParameter("id");
+		String id = request.getParameter("id");
 		if (id != null) {
-			req.setAttribute(CATEGORY, controller.findById(Long.valueOf(id)));
+			request.setAttribute(CATEGORY, controller.findById(Long.valueOf(id)));
 			return FORWARD_PAGE_LIST_BY_ID;
 		}
 
-		req.setAttribute("categories", controller.findAll(null));
+		request.setAttribute("categories", controller.findAll(null));
 		return FORWARD_PAGE_LIST;
 	}
 
@@ -81,11 +101,10 @@ public class CategoryView extends BaseRequest {
 	 * @param businessRequest
 	 * @return the string
 	 */
-	@ResquestPath(value = EDIT)
-	public String doEdit(BusinessRequest businessRequest) {
-		HttpServletRequest req = businessRequest.getRequest();
-
-		req.setAttribute(CATEGORY, controller.findById(Long.valueOf(req.getParameter("id"))));
+	@ResourcePath(value = EDIT)
+	public String editOne(BusinessRequest businessRequest) {
+		var request = businessRequest.getRequest();
+		request.setAttribute(CATEGORY, controller.findById(Long.valueOf(request.getParameter("id"))));
 		return FORWARD_PAGE_UPDATE;
 	}
 
@@ -95,28 +114,12 @@ public class CategoryView extends BaseRequest {
 	 * @param businessRequest
 	 * @return the string
 	 */
-	@ResquestPath(value = DELETE)
-	public String doDelete(BusinessRequest businessRequest) {
-		HttpServletRequest req = businessRequest.getRequest();
+	@ResourcePath(value = DELETE)
+	public String deleteOne(BusinessRequest businessRequest) {
+		var request = businessRequest.getRequest();
 
-		Category cat = new Category(Long.valueOf(req.getParameter("id")));
+		Category cat = new Category(Long.valueOf(request.getParameter("id")));
 		controller.delete(cat);
 		return REDIRECT_ACTION_LIST_ALL;
-	}
-
-	/**
-	 * create category.
-	 * 
-	 ** @param businessRequest
-	 * @return the string
-	 */
-	@ResquestPath(value = CREATE)
-	public String doCreate(BusinessRequest businessRequest) {
-		HttpServletRequest req = businessRequest.getRequest();
-
-		Category cat = new Category(req.getParameter("name"));
-		cat.setStatus(Status.ACTIVE.getDescription());
-		controller.save(cat);
-		return REDIRECT_ACTION_LIST_BY_ID + cat.getId();
 	}
 }

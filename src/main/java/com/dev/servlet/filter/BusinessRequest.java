@@ -8,17 +8,16 @@ public final class BusinessRequest {
 	private final String action;
 	private final Class<?> clazz;
 	private final HttpServletRequest request;
-	private HttpServletResponse response;
+	private final HttpServletResponse response;
 
 	public BusinessRequest(String action, Class<?> clazz, HttpServletRequest request) {
-		super();
 		this.action = action;
 		this.clazz = clazz;
 		this.request = request;
+		this.response = null;
 	}
 
 	public BusinessRequest(String action, Class<?> clazz, HttpServletRequest request, HttpServletResponse response) {
-		super();
 		this.action = action;
 		this.clazz = clazz;
 		this.request = request;

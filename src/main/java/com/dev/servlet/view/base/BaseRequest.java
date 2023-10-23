@@ -1,18 +1,14 @@
 package com.dev.servlet.view.base;
 
-import javax.persistence.EntityManager;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dev.servlet.utils.JPAUtil;
 import com.google.gson.Gson;
 
 public abstract class BaseRequest {
 
-	protected final EntityManager em;
 	protected final Logger logger;
-	protected final Gson gson = new Gson();
+	protected final Gson gson;
 
 	protected static final String LOGIN = "login";
 	protected static final String LOGOUT = "logout";
@@ -35,7 +31,7 @@ public abstract class BaseRequest {
 	protected static final String FORWARD_PAGES_FORM_LOGIN = "forward:pages/formLogin.jsp";
 
 	protected BaseRequest() {
-		this.em = JPAUtil.getEntityManager();
 		this.logger = LoggerFactory.getLogger(BaseRequest.class.getName());
+		gson = new Gson();
 	}
 }

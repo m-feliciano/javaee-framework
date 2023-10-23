@@ -25,7 +25,7 @@
 				value="org.hibernate.dialect.PostgreSQLDialect" />
 
 			<!--  <property name="hibernate.hbm2ddl.auto" value="update" /> -->
-			<property name="hibernate.connection.pool_size" value="2" />
+			<property name="hibernate.connection.pool_size" value="10" />
 			<property name="hibernate.show_sql" value="true" />
 			<property name="hibernate.format_sql" value="true" />
 		

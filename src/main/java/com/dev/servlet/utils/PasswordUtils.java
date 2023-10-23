@@ -1,5 +1,6 @@
 package com.dev.servlet.utils;
 
+import java.time.Instant;
 import java.util.Base64;
 import java.util.HexFormat;
 import java.util.UUID;
@@ -60,10 +61,13 @@ public final class PasswordUtils {
 	 * @param userDTO
 	 * @return
 	 */
-	public static String getNewToken() {
-		String uuid = UUID.randomUUID().toString();
-		CacheUtil.storeToken(uuid);
-		return uuid;
+	public static String generateToken() {
+		StringBuilder sb = new StringBuilder();
+		long currentTimeInMilisecond = Instant.now().toEpochMilli();
+		String token = sb.append(currentTimeInMilisecond).append("-").append(UUID.randomUUID().toString()).toString();
+
+		CacheUtil.storeToken(token);
+		return token;
 	}
 
 	/**

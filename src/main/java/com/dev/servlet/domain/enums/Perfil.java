@@ -3,7 +3,7 @@ package com.dev.servlet.domain.enums;
 public enum Perfil {
 
     ADMIN(1, "ROLE_ADMIN"),
-    CLIENT(2, "ROLE_CLIENT"),
+    USER(2, "ROLE_USER"),
     MODERATOR(2, "ROLE_MODERATOR");
 
     public final int cod;
@@ -19,18 +19,15 @@ public enum Perfil {
      *
      * @return the enum value
      */
-
     public static Perfil toEnum(Integer cod) {
         if (cod == null) {
             return null;
         }
 
         for (Perfil p : Perfil.values()) {
-            if (cod.equals(p.cod)) {
+            if (cod.equals(p.cod))
                 return p;
-            }
         }
-        throw new IllegalAccessError("Invalid Id: " + cod);
+        throw new IllegalArgumentException("Invalid Id: " + cod);
     }
-
 }

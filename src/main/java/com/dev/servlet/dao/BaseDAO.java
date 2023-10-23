@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
-public abstract class BaseDAO<T, I> {
+public abstract class BaseDAO<T, E> {
 
 	private final Class<T> clazz;
 
@@ -15,43 +15,43 @@ public abstract class BaseDAO<T, I> {
 		this.clazz = clazz;
 	}
 
-	public T findById(I id) {
+	public T findById(E id) {
 		return this.em.find(clazz, id);
 	}
 
 	public T save(T object) {
-		try {
-			this.em.getTransaction().begin();
-			this.em.persist(object);
-			this.em.getTransaction().commit();
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (this.em.getTransaction().isActive()) {
-				this.em.getTransaction().rollback();
-			}
-		} finally {
-			if (this.em.isOpen()) {
-				this.em.close();
-			}
-		}
+//		try {
+//			this.em.getTransaction().begin();
+		this.em.persist(object);
+//			this.em.getTransaction().commit();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			if (this.em.getTransaction().isActive()) {
+//				this.em.getTransaction().rollback();
+//			}
+//		} finally {
+//			if (this.em.isOpen()) {
+//				this.em.close();
+//			}
+//		}
 		return object;
 	}
 
 	public void update(T object) {
-		try {
-			this.em.getTransaction().begin();
-			this.em.merge(object);
-			this.em.getTransaction().commit();
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (this.em.getTransaction().isActive()) {
-				this.em.getTransaction().rollback();
-			}
-		} finally {
-			if (this.em.isOpen()) {
-				this.em.close();
-			}
-		}
+//		try {
+//			this.em.getTransaction().begin();
+		this.em.merge(object);
+//			this.em.getTransaction().commit();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			if (this.em.getTransaction().isActive()) {
+//				this.em.getTransaction().rollback();
+//			}
+//		} finally {
+//			if (this.em.isOpen()) {
+//				this.em.close();
+//			}
+//		}
 	}
 
 	public abstract List<T> findAll(T object);

@@ -1,7 +1,7 @@
 package com.dev.servlet.filter;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.dev.servlet.domain.User;
-import com.dev.servlet.interfaces.IActionProcessor;
+import com.dev.servlet.interfaces.IResquestProcessor;
 import com.dev.servlet.utils.PasswordUtils;
 
 //@WebFilter(urlPatterns = "/company")
@@ -24,14 +24,14 @@ public class Auth implements Filter {
 	private static final String WEB_INF_VIEW = "/WEB-INF/view/";
 	private static final String ACTION_REQUEST = "action";
 
-	private static final List<String> AUTHORIZED_ACTIONS = List.of("login", "loginForm", "new", "create");
+	private static final Set<String> AUTHORIZED_ACTIONS = Set.of("login", "loginForm", "new", "create");
 
 	/**
 	 * Do filter.
 	 *
-	 * @param servletRequest  the servlet request
-	 * @param servletResponse the servlet response
-	 * @param chain           the filter chain
+	 * @param servletRequest the servlet request
+	 * @param response       the servlet response
+	 * @param chain          the filter chain
 	 * @throws IOException      Signals that an I/O exception has occurred.
 	 * @throws ServletException the servlet exception
 	 */
@@ -39,37 +39,35 @@ public class Auth implements Filter {
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
 			throws IOException, ServletException {
 
-		HttpServletRequest req = (HttpServletRequest) servletRequest;
-		HttpServletResponse resp = (HttpServletResponse) servletResponse;
+		HttpServletRequest request = (HttpServletRequest) servletRequest;
+		HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-		String strAction = req.getParameter(ACTION_REQUEST);
+		String strAction = request.getParameter(ACTION_REQUEST);
 		boolean authorized = AUTHORIZED_ACTIONS.stream().anyMatch(strAction::equals);
 
-		User user = (User) req.getSession().getAttribute("userLogged");
+		User user = (User) request.getSession().getAttribute("userLogged");
 		if (authorized || (user != null && PasswordUtils.isValidToken(user.getToken()))) {
-			String classname = getClassname(req);
-			String fullpath = executeAction(req, resp, classname);
-			processResponse(req, resp, fullpath);
+			String fullpath = executeAction(request, response, getClassname(request));
+			processResponse(request, response, fullpath);
 		} else {
 			try {
-				((HttpServletResponse) servletResponse).sendRedirect("loginView?action=loginForm");
+				response.sendRedirect("loginView?action=loginForm");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
-	private String executeAction(HttpServletRequest req, HttpServletResponse resp, String classname) {
+	private String executeAction(HttpServletRequest request, HttpServletResponse response, String classname) {
 		String fullpath = null;
 		try {
 			Class<?> clazz = Class.forName(classname);
-			String attribute = req.getParameter(ACTION_REQUEST);
-			BusinessRequest request = new BusinessRequest(attribute, clazz, req, resp);
+			String action = request.getParameter(ACTION_REQUEST);
+			var businessRequest = new BusinessRequest(action, clazz, request, response);
 
-			IActionProcessor processor = new RequestProcessor();
-			String next = processor.process(request);
+			IResquestProcessor processor = new RequestProcessor();
+			String next = processor.process(businessRequest);
 			return next;
-
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
@@ -77,17 +75,17 @@ public class Auth implements Filter {
 	}
 
 	/**
-	 * Get the classname
+	 * Get the class name
 	 *
-	 * @param req
+	 * @param request
 	 * @param strAction
 	 * @return String
 	 */
-	private String getClassname(HttpServletRequest req) {
+	private String getClassname(HttpServletRequest request) {
 		String classname;
-		int entityPos = req.getServletPath().lastIndexOf("/") + 1;
+		int entityPos = request.getServletPath().lastIndexOf("/") + 1;
 		// fully qualified name
-		String entityName = req.getServletPath().substring(entityPos);
+		String entityName = request.getServletPath().substring(entityPos);
 		classname = String.format(PACKAGE, getServletClass(entityName));
 		return classname;
 	}
@@ -95,13 +93,12 @@ public class Auth implements Filter {
 	/**
 	 * Process the request and redirect to
 	 *
-	 * @param req
-	 * @param resp
-	 * @param fullpath
+	 * @param request
+	 * @param response
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	private void processResponse(HttpServletRequest req, HttpServletResponse resp, String fullpath)
+	private void processResponse(HttpServletRequest request, HttpServletResponse response, String fullpath)
 			throws ServletException, IOException {
 		if (fullpath == null) {
 			fullpath = "forward:pages/not-found.jsp";
@@ -120,13 +117,13 @@ public class Auth implements Filter {
 
 		if (FORWARD.equals(pathAction)) {
 			try {
-				req.getRequestDispatcher(WEB_INF_VIEW + pathUrl).forward(req, resp);
+				request.getRequestDispatcher(WEB_INF_VIEW + pathUrl).forward(request, response);
 			} catch (IOException | ServletException e) {
 				e.printStackTrace();
 			}
 		} else {
 			try {
-				resp.sendRedirect(pathUrl);
+				response.sendRedirect(pathUrl);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

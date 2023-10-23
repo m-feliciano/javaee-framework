@@ -8,7 +8,7 @@ import com.dev.servlet.dao.CategoryDAO;
 import com.dev.servlet.domain.Category;
 import com.dev.servlet.interfaces.IController;
 
-public final class CategoryController implements IController<Category> {
+public final class CategoryController implements IController<Category, Long> {
 
 	private final CategoryDAO categoryDao;
 

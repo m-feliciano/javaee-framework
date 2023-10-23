@@ -8,7 +8,7 @@ import com.dev.servlet.dao.UserDAO;
 import com.dev.servlet.domain.User;
 import com.dev.servlet.interfaces.IController;
 
-public final class UserController implements IController<User> {
+public final class UserController implements IController<User, Long> {
 
 	private final UserDAO userDao;
 

@@ -1,10 +1,8 @@
 package com.dev.servlet.interfaces;
 
-import java.io.IOException;
-
 import com.dev.servlet.filter.BusinessRequest;
 
-public interface IActionProcessor {
+public interface IResquestProcessor {
 
 	/**
 	 * Process
@@ -12,6 +10,6 @@ public interface IActionProcessor {
 	 * @param businessRequest
 	 * @return the string
 	 */
-	String process(BusinessRequest businessRequest) throws IOException;
+	String process(BusinessRequest businessRequest) throws Exception;
 
 }

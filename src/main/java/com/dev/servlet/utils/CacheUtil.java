@@ -9,7 +9,7 @@ import java.util.Set;
 
 public final class CacheUtil {
 
-	private static final Map<Map<String, String>, List<?>> cacheMap = new HashMap<>();
+	private static final Map<String, List<?>> cacheMap = new HashMap<>();
 	private static final Set<String> tokens = new HashSet<>();
 
 	private CacheUtil() {
@@ -28,29 +28,27 @@ public final class CacheUtil {
 			tokens.remove(token);
 	}
 
-	public static void init(String key, String userKey, List<?> list) {
-		Map<String, String> map = getKey(key, userKey);
-		cacheMap.put(map, list);
+	public static void init(String key, String token, List<?> list) {
+		var name = getKeyToken(key, token);
+		cacheMap.put(name, list);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> List<T> get(String key, String userKey) {
-		Map<String, String> map = getKey(key, userKey);
-		if (cacheMap.containsKey(map)) {
-			return (List<T>) Collections.unmodifiableList(cacheMap.get(map));
-		}
+	public static <T> List<T> get(String key, String token) {
+		var name = getKeyToken(key, token);
+		if (cacheMap.containsKey(name))
+			return (List<T>) Collections.unmodifiableList(cacheMap.get(name));
 
 		return Collections.emptyList();
 	}
 
-	public static void clear(String key, String userKey) {
-		Map<String, String> map = getKey(key, userKey);
-		cacheMap.remove(map);
+	public static void clear(String key, String token) {
+		var name = getKeyToken(key, token);
+		if (cacheMap.containsKey(name))
+			cacheMap.remove(name);
 	}
 
-	private static Map<String, String> getKey(String key, String userKey) {
-		Map<String, String> map = new HashMap<>();
-		map.put(key, userKey);
-		return map;
+	private static String getKeyToken(String key, String token) {
+		return token.concat(key);
 	}
 }

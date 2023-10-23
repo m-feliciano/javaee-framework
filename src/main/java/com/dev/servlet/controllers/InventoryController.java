@@ -8,7 +8,7 @@ import com.dev.servlet.dao.InventoryDAO;
 import com.dev.servlet.domain.Inventory;
 import com.dev.servlet.interfaces.IController;
 
-public final class InventoryController implements IController<Inventory> {
+public final class InventoryController implements IController<Inventory, Long> {
 
 	private final InventoryDAO inventoryDao;
 

@@ -9,7 +9,7 @@ import com.dev.servlet.domain.Product;
 import com.dev.servlet.interfaces.IController;
 import com.dev.servlet.utils.CacheUtil;
 
-public class ProductController implements IController<Product> {
+public class ProductController implements IController<Product, Long> {
 
 	private final ProductDAO productDao;
 	private static final String CACHE_KEY = "products";

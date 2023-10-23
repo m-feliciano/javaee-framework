@@ -3,6 +3,7 @@ package com.dev.servlet.view;
 import java.util.List;
 import java.util.Objects;
 
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -10,6 +11,7 @@ import com.dev.servlet.controllers.InventoryController;
 import com.dev.servlet.domain.Inventory;
 import com.dev.servlet.domain.Product;
 import com.dev.servlet.filter.BusinessRequest;
+import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.view.base.BaseRequest;
 
 public class InventoryView extends BaseRequest {
@@ -22,10 +24,15 @@ public class InventoryView extends BaseRequest {
 	private static final String REDIRECT_ACTION_LIST_ALL = "redirect:inventoryView?action=list";
 	private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:inventoryView?action=list&id=";
 
-	private final InventoryController controller = new InventoryController(em);
+	private InventoryController controller;
 
 	public InventoryView() {
 		super();
+	}
+
+	public InventoryView(EntityManager em) {
+		super();
+		controller = new InventoryController(em);
 	}
 
 	/**
@@ -34,7 +41,8 @@ public class InventoryView extends BaseRequest {
 	 * @param
 	 * @return the next path
 	 */
-	public String forward(BusinessRequest businessRequest) {
+	@ResourcePath(value = NEW, forward = true)
+	public String forwardRegister() {
 		return FORWARD_PAGE_CREATE;
 	}
 
@@ -44,7 +52,7 @@ public class InventoryView extends BaseRequest {
 	 * @param businessRequest
 	 * @return the next path
 	 */
-	public String doCreate(BusinessRequest businessRequest) {
+	public String registerOne(BusinessRequest businessRequest) {
 		HttpServletRequest req = businessRequest.getRequest();
 
 		Product product = new Product();
@@ -64,7 +72,7 @@ public class InventoryView extends BaseRequest {
 	 * @param businessRequest
 	 * @return the string
 	 */
-	public String doList(BusinessRequest businessRequest) {
+	public String findAll(BusinessRequest businessRequest) {
 		HttpServletRequest req = businessRequest.getRequest();
 
 		String id = req.getParameter("id");
@@ -94,7 +102,6 @@ public class InventoryView extends BaseRequest {
 			inventories = controller.findAll(null);
 			req.setAttribute("items", inventories);
 		}
-
 		return FORWARD_PAGE_LIST_ITEMS;
 	}
 
@@ -104,7 +111,7 @@ public class InventoryView extends BaseRequest {
 	 * @param businessRequest
 	 * @return the string
 	 */
-	public String doUpdate(BusinessRequest businessRequest) {
+	public String updateOne(BusinessRequest businessRequest) {
 		HttpServletRequest req = businessRequest.getRequest();
 
 		Inventory item = controller.findById(Long.parseLong(req.getParameter("id")));
@@ -118,13 +125,12 @@ public class InventoryView extends BaseRequest {
 			businessRequest.getResponse().setStatus(HttpServletResponse.SC_NOT_FOUND);
 			req.setAttribute("error", "ERROR: Product ID " + req.getParameter("productId") + " was not found.");
 			req.setAttribute("item", item);
-			return FORWARD_PAGE_UPDATE;
+			return this.forwardRegister();
 		}
 
 		item.setProduct(product);
 		controller.update(item);
 		req.setAttribute("item", item);
-
 		return REDIRECT_ACTION_LIST_BY_ID + item.getId();
 	}
 
@@ -134,7 +140,7 @@ public class InventoryView extends BaseRequest {
 	 * @param businessRequest
 	 * @return the string
 	 */
-	public String doEdit(BusinessRequest businessRequest) {
+	public String editOne(BusinessRequest businessRequest) {
 		HttpServletRequest req = businessRequest.getRequest();
 		req.setAttribute("item", controller.findById(Long.parseLong(req.getParameter("id"))));
 		return FORWARD_PAGE_UPDATE;
@@ -146,9 +152,8 @@ public class InventoryView extends BaseRequest {
 	 * @param businessRequest
 	 * @return the string
 	 */
-	public String doDelete(BusinessRequest businessRequest) {
+	public String deleteOne(BusinessRequest businessRequest) {
 		HttpServletRequest req = businessRequest.getRequest();
-
 		Inventory obj = new Inventory(Long.parseLong(req.getParameter("id")));
 		controller.delete(obj);
 		return REDIRECT_ACTION_LIST_ALL;

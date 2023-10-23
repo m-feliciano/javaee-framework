@@ -7,6 +7,8 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ResquestPath {
+public @interface ResourcePath {
 	String value();
+
+	boolean forward() default false;
 }

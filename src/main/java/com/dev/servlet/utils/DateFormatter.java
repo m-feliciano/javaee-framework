@@ -6,11 +6,7 @@ import java.util.Date;
 
 public final class DateFormatter {
 
-	public static final String YYYY_MM_DD = "yyyy-MM-dd";
-	public static SimpleDateFormat sdf;
-
 	private DateFormatter() {
-		sdf = new SimpleDateFormat(YYYY_MM_DD);
 	}
 
 	/**
@@ -24,11 +20,10 @@ public final class DateFormatter {
 	public static Date from(String strDate) {
 		Date date;
 		try {
-			date = sdf.parse(strDate);
+			date = new SimpleDateFormat("yyyy-MM-dd").parse(strDate);
 		} catch (ParseException e) {
 			throw new RuntimeException("Cannot convert data from: " + strDate);
 		}
 		return date;
 	}
-
 }

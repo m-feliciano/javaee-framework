@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -14,7 +15,7 @@ import com.dev.servlet.domain.Category;
 import com.dev.servlet.domain.Product;
 import com.dev.servlet.domain.User;
 import com.dev.servlet.filter.BusinessRequest;
-import com.dev.servlet.interfaces.ResquestPath;
+import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.utils.CurrencyFormatter;
 import com.dev.servlet.view.base.BaseRequest;
 
@@ -28,15 +29,32 @@ public class ProductView extends BaseRequest {
 	private static final String REDIRECT_ACTION_LIST_ALL = "redirect:productView?action=list";
 	private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:productView?action=list&id=";
 
-	private final ProductController controller = new ProductController(em);
-	private final CategoryController categoryController = new CategoryController(em);
+	private ProductController controller;
+	private CategoryController categoryController;
 
 	public ProductView() {
 		super();
 	}
 
-	@ResquestPath(value = CREATE)
-	public String doCreate(BusinessRequest businessRequest) {
+	public ProductView(EntityManager em) {
+		super();
+		this.categoryController = new CategoryController(em);
+		this.controller = new ProductController(em);
+
+	}
+
+	/**
+	 * Forward
+	 *
+	 * @return the next path
+	 */
+	@ResourcePath(value = NEW, forward = true)
+	public String forwardRegister() {
+		return FORWARD_PAGE_CREATE;
+	}
+
+	@ResourcePath(value = CREATE)
+	public String registerOne(BusinessRequest businessRequest) {
 		HttpServletRequest req = businessRequest.getRequest();
 
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
@@ -53,8 +71,8 @@ public class ProductView extends BaseRequest {
 		return REDIRECT_ACTION_LIST_BY_ID + product.getId();
 	}
 
-	@ResquestPath(value = EDIT)
-	public String doEdit(HttpServletRequest req, HttpServletResponse resp) {
+	@ResourcePath(value = EDIT)
+	public String editOne(HttpServletRequest req, HttpServletResponse resp) {
 		String id = req.getParameter("id");
 		if (id != null) {
 			req.setAttribute("error", "id can't be null");
@@ -71,8 +89,8 @@ public class ProductView extends BaseRequest {
 		return FORWARD_PAGE_UPDATE;
 	}
 
-	@ResquestPath(value = LIST)
-	public String doList(BusinessRequest businessRequest) {
+	@ResourcePath(value = LIST)
+	public String findAll(BusinessRequest businessRequest) {
 
 		HttpServletRequest req = businessRequest.getRequest();
 		Product product = new Product();
@@ -114,14 +132,8 @@ public class ProductView extends BaseRequest {
 		return FORWARD_PAGE_LIST_PRODUCTS;
 	}
 
-	@ResquestPath(value = NEW)
-	public String add(HttpServletRequest req, HttpServletResponse resp) {
-		req.setAttribute("categories", categoryController.findAll(null));
-		return FORWARD_PAGE_CREATE;
-	}
-
-	@ResquestPath(value = UPDATE)
-	public String doUpdate(BusinessRequest businessRequest) {
+	@ResourcePath(value = UPDATE)
+	public String updateOne(BusinessRequest businessRequest) {
 		HttpServletRequest req = businessRequest.getRequest();
 
 		Product product = controller.findById(Long.parseLong(req.getParameter("id")));
@@ -137,8 +149,8 @@ public class ProductView extends BaseRequest {
 		return REDIRECT_ACTION_LIST_BY_ID + product.getId();
 	}
 
-	@ResquestPath(value = EDIT)
-	public String doDelete(BusinessRequest businessRequest) {
+	@ResourcePath(value = EDIT)
+	public String deleteOne(BusinessRequest businessRequest) {
 		HttpServletRequest req = businessRequest.getRequest();
 
 		Product product = new Product();

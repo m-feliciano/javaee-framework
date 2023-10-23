@@ -1,12 +1,13 @@
 package com.dev.servlet.view;
 
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import com.dev.servlet.controllers.UserController;
 import com.dev.servlet.domain.User;
 import com.dev.servlet.filter.BusinessRequest;
-import com.dev.servlet.interfaces.ResquestPath;
+import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.utils.CacheUtil;
 import com.dev.servlet.utils.PasswordUtils;
 import com.dev.servlet.view.base.BaseRequest;
@@ -15,10 +16,25 @@ public class LoginView extends BaseRequest {
 
 	private static final String REDIRECT_PRODUCT_ACTION_LIST_ALL = "redirect:productView?action=list";
 
-	private final UserController controller = new UserController(em);
+	private UserController controller;
 
 	public LoginView() {
 		super();
+	}
+
+	public LoginView(EntityManager em) {
+		super();
+		controller = new UserController(em);
+	}
+
+	/**
+	 * Forward
+	 *
+	 * @return the next path
+	 */
+	@ResourcePath(value = LOGIN_FORM, forward = true)
+	public String forwardLogin() {
+		return FORWARD_PAGES_FORM_LOGIN;
 	}
 
 	/**
@@ -28,8 +44,8 @@ public class LoginView extends BaseRequest {
 	 * @return the next path
 	 * @throws Exception
 	 */
-	@ResquestPath(value = LOGIN)
-	public String login(BusinessRequest businessRequest) throws Exception {
+	@ResourcePath(value = LOGIN)
+	public String login(BusinessRequest businessRequest) {
 		HttpServletRequest req = businessRequest.getRequest();
 
 		if (req.getParameter("sucess") != null) {
@@ -48,7 +64,7 @@ public class LoginView extends BaseRequest {
 
 		User userDTO = new User();
 		userDTO.setId(user.getId());
-		userDTO.setToken(PasswordUtils.getNewToken());
+		userDTO.setToken(PasswordUtils.generateToken());
 		req.getSession().setAttribute(USER_LOGGED, userDTO);
 
 		return REDIRECT_PRODUCT_ACTION_LIST_ALL;
@@ -60,18 +76,7 @@ public class LoginView extends BaseRequest {
 	 * @param businessRequest
 	 * @return the next path
 	 */
-	@ResquestPath(value = LOGIN_FORM)
-	public String redirectLogin(BusinessRequest businessRequest) {
-		return FORWARD_PAGES_FORM_LOGIN;
-	}
-
-	/**
-	 * Logout.
-	 *
-	 * @param businessRequest
-	 * @return the next path
-	 */
-	@ResquestPath(value = LOGOUT)
+	@ResourcePath(value = LOGOUT)
 	public String logout(BusinessRequest businessRequest) {
 		HttpServletRequest req = businessRequest.getRequest();
 
@@ -79,6 +84,6 @@ public class LoginView extends BaseRequest {
 		User userDto = (User) session.getAttribute(USER_LOGGED);
 		CacheUtil.removeToken(userDto.getToken());
 		session.invalidate();
-		return FORWARD_PAGES_FORM_LOGIN;
+		return this.forwardLogin();
 	}
 }

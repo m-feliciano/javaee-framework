@@ -55,7 +55,6 @@ public class ProductDAO extends BaseDAO<Product, Long> {
 
 	public void delete(Product product) {
 		// TODO Auto-generated method stub
-
 	}
 
 }

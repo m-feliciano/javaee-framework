@@ -30,11 +30,9 @@ public class UserDAO extends BaseDAO<User, Long> {
 				 AND u.status = :status
 				 AND u.password = :password
 				""";
-
 		User obj = em.createQuery(jpql, User.class).setParameter(LOGIN, user.getLogin().toLowerCase())
 				.setParameter(PASSWORD, user.getPassword()).setParameter(STATUS, Status.ACTIVE.getDescription())
 				.getResultList().stream().findFirst().orElse(null);
-
 		return obj;
 	}
 

@@ -40,6 +40,7 @@ public class InventoryDAO extends BaseDAO<Inventory, Long> {
 
 	@Override
 	public List<Inventory> findAll(Inventory object) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
