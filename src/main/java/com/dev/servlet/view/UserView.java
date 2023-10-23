@@ -2,7 +2,6 @@ package com.dev.servlet.view;
 
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import com.dev.servlet.controllers.UserController;
 import com.dev.servlet.domain.User;
@@ -10,6 +9,7 @@ import com.dev.servlet.domain.enums.Perfil;
 import com.dev.servlet.domain.enums.Status;
 import com.dev.servlet.filter.BusinessRequest;
 import com.dev.servlet.interfaces.ResourcePath;
+import com.dev.servlet.utils.CacheUtil;
 import com.dev.servlet.utils.PasswordUtils;
 import com.dev.servlet.view.base.BaseRequest;
 
@@ -35,7 +35,7 @@ public class UserView extends BaseRequest {
 
 	/**
 	 * Forward to create
-	 * 
+	 *
 	 * @return
 	 */
 	@ResourcePath(value = NEW, forward = true)
@@ -98,9 +98,9 @@ public class UserView extends BaseRequest {
 	@ResourcePath(value = UPDATE)
 	public String updateOne(BusinessRequest businessRequest) {
 		HttpServletRequest req = businessRequest.getRequest();
-		HttpSession session = req.getSession();
+		String token = (String) req.getSession().getAttribute("token");
 
-		User user = (User) session.getAttribute(USER_LOGGED);
+		User user = CacheUtil.findUser(token);
 		user.setLogin(req.getParameter("email").toLowerCase());
 		user.setImgUrl(req.getParameter("imgUrl"));
 		String password = req.getParameter("password");
@@ -120,8 +120,9 @@ public class UserView extends BaseRequest {
 	@ResourcePath(value = LIST)
 	public String findAll(BusinessRequest businessRequest) {
 		HttpServletRequest req = businessRequest.getRequest();
+		String token = (String) req.getSession().getAttribute("token");
 
-		User user = (User) req.getSession().getAttribute(USER_LOGGED);
+		User user = CacheUtil.findUser(token);
 		req.setAttribute("user", user);
 		return FORWARD_PAGE_LIST;
 	}
@@ -141,15 +142,16 @@ public class UserView extends BaseRequest {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param businessRequest
 	 * @return
 	 */
 	@ResourcePath(value = DELETE)
 	public String deleteOne(BusinessRequest businessRequest) {
 		HttpServletRequest req = businessRequest.getRequest();
+		String token = (String) req.getSession().getAttribute("token");
 
-		User user = (User) req.getSession().getAttribute(USER_LOGGED);
+		User user = CacheUtil.findUser(token);
 		controller.delete(user);
 		return FORWARD_PAGES_FORM_LOGIN;
 	}

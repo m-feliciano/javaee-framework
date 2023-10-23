@@ -13,9 +13,9 @@ import com.dev.servlet.controllers.CategoryController;
 import com.dev.servlet.controllers.ProductController;
 import com.dev.servlet.domain.Category;
 import com.dev.servlet.domain.Product;
-import com.dev.servlet.domain.User;
 import com.dev.servlet.filter.BusinessRequest;
 import com.dev.servlet.interfaces.ResourcePath;
+import com.dev.servlet.utils.CacheUtil;
 import com.dev.servlet.utils.CurrencyFormatter;
 import com.dev.servlet.view.base.BaseRequest;
 
@@ -60,10 +60,13 @@ public class ProductView extends BaseRequest {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 		LocalDate parsedDate = LocalDate.parse(LocalDate.now().format(formatter), formatter);
 
-		Product product = new Product(req.getParameter("name"), req.getParameter("description"),
-				req.getParameter("url"), parsedDate, CurrencyFormatter.stringToBigDecimal(req.getParameter("price")));
+		Product product = new Product(req.getParameter("name"),
+				req.getParameter("description"),
+				req.getParameter("url"), parsedDate,
+				CurrencyFormatter.stringToBigDecimal(req.getParameter("price")));
 
-		product.setUser(((User) req.getSession().getAttribute(USER_LOGGED)));
+		String token = (String) req.getSession().getAttribute("token");
+		product.setUser(CacheUtil.findUser(token));
 		product.setCategory(new Category(Long.parseLong(req.getParameter("category"))));
 		controller.save(product);
 		req.setAttribute("product", product);
@@ -123,7 +126,8 @@ public class ProductView extends BaseRequest {
 			}
 		}
 
-		product.setUser((User) req.getAttribute(USER_LOGGED));
+		String token = (String) req.getSession().getAttribute("token");
+		product.setUser(CacheUtil.findUser(token));
 		List<Product> products = controller.findAll(product);
 
 		req.setAttribute("products", products);

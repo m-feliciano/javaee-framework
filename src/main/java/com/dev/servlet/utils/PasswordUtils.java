@@ -8,6 +8,8 @@ import java.util.UUID;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.dev.servlet.domain.User;
+
 public final class PasswordUtils {
 
 	private static final String KEY = "lkuhJblhB562vhytit6767";
@@ -57,22 +59,25 @@ public final class PasswordUtils {
 
 	/**
 	 * Get a new token
-	 * 
+	 *
 	 * @param userDTO
 	 * @return
 	 */
-	public static String generateToken() {
+	public static String generateToken(User user) {
 		StringBuilder sb = new StringBuilder();
 		long currentTimeInMilisecond = Instant.now().toEpochMilli();
-		String token = sb.append(currentTimeInMilisecond).append("-").append(UUID.randomUUID().toString()).toString();
+		String token = sb.append(currentTimeInMilisecond)
+				.append("-")
+				.append(UUID.randomUUID().toString())
+				.toString();
 
-		CacheUtil.storeToken(token);
+		CacheUtil.storeToken(token, new User(user.getId()));
 		return token;
 	}
 
 	/**
 	 * Verify if the token really exists
-	 * 
+	 *
 	 * @param parameter
 	 * @return
 	 */

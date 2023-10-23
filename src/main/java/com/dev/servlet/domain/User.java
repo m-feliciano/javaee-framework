@@ -62,6 +62,10 @@ public class User implements Serializable {
 		this.perfis.addAll(perfis);
 	}
 
+	public User(Long id) {
+		this.id = id;
+	}
+
 	public void setId(Long id) {
 		this.id = id;
 	}

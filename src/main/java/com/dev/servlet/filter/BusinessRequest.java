@@ -5,23 +5,20 @@ import javax.servlet.http.HttpServletResponse;
 
 public final class BusinessRequest {
 
-	private final String action;
-	private final Class<?> clazz;
-	private final HttpServletRequest request;
-	private final HttpServletResponse response;
+	private HttpServletRequest request;
+	private HttpServletResponse response;
 
-	public BusinessRequest(String action, Class<?> clazz, HttpServletRequest request) {
-		this.action = action;
-		this.clazz = clazz;
-		this.request = request;
-		this.response = null;
+	private String action;
+	private Class<?> clazz;
+	private String token;
+
+	public BusinessRequest() {
 	}
 
-	public BusinessRequest(String action, Class<?> clazz, HttpServletRequest request, HttpServletResponse response) {
-		this.action = action;
+	public BusinessRequest(String token, Class<?> clazz, String action) {
+		this.token = token;
 		this.clazz = clazz;
-		this.request = request;
-		this.response = response;
+		this.action = action;
 	}
 
 	public String getAction() {
@@ -32,12 +29,36 @@ public final class BusinessRequest {
 		return clazz;
 	}
 
+	public String getToken() {
+		return token;
+	}
+
+	public void setAction(String action) {
+		this.action = action;
+	}
+
+	public void setClazz(Class<?> clazz) {
+		this.clazz = clazz;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
 	public HttpServletRequest getRequest() {
 		return request;
 	}
 
 	public HttpServletResponse getResponse() {
 		return response;
+	}
+
+	public void setRequest(HttpServletRequest request) {
+		this.request = request;
+	}
+
+	public void setResponse(HttpServletResponse response) {
+		this.response = response;
 	}
 
 }

@@ -62,11 +62,7 @@ public class LoginView extends BaseRequest {
 			return FORWARD_PAGES_FORM_LOGIN;
 		}
 
-		User userDTO = new User();
-		userDTO.setId(user.getId());
-		userDTO.setToken(PasswordUtils.generateToken());
-		req.getSession().setAttribute(USER_LOGGED, userDTO);
-
+		req.getSession().setAttribute("token", PasswordUtils.generateToken(user));
 		return REDIRECT_PRODUCT_ACTION_LIST_ALL;
 	}
 
@@ -81,8 +77,8 @@ public class LoginView extends BaseRequest {
 		HttpServletRequest req = businessRequest.getRequest();
 
 		HttpSession session = req.getSession();
-		User userDto = (User) session.getAttribute(USER_LOGGED);
-		CacheUtil.removeToken(userDto.getToken());
+		String token = (String) session.getAttribute("token");
+		CacheUtil.clearToken(token);
 		session.invalidate();
 		return this.forwardLogin();
 	}

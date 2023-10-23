@@ -22,6 +22,9 @@ public enum Status {
 	}
 
 	public static Status getByCode(int cod) {
-		return Arrays.stream(Status.values()).filter(id -> id != null && id.cod == cod).findFirst().orElse(null);
+		return Arrays.stream(Status.values())
+				.filter(id -> id != null && id.cod == cod)
+				.findFirst()
+				.orElse(null);
 	}
 }

@@ -15,7 +15,6 @@ public abstract class BaseRequest {
 	protected static final String LOGIN_FORM = "loginForm";
 	protected static final String INVALID = "invalid";
 	protected static final String USER_OR_PASSWORD_INVALID = "User or password invalid.";
-	protected static final String USER_LOGGED = "userLogged";
 
 	protected static final String ACTION = "action";
 	protected static final String CREATE = "create";

@@ -8,7 +8,7 @@ import com.dev.servlet.interfaces.IResquestProcessor;
 import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.utils.JPAUtil;
 
-public class RequestProcessor implements IResquestProcessor {
+public class ResquestProcessImp implements IResquestProcessor {
 
 	@Override
 	public String process(BusinessRequest request) throws Exception {
@@ -44,7 +44,9 @@ public class RequestProcessor implements IResquestProcessor {
 		try {
 			em.getTransaction().begin();
 
-			Object newInstance = businessRequest.getClazz().getDeclaredConstructor(EntityManager.class).newInstance(em);
+			Object newInstance = businessRequest.getClazz()
+					.getDeclaredConstructor(EntityManager.class)
+					.newInstance(em);
 			String invoke = (String) method.invoke(newInstance, businessRequest);
 
 			em.getTransaction().commit();
@@ -71,7 +73,9 @@ public class RequestProcessor implements IResquestProcessor {
 	 */
 	private String simpleRequest(BusinessRequest request, Method method) {
 		try {
-			Object newInstance = request.getClazz().getDeclaredConstructor().newInstance();
+			Object newInstance = request.getClazz()
+					.getDeclaredConstructor()
+					.newInstance();
 
 			if (method.getParameterCount() == 0)
 				return (String) method.invoke(newInstance);
