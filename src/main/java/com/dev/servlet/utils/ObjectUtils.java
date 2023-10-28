@@ -1,15 +1,28 @@
 package com.dev.servlet.utils;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.lang3.SerializationUtils;
 
 public final class ObjectUtils {
 
-	private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+	private ObjectUtils() {
+	}
 
-	private ObjectUtils() {}
+	public static <T extends Serializable> T cloneObject(T object) {
+		return SerializationUtils.clone(object);
+	}
 
-	public static <T> T cloneObject(Object object, Class<T> clazz) {
-		return gson.fromJson(gson.toJson(object), clazz);
+	public static <T extends Serializable> List<T> cloneList(List<T> objects) {
+		List<T> list = new ArrayList<>();
+		Iterator<T> iterator = objects.iterator();
+		while (iterator.hasNext()) {
+			T t = iterator.next();
+			list.add(cloneObject(t));
+		}
+		return list;
 	}
 }

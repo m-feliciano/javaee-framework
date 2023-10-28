@@ -1,6 +1,6 @@
 package com.dev.servlet.filter;
 
-import static com.dev.servlet.utils.PasswordUtils.isValidToken;
+import static com.dev.servlet.utils.CryptoUtils.isValidToken;
 
 import java.io.IOException;
 import java.util.Set;

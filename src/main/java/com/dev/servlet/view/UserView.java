@@ -10,7 +10,7 @@ import com.dev.servlet.domain.enums.Status;
 import com.dev.servlet.filter.BusinessRequest;
 import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.utils.CacheUtil;
-import com.dev.servlet.utils.PasswordUtils;
+import com.dev.servlet.utils.CryptoUtils;
 import com.dev.servlet.view.base.BaseRequest;
 
 public class UserView extends BaseRequest {
@@ -74,7 +74,7 @@ public class UserView extends BaseRequest {
 			return FORWARD_PAGE_CREATE;
 		}
 
-		user = new User(email, PasswordUtils.encrypt(password));
+		user = new User(email, CryptoUtils.encrypt(password));
 
 		try {
 			user.setStatus(Status.ACTIVE.getDescription());
@@ -100,11 +100,11 @@ public class UserView extends BaseRequest {
 		HttpServletRequest req = businessRequest.getRequest();
 		String token = (String) req.getSession().getAttribute("token");
 
-		User user = CacheUtil.findUser(token);
+		User user = CacheUtil.getUser(token);
 		user.setLogin(req.getParameter("email").toLowerCase());
 		user.setImgUrl(req.getParameter("imgUrl"));
 		String password = req.getParameter("password");
-		user.setPassword(PasswordUtils.encrypt(password));
+		user.setPassword(CryptoUtils.encrypt(password));
 		controller.update(user);
 
 		req.setAttribute("user", user);
@@ -122,7 +122,7 @@ public class UserView extends BaseRequest {
 		HttpServletRequest req = businessRequest.getRequest();
 		String token = (String) req.getSession().getAttribute("token");
 
-		User user = CacheUtil.findUser(token);
+		User user = CacheUtil.getUser(token);
 		req.setAttribute("user", user);
 		return FORWARD_PAGE_LIST;
 	}
@@ -151,7 +151,7 @@ public class UserView extends BaseRequest {
 		HttpServletRequest req = businessRequest.getRequest();
 		String token = (String) req.getSession().getAttribute("token");
 
-		User user = CacheUtil.findUser(token);
+		User user = CacheUtil.getUser(token);
 		controller.delete(user);
 		return FORWARD_PAGES_FORM_LOGIN;
 	}

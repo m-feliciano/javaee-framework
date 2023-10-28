@@ -3,19 +3,20 @@ package com.dev.servlet.utils;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.HexFormat;
-import java.util.UUID;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.commons.lang3.RandomStringUtils;
+
 import com.dev.servlet.domain.User;
 
-public final class PasswordUtils {
+public final class CryptoUtils {
 
 	private static final String KEY = "lkuhJblhB562vhytit6767";
 	private static final char[] hexArray = "0UIYW7YWIUKUSDUF".toCharArray();
 
-	private PasswordUtils() {
+	private CryptoUtils() {
 	}
 
 	public static byte[] decodebase64(String str) {
@@ -30,6 +31,12 @@ public final class PasswordUtils {
 		return HexFormat.of().parseHex(str);
 	}
 
+	/**
+	 * Decrypt the String
+	 * 
+	 * @param text
+	 * @return
+	 */
 	public static String decrypt(String text) {
 		try {
 			SecretKeySpec key = new SecretKeySpec(KEY.getBytes(), "Blowfish");
@@ -43,6 +50,12 @@ public final class PasswordUtils {
 		}
 	}
 
+	/**
+	 * Encrypt the String
+	 * 
+	 * @param text
+	 * @return
+	 */
 	public static String encrypt(String text) {
 		try {
 			SecretKeySpec key = new SecretKeySpec(KEY.getBytes(), "Blowfish");
@@ -65,12 +78,8 @@ public final class PasswordUtils {
 	 */
 	public static String generateToken(User user) {
 		StringBuilder sb = new StringBuilder();
-		long currentTimeInMilisecond = Instant.now().toEpochMilli();
-		String token = sb.append(currentTimeInMilisecond)
-				.append("-")
-				.append(UUID.randomUUID().toString())
+		String token = sb.append(Instant.now().toEpochMilli()).append(RandomStringUtils.randomAlphanumeric(6))
 				.toString();
-
 		CacheUtil.storeToken(token, new User(user.getId()));
 		return token;
 	}

@@ -38,8 +38,7 @@ public class BusinessRequestBuilder {
 		return this;
 	}
 
-	public BusinessRequestBuilder withRequestAndResponse(
-			HttpServletRequest request, HttpServletResponse response) {
+	public BusinessRequestBuilder withRequestAndResponse(HttpServletRequest request, HttpServletResponse response) {
 		this.withRequest(request);
 		this.withResponse(response);
 		return this;

@@ -9,7 +9,7 @@ import com.dev.servlet.domain.User;
 import com.dev.servlet.filter.BusinessRequest;
 import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.utils.CacheUtil;
-import com.dev.servlet.utils.PasswordUtils;
+import com.dev.servlet.utils.CryptoUtils;
 import com.dev.servlet.view.base.BaseRequest;
 
 public class LoginView extends BaseRequest {
@@ -54,7 +54,7 @@ public class LoginView extends BaseRequest {
 
 		User user = new User();
 		user.setLogin(req.getParameter("email"));
-		user.setPassword(PasswordUtils.encrypt(req.getParameter("password")));
+		user.setPassword(CryptoUtils.encrypt(req.getParameter("password")));
 		user = controller.findByLogin(user);
 		if (user == null) {
 			req.setAttribute(INVALID, USER_OR_PASSWORD_INVALID);
@@ -62,7 +62,7 @@ public class LoginView extends BaseRequest {
 			return FORWARD_PAGES_FORM_LOGIN;
 		}
 
-		req.getSession().setAttribute("token", PasswordUtils.generateToken(user));
+		req.getSession().setAttribute("token", CryptoUtils.generateToken(user));
 		return REDIRECT_PRODUCT_ACTION_LIST_ALL;
 	}
 

@@ -60,13 +60,11 @@ public class ProductView extends BaseRequest {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 		LocalDate parsedDate = LocalDate.parse(LocalDate.now().format(formatter), formatter);
 
-		Product product = new Product(req.getParameter("name"),
-				req.getParameter("description"),
-				req.getParameter("url"), parsedDate,
-				CurrencyFormatter.stringToBigDecimal(req.getParameter("price")));
+		Product product = new Product(req.getParameter("name"), req.getParameter("description"),
+				req.getParameter("url"), parsedDate, CurrencyFormatter.stringToBigDecimal(req.getParameter("price")));
 
 		String token = (String) req.getSession().getAttribute("token");
-		product.setUser(CacheUtil.findUser(token));
+		product.setUser(CacheUtil.getUser(token));
 		product.setCategory(new Category(Long.parseLong(req.getParameter("category"))));
 		controller.save(product);
 		req.setAttribute("product", product);
@@ -127,7 +125,7 @@ public class ProductView extends BaseRequest {
 		}
 
 		String token = (String) req.getSession().getAttribute("token");
-		product.setUser(CacheUtil.findUser(token));
+		product.setUser(CacheUtil.getUser(token));
 		List<Product> products = controller.findAll(product);
 
 		req.setAttribute("products", products);

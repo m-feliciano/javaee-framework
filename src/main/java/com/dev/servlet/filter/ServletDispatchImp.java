@@ -83,8 +83,7 @@ public final class ServletDispatchImp implements IServletDispatcher {
 
 		if ("forward".equals(pathAction)) {
 			try {
-				request.getRequestDispatcher("/WEB-INF/view/" + pathUrl)
-					.forward(request, response);
+				request.getRequestDispatcher("/WEB-INF/view/" + pathUrl).forward(request, response);
 			} catch (IOException | ServletException e) {
 				e.printStackTrace();
 			}

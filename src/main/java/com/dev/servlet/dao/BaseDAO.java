@@ -54,5 +54,9 @@ public abstract class BaseDAO<T, E> {
 //		}
 	}
 
+	public void delete(T object) {
+		this.em.remove(object);
+	}
+
 	public abstract List<T> findAll(T object);
 }
