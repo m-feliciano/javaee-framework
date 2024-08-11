@@ -15,8 +15,6 @@ I used the following technologies to develop this application:
 ## About developing this project
 I'm not an expert in JSP, but I can say that I learned a lot from this project.
 
-There's a lot of room for improvement, but I'm happy with the result so far.
-
 Any questions, suggestions, problem deploying the application, please contact me at `marcelo@tuta.io`.
 
 ## Layout
@@ -42,7 +40,7 @@ Any questions, suggestions, problem deploying the application, please contact me
 ![App prolist list page](https://i.ibb.co/nBbGMtG/temp.png)
 <br>
 
-### 404 (Not Found) Page, Funny gif that I found on the web, credits to the author are below it
+### 404 - Funny gif that I found on the web
 #### server/loginView?action=list&id=some_invalid_id
 ![App not found page](https://i.postimg.cc/Sx8D8GZP/Screenshot-2024-08-10-174059.png)
 <br>
@@ -116,4 +114,4 @@ docker exec -it servlet psql -U postgres
 
 The scripts to create the database are in the `resources/META-INF/sql` folder
 
-The database connection is configured in the `resources/META-INF/persistence.xml` file
+The database connection is set in the `resources/META-INF/persistence.xml` file
