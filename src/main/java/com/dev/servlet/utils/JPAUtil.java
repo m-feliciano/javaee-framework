@@ -6,18 +6,16 @@ import javax.persistence.Persistence;
 
 public final class JPAUtil {
 
-	private static final EntityManagerFactory factory = Persistence.createEntityManagerFactory("servlets");
+    private static final EntityManagerFactory factory = Persistence.createEntityManagerFactory("servlets");
 
-	private JPAUtil() {
-	}
+    private JPAUtil() {}
 
-	/*
-	 * This method is used to get an EntityManager.
-	 *
-	 * @return EntityManager
-	 */
-	public static EntityManager getEntityManager() {
-		EntityManager em = factory.createEntityManager();
-		return em;
-	}
+    /*
+     * This method is used to get an EntityManager.
+     *
+     * @return EntityManager
+     */
+    public static EntityManager getEntityManager() {
+        return factory.createEntityManager();
+    }
 }

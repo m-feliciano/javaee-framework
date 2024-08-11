@@ -1,4 +1,3 @@
-<%@ page import="java.util.*,com.dev.servlet.domain.Product" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
@@ -10,6 +9,8 @@
 <fmt:formatNumber value="${product.price}" type="currency" minFractionDigits="2" var="parsedNumber"/>
 <fmt:parseDate value="${product.registerDate}" type="date" pattern="yyyy-MM-dd" var="parsedDate"/>
 <fmt:formatDate value="${parsedDate}" type="date" pattern="dd/MM/yyyy" var="stdDate"/>
+
+<title>Product: ${ product.name }</title>
 
 <jsp:include page="../../components/header.jsp"/>
 <div class="main">

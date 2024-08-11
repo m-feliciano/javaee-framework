@@ -1,52 +1,53 @@
 package com.dev.servlet.controllers;
 
-import java.util.List;
-
-import javax.persistence.EntityManager;
-
 import com.dev.servlet.dao.UserDAO;
 import com.dev.servlet.domain.User;
 import com.dev.servlet.interfaces.IController;
+import com.dev.servlet.utils.CacheUtil;
+
+import javax.persistence.EntityManager;
+import java.util.List;
 
 public final class UserController implements IController<User, Long> {
 
-	private final UserDAO userDao;
+    private static final String CACHE_KEY = "users";
 
-	public UserController(EntityManager em) {
-		this.userDao = new UserDAO(em);
-	}
+    private final UserDAO userDao;
 
-	@Override
-	public User findById(Long id) {
-		return this.userDao.findById(id);
-	}
+    public UserController(EntityManager em) {
+        this.userDao = new UserDAO(em);
+    }
 
-	@Override
-	public void save(User object) {
-		this.userDao.save(object);
-	}
+    public User find(User login) {
+        return userDao.find(login);
+    }
 
-	@Override
-	public void update(User object) {
-		this.userDao.update(object);
-	}
+    @Override
+    public User findById(Long id) {
+        return this.userDao.findById(id);
+    }
 
-	@Override
-	public void delete(User object) {
-		this.userDao.delete(object);
-	}
+    @Override
+    public List<User> findAll(User user) {
+        return this.userDao.findAll(user);
+    }
 
-	@Override
-	public List<User> findAll(User user) {
-		return this.userDao.findAll(user);
-	}
+    @Override
+    public void save(User object) {
+        this.userDao.save(object);
+        CacheUtil.clear(CACHE_KEY, object.getToken());
+    }
 
-	public User find(User login) {
-		return userDao.find(login);
-	}
+    @Override
+    public void update(User object) {
+        this.userDao.update(object);
+        CacheUtil.clear(CACHE_KEY, object.getToken());
+    }
 
-	public User findByLogin(User user) {
-		return userDao.findByLogin(user);
-	}
+    @Override
+    public void delete(User object) {
+        this.userDao.delete(object);
+        CacheUtil.clear(CACHE_KEY, object.getToken());
+    }
 
 }

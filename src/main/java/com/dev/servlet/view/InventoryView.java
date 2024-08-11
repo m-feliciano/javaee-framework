@@ -1,161 +1,189 @@
 package com.dev.servlet.view;
 
-import java.util.List;
-import java.util.Objects;
+import com.dev.servlet.controllers.InventoryController;
+import com.dev.servlet.controllers.ProductController;
+import com.dev.servlet.domain.Inventory;
+import com.dev.servlet.domain.Product;
+import com.dev.servlet.domain.enums.StatusEnum;
+import com.dev.servlet.dto.InventoryDto;
+import com.dev.servlet.filter.StandardRequest;
+import com.dev.servlet.interfaces.ResourcePath;
+import com.dev.servlet.mapper.InventoryMapper;
+import com.dev.servlet.view.base.BaseRequest;
 
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.dev.servlet.controllers.InventoryController;
-import com.dev.servlet.domain.Inventory;
-import com.dev.servlet.domain.Product;
-import com.dev.servlet.filter.BusinessRequest;
-import com.dev.servlet.interfaces.ResourcePath;
-import com.dev.servlet.view.base.BaseRequest;
+import java.util.List;
 
 public class InventoryView extends BaseRequest {
 
-	private static final String FORWARD_PAGE_LIST = "forward:pages/inventory/formListItem.jsp";
-	private static final String FORWARD_PAGE_LIST_ITEMS = "forward:pages/inventory/listItems.jsp";
-	private static final String FORWARD_PAGE_CREATE = "forward:pages/inventory/formCreateItem.jsp";
-	private static final String FORWARD_PAGE_UPDATE = "forward:pages/inventory/formUpdateItem.jsp";
+    private static final String FORWARD_PAGE_LIST = "forward:pages/inventory/formListItem.jsp";
+    private static final String FORWARD_PAGE_LIST_ITEMS = "forward:pages/inventory/listItems.jsp";
+    private static final String FORWARD_PAGE_CREATE = "forward:pages/inventory/formCreateItem.jsp";
+    private static final String FORWARD_PAGE_UPDATE = "forward:pages/inventory/formUpdateItem.jsp";
 
-	private static final String REDIRECT_ACTION_LIST_ALL = "redirect:inventoryView?action=list";
-	private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:inventoryView?action=list&id=";
+    private static final String REDIRECT_ACTION_LIST_ALL = "redirect:inventoryView?action=list";
+    private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:inventoryView?action=list&id=";
 
-	private InventoryController controller;
+    private InventoryController controller;
+    private ProductController productController;
 
-	public InventoryView() {
-		super();
-	}
+    public InventoryView() {
+        super();
+    }
 
-	public InventoryView(EntityManager em) {
-		super();
-		controller = new InventoryController(em);
-	}
+    public InventoryView(EntityManager em) {
+        super();
+        controller = new InventoryController(em);
+        productController = new ProductController(em);
+    }
 
-	/**
-	 * Forward page form
-	 *
-	 * @param
-	 * @return the next path
-	 */
-	@ResourcePath(value = NEW, forward = true)
-	public String forwardRegister() {
-		return FORWARD_PAGE_CREATE;
-	}
+    /**
+     * Forward page form
+     *
+     * @param
+     * @return the next path
+     */
+    @ResourcePath(value = NEW, forward = true)
+    public String forwardRegister() {
+        return FORWARD_PAGE_CREATE;
+    }
 
-	/**
-	 * Create the item.
-	 *
-	 * @param businessRequest
-	 * @return the next path
-	 */
-	public String registerOne(BusinessRequest businessRequest) {
-		HttpServletRequest req = businessRequest.getRequest();
+    /**
+     * Create the item.
+     *
+     * @param standardRequest
+     * @return the next path
+     */
+    @ResourcePath(value = CREATE)
+    public String register(StandardRequest standardRequest) {
+        HttpServletRequest req = standardRequest.getRequest();
 
-		Product product = new Product();
-		// TODO getProduct from request
-		int quantity = Integer.parseInt(req.getParameter("quantity"));
+        int quantity = Integer.parseInt(getParameter(req, "quantity"));
+        String description = getParameter(req, "description");
+        Long productId = Long.valueOf(getParameter(req, "productId"));
 
-		Inventory item = new Inventory(product, quantity, req.getParameter("description"));
-		controller.save(item);
+        Product product = new Product(productId);
+        Inventory item = new Inventory(product, quantity, description);
+        item.setStatus(StatusEnum.ACTIVE.getDescription());
+        item.setUser(getUser(req));
+        controller.save(item);
 
-		req.setAttribute("item", item);
-		return REDIRECT_ACTION_LIST_BY_ID + item.getId();
-	}
+        req.setAttribute("item", item);
+        return REDIRECT_ACTION_LIST_BY_ID + item.getId();
+    }
 
-	/**
-	 * list item or items.
-	 *
-	 * @param businessRequest
-	 * @return the string
-	 */
-	public String findAll(BusinessRequest businessRequest) {
-		HttpServletRequest req = businessRequest.getRequest();
+    /**
+     * list item or items.
+     *
+     * @param standardRequest
+     * @return the string
+     */
+    @ResourcePath(value = LIST)
+    public String list(StandardRequest standardRequest) {
+        HttpServletRequest request = standardRequest.getRequest();
+        String id = getParameter(request, "id");
+        if (id != null) {
+            Inventory inventory = controller.findById(Long.valueOf(id));
+            if (inventory != null) {
+                request.setAttribute("item", InventoryMapper.from(inventory));
+                return FORWARD_PAGE_LIST;
+            }
+            return FORWARD_PAGES_NOT_FOUND;
+        }
 
-		String id = req.getParameter("id");
-		if (id != null) {
-			Inventory inventory = controller.findById(Long.parseLong(id));
-			if (Objects.isNull(inventory)) {
-				return FORWARD_PAGES_NOT_FOUND;
-			}
+        List<InventoryDto> list = findAll(request);
+        request.setAttribute("items", list);
+        return FORWARD_PAGE_LIST_ITEMS;
+    }
 
-			req.setAttribute("item", inventory);
-			return FORWARD_PAGE_LIST;
-		}
+    /**
+     * update one.
+     *
+     * @param standardRequest
+     * @return the string
+     */
+    @ResourcePath(value = UPDATE)
+    public String update(StandardRequest standardRequest) {
+        HttpServletRequest request = standardRequest.getRequest();
 
-		String param = req.getParameter(PARAM);
-		String value = req.getParameter(VALUE);
-		List<Inventory> inventories;
-		if (!Objects.isNull(param) && !Objects.isNull(value)) {
-			if (param.equals("name")) {
-				req.setAttribute("name", param);
-				inventories = controller.findAllByProductName(value);
-			} else {
-				req.setAttribute("description", param);
-				inventories = controller.findAllByDescription(value);
-			}
-			req.setAttribute("items", inventories);
-		} else {
-			inventories = controller.findAll(null);
-			req.setAttribute("items", inventories);
-		}
-		return FORWARD_PAGE_LIST_ITEMS;
-	}
+        Inventory inventory = controller.findById(Long.valueOf(getParameter(request, "id")));
+        inventory.setQuantity(Integer.parseInt(getParameter(request, "quantity")));
+        inventory.setDescription(getParameter(request, "description"));
 
-	/**
-	 * update item.
-	 *
-	 * @param businessRequest
-	 * @return the string
-	 */
-	public String updateOne(BusinessRequest businessRequest) {
-		HttpServletRequest req = businessRequest.getRequest();
+        Long productId = Long.valueOf(getParameter(request, "productId"));
 
-		Inventory item = controller.findById(Long.parseLong(req.getParameter("id")));
-		item.setQuantity(Integer.parseInt(req.getParameter("quantity")));
-		item.setDescription(req.getParameter("description"));
+        Product product = new Product(productId);
+        product.setUser(getUser(request));
+        product = productController.find(product);
+        if (product == null) {
+            standardRequest.getResponse().setStatus(HttpServletResponse.SC_NOT_FOUND);
+            request.setAttribute("error", "ERROR: Product ID " + getParameter(request, "productId") + " was not found.");
+            request.setAttribute("item", inventory);
+            return this.forwardRegister();
+        }
 
-		Product product = new Product();
-		// TODO getProduct from request
+        inventory.setProduct(new Product(productId));
+        controller.update(inventory);
+        request.setAttribute("item", InventoryMapper.from(inventory));
+        return REDIRECT_ACTION_LIST_BY_ID + inventory.getId();
+    }
 
-		if (Objects.isNull(product)) {
-			businessRequest.getResponse().setStatus(HttpServletResponse.SC_NOT_FOUND);
-			req.setAttribute("error", "ERROR: Product ID " + req.getParameter("productId") + " was not found.");
-			req.setAttribute("item", item);
-			return this.forwardRegister();
-		}
+    /**
+     * edit one.
+     *
+     * @param standardRequest
+     * @return the string
+     */
+    @ResourcePath(value = EDIT)
+    public String edit(StandardRequest standardRequest) {
+        HttpServletRequest request = standardRequest.getRequest();
+        Long id = Long.valueOf(getParameter(request, "id"));
+        Inventory inventory = new Inventory(id);
+        inventory = controller.findById(id);
+        request.setAttribute("item", InventoryMapper.from(inventory));
+        return FORWARD_PAGE_UPDATE;
+    }
 
-		item.setProduct(product);
-		controller.update(item);
-		req.setAttribute("item", item);
-		return REDIRECT_ACTION_LIST_BY_ID + item.getId();
-	}
+    /**
+     * delete one.
+     *
+     * @param standardRequest
+     * @return the string
+     */
+    @ResourcePath(value = DELETE)
+    public String delete(StandardRequest standardRequest) {
+        HttpServletRequest request = standardRequest.getRequest();
+        Long id = Long.valueOf(getParameter(request, "id"));
+        Inventory obj = new Inventory(id);
+        controller.delete(obj);
+        return REDIRECT_ACTION_LIST_ALL;
+    }
 
-	/**
-	 * update item.
-	 *
-	 * @param businessRequest
-	 * @return the string
-	 */
-	public String editOne(BusinessRequest businessRequest) {
-		HttpServletRequest req = businessRequest.getRequest();
-		req.setAttribute("item", controller.findById(Long.parseLong(req.getParameter("id"))));
-		return FORWARD_PAGE_UPDATE;
-	}
+    /**
+     * Find All
+     *
+     * @param request
+     * @return the next path
+     */
+    private List<InventoryDto> findAll(HttpServletRequest request) {
+        Inventory inventory = new Inventory();
+        inventory.setUser(getUser(request));
 
-	/**
-	 * delete item.
-	 *
-	 * @param businessRequest
-	 * @return the string
-	 */
-	public String deleteOne(BusinessRequest businessRequest) {
-		HttpServletRequest req = businessRequest.getRequest();
-		Inventory obj = new Inventory(Long.parseLong(req.getParameter("id")));
-		controller.delete(obj);
-		return REDIRECT_ACTION_LIST_ALL;
-	}
+        String param = getParameter(request, PARAM);
+        String value = getParameter(request, VALUE);
+        if (param != null && value != null) {
+            if (param.equals("name")) {
+                Product product = new Product();
+                product.setName(value);
+                inventory.setProduct(product);
+            } else {
+                inventory.setDescription(value);
+            }
+        }
+
+        List<Inventory> inventories = controller.findAll(inventory);
+        return inventories.stream().map(InventoryMapper::from).toList();
+    }
 }

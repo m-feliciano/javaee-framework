@@ -1,28 +1,27 @@
 package com.dev.servlet.dao;
 
-import java.util.List;
-
 import javax.persistence.EntityManager;
+import java.util.List;
 
 public abstract class BaseDAO<T, E> {
 
-	private final Class<T> clazz;
+    private final Class<T> clazz;
 
-	protected EntityManager em;
+    protected EntityManager em;
 
-	protected BaseDAO(EntityManager em, Class<T> clazz) {
-		this.em = em;
-		this.clazz = clazz;
-	}
+    protected BaseDAO(EntityManager em, Class<T> clazz) {
+        this.em = em;
+        this.clazz = clazz;
+    }
 
-	public T findById(E id) {
-		return this.em.find(clazz, id);
-	}
+    public T findById(E id) {
+        return this.em.find(clazz, id);
+    }
 
-	public T save(T object) {
+    public T save(T object) {
 //		try {
 //			this.em.getTransaction().begin();
-		this.em.persist(object);
+        this.em.persist(object);
 //			this.em.getTransaction().commit();
 //		} catch (Exception e) {
 //			e.printStackTrace();
@@ -34,13 +33,13 @@ public abstract class BaseDAO<T, E> {
 //				this.em.close();
 //			}
 //		}
-		return object;
-	}
+        return object;
+    }
 
-	public void update(T object) {
+    public void update(T object) {
 //		try {
 //			this.em.getTransaction().begin();
-		this.em.merge(object);
+        this.em.merge(object);
 //			this.em.getTransaction().commit();
 //		} catch (Exception e) {
 //			e.printStackTrace();
@@ -52,11 +51,13 @@ public abstract class BaseDAO<T, E> {
 //				this.em.close();
 //			}
 //		}
-	}
+    }
 
-	public void delete(T object) {
-		this.em.remove(object);
-	}
+    public void delete(T object) {
+        this.em.remove(object);
+    }
 
-	public abstract List<T> findAll(T object);
+    public abstract T find(T object);
+
+    public abstract List<T> findAll(T object);
 }

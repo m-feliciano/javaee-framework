@@ -1,62 +1,75 @@
 package com.dev.servlet.dao;
 
-import java.util.List;
+import com.dev.servlet.domain.User;
+import com.dev.servlet.domain.enums.StatusEnum;
+import com.dev.servlet.utils.CollectionUtils;
 
 import javax.persistence.EntityManager;
-
-import com.dev.servlet.domain.User;
-import com.dev.servlet.domain.enums.Status;
+import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.List;
 
 public class UserDAO extends BaseDAO<User, Long> {
 
-	public static final String LOGIN = "login";
-	public static final String PASSWORD = "password";
-	public static final String STATUS = "status";
+    public UserDAO(EntityManager em) {
+        super(em, User.class);
+    }
 
-	public UserDAO(EntityManager em) {
-		super(em, User.class);
-	}
+    /**
+     * Find all
+     *
+     * @param user
+     * @return {@link List}
+     */
+    @Override
+    public List<User> findAll(User user) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<User> cq = cb.createQuery(User.class).distinct(true);
+        Root<User> root = cq.from(User.class);
+        Predicate predicate = cb.notEqual(root.get("status"), StatusEnum.DELETED.getDescription());
+        predicate = cb.and(predicate, cb.equal(root.get("login"), user.getLogin()));
+        predicate = cb.and(predicate, cb.equal(root.get("password"), user.getPassword()));
 
-	/**
-	 * Find by login.
-	 *
-	 * @param user the user and password
-	 * @return the user found or null if not found
-	 */
-	public User findByLogin(User user) {
-		String jpql = """
-				 SELECT u FROM User u
-				 WHERE u.login = :login
-				 AND u.status = :status
-				 AND u.password = :password
-				""";
-		User obj = em.createQuery(jpql, User.class).setParameter(LOGIN, user.getLogin().toLowerCase())
-				.setParameter(PASSWORD, user.getPassword()).setParameter(STATUS, Status.ACTIVE.getDescription())
-				.getResultList().stream().findFirst().orElse(null);
-		return obj;
-	}
+        Order descId = cb.desc(root.get("id"));
+        cq.select(root).where(predicate).orderBy(descId);
 
-	/**
-	 * Find by login.
-	 *
-	 * @param user the user
-	 * @return the user found or null if not found
-	 */
-	public User find(User user) {
-		String jpql = "SELECT u FROM User u JOIN FETCH u.perfis p WHERE lower(u.login) = :login";
+        List<User> resultList = em.createQuery(cq).getResultList();
+        return resultList;
+    }
 
-		return em.createQuery(jpql, User.class).setParameter(LOGIN, user.getLogin().toLowerCase()).getResultList()
-				.stream().findFirst().orElse(null);
-	}
+    /**
+     * Find one
+     *
+     * @param user
+     * @return {@link User}
+     */
+    public User find(User user) {
+        List<User> all = findAll(user);
+        if (CollectionUtils.isNullOrEmpty(all)) {
+            return null;
+        }
+        return all.get(0);
+    }
 
-	@Override
-	public List<User> findAll(User object) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public void delete(User object) {
-		// TODO Auto-generated method stub
-
-	}
+    /**
+     * Delete one
+     *
+     * @param user
+     */
+    @Override
+    public void delete(User user) {
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaUpdate<User> cu = builder.createCriteriaUpdate(User.class);
+        Root<User> root = cu.from(User.class);
+        cu.set("status", StatusEnum.DELETED.getDescription());
+        Predicate predicate = builder.equal(root.get("id"), user.getId());
+        cu.where(predicate);
+        Query query = em.createQuery(cu);
+        int update = query.executeUpdate();
+    }
 }

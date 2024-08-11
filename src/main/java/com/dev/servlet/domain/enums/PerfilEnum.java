@@ -1,15 +1,16 @@
 package com.dev.servlet.domain.enums;
 
-public enum Perfil {
+public enum PerfilEnum {
 
-    ADMIN(1, "ROLE_ADMIN"),
-    USER(2, "ROLE_USER"),
-    MODERATOR(2, "ROLE_MODERATOR");
+    ADMIN(1L, "ADMIN"),
+    DEFAULT(2L, "USER"),
+    MODERATOR(3L, "MODERATOR"),
+    VISITOR(4L, "GUEST");
 
-    public final int cod;
+    public final Long cod;
     public final String description;
 
-    Perfil(int cod, String descricao) {
+    PerfilEnum(Long cod, String descricao) {
         this.cod = cod;
         this.description = descricao;
     }
@@ -19,12 +20,12 @@ public enum Perfil {
      *
      * @return the enum value
      */
-    public static Perfil toEnum(Integer cod) {
+    public static PerfilEnum toEnum(Long cod) {
         if (cod == null) {
             return null;
         }
 
-        for (Perfil p : Perfil.values()) {
+        for (PerfilEnum p : PerfilEnum.values()) {
             if (cod.equals(p.cod))
                 return p;
         }

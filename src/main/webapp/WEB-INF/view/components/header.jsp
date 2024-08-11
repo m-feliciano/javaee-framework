@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="ISO-8859-1" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +15,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <link rel="stylesheet" href="<c:url value='/css/styles.css'/>">
     <link rel="stylesheet" href="<c:url value='/css/popup.css'/>">
-    <title>Servlet CRUD</title>
+    <title>Shopping</title>
 </head>
 
 <c:url value="/productView" var="productLink"/>
@@ -22,6 +23,7 @@
 <c:url value="/inventoryView" var="inventoryLink"/>
 <c:url value="/userView" var="userLink"/>
 <c:url value="/loginView" var="loginLink"/>
+<fmt:setLocale value="pt-BR" scope="application"/>
 
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -44,16 +46,14 @@
         </ul>
         <div class="d-flex">
             <div class="avatar mt-1 mx30">
-                <c:if test="${not empty userLogged.getImgUrl() }">
-                    <a href="${userLink}?action=list">
-                        <img src="${userLogged.getImgUrl()}" alt="user" class="avatar-img rounded-circle">
-                    </a>
-                </c:if>
-                <c:if test="${empty userLogged.getImgUrl() }">
-                    <a href="${userLink}?action=list">
+                <a href="${userLink}?action=list">
+                    <c:if test="${not empty user.imgUrl }">
+                        <img src="${user.imgUrl}" alt="user" class="avatar-img rounded-circle">
+                    </c:if>
+                    <c:if test="${empty user.imgUrl }">
                         <img src="<c:url value='/assets/avatar2.png'/>" alt="user" class="avatar-img rounded-circle">
-                    </a>
-                </c:if>
+                    </c:if>
+                </a>
             </div>
             <a class="nav-link btn-logout mr-2" href="${userLink}?action=list">Perfil</a>
         </div>

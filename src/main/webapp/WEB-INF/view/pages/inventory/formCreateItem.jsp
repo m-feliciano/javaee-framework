@@ -1,5 +1,5 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<c:url value="/inventory" var="inventoryLink"/>
+<c:url value="/inventoryView" var="inventoryLink"/>
 <!-- header -->
 <jsp:include page="../../components/header.jsp"/>
 <div class="main">

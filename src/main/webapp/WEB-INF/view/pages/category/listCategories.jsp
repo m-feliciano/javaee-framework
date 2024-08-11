@@ -1,6 +1,6 @@
+<%@ page import="java.util.*, com.dev.servlet.dto.CategoryDto" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<%@ page import="java.util.*, com.dev.servlet.domain.Category" %>
 
 <c:url value="/categoryView?action=list" var="listCategory"/>
 <c:url value="/categoryView?action=delete" var="deleteCategory"/>

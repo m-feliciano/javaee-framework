@@ -1,4 +1,4 @@
-<%@ page import="java.util.*,com.dev.servlet.domain.User"%>
+<%@ page import="java.util.*,com.dev.servlet.dto.UserDto"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 
@@ -14,11 +14,11 @@
 		<div class="col-md-6">
 			<div class="row ml5 mb-3">
 				<div class="avatar mr-3 mt5">
-					<c:if test="${not empty userLogged.getImgUrl() }">
-						<img src="${userLogged.getImgUrl()}" alt="user"
+					<c:if test="${not empty user.imgUrl }">
+						<img src="${user.imgUrl}" alt="user"
 							class="avatar-img rounded-circle">
 					</c:if>
-					<c:if test="${empty userLogged.getImgUrl() }">
+					<c:if test="${empty user.imgUrl }">
 						<img src="<c:url value='/assets/avatar2.png'/>" alt="user"
 							class="avatar-img rounded-circle">
 					</c:if>

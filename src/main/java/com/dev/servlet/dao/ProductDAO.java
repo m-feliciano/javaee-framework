@@ -1,60 +1,110 @@
 package com.dev.servlet.dao;
 
-import java.util.List;
-
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-
 import com.dev.servlet.domain.Category;
 import com.dev.servlet.domain.Product;
+import com.dev.servlet.domain.enums.StatusEnum;
+import com.dev.servlet.utils.CollectionUtils;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.Collections;
+import java.util.List;
 
 public class ProductDAO extends BaseDAO<Product, Long> {
 
-	public static final String STATUS = "status";
-	public static final String ID = "id";
-	public static final String USER = "user";
-	public static final String NAME = "name";
-	public static final String DESCRIPTION = "description";
-	public static final String CATEGORY = "category";
+    public ProductDAO(EntityManager em) {
+        super(em, Product.class);
+    }
 
-	public ProductDAO(EntityManager em) {
-		super(em, Product.class);
-	}
+    /**
+     * Find one
+     *
+     * @param product
+     * @return {@link List}
+     */
+    @Override
+    public Product find(Product product) {
+        List<Product> all = findAll(product);
+        if (CollectionUtils.isNullOrEmpty(all)) {
+            return null;
+        }
+        return all.get(0);
+    }
 
-	/**
-	 * Find all by category category
-	 *
-	 * @param category
-	 * @return
-	 */
-	public List<Product> findAllByCategory(Category category) {
-		String jpql = "SELECT p FROM Product p WHERE LOWER(p.category.name) LIKE LOWER(CONCAT('%', :name, '%'))";
-		List<Product> resultList = em.createQuery(jpql, Product.class).setParameter(NAME, category.getName())
-				.getResultList();
-		return resultList;
-	}
+    /**
+     * Find all by user/product
+     *
+     * @param product
+     * @return {@link List}
+     */
+    @Override
+    public List<Product> findAll(Product product) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Product> query = cb.createQuery(Product.class).distinct(true);
+        Root<Product> root = query.from(Product.class);
 
-	/**
-	 * Find all by user/product
-	 *
-	 * @param product
-	 * @return
-	 */
-	@Override
-	public List<Product> findAll(Product product) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<Product> query = builder.createQuery(Product.class);
-		Root<Product> root = query.from(Product.class);
+        Predicate predicate = cb.equal(root.get("user"), product.getUser());
+        predicate = cb.and(predicate, cb.notEqual(root.get("status"), StatusEnum.DELETED.getDescription()));
 
-		query.where(builder.equal(root.get("user"), product.getUser())).select(root).distinct(true);
+        if (product.getName() != null) {
+            Expression<String> upper = cb.upper(root.get("name"));
+            Predicate like = cb.like(upper, product.getName().toUpperCase() + "%");
+            predicate = cb.and(predicate, like);
+        }
 
-		return em.createQuery(query).getResultList();
-	}
+        if (product.getDescription() != null) {
+            Expression<String> upper = cb.upper(root.get("description"));
+            Predicate like = cb.like(upper, product.getDescription().toUpperCase() + "%");
+            predicate = cb.and(predicate, like);
+        }
 
-	public void delete(Product product) {
-		// TODO Auto-generated method stub
-	}
+        if (product.getCategory() != null) {
+            Join<Product, Category> join = root.join("category");
+
+            if (product.getCategory().getId() != null) {
+                cb.equal(join.get("id"), product.getCategory().getId());
+            } else {
+                if (product.getCategory().getName() != null) {
+                    Expression<String> upper = cb.upper(join.get("name"));
+                    Predicate like = cb.like(upper, product.getCategory().getName().toUpperCase() + "%");
+                    predicate = cb.and(predicate, like);
+                }
+            }
+        }
+
+        Order descId = cb.desc(root.get("id"));
+        query.where(predicate).select(root).orderBy(descId);
+
+        List<Product> resultList = em.createQuery(query).getResultList();
+        if (!CollectionUtils.isNullOrEmpty(resultList)) {
+            return resultList;
+        }
+
+        return Collections.emptyList();
+    }
+
+    /**
+     * Delete one
+     *
+     * @param product
+     */
+    @Override
+    public void delete(Product product) {
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaUpdate<Product> cu = builder.createCriteriaUpdate(Product.class);
+        Root<Product> root = cu.from(Product.class);
+        cu.set("status", StatusEnum.DELETED.getDescription());
+        cu.where(builder.equal(root.get("id"), product.getId()));
+        Query query = em.createQuery(cu);
+        int update = query.executeUpdate();
+    }
 
 }

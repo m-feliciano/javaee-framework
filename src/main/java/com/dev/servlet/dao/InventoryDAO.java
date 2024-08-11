@@ -1,51 +1,94 @@
 package com.dev.servlet.dao;
 
-import java.util.List;
+import com.dev.servlet.domain.Inventory;
+import com.dev.servlet.domain.enums.StatusEnum;
+import com.dev.servlet.utils.CollectionUtils;
 
 import javax.persistence.EntityManager;
-
-import com.dev.servlet.domain.Inventory;
+import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.Collections;
+import java.util.List;
 
 public class InventoryDAO extends BaseDAO<Inventory, Long> {
 
-	public InventoryDAO(EntityManager em) {
-		super(em, Inventory.class);
-	}
+    public InventoryDAO(EntityManager em) {
+        super(em, Inventory.class);
+    }
 
-	/**
-	 * Find by name. receives a name and returns all the inventories with that
-	 * description.
-	 *
-	 * @param name
-	 * @return
-	 */
-	public List<Inventory> findAllByProductName(String name) {
-		String jpql = "SELECT i FROM Inventory i WHERE LOWER(i.product.name) LIKE CONCAT('%', LOWER(:name), '%')";
+    /**
+     * Find one
+     *
+     * @param inventory
+     * @return {@link Inventory}
+     */
+    @Override
+    public Inventory find(Inventory inventory) {
+        List<Inventory> all = findAll(inventory);
+        if (CollectionUtils.isNullOrEmpty(all)) {
+            return null;
+        }
+        return all.get(0);
+    }
 
-		return em.createQuery(jpql, Inventory.class).setParameter("name", name).getResultList();
-	}
+    /**
+     * Find all
+     *
+     * @param inventory
+     * @return {@link List}
+     */
+    @Override
+    public List<Inventory> findAll(Inventory inventory) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Inventory> cq = cb.createQuery(Inventory.class);
+        Root<Inventory> root = cq.from(Inventory.class);
 
-	/**
-	 * Find by description. receives a name and returns all the inventories with
-	 * that name.
-	 *
-	 * @param description
-	 * @return
-	 */
-	public List<Inventory> findAllByDescription(String description) {
-		String jpql = "SELECT i FROM Inventory i WHERE LOWER(i.description) LIKE CONCAT('%', LOWER(:description), '%')";
+        Predicate predicate = cb.equal(root.get("status"), StatusEnum.ACTIVE.getDescription());
+        predicate = cb.and(predicate, cb.equal(root.get("user").get("id"), inventory.getUser().getId()));
 
-		return em.createQuery(jpql, Inventory.class).setParameter("description", description).getResultList();
-	}
+        if (inventory.getDescription() != null) {
+            Expression<String> upper = cb.upper(root.get("description"));
+            Predicate like = cb.like(upper, inventory.getDescription().toUpperCase() + "%");
+            predicate = cb.and(predicate, like);
+        }
 
-	@Override
-	public List<Inventory> findAll(Inventory object) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+        if (inventory.getProduct() != null) {
+            Expression<String> upper = cb.upper(root.get("product").get("name"));
+            Predicate like = cb.like(upper, inventory.getProduct().getName().toUpperCase() + "%");
+            predicate = cb.and(predicate, like);
+        }
 
-	public void delete(Inventory obj) {
-		// TODO Auto-generated method stub
-	}
+        Order desc = cb.desc(root.get("id"));
+        cq.select(root).where(predicate).orderBy(desc);
 
+        List<Inventory> inventories = em.createQuery(cq).getResultList();
+        if (CollectionUtils.isNullOrEmpty(inventories)) {
+            return Collections.emptyList();
+        }
+
+        return inventories;
+    }
+
+    /**
+     * Delete one
+     *
+     * @param inventory
+     */
+    @Override
+    public void delete(Inventory inventory) {
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaUpdate<Inventory> cu = builder.createCriteriaUpdate(Inventory.class);
+        Root<Inventory> root = cu.from(Inventory.class);
+        cu.set("status", StatusEnum.DELETED.getDescription());
+        Predicate predicate = builder.equal(root.get("id"), inventory.getId());
+        cu.where(predicate);
+        Query query = em.createQuery(cu);
+        int update = query.executeUpdate();
+    }
 }

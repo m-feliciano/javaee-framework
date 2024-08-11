@@ -1,163 +1,205 @@
 package com.dev.servlet.view;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Objects;
-
-import javax.persistence.EntityManager;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.dev.servlet.controllers.CategoryController;
 import com.dev.servlet.controllers.ProductController;
 import com.dev.servlet.domain.Category;
 import com.dev.servlet.domain.Product;
-import com.dev.servlet.filter.BusinessRequest;
+import com.dev.servlet.domain.enums.StatusEnum;
+import com.dev.servlet.dto.CategoryDto;
+import com.dev.servlet.dto.ProductDto;
+import com.dev.servlet.filter.StandardRequest;
 import com.dev.servlet.interfaces.ResourcePath;
-import com.dev.servlet.utils.CacheUtil;
+import com.dev.servlet.mapper.CategoryMapper;
+import com.dev.servlet.mapper.ProductMapper;
 import com.dev.servlet.utils.CurrencyFormatter;
 import com.dev.servlet.view.base.BaseRequest;
 
+import javax.persistence.EntityManager;
+import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 public class ProductView extends BaseRequest {
 
-	private static final String FORWARD_PAGE_LIST = "forward:pages/product/formListProduct.jsp";
-	private static final String FORWARD_PAGE_LIST_PRODUCTS = "forward:pages/product/listProducts.jsp";
-	private static final String FORWARD_PAGE_UPDATE = "forward:pages/product/formUpdateProduct.jsp";
-	private static final String FORWARD_PAGE_CREATE = "forward:pages/product/formCreateProduct.jsp";
+    private static final String FORWARD_PAGE_LIST = "forward:pages/product/formListProduct.jsp";
+    private static final String FORWARD_PAGE_LIST_PRODUCTS = "forward:pages/product/listProducts.jsp";
+    private static final String FORWARD_PAGE_UPDATE = "forward:pages/product/formUpdateProduct.jsp";
+    private static final String FORWARD_PAGE_CREATE = "forward:pages/product/formCreateProduct.jsp";
 
-	private static final String REDIRECT_ACTION_LIST_ALL = "redirect:productView?action=list";
-	private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:productView?action=list&id=";
+    private static final String REDIRECT_ACTION_LIST_ALL = "redirect:productView?action=list";
+    private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:productView?action=list&id=";
 
-	private ProductController controller;
-	private CategoryController categoryController;
+    private static final String CACHE_KEY = "categories";
 
-	public ProductView() {
-		super();
-	}
+    private ProductController controller;
+    private CategoryView categoryView;
 
-	public ProductView(EntityManager em) {
-		super();
-		this.categoryController = new CategoryController(em);
-		this.controller = new ProductController(em);
+    public ProductView() {
+        super();
+    }
 
-	}
+    public ProductView(EntityManager em) {
+        super();
+        this.controller = new ProductController(em);
+        this.categoryView = new CategoryView(em);
+    }
 
-	/**
-	 * Forward
-	 *
-	 * @return the next path
-	 */
-	@ResourcePath(value = NEW, forward = true)
-	public String forwardRegister() {
-		return FORWARD_PAGE_CREATE;
-	}
+    /**
+     * Forward
+     *
+     * @return the next path
+     */
+    @ResourcePath(value = NEW)
+    public String forwardRegister(StandardRequest standardRequest) {
+        HttpServletRequest request = standardRequest.getRequest();
+        List<CategoryDto> categories = categoryView.findAll(request);
+        request.setAttribute("categories", categories);
+        return FORWARD_PAGE_CREATE;
+    }
 
-	@ResourcePath(value = CREATE)
-	public String registerOne(BusinessRequest businessRequest) {
-		HttpServletRequest req = businessRequest.getRequest();
+    /**
+     * Create one
+     *
+     * @param standardRequest
+     * @return the next path
+     */
+    @ResourcePath(value = CREATE)
+    public String register(StandardRequest standardRequest) {
+        HttpServletRequest request = standardRequest.getRequest();
 
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-		LocalDate parsedDate = LocalDate.parse(LocalDate.now().format(formatter), formatter);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate localDate = LocalDate.parse(LocalDate.now().format(formatter), formatter);
 
-		Product product = new Product(req.getParameter("name"), req.getParameter("description"),
-				req.getParameter("url"), parsedDate, CurrencyFormatter.stringToBigDecimal(req.getParameter("price")));
+        Product product = new Product(
+                getParameter(request, "name"),
+                getParameter(request, "description"),
+                getParameter(request, "url"),
+                localDate,
+                CurrencyFormatter.stringToBigDecimal(getParameter(request, "price")));
 
-		String token = (String) req.getSession().getAttribute("token");
-		product.setUser(CacheUtil.getUser(token));
-		product.setCategory(new Category(Long.parseLong(req.getParameter("category"))));
-		controller.save(product);
-		req.setAttribute("product", product);
+        product.setUser(getUser(request));
+        product.setCategory(new Category(Long.valueOf(getParameter(request, "category"))));
+        product.setStatus(StatusEnum.ACTIVE.name());
+        controller.save(product);
+        request.setAttribute("product", product);
 
-		return REDIRECT_ACTION_LIST_BY_ID + product.getId();
-	}
+        return REDIRECT_ACTION_LIST_BY_ID + product.getId();
+    }
 
-	@ResourcePath(value = EDIT)
-	public String editOne(HttpServletRequest req, HttpServletResponse resp) {
-		String id = req.getParameter("id");
-		if (id != null) {
-			req.setAttribute("error", "id can't be null");
-			return FORWARD_PAGES_NOT_FOUND;
-		}
+    /**
+     * Forward edit
+     *
+     * @param standardRequest
+     * @return the next path
+     */
+    @ResourcePath(value = EDIT)
+    public String edit(StandardRequest standardRequest) {
+        HttpServletRequest request = standardRequest.getRequest();
 
-		Product product = new Product();
-		product.setId(Long.parseLong(id));
-		product = controller.findById(product.getId());
+        String id = getParameter(request, "id");
+        if (id == null) {
+            request.setAttribute("error", "id can't be null");
+            return FORWARD_PAGES_NOT_FOUND;
+        }
 
-		req.setAttribute("product", product);
-		req.setAttribute("categories", categoryController.findAll(null));
+        Product product = new Product();
+        product = controller.findById(Long.valueOf(id));
 
-		return FORWARD_PAGE_UPDATE;
-	}
+        request.setAttribute("product", ProductMapper.from(product));
+        request.setAttribute("categories", categoryView.findAll(request));
 
-	@ResourcePath(value = LIST)
-	public String findAll(BusinessRequest businessRequest) {
+        return FORWARD_PAGE_UPDATE;
+    }
 
-		HttpServletRequest req = businessRequest.getRequest();
-		Product product = new Product();
+    /**
+     * List one or many
+     *
+     * @param standardRequest
+     * @return the next path
+     */
+    @ResourcePath(value = LIST)
+    public String list(StandardRequest standardRequest) {
+        HttpServletRequest request = standardRequest.getRequest();
+        String id = getParameter(request, "id");
+        if (id != null) {
+            Product product = controller.findById(Long.valueOf(id));
+            if (product == null) {
+                return FORWARD_PAGES_NOT_FOUND;
+            }
+            request.setAttribute("product", ProductMapper.from(product));
+            return FORWARD_PAGE_LIST;
+        }
 
-		String id = req.getParameter("id");
-		if (id != null) {
-			product = controller.findById(Long.valueOf(id));
-			if (Objects.isNull(product)) {
-				return FORWARD_PAGES_NOT_FOUND;
-			}
+        List<ProductDto> list = findAll(request);
+        request.setAttribute("products", list);
+        return FORWARD_PAGE_LIST_PRODUCTS;
+    }
 
-			req.setAttribute("product", product);
-			return FORWARD_PAGE_LIST;
-		}
+    /**
+     * Update one
+     *
+     * @param standardRequest
+     * @return the next path
+     */
+    @ResourcePath(value = UPDATE)
+    public String update(StandardRequest standardRequest) {
+        HttpServletRequest request = standardRequest.getRequest();
 
-		String param = req.getParameter(PARAM);
-		String value = req.getParameter(VALUE);
-		if (param != null && value != null) {
-			product = new Product();
+        Product product = controller.findById(Long.parseLong(getParameter(request, "id")));
+        product.setName(getParameter(request, "name"));
+        product.setDescription(getParameter(request, "description"));
+        product.setPrice(CurrencyFormatter.stringToBigDecimal(getParameter(request, "price")));
+        product.setUrl(getParameter(request, "url"));
+        product.setCategory(new Category(Long.parseLong(getParameter(request, "category"))));
 
-			if (param.equals("name")) {
-				product.setName(value);
-			} else {
-				product.setDescription(value);
-			}
+        controller.update(product);
+        request.setAttribute("product", ProductMapper.from(product));
 
-			if (!Objects.isNull(req.getParameter("category"))) {
-				Category filter = new Category(Long.parseLong(req.getParameter("category")));
-				product.setCategory(filter);
-			}
-		}
+        return REDIRECT_ACTION_LIST_BY_ID + product.getId();
+    }
 
-		String token = (String) req.getSession().getAttribute("token");
-		product.setUser(CacheUtil.getUser(token));
-		List<Product> products = controller.findAll(product);
+    /**
+     * Delete one
+     *
+     * @param standardRequest
+     * @return the next path
+     */
+    @ResourcePath(value = DELETE)
+    public String delete(StandardRequest standardRequest) {
+        HttpServletRequest req = standardRequest.getRequest();
+        Long id = Long.parseLong(getParameter(req,"id"));
+        Product product = new Product(id);
+        controller.delete(product);
+        return REDIRECT_ACTION_LIST_ALL;
+    }
 
-		req.setAttribute("products", products);
-		req.setAttribute("categories", categoryController.findAll(null));
+    /**
+     * Find All
+     *
+     * @param request
+     * @return the next path
+     */
+    private List<ProductDto> findAll(HttpServletRequest request) {
+        Product product = new Product();
 
-		return FORWARD_PAGE_LIST_PRODUCTS;
-	}
+        String param = getParameter(request, PARAM);
+        String value = getParameter(request, VALUE);
+        if (param != null && value != null) {
+            if (param.equals("name")) {
+                product.setName(value);
+            } else {
+                product.setDescription(value);
+            }
+        }
 
-	@ResourcePath(value = UPDATE)
-	public String updateOne(BusinessRequest businessRequest) {
-		HttpServletRequest req = businessRequest.getRequest();
+        String categoryId = getParameter(request, "categoryId");
+        if (categoryId != null) {
+            List<Category> categories = categoryView.findAll(request).stream().map(CategoryMapper::from).toList();
+            request.setAttribute("categories", categories);
+        }
 
-		Product product = controller.findById(Long.parseLong(req.getParameter("id")));
-		product.setName(req.getParameter("name"));
-		product.setDescription(req.getParameter("description"));
-		product.setPrice(CurrencyFormatter.stringToBigDecimal(req.getParameter("price")));
-		product.setUrl(req.getParameter("url"));
-		product.setCategory(new Category(Long.parseLong(req.getParameter("category"))));
-
-		controller.update(product);
-		req.setAttribute("product", product);
-
-		return REDIRECT_ACTION_LIST_BY_ID + product.getId();
-	}
-
-	@ResourcePath(value = EDIT)
-	public String deleteOne(BusinessRequest businessRequest) {
-		HttpServletRequest req = businessRequest.getRequest();
-
-		Product product = new Product();
-		product.setId(Long.parseLong(req.getParameter("id")));
-		controller.delete(product);
-		return REDIRECT_ACTION_LIST_ALL;
-	}
+        product.setUser(getUser(request));
+        List<Product> products = controller.findAll(product);
+        return products.stream().map(ProductMapper::from).toList();
+    }
 }

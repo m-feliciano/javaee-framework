@@ -1,114 +1,106 @@
 package com.dev.servlet.utils;
 
-import java.time.Instant;
-import java.util.Base64;
-import java.util.HexFormat;
+import com.dev.servlet.domain.User;
+import com.dev.servlet.dto.UserDto;
+import com.dev.servlet.mapper.UserMapper;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-
-import org.apache.commons.lang3.RandomStringUtils;
-
-import com.dev.servlet.domain.User;
+import java.time.Instant;
+import java.util.Base64;
 
 public final class CryptoUtils {
 
-	private static final String KEY = "lkuhJblhB562vhytit6767";
-	private static final char[] hexArray = "0UIYW7YWIUKUSDUF".toCharArray();
+    public static final String BLOWFISH = "Blowfish";
 
-	private CryptoUtils() {
-	}
+    private CryptoUtils() {
+    }
 
-	public static byte[] decodebase64(String str) {
-		return Base64.getDecoder().decode(str);
-	}
+    private static byte[] getSecurityKey() throws Exception {
+        String key = PropertiesUtil.getProperty("security.encrypt.key");
+        if (key == null) throw new Exception("Security key is not set");
+        return key.getBytes();
+    }
 
-	public static String encondeBase64(byte[] bytes) {
-		return Base64.getEncoder().encodeToString(bytes);
-	}
+    private static String getSecurityAlgorithm() throws Exception {
+        String key = PropertiesUtil.getProperty("security.encrypt.algorithm");
+        if (key == null) throw new Exception("Cypher algorithm is not set");
+        return key;
+    }
 
-	public static byte[] hexToBytes(String str) {
-		return HexFormat.of().parseHex(str);
-	}
+    /**
+     * Decrypt the String
+     *
+     * @param text
+     * @return
+     */
+    public static String decrypt(String text) {
+        try {
+            String cryptherAlgorithm = getSecurityAlgorithm();
+            byte[] securityKey = getSecurityKey();
+            SecretKeySpec key = new SecretKeySpec(securityKey, cryptherAlgorithm);
+            Cipher cipher = Cipher.getInstance(BLOWFISH);
+            cipher.init(Cipher.DECRYPT_MODE, key);
 
-	/**
-	 * Decrypt the String
-	 * 
-	 * @param text
-	 * @return
-	 */
-	public static String decrypt(String text) {
-		try {
-			SecretKeySpec key = new SecretKeySpec(KEY.getBytes(), "Blowfish");
-			Cipher cipher = Cipher.getInstance("Blowfish");
-			cipher.init(Cipher.DECRYPT_MODE, key);
-			byte[] decrypted = cipher.doFinal(hexToBytes(text));
-			return new String(decrypted);
+            byte[] encrypted = Base64.getDecoder().decode(text);
+            byte[] decrypted = cipher.doFinal(encrypted);
+            return new String(decrypted);
 
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	/**
-	 * Encrypt the String
-	 * 
-	 * @param text
-	 * @return
-	 */
-	public static String encrypt(String text) {
-		try {
-			SecretKeySpec key = new SecretKeySpec(KEY.getBytes(), "Blowfish");
-			Cipher cipher = Cipher.getInstance("Blowfish");
-			cipher.init(Cipher.ENCRYPT_MODE, key);
-			byte[] encrypted = cipher.doFinal(text.getBytes());
-			return bytesToHex(encrypted);
+    /**
+     * Encrypt the String
+     *
+     * @param text
+     * @return
+     */
+    public static String encrypt(String text) {
+        try {
+            String cypherAlgorithm = getSecurityAlgorithm();
+            byte[] securityKey = getSecurityKey();
 
-		} catch (Exception e) {
-			new RuntimeException(e);
-		}
-		return null;
-	}
+            SecretKeySpec key = new SecretKeySpec(securityKey, cypherAlgorithm);
+            Cipher cipher = Cipher.getInstance(cypherAlgorithm);
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            byte[] encrypted = cipher.doFinal(text.getBytes());
+            return Base64.getEncoder().encodeToString(encrypted);
 
-	/**
-	 * Get a new token
-	 *
-	 * @param userDTO
-	 * @return
-	 */
-	public static String generateToken(User user) {
-		StringBuilder sb = new StringBuilder();
-		String token = sb.append(Instant.now().toEpochMilli()).append(RandomStringUtils.randomAlphanumeric(6))
-				.toString();
-		CacheUtil.storeToken(token, new User(user.getId()));
-		return token;
-	}
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	/**
-	 * Verify if the token really exists
-	 *
-	 * @param parameter
-	 * @return
-	 */
-	public static boolean isValidToken(String token) {
-		if (token == null) {
-			return false;
-		}
-		return CacheUtil.hasToken(token);
-	}
+    /**
+     * Get a new token
+     *
+     * @param user
+     * @return
+     */
+    public static String generateToken(UserDto user) {
+        String token = Instant.now().toEpochMilli() + RandomStringUtils.randomAlphanumeric(6);
+        CacheUtil.storeToken(token, user);
+        return token;
+    }
 
-	private static String bytesToHex(byte[] bytes) {
-		char[] hexChars = new char[bytes.length * 2];
-		for (int j = 0; j < bytes.length; j++) {
-			int v = bytes[j] & 0xFF;
-			hexChars[j * 2] = hexArray[v >>> 4];
-			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-		}
-		return new String(hexChars);
-	}
+    /**
+     * Verify if the token really exists
+     *
+     * @param token
+     * @return
+     */
+    public static boolean isValidToken(String token) {
+        if (token == null) {
+            return false;
+        }
+        return CacheUtil.hasToken(token);
+    }
 
-	public static boolean validate(String planText, String cipherText) {
-		String encrypt = encrypt(planText);
-		return encrypt != null && encrypt.equals(cipherText);
-	}
+    public static boolean validate(String planText, String cipherText) {
+        String encrypt = encrypt(planText);
+        return encrypt.equals(cipherText);
+    }
 }

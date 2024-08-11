@@ -3,13 +3,15 @@ package com.dev.servlet.interfaces;
 import java.util.List;
 
 public interface IController<T, E> {
-	T findById(E id);
+    T findById(E id);
 
-	void save(T object);
+    T find(T object);
 
-	void update(T object);
+    List<T> findAll(T object);
 
-	void delete(T object);
+    void save(T object);
 
-	List<T> findAll(T object);
+    void update(T object);
+
+    void delete(T object);
 }

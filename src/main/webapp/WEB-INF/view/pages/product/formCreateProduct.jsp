@@ -33,7 +33,7 @@
                     <div class="col-md-6">
                         <label for="inputPrice" class="form-label">PRICE</label>
                         <input name="price" class="form-control text-right" id="inputPrice"
-                               placeholder="1000,00" min="0" max="10000" step="any"
+                               placeholder="R$1000,00" min="0" max="999999" step="any"
                                pattern="^\s*(?:[1-9]\d{0,2}(?:\,\d{3})*|0)(?:.\d{1,2})?$"
                                title="Currency should only contain numbers and (comma/doc) e.g. 1000,00"
                                required/>
