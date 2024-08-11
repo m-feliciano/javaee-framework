@@ -14,6 +14,7 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.Collections;
+import java.util.IllegalFormatCodePointException;
 import java.util.List;
 
 public class InventoryDAO extends BaseDAO<Inventory, Long> {
@@ -60,8 +61,13 @@ public class InventoryDAO extends BaseDAO<Inventory, Long> {
 
         if (inventory.getProduct() != null) {
             Expression<String> upper = cb.upper(root.get("product").get("name"));
-            Predicate like = cb.like(upper, inventory.getProduct().getName().toUpperCase() + "%");
-            predicate = cb.and(predicate, like);
+            Predicate pProduct = cb.like(upper, inventory.getProduct().getName().toUpperCase() + "%");
+            if (inventory.getProduct().getCategory() != null) {
+                Predicate pCategory = cb.equal(root.get("product").get("category").get("id"), inventory.getProduct().getCategory().getId());
+                pProduct = cb.and(pProduct, pCategory);
+            }
+
+            predicate = cb.and(predicate, pProduct);
         }
 
         Order desc = cb.desc(root.get("id"));

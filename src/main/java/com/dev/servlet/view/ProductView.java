@@ -130,8 +130,26 @@ public class ProductView extends BaseRequest {
             return FORWARD_PAGE_LIST;
         }
 
-        List<ProductDto> list = findAll(request);
-        request.setAttribute("products", list);
+        Product product = new Product();
+        String param = getParameter(request, PARAM);
+        String value = getParameter(request, VALUE);
+        if (param != null && value != null) {
+            if (param.equals("name")) {
+                product.setName(value);
+            } else {
+                product.setDescription(value);
+            }
+        }
+
+        List<ProductDto> products = findAll(product);
+        request.setAttribute("products", products);
+
+        String categoryId = getParameter(request, "categoryId");
+        if (categoryId != null) {
+            List<Category> categories = categoryView.findAll(request).stream().map(CategoryMapper::from).toList();
+            request.setAttribute("categories", categories);
+        }
+
         return FORWARD_PAGE_LIST_PRODUCTS;
     }
 
@@ -167,7 +185,7 @@ public class ProductView extends BaseRequest {
     @ResourcePath(value = DELETE)
     public String delete(StandardRequest standardRequest) {
         HttpServletRequest req = standardRequest.getRequest();
-        Long id = Long.parseLong(getParameter(req,"id"));
+        Long id = Long.parseLong(getParameter(req, "id"));
         Product product = new Product(id);
         controller.delete(product);
         return REDIRECT_ACTION_LIST_ALL;
@@ -179,27 +197,19 @@ public class ProductView extends BaseRequest {
      * @param request
      * @return the next path
      */
-    private List<ProductDto> findAll(HttpServletRequest request) {
-        Product product = new Product();
-
-        String param = getParameter(request, PARAM);
-        String value = getParameter(request, VALUE);
-        if (param != null && value != null) {
-            if (param.equals("name")) {
-                product.setName(value);
-            } else {
-                product.setDescription(value);
-            }
-        }
-
-        String categoryId = getParameter(request, "categoryId");
-        if (categoryId != null) {
-            List<Category> categories = categoryView.findAll(request).stream().map(CategoryMapper::from).toList();
-            request.setAttribute("categories", categories);
-        }
-
-        product.setUser(getUser(request));
+    public List<ProductDto> findAll(Product product) {
         List<Product> products = controller.findAll(product);
         return products.stream().map(ProductMapper::from).toList();
+    }
+
+    /**
+     * Find by id
+     *
+     * @param product
+     * @return the next path
+     */
+    public ProductDto find(Product product) {
+        Product p = controller.find(product);
+        return ProductMapper.from(p);
     }
 }

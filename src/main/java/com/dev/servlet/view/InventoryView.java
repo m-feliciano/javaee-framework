@@ -1,11 +1,12 @@
 package com.dev.servlet.view;
 
 import com.dev.servlet.controllers.InventoryController;
-import com.dev.servlet.controllers.ProductController;
+import com.dev.servlet.domain.Category;
 import com.dev.servlet.domain.Inventory;
 import com.dev.servlet.domain.Product;
 import com.dev.servlet.domain.enums.StatusEnum;
 import com.dev.servlet.dto.InventoryDto;
+import com.dev.servlet.dto.ProductDto;
 import com.dev.servlet.filter.StandardRequest;
 import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.mapper.InventoryMapper;
@@ -27,7 +28,8 @@ public class InventoryView extends BaseRequest {
     private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:inventoryView?action=list&id=";
 
     private InventoryController controller;
-    private ProductController productController;
+    private CategoryView categoryView;
+    private ProductView productView;
 
     public InventoryView() {
         super();
@@ -36,7 +38,8 @@ public class InventoryView extends BaseRequest {
     public InventoryView(EntityManager em) {
         super();
         controller = new InventoryController(em);
-        productController = new ProductController(em);
+        categoryView = new CategoryView(em);
+        productView = new ProductView(em);
     }
 
     /**
@@ -95,6 +98,7 @@ public class InventoryView extends BaseRequest {
 
         List<InventoryDto> list = findAll(request);
         request.setAttribute("items", list);
+        request.setAttribute("categories", categoryView.findAll(request));
         return FORWARD_PAGE_LIST_ITEMS;
     }
 
@@ -115,9 +119,8 @@ public class InventoryView extends BaseRequest {
         Long productId = Long.valueOf(getParameter(request, "productId"));
 
         Product product = new Product(productId);
-        product.setUser(getUser(request));
-        product = productController.find(product);
-        if (product == null) {
+        ProductDto productDto = productView.find(product);
+        if (productDto == null) {
             standardRequest.getResponse().setStatus(HttpServletResponse.SC_NOT_FOUND);
             request.setAttribute("error", "ERROR: Product ID " + getParameter(request, "productId") + " was not found.");
             request.setAttribute("item", inventory);
@@ -177,6 +180,11 @@ public class InventoryView extends BaseRequest {
             if (param.equals("name")) {
                 Product product = new Product();
                 product.setName(value);
+                String category = getParameter(request, "category");
+                if (category != null && !category.isEmpty()) {
+                    product.setCategory(new Category(Long.valueOf(category)));
+                }
+
                 inventory.setProduct(product);
             } else {
                 inventory.setDescription(value);

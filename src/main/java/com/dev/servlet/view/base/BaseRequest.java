@@ -78,11 +78,10 @@ public abstract class BaseRequest {
      * @return
      */
     protected String getParameter(HttpServletRequest request, String key) {
-        Object attribute = request.getParameter(key);
-        if (attribute instanceof String str && !str.isEmpty()) {
-            return str.trim();
+        String attribute = request.getParameter(key);
+        if (attribute != null && !attribute.isEmpty()) {
+            return attribute.trim();
         }
-
-        return (String) attribute;
+        return null;
     }
 }

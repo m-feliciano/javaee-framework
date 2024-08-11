@@ -4,7 +4,7 @@
 
 <c:url value="/inventoryView?action=delete" var="deleteItem"/>
 <c:url value="/inventoryView?action=new" var="newItem"/>
-<c:url value="/product?action=list" var="listProducts"/>
+<c:url value="/productView?action=list" var="listProducts"/>
 <c:url value="/inventoryView?action=list" var="listItems"/>
 
 <fmt:setLocale value="pt-BR" scope="application"/>
@@ -14,6 +14,16 @@
 <div class="main">
     <form class="form-inline d-flex flex-row-reverse mb-2 pr-2" action="${ listItems }" method="post">
         <div class="mb-3 form-row">
+            <div class="form-row mr-4">
+                <select name="category" class="form-control text-center" id="inputCategory">
+                    <option value="${null}" selected>${"< CATEGORY >"}</option>
+                    <c:if test="${ not empty categories }">
+                        <c:forEach items="${ categories }" var="category">
+                            <option value="${ category.id }">${ category.name }</option>
+                        </c:forEach>
+                    </c:if>
+                </select>
+            </div>
             <div class="form-row mr-2">
                 <div class="form-check col mr-2">
                     <input class="form-check-input" type="radio" name="param" id="radioName"
@@ -54,8 +64,8 @@
                         <c:set var="total" value="${ total + prod.getProduct().getPrice() * prod.getQuantity() }"/>
                     </c:forEach>
 
-                    <caption class="pb-0">Total: <fmt:formatNumber value="${ total }"
-                                                                    type="currency" minFractionDigits="2"/></caption>
+                    <caption class="pb-0">Total <fmt:formatNumber value="${ total }"
+                                                                   type="currency" minFractionDigits="2"/></caption>
                     <thead class="thead-dark">
                     <tr>
                         <th scope="col">#</th>

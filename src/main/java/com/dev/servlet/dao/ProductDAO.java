@@ -51,31 +51,39 @@ public class ProductDAO extends BaseDAO<Product, Long> {
         CriteriaQuery<Product> query = cb.createQuery(Product.class).distinct(true);
         Root<Product> root = query.from(Product.class);
 
-        Predicate predicate = cb.equal(root.get("user"), product.getUser());
-        predicate = cb.and(predicate, cb.notEqual(root.get("status"), StatusEnum.DELETED.getDescription()));
+        Predicate predicate = cb.notEqual(root.get("status"), StatusEnum.DELETED.getDescription());
 
-        if (product.getName() != null) {
-            Expression<String> upper = cb.upper(root.get("name"));
-            Predicate like = cb.like(upper, product.getName().toUpperCase() + "%");
-            predicate = cb.and(predicate, like);
-        }
+        if (product.getId() != null) {
+            predicate = cb.and(predicate, cb.equal(root.get("id"), product.getId()));
 
-        if (product.getDescription() != null) {
-            Expression<String> upper = cb.upper(root.get("description"));
-            Predicate like = cb.like(upper, product.getDescription().toUpperCase() + "%");
-            predicate = cb.and(predicate, like);
-        }
+        } else {
+            if (product.getUser() != null) {
+                predicate = cb.and(predicate, cb.equal(root.get("user"), product.getUser()));
+            }
 
-        if (product.getCategory() != null) {
-            Join<Product, Category> join = root.join("category");
+            if (product.getName() != null) {
+                Expression<String> upper = cb.upper(root.get("name"));
+                Predicate like = cb.like(upper, product.getName().toUpperCase() + "%");
+                predicate = cb.and(predicate, like);
+            }
 
-            if (product.getCategory().getId() != null) {
-                cb.equal(join.get("id"), product.getCategory().getId());
-            } else {
-                if (product.getCategory().getName() != null) {
-                    Expression<String> upper = cb.upper(join.get("name"));
-                    Predicate like = cb.like(upper, product.getCategory().getName().toUpperCase() + "%");
-                    predicate = cb.and(predicate, like);
+            if (product.getDescription() != null) {
+                Expression<String> upper = cb.upper(root.get("description"));
+                Predicate like = cb.like(upper, product.getDescription().toUpperCase() + "%");
+                predicate = cb.and(predicate, like);
+            }
+
+            if (product.getCategory() != null) {
+                Join<Product, Category> join = root.join("category");
+
+                if (product.getCategory().getId() != null) {
+                    cb.equal(join.get("id"), product.getCategory().getId());
+                } else {
+                    if (product.getCategory().getName() != null) {
+                        Expression<String> upper = cb.upper(join.get("name"));
+                        Predicate like = cb.like(upper, product.getCategory().getName().toUpperCase() + "%");
+                        predicate = cb.and(predicate, like);
+                    }
                 }
             }
         }
