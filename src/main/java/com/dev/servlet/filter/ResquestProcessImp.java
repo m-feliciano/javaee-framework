@@ -3,11 +3,16 @@ package com.dev.servlet.filter;
 import com.dev.servlet.interfaces.IRequestProcessor;
 import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.utils.JPAUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import java.lang.reflect.Method;
 
 public class ResquestProcessImp implements IRequestProcessor {
+
+    private static final Logger logger = LoggerFactory.getLogger(ResquestProcessImp.class);
+    private static final ServiceLocator serviceLocator = new ServiceLocator(JPAUtil.getEntityManager());
 
     @Override
     public String process(StandardRequest request) {
@@ -38,24 +43,20 @@ public class ResquestProcessImp implements IRequestProcessor {
      * @return the next path
      */
     private String sessionRequest(StandardRequest standardRequest, Method method) {
-        EntityManager em = JPAUtil.getEntityManager();
+        EntityManager em = serviceLocator.getEntityManager();
         try {
             em.getTransaction().begin();
-
-            Object newInstance = standardRequest.getClazz()
-                    .getDeclaredConstructor(EntityManager.class)
-                    .newInstance(em);
-            String invoke = (String) method.invoke(newInstance, standardRequest);
-
+            Object service = serviceLocator.getService(standardRequest.getClazz());
+            String invoke = (String) method.invoke(service, standardRequest);
             em.getTransaction().commit();
             return invoke;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
             if (em.getTransaction().isActive())
                 em.getTransaction().rollback();
         } finally {
-            if (em.isOpen())
-                em.close();
+//            if (em.isOpen())
+//                em.close();
         }
 
         return null;
@@ -71,7 +72,7 @@ public class ResquestProcessImp implements IRequestProcessor {
     private String simpleRequest(StandardRequest request, Method method) {
         try {
             Object newInstance = request.getClazz()
-                    .getDeclaredConstructor()
+                    .getConstructor()
                     .newInstance();
 
             if (method.getParameterCount() == 0)

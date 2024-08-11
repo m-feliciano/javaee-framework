@@ -27,12 +27,10 @@ public class UserView extends BaseRequest {
     private UserController controller;
 
     public UserView() {
-        super();
     }
 
-    public UserView(EntityManager em) {
-        super();
-        controller = new UserController(em);
+    public UserView(EntityManager entityManager) {
+        this.controller = new UserController(entityManager);
     }
 
     /**
@@ -40,7 +38,7 @@ public class UserView extends BaseRequest {
      *
      * @return
      */
-    @ResourcePath(value = NEW, forward = true)
+    @ResourcePath(value = REGISTER_PAGE, forward = true)
     public String forwardRegister() {
         return FORWARD_PAGE_CREATE;
     }
@@ -51,7 +49,7 @@ public class UserView extends BaseRequest {
      * @param standardRequest
      * @return the string
      */
-    @ResourcePath(value = CREATE)
+    @ResourcePath(value = REGISTER)
     public String register(StandardRequest standardRequest) {
         HttpServletRequest request = standardRequest.getRequest();
 
@@ -78,7 +76,7 @@ public class UserView extends BaseRequest {
 
         try {
             user.addPerfil(PerfilEnum.DEFAULT.cod);
-            user.setStatus(StatusEnum.ACTIVE.getDescription());
+            user.setStatus(StatusEnum.ACTIVE.getName());
             controller.save(user);
         } catch (Exception e) {
             request.setAttribute("error", e.getMessage());
@@ -155,6 +153,7 @@ public class UserView extends BaseRequest {
         HttpServletRequest request = standardRequest.getRequest();
         User user = getUser(request);
         controller.delete(user);
+        CacheUtil.clearToken(getToken(request));
         return FORWARD_PAGES_FORM_LOGIN;
     }
 

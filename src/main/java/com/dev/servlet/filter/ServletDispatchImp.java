@@ -13,6 +13,7 @@ import java.io.IOException;
 public final class ServletDispatchImp implements IServletDispatcher {
 
     private static final String PACKAGE = "com.dev.servlet.view.%s";
+    private static final IRequestProcessor processor = new ResquestProcessImp();
 
     @Override
     public void dispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -34,7 +35,6 @@ public final class ServletDispatchImp implements IServletDispatcher {
                     .token(token)
                     .build();
 
-            IRequestProcessor processor = new ResquestProcessImp();
             return processor.process(request);
         } catch (Exception e1) {
             e1.printStackTrace();

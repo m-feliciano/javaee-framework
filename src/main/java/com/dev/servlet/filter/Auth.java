@@ -1,6 +1,7 @@
 package com.dev.servlet.filter;
 
 import com.dev.servlet.interfaces.IServletDispatcher;
+import com.dev.servlet.utils.PropertiesUtil;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -15,7 +16,8 @@ import static com.dev.servlet.utils.CryptoUtils.isValidToken;
 //@WebFilter(urlPatterns = "/company")
 public class Auth implements Filter {
 
-    private static final Set<String> AUTHORIZED_ACTIONS = Set.of("login", "loginForm", "new", "create");
+    private static final Set<String> AUTHORIZED_ACTIONS = PropertiesUtil.getAuthorizedActions();
+    private static final IServletDispatcher dispatcher = new ServletDispatchImp();
 
     /**
      * Auth filter
@@ -36,7 +38,6 @@ public class Auth implements Filter {
             if (action == null || !isAuthorized(token, action)) {
                 response.sendRedirect("loginView?action=loginForm");
             } else {
-                IServletDispatcher dispatcher = new ServletDispatchImp();
                 dispatcher.dispatch(request, response);
             }
         } catch (Exception e) {

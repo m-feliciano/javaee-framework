@@ -51,15 +51,16 @@ public class ProductDAO extends BaseDAO<Product, Long> {
         CriteriaQuery<Product> query = cb.createQuery(Product.class).distinct(true);
         Root<Product> root = query.from(Product.class);
 
-        Predicate predicate = cb.notEqual(root.get("status"), StatusEnum.DELETED.getDescription());
+        Predicate predicate = cb.notEqual(root.get("status"), StatusEnum.DELETED.getName());
+
+        if (product.getUser() != null) {
+            predicate = cb.and(predicate, cb.equal(root.get("user"), product.getUser()));
+        }
 
         if (product.getId() != null) {
             predicate = cb.and(predicate, cb.equal(root.get("id"), product.getId()));
 
         } else {
-            if (product.getUser() != null) {
-                predicate = cb.and(predicate, cb.equal(root.get("user"), product.getUser()));
-            }
 
             if (product.getName() != null) {
                 Expression<String> upper = cb.upper(root.get("name"));
@@ -109,7 +110,7 @@ public class ProductDAO extends BaseDAO<Product, Long> {
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaUpdate<Product> cu = builder.createCriteriaUpdate(Product.class);
         Root<Product> root = cu.from(Product.class);
-        cu.set("status", StatusEnum.DELETED.getDescription());
+        cu.set("status", StatusEnum.DELETED.getName());
         cu.where(builder.equal(root.get("id"), product.getId()));
         Query query = em.createQuery(cu);
         int update = query.executeUpdate();

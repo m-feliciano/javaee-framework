@@ -20,13 +20,12 @@ public class LoginView extends BaseRequest {
 
     private UserController controller;
 
+
     public LoginView() {
-        super();
     }
 
-    public LoginView(EntityManager em) {
-        super();
-        controller = new UserController(em);
+    public LoginView(EntityManager entityManager) {
+        this.controller = new UserController(entityManager);
     }
 
     /**

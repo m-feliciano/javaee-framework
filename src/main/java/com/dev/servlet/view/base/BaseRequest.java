@@ -22,6 +22,8 @@ public abstract class BaseRequest {
     protected static final String LIST = "list";
     protected static final String UPDATE = "update";
     protected static final String NEW = "new";
+    protected static final String REGISTER_PAGE = "registerPage";
+    protected static final String REGISTER = "register";
     protected static final String EDIT = "edit";
     protected static final String DELETE = "delete";
     protected static final String PARAM = "param";

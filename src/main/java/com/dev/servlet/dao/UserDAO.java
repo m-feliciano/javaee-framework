@@ -31,7 +31,7 @@ public class UserDAO extends BaseDAO<User, Long> {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<User> cq = cb.createQuery(User.class).distinct(true);
         Root<User> root = cq.from(User.class);
-        Predicate predicate = cb.notEqual(root.get("status"), StatusEnum.DELETED.getDescription());
+        Predicate predicate = cb.notEqual(root.get("status"), StatusEnum.DELETED.getName());
         predicate = cb.and(predicate, cb.equal(root.get("login"), user.getLogin()));
         predicate = cb.and(predicate, cb.equal(root.get("password"), user.getPassword()));
 
@@ -66,7 +66,7 @@ public class UserDAO extends BaseDAO<User, Long> {
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaUpdate<User> cu = builder.createCriteriaUpdate(User.class);
         Root<User> root = cu.from(User.class);
-        cu.set("status", StatusEnum.DELETED.getDescription());
+        cu.set("status", StatusEnum.DELETED.getName());
         Predicate predicate = builder.equal(root.get("id"), user.getId());
         cu.where(predicate);
         Query query = em.createQuery(cu);

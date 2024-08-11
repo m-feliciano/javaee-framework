@@ -8,6 +8,7 @@ import com.dev.servlet.domain.enums.StatusEnum;
 import com.dev.servlet.dto.InventoryDto;
 import com.dev.servlet.dto.ProductDto;
 import com.dev.servlet.filter.StandardRequest;
+import com.dev.servlet.interfaces.Inject;
 import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.mapper.InventoryMapper;
 import com.dev.servlet.view.base.BaseRequest;
@@ -28,18 +29,16 @@ public class InventoryView extends BaseRequest {
     private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:inventoryView?action=list&id=";
 
     private InventoryController controller;
+    @Inject
     private CategoryView categoryView;
+    @Inject
     private ProductView productView;
 
     public InventoryView() {
-        super();
     }
 
-    public InventoryView(EntityManager em) {
-        super();
-        controller = new InventoryController(em);
-        categoryView = new CategoryView(em);
-        productView = new ProductView(em);
+    public InventoryView(EntityManager entityManager) {
+        this.controller = new InventoryController(entityManager);
     }
 
     /**
@@ -69,7 +68,7 @@ public class InventoryView extends BaseRequest {
 
         Product product = new Product(productId);
         Inventory item = new Inventory(product, quantity, description);
-        item.setStatus(StatusEnum.ACTIVE.getDescription());
+        item.setStatus(StatusEnum.ACTIVE.getName());
         item.setUser(getUser(req));
         controller.save(item);
 
@@ -193,5 +192,9 @@ public class InventoryView extends BaseRequest {
 
         List<Inventory> inventories = controller.findAll(inventory);
         return inventories.stream().map(InventoryMapper::from).toList();
+    }
+
+    public boolean hasInventory(Inventory product) {
+        return controller.hasInventory(product);
     }
 }

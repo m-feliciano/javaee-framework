@@ -3,7 +3,7 @@
 <!------ Include the above in your HEAD tag ---------->
 
 <c:url value="/loginView" var="loginPage"/>
-<c:url value="/userView?action=new" var="registerPage"/>
+<c:url value="/userView?action=registerPage" var="registerPage"/>
 
 <div class="sidenav">
     <div class="login-main-text">

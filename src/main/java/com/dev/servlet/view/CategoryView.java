@@ -5,9 +5,9 @@ import com.dev.servlet.domain.Category;
 import com.dev.servlet.domain.User;
 import com.dev.servlet.domain.enums.StatusEnum;
 import com.dev.servlet.dto.CategoryDto;
-import com.dev.servlet.mapper.CategoryMapper;
 import com.dev.servlet.filter.StandardRequest;
 import com.dev.servlet.interfaces.ResourcePath;
+import com.dev.servlet.mapper.CategoryMapper;
 import com.dev.servlet.utils.CacheUtil;
 import com.dev.servlet.utils.CollectionUtils;
 import com.dev.servlet.view.base.BaseRequest;
@@ -32,12 +32,10 @@ public class CategoryView extends BaseRequest {
     private CategoryController controller;
 
     public CategoryView() {
-        super();
     }
 
-    public CategoryView(EntityManager em) {
-        super();
-        this.controller = new CategoryController(em);
+    public CategoryView(EntityManager entityManager) {
+        this.controller = new CategoryController(entityManager);
     }
 
     /**
@@ -62,8 +60,8 @@ public class CategoryView extends BaseRequest {
 
         Category cat = new Category();
         cat.setUser(getUser(request));
-        cat.setName(getParameter(request,"name"));
-        cat.setStatus(StatusEnum.ACTIVE.getDescription());
+        cat.setName(getParameter(request, "name"));
+        cat.setStatus(StatusEnum.ACTIVE.getName());
         controller.save(cat);
         return REDIRECT_ACTION_LIST_BY_ID + cat.getId();
     }
@@ -77,9 +75,9 @@ public class CategoryView extends BaseRequest {
     @ResourcePath(value = UPDATE)
     public String update(StandardRequest standardRequest) {
         var request = standardRequest.getRequest();
-        Long id = Long.parseLong(getParameter(request,"id"));
+        Long id = Long.parseLong(getParameter(request, "id"));
         var category = controller.findById(id);
-        category.setName(getParameter(request,"name"));
+        category.setName(getParameter(request, "name"));
         controller.update(category);
         request.setAttribute(CATEGORY, category);
         return REDIRECT_ACTION_LIST_BY_ID + category.getId();
@@ -94,7 +92,7 @@ public class CategoryView extends BaseRequest {
     @ResourcePath(value = LIST)
     public String list(StandardRequest standardRequest) {
         var request = standardRequest.getRequest();
-        String id = getParameter(request,"id");
+        String id = getParameter(request, "id");
         if (id != null) {
             CategoryDto dto = findById(Long.valueOf(id), request);
             request.setAttribute(CATEGORY, dto);
@@ -116,7 +114,7 @@ public class CategoryView extends BaseRequest {
     @ResourcePath(value = EDIT)
     public String edit(StandardRequest standardRequest) {
         var request = standardRequest.getRequest();
-        Long id = Long.valueOf(getParameter(request,"id"));
+        Long id = Long.valueOf(getParameter(request, "id"));
         request.setAttribute(CATEGORY, controller.findById(id));
         return FORWARD_PAGE_UPDATE;
     }
@@ -130,7 +128,7 @@ public class CategoryView extends BaseRequest {
     @ResourcePath(value = DELETE)
     public String delete(StandardRequest standardRequest) {
         var request = standardRequest.getRequest();
-        Long id = Long.valueOf(getParameter(request,"id"));
+        Long id = Long.valueOf(getParameter(request, "id"));
         Category cat = new Category(id);
         cat.setUser(getUser(request));
         controller.delete(cat);
@@ -149,7 +147,7 @@ public class CategoryView extends BaseRequest {
 
         if (CollectionUtils.isNullOrEmpty(dtoList)) {
             Category category = new Category();
-            category.setName(getParameter(request,"name"));
+            category.setName(getParameter(request, "name"));
             category.setUser(user);
             var categories = controller.findAll(category);
             if (!CollectionUtils.isNullOrEmpty(categories)) {

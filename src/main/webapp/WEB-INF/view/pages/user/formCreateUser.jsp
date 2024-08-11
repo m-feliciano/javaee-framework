@@ -16,7 +16,7 @@
 <div class="main">
 	<div class="col-md-6 col-sm-12">
 		<div class="login-form">
-			<form action="${ path }?action=create" method="post">
+			<form action="${ path }?action=register" method="post">
 				<div class="form-group">
 					<label for="inputEmail">Email</label> <input type="email"
 						value="${ email }" id="inputEmail" name="email"

@@ -14,7 +14,6 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.Collections;
-import java.util.IllegalFormatCodePointException;
 import java.util.List;
 
 public class InventoryDAO extends BaseDAO<Inventory, Long> {
@@ -50,7 +49,7 @@ public class InventoryDAO extends BaseDAO<Inventory, Long> {
         CriteriaQuery<Inventory> cq = cb.createQuery(Inventory.class);
         Root<Inventory> root = cq.from(Inventory.class);
 
-        Predicate predicate = cb.equal(root.get("status"), StatusEnum.ACTIVE.getDescription());
+        Predicate predicate = cb.equal(root.get("status"), StatusEnum.ACTIVE.getName());
         predicate = cb.and(predicate, cb.equal(root.get("user").get("id"), inventory.getUser().getId()));
 
         if (inventory.getDescription() != null) {
@@ -91,10 +90,30 @@ public class InventoryDAO extends BaseDAO<Inventory, Long> {
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaUpdate<Inventory> cu = builder.createCriteriaUpdate(Inventory.class);
         Root<Inventory> root = cu.from(Inventory.class);
-        cu.set("status", StatusEnum.DELETED.getDescription());
+        cu.set("status", StatusEnum.DELETED.getName());
         Predicate predicate = builder.equal(root.get("id"), inventory.getId());
         cu.where(predicate);
         Query query = em.createQuery(cu);
         int update = query.executeUpdate();
+    }
+
+    /**
+     * Check if product has inventory
+     *
+     * @param product
+     * @return boolean
+     */
+    public boolean hasInventory(Inventory inventory) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<Inventory> root = cq.from(Inventory.class);
+
+        Predicate predicate = cb.equal(root.get("status"), StatusEnum.ACTIVE.getName());
+        predicate = cb.and(predicate, cb.equal(root.get("product").get("id"), inventory.getProduct().getId()));
+
+        cq.select(cb.count(root)).where(predicate);
+
+        Long count = em.createQuery(cq).getSingleResult();
+        return count > 0;
     }
 }

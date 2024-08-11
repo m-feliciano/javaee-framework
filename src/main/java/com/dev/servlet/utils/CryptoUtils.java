@@ -1,8 +1,6 @@
 package com.dev.servlet.utils;
 
-import com.dev.servlet.domain.User;
 import com.dev.servlet.dto.UserDto;
-import com.dev.servlet.mapper.UserMapper;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import javax.crypto.Cipher;
@@ -11,8 +9,6 @@ import java.time.Instant;
 import java.util.Base64;
 
 public final class CryptoUtils {
-
-    public static final String BLOWFISH = "Blowfish";
 
     private CryptoUtils() {
     }
@@ -40,7 +36,7 @@ public final class CryptoUtils {
             String cryptherAlgorithm = getSecurityAlgorithm();
             byte[] securityKey = getSecurityKey();
             SecretKeySpec key = new SecretKeySpec(securityKey, cryptherAlgorithm);
-            Cipher cipher = Cipher.getInstance(BLOWFISH);
+            Cipher cipher = Cipher.getInstance(cryptherAlgorithm);
             cipher.init(Cipher.DECRYPT_MODE, key);
 
             byte[] encrypted = Base64.getDecoder().decode(text);

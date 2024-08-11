@@ -9,7 +9,6 @@ import java.util.List;
 
 public final class InventoryController implements IController<Inventory, Long> {
 
-    private static final String CACHE_KEY = "inventories";
     private final InventoryDAO inventoryDao;
 
     public InventoryController(EntityManager em) {
@@ -29,23 +28,24 @@ public final class InventoryController implements IController<Inventory, Long> {
     @Override
     public void save(Inventory object) {
         this.inventoryDao.save(object);
-//        CacheUtil.clear(CACHE_KEY, object.getUser().getToken());
     }
 
     @Override
     public void delete(Inventory obj) {
         this.inventoryDao.delete(obj);
-//        CacheUtil.clear(CACHE_KEY, obj.getUser().getToken());
     }
 
     @Override
     public void update(Inventory object) {
         this.inventoryDao.update(object);
-//        CacheUtil.clear(CACHE_KEY, object.getUser().getToken());
     }
 
     @Override
     public List<Inventory> findAll(Inventory object) {
         return inventoryDao.findAll(object);
+    }
+
+    public boolean hasInventory(Inventory inventory) {
+        return inventoryDao.hasInventory(inventory);
     }
 }

@@ -6,6 +6,7 @@ import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public final class CloneUtils {
@@ -27,7 +28,7 @@ public final class CloneUtils {
         return gson.fromJson(gson.toJson(object), (Class<T>) object.getClass());
     }
 
-    public static <T extends Serializable> List<T> clone(List<T> objects) {
+    public static <T extends Serializable> Collection<T> cloneList(Collection<T> objects) {
         List<T> list = new ArrayList<>();
         for (T t : objects) {
             list.add(clone(t));

@@ -7,14 +7,14 @@ public enum StatusEnum {
     DELETED(2, "X");
 
     private final int cod;
-    private final String description;
+    private final String name;
 
-    StatusEnum(int cod, String description) {
+    StatusEnum(int cod, String name) {
         this.cod = cod;
-        this.description = description;
+        this.name = name;
     }
 
-    public static StatusEnum getByCode(int cod) {
+    public static StatusEnum getByName(int cod) {
         return Arrays.stream(StatusEnum.values())
                 .filter(id -> id != null && id.cod == cod)
                 .findFirst()
@@ -25,7 +25,7 @@ public enum StatusEnum {
         return cod;
     }
 
-    public String getDescription() {
-        return description;
+    public String getName() {
+        return name;
     }
 }

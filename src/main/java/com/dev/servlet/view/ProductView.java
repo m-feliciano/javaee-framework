@@ -2,11 +2,13 @@ package com.dev.servlet.view;
 
 import com.dev.servlet.controllers.ProductController;
 import com.dev.servlet.domain.Category;
+import com.dev.servlet.domain.Inventory;
 import com.dev.servlet.domain.Product;
 import com.dev.servlet.domain.enums.StatusEnum;
 import com.dev.servlet.dto.CategoryDto;
 import com.dev.servlet.dto.ProductDto;
 import com.dev.servlet.filter.StandardRequest;
+import com.dev.servlet.interfaces.Inject;
 import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.mapper.CategoryMapper;
 import com.dev.servlet.mapper.ProductMapper;
@@ -32,16 +34,16 @@ public class ProductView extends BaseRequest {
     private static final String CACHE_KEY = "categories";
 
     private ProductController controller;
+    @Inject
     private CategoryView categoryView;
+    @Inject
+    private InventoryView inventoryView;
 
     public ProductView() {
-        super();
     }
 
-    public ProductView(EntityManager em) {
-        super();
-        this.controller = new ProductController(em);
-        this.categoryView = new CategoryView(em);
+    public ProductView(EntityManager entityManager) {
+        this.controller = new ProductController(entityManager);
     }
 
     /**
@@ -79,7 +81,7 @@ public class ProductView extends BaseRequest {
 
         product.setUser(getUser(request));
         product.setCategory(new Category(Long.valueOf(getParameter(request, "category"))));
-        product.setStatus(StatusEnum.ACTIVE.name());
+        product.setStatus(StatusEnum.ACTIVE.getName());
         controller.save(product);
         request.setAttribute("product", product);
 
@@ -131,6 +133,8 @@ public class ProductView extends BaseRequest {
         }
 
         Product product = new Product();
+        product.setUser(getUser(request));
+
         String param = getParameter(request, PARAM);
         String value = getParameter(request, VALUE);
         if (param != null && value != null) {
@@ -187,6 +191,13 @@ public class ProductView extends BaseRequest {
         HttpServletRequest req = standardRequest.getRequest();
         Long id = Long.parseLong(getParameter(req, "id"));
         Product product = new Product(id);
+        Inventory inventory = new Inventory();
+        inventory.setProduct(product);
+        if (inventoryView.hasInventory(inventory)) {
+            req.setAttribute("error", "Product has inventory");
+            return FORWARD_PAGES_NOT_FOUND;
+        }
+
         controller.delete(product);
         return REDIRECT_ACTION_LIST_ALL;
     }

@@ -27,7 +27,7 @@ public class CategoryDAO extends BaseDAO<Category, Long> {
         CriteriaQuery<Category> cq = cb.createQuery(Category.class);
         Root<Category> root = cq.from(Category.class);
 
-        Predicate predicate = cb.equal(root.get("status"), StatusEnum.ACTIVE.getDescription());
+        Predicate predicate = cb.equal(root.get("status"), StatusEnum.ACTIVE.getName());
         predicate = cb.and(predicate, cb.equal(root.get("user"), category.getUser()));
 
         if (category.getName() != null) {
@@ -68,7 +68,7 @@ public class CategoryDAO extends BaseDAO<Category, Long> {
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaUpdate<Category> cu = builder.createCriteriaUpdate(Category.class);
         Root<Category> root = cu.from(Category.class);
-        cu.set("status", StatusEnum.DELETED.getDescription());
+        cu.set("status", StatusEnum.DELETED.getName());
         Predicate predicate = builder.equal(root.get("id"), category.getId());
         cu.where(predicate);
         Query query = em.createQuery(cu);
