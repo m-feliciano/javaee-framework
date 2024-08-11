@@ -35,8 +35,8 @@ public final class UserController implements IController<User, Long> {
     }
 
     @Override
-    public void update(User object) {
-        this.userDao.update(object);
+    public User update(User object) {
+        return this.userDao.update(object);
     }
 
     @Override

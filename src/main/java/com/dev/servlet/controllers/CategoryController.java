@@ -36,8 +36,8 @@ public final class CategoryController implements IController<Category, Long> {
     }
 
     @Override
-    public void update(Category category) {
-        this.categoryDao.update(category);
+    public Category update(Category category) {
+        return this.categoryDao.update(category);
     }
 
     @Override

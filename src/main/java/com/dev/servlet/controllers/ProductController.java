@@ -30,8 +30,8 @@ public class ProductController implements IController<Product, Long> {
     }
 
     @Override
-    public void update(Product product) {
-        this.productDao.update(product);
+    public Product update(Product product) {
+        return this.productDao.update(product);
     }
 
     @Override

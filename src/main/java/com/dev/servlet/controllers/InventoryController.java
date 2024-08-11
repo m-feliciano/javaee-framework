@@ -36,8 +36,8 @@ public final class InventoryController implements IController<Inventory, Long> {
     }
 
     @Override
-    public void update(Inventory object) {
-        this.inventoryDao.update(object);
+    public Inventory update(Inventory object) {
+        return this.inventoryDao.update(object);
     }
 
     @Override

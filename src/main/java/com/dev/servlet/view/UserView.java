@@ -105,7 +105,7 @@ public class UserView extends BaseRequest {
         user.setPassword(CryptoUtils.encrypt(getParameter(req, "password")));
         user.setPerfis(dto.getPerfis());
         user.setStatus(dto.getStatus());
-        controller.update(user);
+        user = controller.update(user);
 
         UserDto userDto = UserMapper.from(user);
         CacheUtil.storeToken(token, userDto);

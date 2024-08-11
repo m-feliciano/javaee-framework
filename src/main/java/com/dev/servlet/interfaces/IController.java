@@ -11,7 +11,7 @@ public interface IController<T, E> {
 
     void save(T object);
 
-    void update(T object);
+    T update(T object);
 
     void delete(T object);
 }

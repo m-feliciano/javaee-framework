@@ -126,8 +126,8 @@ public class InventoryView extends BaseRequest {
             return this.forwardRegister();
         }
 
-        inventory.setProduct(new Product(productId));
-        controller.update(inventory);
+        inventory.setProduct(product);
+        inventory = controller.update(inventory);
         request.setAttribute("item", InventoryMapper.from(inventory));
         return REDIRECT_ACTION_LIST_BY_ID + inventory.getId();
     }

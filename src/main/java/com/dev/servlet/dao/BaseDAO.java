@@ -36,10 +36,11 @@ public abstract class BaseDAO<T, E> {
         return object;
     }
 
-    public void update(T object) {
+    public T update(T object) {
 //		try {
 //			this.em.getTransaction().begin();
-        this.em.merge(object);
+        object = this.em.merge(object);
+        return object;
 //			this.em.getTransaction().commit();
 //		} catch (Exception e) {
 //			e.printStackTrace();

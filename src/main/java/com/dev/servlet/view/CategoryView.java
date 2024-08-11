@@ -78,7 +78,7 @@ public class CategoryView extends BaseRequest {
         Long id = Long.parseLong(getParameter(request, "id"));
         var category = controller.findById(id);
         category.setName(getParameter(request, "name"));
-        controller.update(category);
+        category = controller.update(category);
         request.setAttribute(CATEGORY, category);
         return REDIRECT_ACTION_LIST_BY_ID + category.getId();
     }

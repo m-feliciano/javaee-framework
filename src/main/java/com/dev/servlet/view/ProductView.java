@@ -174,7 +174,7 @@ public class ProductView extends BaseRequest {
         product.setUrl(getParameter(request, "url"));
         product.setCategory(new Category(Long.parseLong(getParameter(request, "category"))));
 
-        controller.update(product);
+        product = controller.update(product);
         request.setAttribute("product", ProductMapper.from(product));
 
         return REDIRECT_ACTION_LIST_BY_ID + product.getId();
