@@ -1,32 +1,50 @@
-# Servlets (Java/JSP)
-Web Servlet Application (Full Java/JSP) for product control using MVC pattern, Slf4j for Logger, Java Reflection to build and process all requests and StopWatch to collecting and recording app metrics
+# Servlets (Full Stack Java Web Application)
+This project is a comprehensive Java/JSP-based Web Servlet Application designed for product management. 
+It uses the MVC architecture for structured development, employs Java Reflection for handling all requests.
+
+The application is designed to be deployed on a Tomcat server,
+and can run with whatever database that JPA supports, in this case, PostgreSQL.
+
+I used the following technologies to develop this application:
+- Java (JDK 17), JSP (JavaServer Pages)
+- JSTL (JavaServer Pages Standard Tag Library)
+- Habernate (JPA), Criteria API 
+- Tomcat (Server)
+- PostgreSQL (Database)
+
+## About developing this project
+I'm not an expert in JSP, but I can say that I learned a lot from this project.
+
+There's a lot of room for improvement, but I'm happy with the result so far.
+
+Any questions, suggestions, problem deploying the application, please contact me at `marcelo@tuta.io`.
 
 ## Layout
 
 ### Login
 
-#### server/login?action=loginForm
+#### server/loginView?action=loginForm
 ![App login page](https://i.ibb.co/R0xM6Ps/Screenshot-2022-07-17-034301.png)
 <br>
 
 ### Home
-#### server/product?action=list
+#### server/loginView?action=list
 ![App home page](https://i.ibb.co/LQmByN2/temp.png)
 <br>
 
 ### Product
-#### server/product?action=list&id=2
+#### server/loginView?action=list&id=2
 ![App prolist list page](https://i.ibb.co/1fy8JtG/Screenshot.png)
 <br>
 
 ### User
-#### server/user?action=list
+#### server/loginView?action=list
 ![App prolist list page](https://i.ibb.co/nBbGMtG/temp.png)
 <br>
 
-### Not Found
-#### server/product?action=list&id=some_invalid_id
-![App not found page](https://i.ibb.co/th8R564/Capture5.png)
+### 404 (Not Found) Page, Funny gif that I found on the web, credits to the author are below it
+#### server/loginView?action=list&id=some_invalid_id
+![App not found page](https://i.postimg.cc/Sx8D8GZP/Screenshot-2024-08-10-174059.png)
 <br>
 
 ## Logging
@@ -35,32 +53,32 @@ Web Servlet Application (Full Java/JSP) for product control using MVC pattern, S
 
 ## Packages
 ```
-C:.
 ├───main
 │   ├───java
-│   │   ├───application
-│   │   ├───controllers
-│   │   ├───dao
-│   │   ├───domain
-│   │   │   └───enums
-│   │   ├───dto
-│   │   ├───exceptions
-│   │   ├───filter
-│   │   ├───servlets
-│   │   │   ├───base
-│   │   │   ├───category
-│   │   │   ├───inventory
-│   │   │   ├───product
-│   │   │   ├───user
-│   │   │   └───utils
-│   │   └───utils
-│   │       └───cache
+│   │   └───com
+│   │       └───dev
+│   │           └───servlet
+│   │               ├───builders
+│   │               ├───controllers
+│   │               ├───dao
+│   │               ├───domain
+│   │               │   └───enums
+│   │               ├───dto
+│   │               ├───filter
+│   │               ├───interfaces
+│   │               ├───mapper
+│   │               ├───utils
+│   │               └───view
+│   │                   └───base
 │   ├───resources
 │   │   └───META-INF
+│   │       └───sql
 │   └───webapp
 │       ├───assets
 │       ├───css
 │       ├───META-INF
+│       ├───web
+│       │   └───WEB-INF
 │       └───WEB-INF
 │           └───view
 │               ├───components
@@ -71,12 +89,12 @@ C:.
 │                   └───user
 └───test
     └───java
-        ├───controllers
-        ├───servlets
-        └───utils
+        └───servlets
+            └───utils
+
 ```
 
-## Script to create the database
+## Database example
 ```docker
 
 ## create nw
@@ -91,4 +109,11 @@ docker run --name servlet \
 
 ## exec 
 docker exec -it servlet psql -U postgres
+## create table
+
+##etc
 ```
+
+The scripts to create the database are in the `resources/META-INF/sql` folder
+
+The database connection is configured in the `resources/META-INF/persistence.xml` file
