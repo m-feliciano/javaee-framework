@@ -26,20 +26,16 @@ public class ResquestProcessImp implements IRequestProcessor {
      * @return the next path
      */
     @Override
-    public String process(StandardRequest request) {
+    public String process(StandardRequest request) throws Exception {
         ResourcePath annotation;
-        for (Method method : request.getClazz().getDeclaredMethods()) {
+        for (Method method : request.clazz().getDeclaredMethods()) {
             annotation = method.getAnnotation(ResourcePath.class);
 
-            if (annotation != null && annotation.value().equals(request.getAction())) {
-                try {
-                    if (annotation.forward())
-                        return simpleRequest(request, method);
-                    else
-                        return sessionRequest(request, method);
-                } catch (Exception e) {
-                    System.err.println(e.getMessage());
-                    throw e;
+            if (annotation != null && annotation.value().equals(request.action())) {
+                if (annotation.forward()) {
+                    return simpleRequest(request, method);
+                } else {
+                    return sessionRequest(request, method);
                 }
             }
         }
@@ -60,7 +56,7 @@ public class ResquestProcessImp implements IRequestProcessor {
         EntityManager em = serviceLocator.getEntityManager();
         try {
             em.getTransaction().begin();
-            Object service = serviceLocator.getService(request.getClazz());
+            Object service = serviceLocator.getService(request.clazz());
             String invoke = (String) method.invoke(service, request);
             em.flush();
             em.clear();
@@ -74,21 +70,19 @@ public class ResquestProcessImp implements IRequestProcessor {
                 em.getTransaction().rollback();
 
             // Open Session In View, so we need to clear the request attributes
-            HttpServletRequest httpRequest = request.getRequest();
+            HttpServletRequest httpRequest = request.servletRequest();
             httpRequest.getAttributeNames().asIterator().forEachRemaining(httpRequest::removeAttribute);
 
-            // TODO: Create a error enum to handle the error messages
-            // TODO: Create a error layer and do not expose the error message to the user
+            // TODO: Create a error enum
+            // TODO: do not expose the errors to the user
             httpRequest.setAttribute("error", e.getMessage());
-            // TODO: Create a error custom page to handle the error messages
+            // TODO: Create a error custom page
             return "forward:pages/not-found.jsp";
         } finally {
-//            if (em.isOpen())
-//                em.close();
             stopWatch.stop();
             String debug = MessageFormat.format("Method: {0} of {1} took {2} ms",
-                    request.getAction(),
-                    request.getClazz().getName().substring(request.getClazz().getName().lastIndexOf(".") + 1),
+                    request.action(),
+                    request.clazz().getName().substring(request.clazz().getName().lastIndexOf(".") + 1),
                     stopWatch.getTime(TimeUnit.MILLISECONDS));
 
             logger.info(debug);
@@ -102,9 +96,9 @@ public class ResquestProcessImp implements IRequestProcessor {
      * @param method
      * @return
      */
-    private String simpleRequest(StandardRequest request, Method method) {
+    private String simpleRequest(StandardRequest request, Method method) throws Exception {
         try {
-            Object newInstance = request.getClazz()
+            Object newInstance = request.clazz()
                     .getConstructor()
                     .newInstance();
 
@@ -113,8 +107,8 @@ public class ResquestProcessImp implements IRequestProcessor {
 
             return (String) method.invoke(newInstance, request);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
+            throw new Exception("Ops! Something went wrong");
         }
-        return null;
     }
 }

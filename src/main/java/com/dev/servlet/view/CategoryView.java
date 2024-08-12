@@ -2,7 +2,6 @@ package com.dev.servlet.view;
 
 import com.dev.servlet.controllers.CategoryController;
 import com.dev.servlet.domain.Category;
-import com.dev.servlet.domain.User;
 import com.dev.servlet.domain.enums.StatusEnum;
 import com.dev.servlet.dto.CategoryDto;
 import com.dev.servlet.filter.StandardRequest;
@@ -13,7 +12,6 @@ import com.dev.servlet.utils.CollectionUtils;
 import com.dev.servlet.view.base.BaseRequest;
 
 import javax.persistence.EntityManager;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public class CategoryView extends BaseRequest {
@@ -51,13 +49,11 @@ public class CategoryView extends BaseRequest {
     /**
      * create category.
      *
-     * @param standardRequest
+     * @param request
      * @return the string
      */
     @ResourcePath(value = CREATE)
-    public String registerOne(StandardRequest standardRequest) {
-        var request = standardRequest.getRequest();
-
+    public String registerOne(StandardRequest request) {
         Category cat = new Category();
         cat.setUser(getUser(request));
         cat.setName(getParameter(request, "name"));
@@ -69,38 +65,36 @@ public class CategoryView extends BaseRequest {
     /**
      * update category.
      *
-     * @param standardRequest
+     * @param request
      * @return the string
      */
     @ResourcePath(value = UPDATE)
-    public String update(StandardRequest standardRequest) {
-        var request = standardRequest.getRequest();
+    public String update(StandardRequest request) {
         Long id = Long.parseLong(getParameter(request, "id"));
         var category = controller.findById(id);
         category.setName(getParameter(request, "name"));
         category = controller.update(category);
-        request.setAttribute(CATEGORY, category);
+        request.servletRequest().setAttribute(CATEGORY, category);
         return REDIRECT_ACTION_LIST_BY_ID + category.getId();
     }
 
     /**
      * List category by id.
      *
-     * @param standardRequest
+     * @param request
      * @return the string
      */
     @ResourcePath(value = LIST)
-    public String list(StandardRequest standardRequest) {
-        var request = standardRequest.getRequest();
+    public String list(StandardRequest request) {
         String id = getParameter(request, "id");
         if (id != null) {
             CategoryDto dto = findById(Long.valueOf(id), request);
-            request.setAttribute(CATEGORY, dto);
+            request.servletRequest().setAttribute(CATEGORY, dto);
             return FORWARD_PAGE_LIST_BY_ID;
         }
 
         List<CategoryDto> all = findAll(request);
-        request.setAttribute("categories", all);
+        request.servletRequest().setAttribute("categories", all);
         return FORWARD_PAGE_LIST;
 
     }
@@ -108,30 +102,29 @@ public class CategoryView extends BaseRequest {
     /**
      * Edit category by id.
      *
-     * @param standardRequest
+     * @param request
      * @return the string
      */
     @ResourcePath(value = EDIT)
-    public String edit(StandardRequest standardRequest) {
-        var request = standardRequest.getRequest();
+    public String edit(StandardRequest request) {
         Long id = Long.valueOf(getParameter(request, "id"));
-        request.setAttribute(CATEGORY, controller.findById(id));
+        request.servletRequest().setAttribute(CATEGORY, controller.findById(id));
         return FORWARD_PAGE_UPDATE;
     }
 
     /**
      * delete category by id.
      *
-     * @param standardRequest
+     * @param request
      * @return the string
      */
     @ResourcePath(value = DELETE)
-    public String delete(StandardRequest standardRequest) {
-        var request = standardRequest.getRequest();
+    public String delete(StandardRequest request) {
         Long id = Long.valueOf(getParameter(request, "id"));
         Category cat = new Category(id);
         cat.setUser(getUser(request));
         controller.delete(cat);
+        CacheUtil.clear(CACHE_KEY, request.token());
         return REDIRECT_ACTION_LIST_ALL;
     }
 
@@ -141,18 +134,16 @@ public class CategoryView extends BaseRequest {
      * @param request
      * @return {@link List}
      */
-    public List<CategoryDto> findAll(HttpServletRequest request) {
-        User user = getUser(request);
-        List<CategoryDto> dtoList = CacheUtil.get(CACHE_KEY, user.getToken());
-
+    public List<CategoryDto> findAll(StandardRequest request) {
+        List<CategoryDto> dtoList = CacheUtil.get(CACHE_KEY, request.token());
         if (CollectionUtils.isNullOrEmpty(dtoList)) {
             Category category = new Category();
             category.setName(getParameter(request, "name"));
-            category.setUser(user);
+            category.setUser(getUser(request));
             var categories = controller.findAll(category);
             if (!CollectionUtils.isNullOrEmpty(categories)) {
                 dtoList = categories.stream().map(CategoryMapper::from).toList();
-                CacheUtil.set(CACHE_KEY, user.getToken(), dtoList);
+                CacheUtil.set(CACHE_KEY, request.token(), dtoList);
             }
         }
         return dtoList;
@@ -165,7 +156,7 @@ public class CategoryView extends BaseRequest {
      * @param request
      * @return {@link Category}
      */
-    public CategoryDto findById(Long id, HttpServletRequest request) {
+    public CategoryDto findById(Long id, StandardRequest request) {
         List<CategoryDto> dtoList = findAll(request);
         if (!CollectionUtils.isNullOrEmpty(dtoList)) {
             CategoryDto categoryDto = dtoList.stream()

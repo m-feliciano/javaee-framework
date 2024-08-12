@@ -51,19 +51,19 @@ public class UserView extends BaseRequest {
      */
     @ResourcePath(value = REGISTER)
     public String register(StandardRequest standardRequest) {
-        HttpServletRequest request = standardRequest.getRequest();
+        HttpServletRequest request = standardRequest.servletRequest();
 
-        var password = getParameter(request, "password");
-        var confirmPassword = getParameter(request, "confirmPassword");
+        var password = getParameter(standardRequest, "password");
+        var confirmPassword = getParameter(standardRequest, "confirmPassword");
 
         if (password == null || !password.equals(confirmPassword)) {
-            request.setAttribute("email", getParameter(request, "email"));
+            request.setAttribute("email", getParameter(standardRequest, "email"));
             request.setAttribute("error", "password invalid");
             return FORWARD_PAGE_CREATE;
         }
 
         User user = new User();
-        String email = getParameter(request, "email").toLowerCase();
+        String email = getParameter(standardRequest, "email").toLowerCase();
         user.setLogin(email);
         user = controller.find(user);
 
@@ -90,26 +90,23 @@ public class UserView extends BaseRequest {
     /**
      * Update user.
      *
-     * @param standardRequest
+     * @param request
      * @return the string
      */
     @ResourcePath(value = UPDATE)
-    public String update(StandardRequest standardRequest) {
-        HttpServletRequest req = standardRequest.getRequest();
-        String token = getToken(req);
-
-        UserDto dto = CacheUtil.getUser(token);
+    public String update(StandardRequest request) {
+        UserDto dto = CacheUtil.getUser(request.token());
         User user = new User(dto.getId());
-        user.setLogin(getParameter(req, "email").toLowerCase());
-        user.setImgUrl(getParameter(req, "imgUrl"));
-        user.setPassword(CryptoUtils.encrypt(getParameter(req, "password")));
+        user.setLogin(getParameter(request, "email").toLowerCase());
+        user.setImgUrl(getParameter(request, "imgUrl"));
+        user.setPassword(CryptoUtils.encrypt(getParameter(request, "password")));
         user.setPerfis(dto.getPerfis());
         user.setStatus(dto.getStatus());
         user = controller.update(user);
 
         UserDto userDto = UserMapper.from(user);
-        CacheUtil.storeToken(token, userDto);
-        setSessionAttribute(req, "user", userDto);
+        CacheUtil.storeToken(request.token(), userDto);
+        setSessionAttribute(request.servletRequest(), "user", userDto);
         return REDIRECT_ACTION_LIST_BY_ID + user.getId();
     }
 
@@ -121,8 +118,8 @@ public class UserView extends BaseRequest {
      */
     @ResourcePath(value = LIST)
     public String findAll(StandardRequest standardRequest) {
-        HttpServletRequest request = standardRequest.getRequest();
-        User user = getUser(request);
+        HttpServletRequest request = standardRequest.servletRequest();
+        User user = getUser(standardRequest);
         request.setAttribute("user", UserMapper.from(user));
         return FORWARD_PAGE_LIST;
     }
@@ -130,14 +127,14 @@ public class UserView extends BaseRequest {
     /**
      * Edit user.
      *
-     * @param standardRequest
+     * @param request
      * @return the string
      */
     @ResourcePath(value = EDIT)
-    public String edit(StandardRequest standardRequest) {
-        HttpServletRequest req = standardRequest.getRequest();
+    public String edit(StandardRequest request) {
+        HttpServletRequest req = request.servletRequest();
 
-        User user = controller.findById(Long.parseLong(getParameter(req, "id")));
+        User user = controller.findById(Long.parseLong(getParameter(request, "id")));
         req.setAttribute("user", UserMapper.from(user));
         return FORWARD_PAGE_UPDATE;
     }
@@ -145,15 +142,14 @@ public class UserView extends BaseRequest {
     /**
      * Delete one
      *
-     * @param standardRequest
+     * @param request
      * @return
      */
     @ResourcePath(value = DELETE)
-    public String delete(StandardRequest standardRequest) {
-        HttpServletRequest request = standardRequest.getRequest();
+    public String delete(StandardRequest request) {
         User user = getUser(request);
         controller.delete(user);
-        CacheUtil.clearToken(getToken(request));
+        CacheUtil.clearToken(request.token());
         return FORWARD_PAGES_FORM_LOGIN;
     }
 

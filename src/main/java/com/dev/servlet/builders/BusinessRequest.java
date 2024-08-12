@@ -4,46 +4,52 @@ import com.dev.servlet.filter.StandardRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 public class BusinessRequest {
 
-    private final StandardRequest standardRequest;
+    private final Map<String, Object> parameters;
 
     public static BusinessRequest builder() {
         return new BusinessRequest();
     }
 
     public BusinessRequest() {
-        this.standardRequest = new StandardRequest();
+        parameters = new java.util.HashMap<>();
     }
 
     public BusinessRequest token(String token) {
-        standardRequest.setToken(token);
+        this.parameters.put("token", token);
         return this;
     }
 
     public BusinessRequest clazz(Class<?> clazz) {
-        standardRequest.setClazz(clazz);
+        this.parameters.put("clazz", clazz);
         return this;
     }
 
     public BusinessRequest action(String action) {
-        standardRequest.setAction(action);
+        this.parameters.put("action", action);
         return this;
     }
 
     public BusinessRequest request(HttpServletRequest request) {
-        standardRequest.setRequest(request);
+        this.parameters.put("request", request);
         return this;
     }
 
     public BusinessRequest response(HttpServletResponse response) {
-        standardRequest.setResponse(response);
+        this.parameters.put("response", response);
         return this;
     }
 
     public StandardRequest build() {
-        return this.standardRequest;
+        return new StandardRequest(
+                (HttpServletRequest) this.parameters.get("request"),
+                (HttpServletResponse) this.parameters.get("response"),
+                (String) this.parameters.get("action"),
+                (Class<?>) this.parameters.get("clazz"),
+                (String) this.parameters.get("token"));
     }
 
 }

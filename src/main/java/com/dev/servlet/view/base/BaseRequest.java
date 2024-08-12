@@ -1,6 +1,7 @@
 package com.dev.servlet.view.base;
 
 import com.dev.servlet.domain.User;
+import com.dev.servlet.filter.StandardRequest;
 import com.dev.servlet.mapper.UserMapper;
 import com.dev.servlet.utils.CacheUtil;
 import com.google.gson.Gson;
@@ -57,19 +58,14 @@ public abstract class BaseRequest {
         session.setAttribute(name, value);
     }
 
-    protected String getToken(HttpServletRequest request) {
-        return (String) getSessionAttribute(request, "token");
-    }
-
     /**
      * Return the user from cache
      *
      * @param request
      * @return {@link User}
      */
-    protected User getUser(HttpServletRequest request) {
-        String token = getToken(request);
-        return UserMapper.from(CacheUtil.getUser(token));
+    protected User getUser(StandardRequest request) {
+        return UserMapper.from(CacheUtil.getUser(request.token()));
     }
 
     /**
@@ -79,8 +75,8 @@ public abstract class BaseRequest {
      * @param key
      * @return
      */
-    protected String getParameter(HttpServletRequest request, String key) {
-        String attribute = request.getParameter(key);
+    protected String getParameter(StandardRequest request, String key) {
+        String attribute = request.servletRequest().getParameter(key);
         if (attribute != null && !attribute.isEmpty()) {
             return attribute.trim();
         }

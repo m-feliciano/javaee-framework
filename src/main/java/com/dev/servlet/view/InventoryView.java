@@ -55,49 +55,46 @@ public class InventoryView extends BaseRequest {
     /**
      * Create the item.
      *
-     * @param standardRequest
+     * @param request
      * @return the next path
      */
     @ResourcePath(value = CREATE)
-    public String register(StandardRequest standardRequest) {
-        HttpServletRequest req = standardRequest.getRequest();
-
-        int quantity = Integer.parseInt(getParameter(req, "quantity"));
-        String description = getParameter(req, "description");
-        Long productId = Long.valueOf(getParameter(req, "productId"));
+    public String register(StandardRequest request) {
+        int quantity = Integer.parseInt(getParameter(request, "quantity"));
+        String description = getParameter(request, "description");
+        Long productId = Long.valueOf(getParameter(request, "productId"));
 
         Product product = new Product(productId);
         Inventory item = new Inventory(product, quantity, description);
         item.setStatus(StatusEnum.ACTIVE.getName());
-        item.setUser(getUser(req));
+        item.setUser(getUser(request));
         controller.save(item);
 
-        req.setAttribute("item", item);
+        request.servletRequest().setAttribute("item", item);
         return REDIRECT_ACTION_LIST_BY_ID + item.getId();
     }
 
     /**
      * list item or items.
      *
-     * @param standardRequest
+     * @param request
      * @return the string
      */
     @ResourcePath(value = LIST)
-    public String list(StandardRequest standardRequest) {
-        HttpServletRequest request = standardRequest.getRequest();
+    public String list(StandardRequest request) {
         String id = getParameter(request, "id");
         if (id != null) {
             Inventory inventory = controller.findById(Long.valueOf(id));
             if (inventory != null) {
-                request.setAttribute("item", InventoryMapper.from(inventory));
+                request.servletRequest().setAttribute("item", InventoryMapper.from(inventory));
                 return FORWARD_PAGE_LIST;
             }
             return FORWARD_PAGES_NOT_FOUND;
         }
 
         List<InventoryDto> list = findAll(request);
-        request.setAttribute("items", list);
-        request.setAttribute("categories", categoryView.findAll(request));
+        request.servletRequest().setAttribute("items", list);
+        request.servletRequest().setAttribute("categories", categoryView.findAll(request));
         return FORWARD_PAGE_LIST_ITEMS;
     }
 
@@ -109,26 +106,24 @@ public class InventoryView extends BaseRequest {
      */
     @ResourcePath(value = UPDATE)
     public String update(StandardRequest standardRequest) {
-        HttpServletRequest request = standardRequest.getRequest();
+        Inventory inventory = controller.findById(Long.valueOf(getParameter(standardRequest, "id")));
+        inventory.setQuantity(Integer.parseInt(getParameter(standardRequest, "quantity")));
+        inventory.setDescription(getParameter(standardRequest, "description"));
 
-        Inventory inventory = controller.findById(Long.valueOf(getParameter(request, "id")));
-        inventory.setQuantity(Integer.parseInt(getParameter(request, "quantity")));
-        inventory.setDescription(getParameter(request, "description"));
-
-        Long productId = Long.valueOf(getParameter(request, "productId"));
+        Long productId = Long.valueOf(getParameter(standardRequest, "productId"));
 
         Product product = new Product(productId);
         ProductDto productDto = productView.find(product);
         if (productDto == null) {
-            standardRequest.getResponse().setStatus(HttpServletResponse.SC_NOT_FOUND);
-            request.setAttribute("error", "ERROR: Product ID " + getParameter(request, "productId") + " was not found.");
-            request.setAttribute("item", inventory);
+            standardRequest.servletResponse().setStatus(HttpServletResponse.SC_NOT_FOUND);
+            standardRequest.servletRequest().setAttribute("error", "ERROR: Product ID " + getParameter(standardRequest, "productId") + " was not found.");
+            standardRequest.servletRequest().setAttribute("item", inventory);
             return this.forwardRegister();
         }
 
         inventory.setProduct(product);
         inventory = controller.update(inventory);
-        request.setAttribute("item", InventoryMapper.from(inventory));
+        standardRequest.servletRequest().setAttribute("item", InventoryMapper.from(inventory));
         return REDIRECT_ACTION_LIST_BY_ID + inventory.getId();
     }
 
@@ -140,23 +135,21 @@ public class InventoryView extends BaseRequest {
      */
     @ResourcePath(value = EDIT)
     public String edit(StandardRequest standardRequest) {
-        HttpServletRequest request = standardRequest.getRequest();
-        Long id = Long.valueOf(getParameter(request, "id"));
+        Long id = Long.valueOf(getParameter(standardRequest, "id"));
         Inventory inventory = new Inventory(id);
         inventory = controller.findById(id);
-        request.setAttribute("item", InventoryMapper.from(inventory));
+        standardRequest.servletRequest().setAttribute("item", InventoryMapper.from(inventory));
         return FORWARD_PAGE_UPDATE;
     }
 
     /**
      * delete one.
      *
-     * @param standardRequest
+     * @param request
      * @return the string
      */
     @ResourcePath(value = DELETE)
-    public String delete(StandardRequest standardRequest) {
-        HttpServletRequest request = standardRequest.getRequest();
+    public String delete(StandardRequest request) {
         Long id = Long.valueOf(getParameter(request, "id"));
         Inventory obj = new Inventory(id);
         controller.delete(obj);
@@ -169,7 +162,7 @@ public class InventoryView extends BaseRequest {
      * @param request
      * @return the next path
      */
-    private List<InventoryDto> findAll(HttpServletRequest request) {
+    private List<InventoryDto> findAll(StandardRequest request) {
         Inventory inventory = new Inventory();
         inventory.setUser(getUser(request));
 

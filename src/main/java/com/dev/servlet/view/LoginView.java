@@ -11,7 +11,6 @@ import com.dev.servlet.utils.CryptoUtils;
 import com.dev.servlet.view.base.BaseRequest;
 
 import javax.persistence.EntityManager;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 public class LoginView extends BaseRequest {
@@ -41,46 +40,42 @@ public class LoginView extends BaseRequest {
     /**
      * Login.
      *
-     * @param standardRequest
+     * @param request
      * @return the next path
      */
     @ResourcePath(value = LOGIN)
-    public String login(StandardRequest standardRequest) {
-        HttpServletRequest req = standardRequest.getRequest();
-
-        if (getParameter(req, "sucess") != null) {
+    public String login(StandardRequest request) {
+        if (getParameter(request, "sucess") != null) {
             return FORWARD_PAGES_FORM_LOGIN;
         }
 
         User user = new User();
-        user.setLogin(getParameter(req, "email"));
-        user.setPassword(CryptoUtils.encrypt(getParameter(req, "password")));
+        user.setLogin(getParameter(request, "email"));
+        user.setPassword(CryptoUtils.encrypt(getParameter(request, "password")));
         user = controller.find(user);
         if (user == null) {
-            req.setAttribute(INVALID, USER_OR_PASSWORD_INVALID);
-            req.setAttribute("email", getParameter(req, "email"));
+            request.servletRequest().setAttribute(INVALID, USER_OR_PASSWORD_INVALID);
+            request.servletRequest().setAttribute("email", getParameter(request, "email"));
             return FORWARD_PAGES_FORM_LOGIN;
         }
 
         UserDto dto = UserMapper.from(user);
 
-        setSessionAttribute(req, "token", CryptoUtils.generateToken(dto));
-        setSessionAttribute(req, "user", dto);
+        setSessionAttribute(request.servletRequest(), "token", CryptoUtils.generateToken(dto));
+        setSessionAttribute(request.servletRequest(), "user", dto);
         return REDIRECT_PRODUCT_ACTION_LIST_ALL;
     }
 
     /**
      * Logout.
      *
-     * @param standardRequest
+     * @param request
      * @return the next path
      */
     @ResourcePath(value = LOGOUT)
-    public String logout(StandardRequest standardRequest) {
-        HttpServletRequest req = standardRequest.getRequest();
-
-        HttpSession session = req.getSession();
-        CacheUtil.clearToken(getToken(req));
+    public String logout(StandardRequest request) {
+        HttpSession session = request.servletRequest().getSession();
+        CacheUtil.clearToken(request.token());
         session.invalidate();
         return this.forwardLogin();
     }

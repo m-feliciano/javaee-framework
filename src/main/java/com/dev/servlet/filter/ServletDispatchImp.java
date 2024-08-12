@@ -17,29 +17,24 @@ public final class ServletDispatchImp implements IServletDispatcher {
 
     @Override
     public void dispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String token = (String) request.getAttribute("token");
+        String token = (String) request.getSession().getAttribute("token");
         String next = this.execute(token, request, response, this.getClassName(request));
         processResponse(request, response, next);
     }
 
-    private String execute(String token, HttpServletRequest httpRequest, HttpServletResponse htttpResponse, String classname) {
-        try {
-            Class<?> clazz = Class.forName(classname);
-            String action = httpRequest.getParameter("action");
+    private String execute(String token, HttpServletRequest httpRequest, HttpServletResponse htttpResponse, String classname) throws Exception {
+        Class<?> clazz = Class.forName(classname);
+        String action = httpRequest.getParameter("action");
 
-            StandardRequest request = BusinessRequest.builder()
-                    .action(action)
-                    .clazz(clazz)
-                    .request(httpRequest)
-                    .response(htttpResponse)
-                    .token(token)
-                    .build();
+        StandardRequest request = BusinessRequest.builder()
+                .action(action)
+                .clazz(clazz)
+                .request(httpRequest)
+                .response(htttpResponse)
+                .token(token)
+                .build();
 
-            return processor.process(request);
-        } catch (Exception e1) {
-            e1.printStackTrace();
-        }
-        return null;
+        return processor.process(request);
     }
 
     /**

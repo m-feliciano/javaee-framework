@@ -16,7 +16,6 @@ import com.dev.servlet.utils.CurrencyFormatter;
 import com.dev.servlet.view.base.BaseRequest;
 
 import javax.persistence.EntityManager;
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -52,22 +51,20 @@ public class ProductView extends BaseRequest {
      * @return the next path
      */
     @ResourcePath(value = NEW)
-    public String forwardRegister(StandardRequest standardRequest) {
-        HttpServletRequest request = standardRequest.getRequest();
+    public String forwardRegister(StandardRequest request) {
         List<CategoryDto> categories = categoryView.findAll(request);
-        request.setAttribute("categories", categories);
+        request.servletRequest().setAttribute("categories", categories);
         return FORWARD_PAGE_CREATE;
     }
 
     /**
      * Create one
      *
-     * @param standardRequest
+     * @param request
      * @return the next path
      */
     @ResourcePath(value = CREATE)
-    public String register(StandardRequest standardRequest) {
-        HttpServletRequest request = standardRequest.getRequest();
+    public String register(StandardRequest request) {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         LocalDate localDate = LocalDate.parse(LocalDate.now().format(formatter), formatter);
@@ -83,7 +80,7 @@ public class ProductView extends BaseRequest {
         product.setCategory(new Category(Long.valueOf(getParameter(request, "category"))));
         product.setStatus(StatusEnum.ACTIVE.getName());
         controller.save(product);
-        request.setAttribute("product", product);
+        request.servletRequest().setAttribute("product", product);
 
         return REDIRECT_ACTION_LIST_BY_ID + product.getId();
     }
@@ -91,24 +88,22 @@ public class ProductView extends BaseRequest {
     /**
      * Forward edit
      *
-     * @param standardRequest
+     * @param request
      * @return the next path
      */
     @ResourcePath(value = EDIT)
-    public String edit(StandardRequest standardRequest) {
-        HttpServletRequest request = standardRequest.getRequest();
-
+    public String edit(StandardRequest request) {
         String id = getParameter(request, "id");
         if (id == null) {
-            request.setAttribute("error", "id can't be null");
+            request.servletRequest().setAttribute("error", "id can't be null");
             return FORWARD_PAGES_NOT_FOUND;
         }
 
         Product product = new Product();
         product = controller.findById(Long.valueOf(id));
 
-        request.setAttribute("product", ProductMapper.from(product));
-        request.setAttribute("categories", categoryView.findAll(request));
+        request.servletRequest().setAttribute("product", ProductMapper.from(product));
+        request.servletRequest().setAttribute("categories", categoryView.findAll(request));
 
         return FORWARD_PAGE_UPDATE;
     }
@@ -116,19 +111,18 @@ public class ProductView extends BaseRequest {
     /**
      * List one or many
      *
-     * @param standardRequest
+     * @param request
      * @return the next path
      */
     @ResourcePath(value = LIST)
-    public String list(StandardRequest standardRequest) {
-        HttpServletRequest request = standardRequest.getRequest();
+    public String list(StandardRequest request) {
         String id = getParameter(request, "id");
         if (id != null) {
             Product product = controller.findById(Long.valueOf(id));
             if (product == null) {
                 return FORWARD_PAGES_NOT_FOUND;
             }
-            request.setAttribute("product", ProductMapper.from(product));
+            request.servletRequest().setAttribute("product", ProductMapper.from(product));
             return FORWARD_PAGE_LIST;
         }
 
@@ -146,12 +140,12 @@ public class ProductView extends BaseRequest {
         }
 
         List<ProductDto> products = findAll(product);
-        request.setAttribute("products", products);
+        request.servletRequest().setAttribute("products", products);
 
         String categoryId = getParameter(request, "categoryId");
         if (categoryId != null) {
             List<Category> categories = categoryView.findAll(request).stream().map(CategoryMapper::from).toList();
-            request.setAttribute("categories", categories);
+            request.servletRequest().setAttribute("categories", categories);
         }
 
         return FORWARD_PAGE_LIST_PRODUCTS;
@@ -160,12 +154,11 @@ public class ProductView extends BaseRequest {
     /**
      * Update one
      *
-     * @param standardRequest
+     * @param request
      * @return the next path
      */
     @ResourcePath(value = UPDATE)
-    public String update(StandardRequest standardRequest) {
-        HttpServletRequest request = standardRequest.getRequest();
+    public String update(StandardRequest request) {
 
         Product product = controller.findById(Long.parseLong(getParameter(request, "id")));
         product.setName(getParameter(request, "name"));
@@ -175,7 +168,7 @@ public class ProductView extends BaseRequest {
         product.setCategory(new Category(Long.parseLong(getParameter(request, "category"))));
 
         product = controller.update(product);
-        request.setAttribute("product", ProductMapper.from(product));
+        request.servletRequest().setAttribute("product", ProductMapper.from(product));
 
         return REDIRECT_ACTION_LIST_BY_ID + product.getId();
     }
@@ -183,18 +176,17 @@ public class ProductView extends BaseRequest {
     /**
      * Delete one
      *
-     * @param standardRequest
+     * @param request
      * @return the next path
      */
     @ResourcePath(value = DELETE)
-    public String delete(StandardRequest standardRequest) {
-        HttpServletRequest req = standardRequest.getRequest();
-        Long id = Long.parseLong(getParameter(req, "id"));
+    public String delete(StandardRequest request) {
+        Long id = Long.parseLong(getParameter(request, "id"));
         Product product = new Product(id);
         Inventory inventory = new Inventory();
         inventory.setProduct(product);
         if (inventoryView.hasInventory(inventory)) {
-            req.setAttribute("error", "Product has inventory");
+            request.servletRequest().setAttribute("error", "Product has inventory");
             return FORWARD_PAGES_NOT_FOUND;
         }
 
@@ -205,7 +197,7 @@ public class ProductView extends BaseRequest {
     /**
      * Find All
      *
-     * @param request
+     * @param product
      * @return the next path
      */
     public List<ProductDto> findAll(Product product) {
