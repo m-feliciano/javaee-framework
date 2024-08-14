@@ -4,15 +4,15 @@ import com.dev.servlet.dao.CategoryDAO;
 import com.dev.servlet.domain.Category;
 import com.dev.servlet.interfaces.IController;
 
-import javax.persistence.EntityManager;
+import javax.inject.Inject;
 import java.util.List;
 
 public final class CategoryController implements IController<Category, Long> {
 
-    private final CategoryDAO categoryDao;
+    @Inject
+    private CategoryDAO categoryDao;
 
-    public CategoryController(EntityManager em) {
-        this.categoryDao = new CategoryDAO(em);
+    public CategoryController() {
     }
 
     @Override

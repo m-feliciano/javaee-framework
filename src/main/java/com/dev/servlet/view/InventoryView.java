@@ -8,16 +8,16 @@ import com.dev.servlet.domain.enums.StatusEnum;
 import com.dev.servlet.dto.InventoryDto;
 import com.dev.servlet.dto.ProductDto;
 import com.dev.servlet.filter.StandardRequest;
-import com.dev.servlet.interfaces.Inject;
 import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.mapper.InventoryMapper;
 import com.dev.servlet.view.base.BaseRequest;
 
-import javax.persistence.EntityManager;
-import javax.servlet.http.HttpServletRequest;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
+@Singleton
 public class InventoryView extends BaseRequest {
 
     private static final String FORWARD_PAGE_LIST = "forward:pages/inventory/formListItem.jsp";
@@ -28,17 +28,22 @@ public class InventoryView extends BaseRequest {
     private static final String REDIRECT_ACTION_LIST_ALL = "redirect:inventoryView?action=list";
     private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:inventoryView?action=list&id=";
 
+    @Inject
     private InventoryController controller;
     @Inject
     private CategoryView categoryView;
     @Inject
-    private ProductView productView;
+    private ProductShared productShared;
 
     public InventoryView() {
     }
 
-    public InventoryView(EntityManager entityManager) {
-        this.controller = new InventoryController(entityManager);
+    public InventoryView(InventoryController controller,
+                         CategoryView categoryView,
+                         ProductShared productShared) {
+        this.controller = controller;
+        this.categoryView = categoryView;
+        this.productShared = productShared;
     }
 
     /**
@@ -47,8 +52,8 @@ public class InventoryView extends BaseRequest {
      * @param
      * @return the next path
      */
-    @ResourcePath(value = NEW, forward = true)
-    public String forwardRegister() {
+    @ResourcePath(value = NEW)
+    public String forwardRegister(StandardRequest request) {
         return FORWARD_PAGE_CREATE;
     }
 
@@ -112,16 +117,15 @@ public class InventoryView extends BaseRequest {
 
         Long productId = Long.valueOf(getParameter(standardRequest, "productId"));
 
-        Product product = new Product(productId);
-        ProductDto productDto = productView.find(product);
+        ProductDto productDto = productShared.find(productId);
         if (productDto == null) {
             standardRequest.servletResponse().setStatus(HttpServletResponse.SC_NOT_FOUND);
             standardRequest.servletRequest().setAttribute("error", "ERROR: Product ID " + getParameter(standardRequest, "productId") + " was not found.");
             standardRequest.servletRequest().setAttribute("item", inventory);
-            return this.forwardRegister();
+            return this.forwardRegister(standardRequest);
         }
 
-        inventory.setProduct(product);
+        inventory.setProduct(new Product(productId));
         inventory = controller.update(inventory);
         standardRequest.servletRequest().setAttribute("item", InventoryMapper.from(inventory));
         return REDIRECT_ACTION_LIST_BY_ID + inventory.getId();

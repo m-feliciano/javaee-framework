@@ -4,25 +4,37 @@ import com.dev.servlet.builders.BusinessRequest;
 import com.dev.servlet.interfaces.IRequestProcessor;
 import com.dev.servlet.interfaces.IServletDispatcher;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 //@WebFilter(urlPatterns = "/company")
+@ApplicationScoped
 public final class ServletDispatchImp implements IServletDispatcher {
 
     private static final String PACKAGE = "com.dev.servlet.view.%s";
-    private static final IRequestProcessor processor = new ResquestProcessImp();
+
+    @Inject
+    private IRequestProcessor processor;
+
+    public ServletDispatchImp() {
+    }
+
+    public ServletDispatchImp(IRequestProcessor processor) {
+        this.processor = processor;
+    }
 
     @Override
     public void dispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String token = (String) request.getSession().getAttribute("token");
-        String next = this.execute(token, request, response, this.getClassName(request));
+        String next = (String) this.execute(token, request, response, this.getClassName(request));
         processResponse(request, response, next);
     }
 
-    private String execute(String token, HttpServletRequest httpRequest, HttpServletResponse htttpResponse, String classname) throws Exception {
+    private Object execute(String token, HttpServletRequest httpRequest, HttpServletResponse htttpResponse, String classname) throws Exception {
         Class<?> clazz = Class.forName(classname);
         String action = httpRequest.getParameter("action");
 
@@ -84,6 +96,7 @@ public final class ServletDispatchImp implements IServletDispatcher {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            throw new ServletException("Error processing request: " + e.getMessage());
         }
     }
 

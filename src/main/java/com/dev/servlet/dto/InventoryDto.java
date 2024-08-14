@@ -1,8 +1,6 @@
 package com.dev.servlet.dto;
 
 import com.dev.servlet.domain.Inventory;
-import com.dev.servlet.dto.ProductDto;
-import com.dev.servlet.dto.UserDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.io.Serializable;

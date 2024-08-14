@@ -10,21 +10,23 @@ import com.dev.servlet.utils.CacheUtil;
 import com.dev.servlet.utils.CryptoUtils;
 import com.dev.servlet.view.base.BaseRequest;
 
-import javax.persistence.EntityManager;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.http.HttpSession;
 
+@Singleton
 public class LoginView extends BaseRequest {
 
     private static final String REDIRECT_PRODUCT_ACTION_LIST_ALL = "redirect:productView?action=list";
 
-    private UserController controller;
-
+    @Inject
+    UserController controller;
 
     public LoginView() {
     }
 
-    public LoginView(EntityManager entityManager) {
-        this.controller = new UserController(entityManager);
+    public LoginView(UserController controller) {
+        this.controller = controller;
     }
 
     /**
@@ -32,8 +34,8 @@ public class LoginView extends BaseRequest {
      *
      * @return the next path
      */
-    @ResourcePath(value = LOGIN_FORM, forward = true)
-    public String forwardLogin() {
+    @ResourcePath(value = LOGIN_FORM)
+    public String forwardLogin(StandardRequest request) {
         return FORWARD_PAGES_FORM_LOGIN;
     }
 
@@ -77,6 +79,6 @@ public class LoginView extends BaseRequest {
         HttpSession session = request.servletRequest().getSession();
         CacheUtil.clearToken(request.token());
         session.invalidate();
-        return this.forwardLogin();
+        return this.forwardLogin(request);
     }
 }

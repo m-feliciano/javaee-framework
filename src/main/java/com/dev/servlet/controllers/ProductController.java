@@ -4,14 +4,15 @@ import com.dev.servlet.dao.ProductDAO;
 import com.dev.servlet.domain.Product;
 import com.dev.servlet.interfaces.IController;
 
-import javax.persistence.EntityManager;
+import javax.inject.Inject;
 import java.util.List;
 
 public class ProductController implements IController<Product, Long> {
-    private final ProductDAO productDao;
 
-    public ProductController(EntityManager em) {
-        this.productDao = new ProductDAO(em);
+    @Inject
+    private ProductDAO productDao;
+
+    public ProductController() {
     }
 
     @Override

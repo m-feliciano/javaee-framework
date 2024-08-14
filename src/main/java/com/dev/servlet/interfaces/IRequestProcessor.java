@@ -11,6 +11,6 @@ public interface IRequestProcessor {
      * @param standardRequest
      * @return the string
      */
-    String process(StandardRequest standardRequest) throws Exception;
+    Object process(StandardRequest standardRequest) throws Exception;
 
 }

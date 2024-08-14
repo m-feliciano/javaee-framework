@@ -1,19 +1,15 @@
 # Servlets (Full Stack Java Web Application)
-This project is a comprehensive Java/JSP-based Web Servlet Application designed for product management. 
-It uses the MVC architecture for structured development, employs Java Reflection for handling all requests.
 
-The application is designed to be deployed on a Tomcat server,
-and can run with whatever database that JPA supports, in this case, PostgreSQL.
+This project is a Java/JSP web application, designed for product management.
 
-I used the following technologies to develop this application:
-- Java (JDK 17), JSP (JavaServer Pages)
-- JSTL (JavaServer Pages Standard Tag Library)
-- Habernate (JPA), Criteria API 
-- Tomcat (Server)
+It uses MVC architecture and was developed using the following stack:
+- Java (JDK 17)
+- Habernate (ORM) 
+- Tomcat 9 (Server)
 - PostgreSQL (Database)
 
 ## About developing this project
-I'm not an expert in JSP, but I can say that I learned a lot from this project.
+I'm not a JSP developer, actually I work with Java/Nodejs Angular, but I can say that I learned a lot from this project.
 
 Any questions, suggestions, problem deploying the application, please contact me at `marcelo@tuta.io`.
 
@@ -40,17 +36,14 @@ Any questions, suggestions, problem deploying the application, please contact me
 ![App prolist list page](https://i.ibb.co/nBbGMtG/temp.png)
 <br>
 
-### 404 - Funny gif that I found on the web
+### 404
 #### server/loginView?action=list&id=some_invalid_id
 ![App not found page](https://i.postimg.cc/Sx8D8GZP/Screenshot-2024-08-10-174059.png)
 <br>
 
-## Logging
-![Logging with slf4j](https://i.ibb.co/F6ZK5vz/Screenshot-2022-08-08-003934.png)
-<br>
-
 ## Packages
 ```
+E:.
 ├───main
 │   ├───java
 │   │   └───com
@@ -65,6 +58,7 @@ Any questions, suggestions, problem deploying the application, please contact me
 │   │               ├───filter
 │   │               ├───interfaces
 │   │               ├───mapper
+│   │               ├───providers
 │   │               ├───utils
 │   │               └───view
 │   │                   └───base
@@ -89,7 +83,6 @@ Any questions, suggestions, problem deploying the application, please contact me
     └───java
         └───servlets
             └───utils
-
 ```
 
 ## Database example

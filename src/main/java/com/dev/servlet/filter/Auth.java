@@ -3,6 +3,7 @@ package com.dev.servlet.filter;
 import com.dev.servlet.interfaces.IServletDispatcher;
 import com.dev.servlet.utils.PropertiesUtil;
 
+import javax.inject.Inject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletRequest;
@@ -17,7 +18,16 @@ import static com.dev.servlet.utils.CryptoUtils.isValidToken;
 public class Auth implements Filter {
 
     private static final Set<String> AUTHORIZED_ACTIONS = PropertiesUtil.getAuthorizedActions();
-    private static final IServletDispatcher dispatcher = new ServletDispatchImp();
+
+    @Inject
+    private IServletDispatcher dispatcher;
+
+    public Auth() {
+    }
+
+    public Auth(IServletDispatcher dispatcher) {
+        this.dispatcher = dispatcher;
+    }
 
     /**
      * Auth filter

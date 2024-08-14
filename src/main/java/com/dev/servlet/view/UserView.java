@@ -12,9 +12,11 @@ import com.dev.servlet.utils.CacheUtil;
 import com.dev.servlet.utils.CryptoUtils;
 import com.dev.servlet.view.base.BaseRequest;
 
-import javax.persistence.EntityManager;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
+@Singleton
 public class UserView extends BaseRequest {
 
     private static final String FORWARD_PAGE_CREATE = "forward:pages/user/formCreateUser.jsp";
@@ -24,13 +26,14 @@ public class UserView extends BaseRequest {
 
     private static final String REDIRECT_PRODUCT_ACTION_CREATE = "redirect:productView?action=create";
 
+    @Inject
     private UserController controller;
 
     public UserView() {
     }
 
-    public UserView(EntityManager entityManager) {
-        this.controller = new UserController(entityManager);
+    public UserView(UserController controller) {
+        this.controller = controller;
     }
 
     /**
@@ -38,8 +41,8 @@ public class UserView extends BaseRequest {
      *
      * @return
      */
-    @ResourcePath(value = REGISTER_PAGE, forward = true)
-    public String forwardRegister() {
+    @ResourcePath(value = REGISTER_PAGE)
+    public String forwardRegister(StandardRequest request) {
         return FORWARD_PAGE_CREATE;
     }
 

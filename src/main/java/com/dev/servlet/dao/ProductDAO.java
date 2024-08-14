@@ -5,7 +5,6 @@ import com.dev.servlet.domain.Product;
 import com.dev.servlet.domain.enums.StatusEnum;
 import com.dev.servlet.utils.CollectionUtils;
 
-import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -20,8 +19,8 @@ import java.util.List;
 
 public class ProductDAO extends BaseDAO<Product, Long> {
 
-    public ProductDAO(EntityManager em) {
-        super(em, Product.class);
+    public ProductDAO() {
+        super(Product.class);
     }
 
     /**
@@ -45,7 +44,6 @@ public class ProductDAO extends BaseDAO<Product, Long> {
      * @param product
      * @return {@link List}
      */
-    @Override
     public List<Product> findAll(Product product) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Product> query = cb.createQuery(Product.class).distinct(true);

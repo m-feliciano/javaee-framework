@@ -1,60 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns="http://xmlns.jcp.org/xml/ns/javaee"
-	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
-	id="WebApp_ID" version="3.1">
-	<display-name>Servlet</display-name>
-	<welcome-file-list>
-		<welcome-file>view/pages/formLogin.jsp</welcome-file>
-	</welcome-file-list>
+         xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         id="WebApp_ID" version="3.1">
+    <display-name>Servlet</display-name>
+    <welcome-file-list>
+        <welcome-file>view/pages/formLogin.jsp</welcome-file>
+    </welcome-file-list>
 
-	<!-- filter chain order -->
-	<filter>
-		<filter-name>AF</filter-name>
-		<filter-class>com.dev.servlet.filter.Auth</filter-class>
-	</filter>
-	<filter-mapping>
-		<filter-name>AF</filter-name>
-		<url-pattern>/productView</url-pattern>
-	</filter-mapping>
+    <listener>
+        <listener-class>
+            com.dev.servlet.providers.ContextListener
+        </listener-class>
+    </listener>
 
-	<filter>
-		<filter-name>AFCATEGORY</filter-name>
-		<filter-class>com.dev.servlet.filter.Auth</filter-class>
-	</filter>
-
-	<filter-mapping>
-		<filter-name>AFCATEGORY</filter-name>
-		<url-pattern>/categoryView</url-pattern>
-	</filter-mapping>
-
-	<filter>
-		<filter-name>AFINVENTORY</filter-name>
-		<filter-class>com.dev.servlet.filter.Auth</filter-class>
-	</filter>
-
-	<filter-mapping>
-		<filter-name>AFINVENTORY</filter-name>
-		<url-pattern>/inventoryView</url-pattern>
-	</filter-mapping>
-
-	<filter>
-		<filter-name>AFUSER</filter-name>
-		<filter-class>com.dev.servlet.filter.Auth</filter-class>
-	</filter>
-
-	<filter-mapping>
-		<filter-name>AFUSER</filter-name>
-		<url-pattern>/userView</url-pattern>
-	</filter-mapping>
-
-	<filter>
-		<filter-name>AFLOGIN</filter-name>
-		<filter-class>com.dev.servlet.filter.Auth</filter-class>
-	</filter>
-
-	<filter-mapping>
-		<filter-name>AFLOGIN</filter-name>
-		<url-pattern>/loginView</url-pattern>
-	</filter-mapping>
+    <!-- filter chain order -->
+    <filter>
+        <filter-name>AFUSER</filter-name>
+        <filter-class>com.dev.servlet.filter.Auth</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>AFUSER</filter-name>
+        <url-pattern>*</url-pattern>
+    </filter-mapping>
 </web-app>

@@ -8,18 +8,19 @@ import com.dev.servlet.domain.enums.StatusEnum;
 import com.dev.servlet.dto.CategoryDto;
 import com.dev.servlet.dto.ProductDto;
 import com.dev.servlet.filter.StandardRequest;
-import com.dev.servlet.interfaces.Inject;
 import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.mapper.CategoryMapper;
 import com.dev.servlet.mapper.ProductMapper;
 import com.dev.servlet.utils.CurrencyFormatter;
 import com.dev.servlet.view.base.BaseRequest;
 
-import javax.persistence.EntityManager;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+@Singleton
 public class ProductView extends BaseRequest {
 
     private static final String FORWARD_PAGE_LIST = "forward:pages/product/formListProduct.jsp";
@@ -32,17 +33,22 @@ public class ProductView extends BaseRequest {
 
     private static final String CACHE_KEY = "categories";
 
+    @Inject
     private ProductController controller;
     @Inject
     private CategoryView categoryView;
     @Inject
-    private InventoryView inventoryView;
+    private ProductShared productShared;
 
     public ProductView() {
     }
 
-    public ProductView(EntityManager entityManager) {
-        this.controller = new ProductController(entityManager);
+    public ProductView(ProductController controller,
+                       CategoryView categoryView,
+                       ProductShared productShared) {
+        this.controller = controller;
+        this.categoryView = categoryView;
+        this.productShared = productShared;
     }
 
     /**
@@ -185,7 +191,7 @@ public class ProductView extends BaseRequest {
         Product product = new Product(id);
         Inventory inventory = new Inventory();
         inventory.setProduct(product);
-        if (inventoryView.hasInventory(inventory)) {
+        if (productShared.hasInventory(inventory)) {
             request.servletRequest().setAttribute("error", "Product has inventory");
             return FORWARD_PAGES_NOT_FOUND;
         }

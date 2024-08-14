@@ -4,15 +4,20 @@ import com.dev.servlet.domain.Category;
 import com.dev.servlet.domain.enums.StatusEnum;
 import com.dev.servlet.utils.CollectionUtils;
 
-import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.List;
 
 public class CategoryDAO extends BaseDAO<Category, Long> {
 
-    public CategoryDAO(EntityManager em) {
-        super(em, Category.class);
+    public CategoryDAO() {
+        super(Category.class);
     }
 
     /**
@@ -21,7 +26,6 @@ public class CategoryDAO extends BaseDAO<Category, Long> {
      * @param category
      * @return {@link List}
      */
-    @Override
     public List<Category> findAll(Category category) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Category> cq = cb.createQuery(Category.class);
@@ -49,7 +53,6 @@ public class CategoryDAO extends BaseDAO<Category, Long> {
      * @param category
      * @return {@link Category}
      */
-    @Override
     public Category find(Category category) {
         List<Category> all = findAll(category);
         if (CollectionUtils.isNullOrEmpty(all)) {
@@ -63,7 +66,6 @@ public class CategoryDAO extends BaseDAO<Category, Long> {
      *
      * @param category
      */
-    @Override
     public void delete(Category category) {
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaUpdate<Category> cu = builder.createCriteriaUpdate(Category.class);

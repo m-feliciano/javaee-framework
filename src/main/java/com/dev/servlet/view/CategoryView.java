@@ -11,9 +11,11 @@ import com.dev.servlet.utils.CacheUtil;
 import com.dev.servlet.utils.CollectionUtils;
 import com.dev.servlet.view.base.BaseRequest;
 
-import javax.persistence.EntityManager;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.List;
 
+@Singleton
 public class CategoryView extends BaseRequest {
 
     private static final String FORWARD_PAGE_CREATE = "forward:pages/category/formCreateCategory.jsp";
@@ -27,13 +29,14 @@ public class CategoryView extends BaseRequest {
     private static final String CATEGORY = "category";
     private static final String CACHE_KEY = "categories";
 
+    @Inject
     private CategoryController controller;
 
     public CategoryView() {
     }
 
-    public CategoryView(EntityManager entityManager) {
-        this.controller = new CategoryController(entityManager);
+    public CategoryView(CategoryController controller) {
+        this.controller = controller;
     }
 
     /**
@@ -41,8 +44,8 @@ public class CategoryView extends BaseRequest {
      *
      * @return the next path
      */
-    @ResourcePath(value = NEW, forward = true)
-    public String forwardRegister() {
+    @ResourcePath(value = NEW)
+    public String forwardRegister(StandardRequest request) {
         return FORWARD_PAGE_CREATE;
     }
 

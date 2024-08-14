@@ -4,44 +4,45 @@ import com.dev.servlet.dao.UserDAO;
 import com.dev.servlet.domain.User;
 import com.dev.servlet.interfaces.IController;
 
-import javax.persistence.EntityManager;
+import javax.inject.Inject;
 import java.util.List;
 
 public final class UserController implements IController<User, Long> {
 
-    private final UserDAO userDao;
+    @Inject
+    private UserDAO userDAO;
 
-    public UserController(EntityManager em) {
-        this.userDao = new UserDAO(em);
+    public UserController() {
+
     }
 
     public User find(User login) {
-        return userDao.find(login);
+        return userDAO.find(login);
     }
 
     @Override
     public User findById(Long id) {
-        return this.userDao.findById(id);
+        return this.userDAO.findById(id);
     }
 
     @Override
     public List<User> findAll(User user) {
-        return this.userDao.findAll(user);
+        return this.userDAO.findAll(user);
     }
 
     @Override
     public void save(User object) {
-        this.userDao.save(object);
+        this.userDAO.save(object);
     }
 
     @Override
     public User update(User object) {
-        return this.userDao.update(object);
+        return this.userDAO.update(object);
     }
 
     @Override
     public void delete(User object) {
-        this.userDao.delete(object);
+        this.userDAO.delete(object);
     }
 
 }

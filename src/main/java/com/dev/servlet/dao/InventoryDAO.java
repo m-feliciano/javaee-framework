@@ -4,7 +4,6 @@ import com.dev.servlet.domain.Inventory;
 import com.dev.servlet.domain.enums.StatusEnum;
 import com.dev.servlet.utils.CollectionUtils;
 
-import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -18,8 +17,8 @@ import java.util.List;
 
 public class InventoryDAO extends BaseDAO<Inventory, Long> {
 
-    public InventoryDAO(EntityManager em) {
-        super(em, Inventory.class);
+    public InventoryDAO() {
+        super(Inventory.class);
     }
 
     /**
@@ -43,7 +42,6 @@ public class InventoryDAO extends BaseDAO<Inventory, Long> {
      * @param inventory
      * @return {@link List}
      */
-    @Override
     public List<Inventory> findAll(Inventory inventory) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Inventory> cq = cb.createQuery(Inventory.class);

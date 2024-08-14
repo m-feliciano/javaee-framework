@@ -4,7 +4,6 @@ import com.dev.servlet.domain.User;
 import com.dev.servlet.domain.enums.StatusEnum;
 import com.dev.servlet.utils.CollectionUtils;
 
-import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -16,8 +15,8 @@ import java.util.List;
 
 public class UserDAO extends BaseDAO<User, Long> {
 
-    public UserDAO(EntityManager em) {
-        super(em, User.class);
+    public UserDAO() {
+        super(User.class);
     }
 
     /**
@@ -26,7 +25,6 @@ public class UserDAO extends BaseDAO<User, Long> {
      * @param user
      * @return {@link List}
      */
-    @Override
     public List<User> findAll(User user) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<User> cq = cb.createQuery(User.class).distinct(true);
@@ -61,7 +59,6 @@ public class UserDAO extends BaseDAO<User, Long> {
      *
      * @param user
      */
-    @Override
     public void delete(User user) {
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaUpdate<User> cu = builder.createCriteriaUpdate(User.class);

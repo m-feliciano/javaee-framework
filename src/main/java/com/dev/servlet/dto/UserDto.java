@@ -4,9 +4,7 @@ import com.dev.servlet.domain.User;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * DTO for {@link User}

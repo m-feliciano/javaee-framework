@@ -4,15 +4,15 @@ import com.dev.servlet.dao.InventoryDAO;
 import com.dev.servlet.domain.Inventory;
 import com.dev.servlet.interfaces.IController;
 
-import javax.persistence.EntityManager;
+import javax.inject.Inject;
 import java.util.List;
 
 public final class InventoryController implements IController<Inventory, Long> {
 
-    private final InventoryDAO inventoryDao;
+    @Inject
+    private InventoryDAO inventoryDao;
 
-    public InventoryController(EntityManager em) {
-        this.inventoryDao = new InventoryDAO(em);
+    public InventoryController() {
     }
 
     @Override
