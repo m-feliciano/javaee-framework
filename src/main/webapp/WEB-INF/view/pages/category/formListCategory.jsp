@@ -1,13 +1,8 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-
-<c:url value="/categoryView" var="categoryServlet"/>
-<c:url value="/categoryView?action=edit" var="editCategory"/>
-<fmt:setLocale value="pt-BR" scope="application"/>
-<!-- header -->
+<%@ include file="../../components/common-imports.jsp" %>
 <jsp:include page="../../components/header.jsp"/>
+
 <div class="main">
-    <form action="${ categoryServlet }" method="post">
+    <form action="${ categoryLink }" method="post">
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputId" class="form-label">ID</label>
@@ -25,7 +20,7 @@
             <a type="button" href="${ editCategory }&id=${ category.id }" class="btn btn-success">
                 Edit <i class="bi bi-pencil-square"></i>
             </a>
-            <a type="button" href="${ categoryServlet }?action=list" class="btn btn-light">
+            <a type="button" href="${ listCategories }" class="btn btn-light">
                 Go back
             </a>
         </div>

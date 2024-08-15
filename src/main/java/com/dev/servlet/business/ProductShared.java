@@ -1,4 +1,4 @@
-package com.dev.servlet.view;
+package com.dev.servlet.business;
 
 import com.dev.servlet.controllers.InventoryController;
 import com.dev.servlet.controllers.ProductController;
@@ -10,6 +10,14 @@ import com.dev.servlet.mapper.ProductMapper;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+/**
+ * Product shared.
+ * <p>
+ * This class is used to share the product between the product and inventory business.
+ * And will not be used in the view layer.
+ *
+ * @since 1.3.0
+ */
 @Singleton
 public class ProductShared {
 

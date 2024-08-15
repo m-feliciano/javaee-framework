@@ -17,13 +17,16 @@ import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * This class is used to process the request
+ *
+ * @since 1.0.0
+ */
 @ApplicationScoped
 public class ResquestProcessImp implements IRequestProcessor {
 
     private static final Logger logger = LoggerFactory.getLogger(ResquestProcessImp.class);
 
-    @Inject
-    private ServiceLocator serviceLocator;
     @Inject
     private Instance<IRateLimiter> ijRateLimit;
     private IRateLimiter rateLimit;
@@ -31,13 +34,13 @@ public class ResquestProcessImp implements IRequestProcessor {
     public ResquestProcessImp() {
     }
 
+    public ResquestProcessImp(IRateLimiter rateLimit) {
+        this.rateLimit = rateLimit;
+    }
+
     @PostConstruct
     public void init() {
         rateLimit = ijRateLimit.get();
-    }
-
-    public ResquestProcessImp(ServiceLocator serviceLocator) {
-        this.serviceLocator = serviceLocator;
     }
 
     /**
@@ -67,7 +70,7 @@ public class ResquestProcessImp implements IRequestProcessor {
     }
 
     /**
-     * Uses the Open Session In View 'pattern' to handle the session request
+     * Process the request, it uses service locator to get the service and invoke the method
      *
      * @param request
      * @param method
@@ -102,30 +105,4 @@ public class ResquestProcessImp implements IRequestProcessor {
             logger.info(debug);
         }
     }
-
-    /**
-     * Create the rate limit algorithm, uses the property rate.limit.algorithm to get the algorithm
-     *
-     * @return
-     */
-//    private synchronized IRateLimit createRateLimit() {
-//        String enabled = PropertiesUtil.getProperty("rate.limit.enabled", "false");
-//        if (!Boolean.parseBoolean(enabled)) {
-//            return null;
-//        }
-//
-//        String property = PropertiesUtil.getProperty("rate.limit.algorithm", "TokenRate");
-//        String capacity = PropertiesUtil.getProperty("rate.limit.capacity", "10");
-//        String window = PropertiesUtil.getProperty("rate.limit.window", "1000");
-//
-//        try {
-//            Class<?> clazz = Class.forName("com.dev.servlet.providers." + property);
-//            Constructor<?> constructor = clazz.getConstructor(long.class, long.class);
-//            return (IRateLimit) constructor.newInstance(
-//                    Long.parseLong(capacity), Long.parseLong(window));
-//        } catch (Exception e) {
-//            logger.error("Failed instantiating rate limit algorithm", e);
-//            throw new RuntimeException(e);
-//        }
-//    }
 }

@@ -8,48 +8,44 @@ It uses MVC architecture and was developed using the following stack:
 - Tomcat 9 (Server)
 - PostgreSQL (Database)
 
-## About developing this project
-I'm not a JSP developer, actually I work with Java/Nodejs Angular, but I can say that I learned a lot from this project.
-
-Any questions, suggestions, problem deploying the application, please contact me at `marcelo@tuta.io`.
-
 ## Layout
 
 ### Login
 
-#### server/loginView?action=loginForm
+#### your_server/view/login?action=loginForm
 ![App login page](https://i.ibb.co/R0xM6Ps/Screenshot-2022-07-17-034301.png)
 <br>
 
 ### Home
-#### server/loginView?action=list
+#### your_server/view/login?action=list
 ![App home page](https://i.ibb.co/LQmByN2/temp.png)
 <br>
 
 ### Product
-#### server/loginView?action=list&id=2
+#### your_server/view/login?action=list&id=2
 ![App prolist list page](https://i.ibb.co/1fy8JtG/Screenshot.png)
 <br>
 
 ### User
-#### server/loginView?action=list
+#### your_server/view/login?action=list
 ![App prolist list page](https://i.ibb.co/nBbGMtG/temp.png)
 <br>
 
 ### 404
-#### server/loginView?action=list&id=some_invalid_id
+#### your_server/view/login?action=list&id=some_invalid_id
 ![App not found page](https://i.postimg.cc/Sx8D8GZP/Screenshot-2024-08-10-174059.png)
 <br>
 
 ## Packages
 ```
-E:.
 ├───main
 │   ├───java
 │   │   └───com
 │   │       └───dev
 │   │           └───servlet
 │   │               ├───builders
+│   │               ├───business
+│   │               │   └───base
 │   │               ├───controllers
 │   │               ├───dao
 │   │               ├───domain
@@ -59,9 +55,7 @@ E:.
 │   │               ├───interfaces
 │   │               ├───mapper
 │   │               ├───providers
-│   │               ├───utils
-│   │               └───view
-│   │                   └───base
+│   │               └───utils
 │   ├───resources
 │   │   └───META-INF
 │   │       └───sql
@@ -83,6 +77,7 @@ E:.
     └───java
         └───servlets
             └───utils
+
 ```
 
 ## Database example
@@ -108,3 +103,13 @@ docker exec -it servlet psql -U postgres
 The scripts to create the database are in the `resources/META-INF/sql` folder
 
 The database connection is set in the `resources/META-INF/persistence.xml` file
+
+## Features in progress or to be implemented
+- [x] Implement pagination
+- [ ] Export/Import data to CSV
+- [ ] Add filters
+- [ ] Dockerize the application
+- [ ] Jasper Reports
+
+## Questions, suggestions, problems or improvements
+Please contact me at `marcelo@tuta.io`.

@@ -1,13 +1,6 @@
-<%@ page import="java.util.*, com.dev.servlet.dto.CategoryDto" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-
-<c:url value="/categoryView?action=list" var="listCategory"/>
-<c:url value="/categoryView?action=delete" var="deleteCategory"/>
-<c:url value="/categoryView?action=new" var="newCategory"/>
-<fmt:setLocale value="pt-BR" scope="application"/>
-
+<%@ include file="../../components/common-imports.jsp" %>
 <jsp:include page="../../components/header.jsp"/>
+
 <div class="main">
     <c:if test="${ empty categories }">
         <div class="d-flex flex-row-reverse mb-4">

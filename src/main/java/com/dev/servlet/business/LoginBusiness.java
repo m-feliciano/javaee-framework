@@ -1,4 +1,4 @@
-package com.dev.servlet.view;
+package com.dev.servlet.business;
 
 import com.dev.servlet.controllers.UserController;
 import com.dev.servlet.domain.User;
@@ -8,24 +8,32 @@ import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.mapper.UserMapper;
 import com.dev.servlet.utils.CacheUtil;
 import com.dev.servlet.utils.CryptoUtils;
-import com.dev.servlet.view.base.BaseRequest;
+import com.dev.servlet.business.base.BaseRequest;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpSession;
 
+/**
+ * The type Login business.
+ * <p>
+ * This class is responsible for the login business logic.
+ *
+ * @see BaseRequest
+ * @since 1.0
+ */
 @Singleton
-public class LoginView extends BaseRequest {
+public class LoginBusiness extends BaseRequest {
 
-    private static final String REDIRECT_PRODUCT_ACTION_LIST_ALL = "redirect:productView?action=list";
+    private static final String REDIRECT_PRODUCT_ACTION_LIST_ALL = "redirect:product?action=list";
 
     @Inject
     UserController controller;
 
-    public LoginView() {
+    public LoginBusiness() {
     }
 
-    public LoginView(UserController controller) {
+    public LoginBusiness(UserController controller) {
         this.controller = controller;
     }
 

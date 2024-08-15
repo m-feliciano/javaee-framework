@@ -1,7 +1,6 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<c:url value="/inventoryView" var="inventoryLink"/>
-<!-- header -->
+<%@ include file="../../components/common-imports.jsp" %>
 <jsp:include page="../../components/header.jsp"/>
+
 <div class="main">
     <form action="${ inventoryLink }" method="post">
         <div class="col-md-6">

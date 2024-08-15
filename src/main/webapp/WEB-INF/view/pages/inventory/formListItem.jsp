@@ -1,12 +1,6 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-
-<c:url value="/inventoryView" var="inventoryServlet"/>
-<c:url value="/inventoryView?action=edit" var="editItem"/>
-
-<fmt:setLocale value="pt-BR" scope="application"/>
-<!-- header -->
+<%@ include file="../../components/common-imports.jsp" %>
 <jsp:include page="../../components/header.jsp"/>
+
 <div class="main">
     <form action="${ inventoryServlet }" method="post">
         <div class="col-md-6">

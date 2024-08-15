@@ -1,12 +1,9 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ include file="../../components/common-imports.jsp" %>
+<jsp:include page="../../components/header.jsp"/>
 
-<c:url value="/productView" var="productLink"/>
-<fmt:setLocale value="pt-BR" scope="application"/>
 <fmt:parseDate value="${product.registerDate}" type="date" pattern="yyyy-MM-dd" var="parsedDate"/>
 <fmt:formatDate value="${parsedDate}" type="date" pattern="dd-MM-yyyy" var="stdDate"/>
 
-<jsp:include page="../../components/header.jsp"/>
 <div class="main">
     <form action="${ productLink }" method="post">
         <div class="col-md-6">

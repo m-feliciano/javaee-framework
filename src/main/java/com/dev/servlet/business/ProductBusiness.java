@@ -1,4 +1,4 @@
-package com.dev.servlet.view;
+package com.dev.servlet.business;
 
 import com.dev.servlet.controllers.ProductController;
 import com.dev.servlet.domain.Category;
@@ -12,7 +12,7 @@ import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.mapper.CategoryMapper;
 import com.dev.servlet.mapper.ProductMapper;
 import com.dev.servlet.utils.CurrencyFormatter;
-import com.dev.servlet.view.base.BaseRequest;
+import com.dev.servlet.business.base.BaseRequest;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -20,34 +20,40 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+/**
+ * Product Business
+ * <p>
+ * This class is responsible for handling the product business logic.
+ *
+ * @see BaseRequest
+ */
 @Singleton
-public class ProductView extends BaseRequest {
+public class ProductBusiness extends BaseRequest {
 
     private static final String FORWARD_PAGE_LIST = "forward:pages/product/formListProduct.jsp";
     private static final String FORWARD_PAGE_LIST_PRODUCTS = "forward:pages/product/listProducts.jsp";
     private static final String FORWARD_PAGE_UPDATE = "forward:pages/product/formUpdateProduct.jsp";
     private static final String FORWARD_PAGE_CREATE = "forward:pages/product/formCreateProduct.jsp";
-
-    private static final String REDIRECT_ACTION_LIST_ALL = "redirect:productView?action=list";
-    private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:productView?action=list&id=";
+    private static final String REDIRECT_ACTION_LIST_ALL = "redirect:product?action=list";
+    private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:product?action=list&id=";
 
     private static final String CACHE_KEY = "categories";
 
     @Inject
     private ProductController controller;
     @Inject
-    private CategoryView categoryView;
+    private CategoryBusiness categoryBusiness;
     @Inject
     private ProductShared productShared;
 
-    public ProductView() {
+    public ProductBusiness() {
     }
 
-    public ProductView(ProductController controller,
-                       CategoryView categoryView,
-                       ProductShared productShared) {
+    public ProductBusiness(ProductController controller,
+                           CategoryBusiness categoryBusiness,
+                           ProductShared productShared) {
         this.controller = controller;
-        this.categoryView = categoryView;
+        this.categoryBusiness = categoryBusiness;
         this.productShared = productShared;
     }
 
@@ -58,7 +64,7 @@ public class ProductView extends BaseRequest {
      */
     @ResourcePath(value = NEW)
     public String forwardRegister(StandardRequest request) {
-        List<CategoryDto> categories = categoryView.findAll(request);
+        List<CategoryDto> categories = categoryBusiness.findAll(request);
         request.servletRequest().setAttribute("categories", categories);
         return FORWARD_PAGE_CREATE;
     }
@@ -109,7 +115,7 @@ public class ProductView extends BaseRequest {
         product = controller.findById(Long.valueOf(id));
 
         request.servletRequest().setAttribute("product", ProductMapper.from(product));
-        request.servletRequest().setAttribute("categories", categoryView.findAll(request));
+        request.servletRequest().setAttribute("categories", categoryBusiness.findAll(request));
 
         return FORWARD_PAGE_UPDATE;
     }
@@ -149,10 +155,8 @@ public class ProductView extends BaseRequest {
         request.servletRequest().setAttribute("products", products);
 
         String categoryId = getParameter(request, "categoryId");
-        if (categoryId != null) {
-            List<Category> categories = categoryView.findAll(request).stream().map(CategoryMapper::from).toList();
-            request.servletRequest().setAttribute("categories", categories);
-        }
+        List<Category> categories = categoryBusiness.findAll(request).stream().map(CategoryMapper::from).toList();
+        request.servletRequest().setAttribute("categories", categories);
 
         return FORWARD_PAGE_LIST_PRODUCTS;
     }

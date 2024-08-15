@@ -1,18 +1,12 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ include file="../../components/common-imports.jsp" %>
+<jsp:include page="../../components/header.jsp"/>
 
-<c:url value="/productView" var="productLink"/>
-<c:url value="/productView?action=list" var="listProducts"/>
-<c:url value="/productView?action=edit" var="editProduct"/>
-
-<fmt:setLocale value="pt-BR" scope="application"/>
 <fmt:formatNumber value="${product.price}" type="currency" minFractionDigits="2" var="parsedNumber"/>
 <fmt:parseDate value="${product.registerDate}" type="date" pattern="yyyy-MM-dd" var="parsedDate"/>
 <fmt:formatDate value="${parsedDate}" type="date" pattern="dd/MM/yyyy" var="stdDate"/>
 
 <title>Product: ${ product.name }</title>
 
-<jsp:include page="../../components/header.jsp"/>
 <div class="main">
     <form action="${ productLink }" method="post">
         <div class="col-md-6">
@@ -40,13 +34,13 @@
                 <label for="inputName" class="form-label">NAME</label>
                 <input type="text" name="name" class="form-control" id="inputName"
                        placeholder="Product name" value="${ product.name }" autocomplete="name"
-                       minlength="4" readonly />
+                       minlength="4" readonly/>
             </div>
             <div class="mb-3">
                 <label for="inputDescription" class="form-label">DESCRIPTION</label>
                 <textarea name="description" class="form-control" id="inputDescription"
                           placeholder="Simple Description" readonly rows="4" cols="auto">
-                          ${ product.description }</textarea>
+                    ${ product.description }</textarea>
             </div>
             <div class="mb-4">
                 <div class="row justify-content-end">

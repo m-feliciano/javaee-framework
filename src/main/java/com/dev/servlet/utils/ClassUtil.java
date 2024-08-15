@@ -1,17 +1,13 @@
 package com.dev.servlet.utils;
 
-import javax.inject.Singleton;
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
 public final class ClassUtil {
 
     private ClassUtil() {
-    }
-
-    public static List<Class<?>> loadClasses(String packageName) throws Exception {
-        return loadClasses(packageName, false);
     }
 
     /**
@@ -21,7 +17,19 @@ public final class ClassUtil {
      * @return
      * @throws Exception
      */
-    public static List<Class<?>> loadClasses(String packageName, boolean singleton) throws Exception {
+    public static List<Class<?>> loadClasses(String packageName) throws Exception {
+        return loadClasses(packageName, null);
+    }
+
+    /**
+     * Load the classes in the package, with the specified annotations
+     *
+     * @param packageName
+     * @param annotations
+     * @return
+     * @throws Exception
+     */
+    public static List<Class<?>> loadClasses(String packageName, Class<? extends Annotation>[] annotations) throws Exception {
         List<Class<?>> classes = new ArrayList<>();
 
         // Get the files in the package
@@ -31,7 +39,7 @@ public final class ClassUtil {
             // Check if the file is a directory
             if (file.isDirectory()) {
                 // Load the classes in the subdirectory
-                classes.addAll(loadClasses(packageName + "." + file.getName()));
+                classes.addAll(loadClasses(packageName + "." + file.getName(), annotations));
             } else if (file.getName().endsWith(".class")) {
                 // Get the class name
                 String className = packageName + '.' + file.getName().substring(0, file.getName().length() - 6);
@@ -39,12 +47,16 @@ public final class ClassUtil {
                 // Load the class
                 Class<?> clazz = Class.forName(className);
 
-                // if the class has an annotation @Singleton
-                if (singleton && !clazz.isAnnotationPresent(Singleton.class)) {
-                    continue;
+                if (annotations == null) {
+                    classes.add(clazz);
+                } else {
+                    for (var annotation : annotations) {
+                        if (clazz.isAnnotationPresent(annotation)) {
+                            classes.add(clazz);
+                            break;
+                        }
+                    }
                 }
-
-                classes.add(clazz);
             }
         }
 

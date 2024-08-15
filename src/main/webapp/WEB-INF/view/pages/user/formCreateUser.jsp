@@ -1,9 +1,4 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<jsp:include page="../common-imports.jsp" />
-<!------ Include the above in your HEAD tag ---------->
-
-<c:url value="/userView" var="path" />
-<c:url value="/loginView?action=loginForm" var="loginPage" />
+<%@ include file="../../components/common-imports.jsp" %>
 
 <div class="register sidenav">
 	<div class="register-main-text">
@@ -16,7 +11,7 @@
 <div class="main">
 	<div class="col-md-6 col-sm-12">
 		<div class="login-form">
-			<form action="${ path }?action=register" method="post">
+			<form action="${ loginLink }?action=register" method="post">
 				<div class="form-group">
 					<label for="inputEmail">Email</label> <input type="email"
 						value="${ email }" id="inputEmail" name="email"
@@ -44,7 +39,7 @@
 					</div>
 				</c:if>
 				<div>
-					<a type="button" href="${ loginPage }" class="btn btn-black">Login</a>
+					<a type="button" href="${ loginLink }" class="btn btn-black">Login</a>
 					<span class="ml-1"></span>
 					<button type="submit" class="btn btn-blue">Register</button>
 				</div>

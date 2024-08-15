@@ -30,11 +30,16 @@ public class Auth implements Filter {
     }
 
     /**
-     * Auth filter
+     * This method will check if the user is authorized to access the requested action,
+     * otherwise it will redirect the user to the login page.
+     * <p>
+     * When the request has no action, it will allow the request to continue
+     * because it may be a request for content like css, js, images etc.
      *
      * @param servletRequest  the servlet request
      * @param servletResponse the servlet response
      * @param chain           the filter chain
+     * @since 1.0
      */
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) {
@@ -46,7 +51,11 @@ public class Auth implements Filter {
         String token = (String) request.getSession().getAttribute("token");
         try {
             if (action == null || !isAuthorized(token, action)) {
-                response.sendRedirect("loginView?action=loginForm");
+                if (action == null) {
+                    chain.doFilter(request, response);
+                } else {
+                    response.sendRedirect("view/login?action=loginForm");
+                }
             } else {
                 dispatcher.dispatch(request, response);
             }

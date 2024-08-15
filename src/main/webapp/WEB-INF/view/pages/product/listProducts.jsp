@@ -1,15 +1,6 @@
-<%@ page import="java.util.*,com.dev.servlet.dto.ProductDto" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<fmt:setLocale value="pt-BR" scope="application"/>
-
-<c:url value="/productView?action=list" var="listProducts"/>
-<c:url value="/productView?action=delete" var="deleteProduct"/>
-<c:url value="/productView?action=new" var="newProduct"/>
-
-<fmt:formatNumber value="${product.price}" type="currency" minFractionDigits="2" var="parsedPrice"/>
-
+<%@ include file="../../components/common-imports.jsp" %>
 <jsp:include page="../../components/header.jsp"/>
+
 <div class="main">
     <form class="form-inline d-flex flex-row-reverse mb-2 pr-2" action="${ listProducts }" method="post">
         <div class="mb-3 form-row">

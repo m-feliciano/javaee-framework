@@ -1,6 +1,5 @@
-<%@ page contentType="text/html;charset=UTF-8" pageEncoding="ISO-8859-1" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,48 +16,8 @@
     <link rel="stylesheet" href="<c:url value='/css/popup.css'/>">
     <title>Shopping</title>
 </head>
-
-<c:url value="/productView" var="productLink"/>
-<c:url value="/categoryView" var="categoryLink"/>
-<c:url value="/inventoryView" var="inventoryLink"/>
-<c:url value="/userView" var="userLink"/>
-<c:url value="/loginView" var="loginLink"/>
-<fmt:setLocale value="pt-BR" scope="application"/>
-
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="collapse navbar-collapse nav-items" id="navbarTogglerDemo01">
-        <a class="navbar-brand"
-           href="${productLink}?action=list">
-            <img src="<c:url value='/assets/logo.svg'/>" width="30" height="30"
-                 class="d-inline-block align-top" alt="Bootstrap logo"><span class="title-logo ml-2">Shopping</span>
-        </a>
-        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-            <li class="nav-item">
-                <a class="nav-link" href="${productLink}?action=list">Products</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="${categoryLink}?action=list">Categories</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="${inventoryLink}?action=list">Inventory</a>
-            </li>
-        </ul>
-        <div class="d-flex">
-            <div class="avatar mt-1 mx30">
-                <a href="${userLink}?action=list">
-                    <c:if test="${not empty user.imgUrl }">
-                        <img src="${user.imgUrl}" alt="user" class="avatar-img rounded-circle">
-                    </c:if>
-                    <c:if test="${empty user.imgUrl }">
-                        <img src="<c:url value='/assets/avatar2.png'/>" alt="user" class="avatar-img rounded-circle">
-                    </c:if>
-                </a>
-            </div>
-            <a class="nav-link btn-logout mr-2" href="${userLink}?action=list">Perfil</a>
-        </div>
-        <a class="nav-link btn-logout" href="${loginLink}?action=logout">Logout</a>
-    </div>
-</nav>
+
+<%@ include file="navbar.jsp" %>
 
 <div class="content">

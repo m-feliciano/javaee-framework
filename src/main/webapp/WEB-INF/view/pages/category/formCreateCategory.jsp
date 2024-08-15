@@ -1,9 +1,8 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<c:url value="/categoryView" var="linkCategoryServlet"/>
-<!-- header -->
+<%@ include file="../../components/common-imports.jsp" %>
 <jsp:include page="../../components/header.jsp"/>
+
 <div class="main">
-    <form action="${ linkCategoryServlet }" method="post">
+    <form action="${ categoryLink }" method="post">
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputName" class="form-label">NAME</label>
@@ -13,7 +12,7 @@
             <!-- action -->
             <input type="hidden" name="action" value="create">
             <button type="submit" class="btn btn-primary">Submit</button>
-            <a type="button" href="${ linkCategoryServlet }?action=list" class="btn btn-light">
+            <a type="button" href="${ listCategories }" class="btn btn-light">
                 Cancel
             </a>
         </div>

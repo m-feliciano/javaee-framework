@@ -1,13 +1,8 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-
-<c:url value="/inventoryView" var="inventoryServlet"/>
-<fmt:setLocale value="pt-BR" scope="application"/>
-
-<!-- header -->
+<%@ include file="../../components/common-imports.jsp" %>
 <jsp:include page="../../components/header.jsp"/>
+
 <div class="main">
-    <form action="${ inventoryServlet }" method="post">
+    <form action="${ inventoryLink }" method="post">
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputItemId" class="form-label">ID</label>
@@ -40,7 +35,7 @@
             <!-- action -->
             <input type="hidden" name="action" value="update">
             <button type="submit" class="btn btn-primary">Submit</button>
-            <a type="button" href="${ inventoryServlet }?action=list&id=${ item.id }" class="btn btn-light">
+            <a type="button" href="${ inventoryLink }?action=list&id=${ item.id }" class="btn btn-light">
                 Cancel
             </a>
         </div>

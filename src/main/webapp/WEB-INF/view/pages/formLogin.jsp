@@ -1,10 +1,19 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<jsp:include page="common-imports.jsp"/>
-<!------ Include the above in your HEAD tag ---------->
+<%@ include file="../components/common-imports.jsp" %>
 
-<c:url value="/loginView" var="loginPage"/>
-<c:url value="/userView?action=registerPage" var="registerPage"/>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="ISO-8859-1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+          integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn"
+          crossorigin="anonymous"/>
+    <link rel="stylesheet" href="<c:url value='/css/login.css'/>">
+    <title>Shopping</title>
+</head>
+<body>
 <div class="sidenav">
     <div class="login-main-text">
         <h2>
@@ -16,7 +25,7 @@
 <div class="main">
     <div class="col-md-6 col-sm-12">
         <div class="login-form">
-            <form action="${ loginPage }?action=login" method="post">
+            <form action="${ loginLink }?action=login" method="post">
                 <div class="form-group">
                     <label for="inputEmail">Email</label> <input type="email"
                                                                  id="inputEmail" name="email"
@@ -44,9 +53,11 @@
                 <div>
                     <button type="submit" class="btn btn-black">Login</button>
                     <span class="ml-1"></span>
-                    <a type="button" href="${ registerPage }" class="btn btn-blue">Register</a>
+                    <a type="button" href="${ loginLink }" class="btn btn-blue">Register</a>
                 </div>
             </form>
         </div>
     </div>
 </div>
+</body>
+</html>

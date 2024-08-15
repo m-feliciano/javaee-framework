@@ -11,11 +11,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * This class is used to dispatch the request to the appropriate servlet
+ *
+ * @since 1.0.0
+ */
 //@WebFilter(urlPatterns = "/company")
 @ApplicationScoped
 public final class ServletDispatchImp implements IServletDispatcher {
 
-    private static final String PACKAGE = "com.dev.servlet.view.%s";
+    private static final String PACKAGE = "com.dev.servlet.business.%s";
 
     @Inject
     private IRequestProcessor processor;
@@ -27,6 +32,14 @@ public final class ServletDispatchImp implements IServletDispatcher {
         this.processor = processor;
     }
 
+    /**
+     * This method is used to dispatch the request to the appropriate servlet,
+     * it will not return anything or do any business logic
+     *
+     * @param request
+     * @param response
+     * @throws Exception
+     */
     @Override
     public void dispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String token = (String) request.getSession().getAttribute("token");
@@ -46,7 +59,8 @@ public final class ServletDispatchImp implements IServletDispatcher {
                 .token(token)
                 .build();
 
-        return processor.process(request);
+        Object result = processor.process(request);
+        return result;
     }
 
     /**
@@ -107,6 +121,6 @@ public final class ServletDispatchImp implements IServletDispatcher {
      * @return
      */
     private String getServletClass(String entityName) {
-        return entityName.substring(0, 1).toUpperCase() + entityName.substring(1);
+        return entityName.substring(0, 1).toUpperCase() + entityName.substring(1) + "Business";
     }
 }

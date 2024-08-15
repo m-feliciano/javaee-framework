@@ -1,4 +1,4 @@
-package com.dev.servlet.view;
+package com.dev.servlet.business;
 
 import com.dev.servlet.controllers.UserController;
 import com.dev.servlet.domain.User;
@@ -10,29 +10,34 @@ import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.mapper.UserMapper;
 import com.dev.servlet.utils.CacheUtil;
 import com.dev.servlet.utils.CryptoUtils;
-import com.dev.servlet.view.base.BaseRequest;
+import com.dev.servlet.business.base.BaseRequest;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * The type User business.
+ * <p>
+ * This class is responsible for the user business logic.
+ * @see BaseRequest
+ */
 @Singleton
-public class UserView extends BaseRequest {
+public class UserBusiness extends BaseRequest {
 
     private static final String FORWARD_PAGE_CREATE = "forward:pages/user/formCreateUser.jsp";
     private static final String FORWARD_PAGE_LIST = "forward:pages/user/formListUser.jsp";
     private static final String FORWARD_PAGE_UPDATE = "forward:pages/user/formUpdateUser.jsp";
-    private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:userView?action=list&id=";
-
-    private static final String REDIRECT_PRODUCT_ACTION_CREATE = "redirect:productView?action=create";
+    private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:user?action=list&id=";
+    private static final String REDIRECT_PRODUCT_ACTION_CREATE = "redirect:product?action=create";
 
     @Inject
     private UserController controller;
 
-    public UserView() {
+    public UserBusiness() {
     }
 
-    public UserView(UserController controller) {
+    public UserBusiness(UserController controller) {
         this.controller = controller;
     }
 

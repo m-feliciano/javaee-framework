@@ -1,4 +1,4 @@
-package com.dev.servlet.view;
+package com.dev.servlet.business;
 
 import com.dev.servlet.controllers.InventoryController;
 import com.dev.servlet.domain.Category;
@@ -10,39 +10,47 @@ import com.dev.servlet.dto.ProductDto;
 import com.dev.servlet.filter.StandardRequest;
 import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.mapper.InventoryMapper;
-import com.dev.servlet.view.base.BaseRequest;
+import com.dev.servlet.business.base.BaseRequest;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
+/**
+ * Inventory business.
+ * <p>
+ * This class is responsible for handling the inventory business logic.
+ *
+ * @see BaseRequest
+ * @since 1.0
+ */
 @Singleton
-public class InventoryView extends BaseRequest {
+public class InventoryBusiness extends BaseRequest {
 
     private static final String FORWARD_PAGE_LIST = "forward:pages/inventory/formListItem.jsp";
     private static final String FORWARD_PAGE_LIST_ITEMS = "forward:pages/inventory/listItems.jsp";
     private static final String FORWARD_PAGE_CREATE = "forward:pages/inventory/formCreateItem.jsp";
     private static final String FORWARD_PAGE_UPDATE = "forward:pages/inventory/formUpdateItem.jsp";
 
-    private static final String REDIRECT_ACTION_LIST_ALL = "redirect:inventoryView?action=list";
-    private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:inventoryView?action=list&id=";
+    private static final String REDIRECT_ACTION_LIST_ALL = "redirect:inventory?action=list";
+    private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:inventory?action=list&id=";
 
     @Inject
     private InventoryController controller;
     @Inject
-    private CategoryView categoryView;
+    private CategoryBusiness categoryBusiness;
     @Inject
     private ProductShared productShared;
 
-    public InventoryView() {
+    public InventoryBusiness() {
     }
 
-    public InventoryView(InventoryController controller,
-                         CategoryView categoryView,
-                         ProductShared productShared) {
+    public InventoryBusiness(InventoryController controller,
+                             CategoryBusiness categoryBusiness,
+                             ProductShared productShared) {
         this.controller = controller;
-        this.categoryView = categoryView;
+        this.categoryBusiness = categoryBusiness;
         this.productShared = productShared;
     }
 
@@ -99,7 +107,7 @@ public class InventoryView extends BaseRequest {
 
         List<InventoryDto> list = findAll(request);
         request.servletRequest().setAttribute("items", list);
-        request.servletRequest().setAttribute("categories", categoryView.findAll(request));
+        request.servletRequest().setAttribute("categories", categoryBusiness.findAll(request));
         return FORWARD_PAGE_LIST_ITEMS;
     }
 

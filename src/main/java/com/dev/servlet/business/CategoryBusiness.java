@@ -1,4 +1,4 @@
-package com.dev.servlet.view;
+package com.dev.servlet.business;
 
 import com.dev.servlet.controllers.CategoryController;
 import com.dev.servlet.domain.Category;
@@ -9,22 +9,31 @@ import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.mapper.CategoryMapper;
 import com.dev.servlet.utils.CacheUtil;
 import com.dev.servlet.utils.CollectionUtils;
-import com.dev.servlet.view.base.BaseRequest;
+import com.dev.servlet.business.base.BaseRequest;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
 
 @Singleton
-public class CategoryView extends BaseRequest {
+
+/**
+ * Category Busines
+ * <p>
+ * This class is responsible for handling the category business logic.
+ *
+ * @see BaseRequest
+ * @since 1.0
+ */
+public class CategoryBusiness extends BaseRequest {
 
     private static final String FORWARD_PAGE_CREATE = "forward:pages/category/formCreateCategory.jsp";
     private static final String FORWARD_PAGE_LIST = "forward:pages/category/listCategories.jsp";
     private static final String FORWARD_PAGE_LIST_BY_ID = "forward:pages/category/formListCategory.jsp";
     private static final String FORWARD_PAGE_UPDATE = "forward:pages/category/formUpdateCategory.jsp";
 
-    private static final String REDIRECT_ACTION_LIST_ALL = "redirect:categoryView?action=list";
-    private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:categoryView?action=list&id=";
+    private static final String REDIRECT_ACTION_LIST_ALL = "redirect:category?action=list";
+    private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:category?action=list&id=";
 
     private static final String CATEGORY = "category";
     private static final String CACHE_KEY = "categories";
@@ -32,10 +41,10 @@ public class CategoryView extends BaseRequest {
     @Inject
     private CategoryController controller;
 
-    public CategoryView() {
+    public CategoryBusiness() {
     }
 
-    public CategoryView(CategoryController controller) {
+    public CategoryBusiness(CategoryController controller) {
         this.controller = controller;
     }
 

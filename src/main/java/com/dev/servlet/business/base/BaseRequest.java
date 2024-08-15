@@ -1,4 +1,4 @@
-package com.dev.servlet.view.base;
+package com.dev.servlet.business.base;
 
 import com.dev.servlet.domain.User;
 import com.dev.servlet.filter.StandardRequest;
