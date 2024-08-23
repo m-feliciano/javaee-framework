@@ -26,7 +26,7 @@
                             <th width="10%" scope="row">${ category.id }</th>
                             <td width=50%>${ category.name }</td>
                             <td width=25%>
-                                <a type="button" href="${ listCategory }&id=${ category.id }" class="btn btn-primary">
+                                <a type="button" href="${ listCategories }&id=${ category.id }" class="btn btn-primary">
                                     <i class="bi bi-eye"></i>
                                 </a>
                                 <a type="button" href="${ deleteCategory }&id=${ category.id }" class="btn btn-danger">

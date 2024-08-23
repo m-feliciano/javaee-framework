@@ -83,8 +83,8 @@ public class InventoryDAO extends BaseDAO<Inventory, Long> {
      *
      * @param inventory
      */
-    @Override
     public void delete(Inventory inventory) {
+        beginTransaction();
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaUpdate<Inventory> cu = builder.createCriteriaUpdate(Inventory.class);
         Root<Inventory> root = cu.from(Inventory.class);
@@ -93,6 +93,7 @@ public class InventoryDAO extends BaseDAO<Inventory, Long> {
         cu.where(predicate);
         Query query = em.createQuery(cu);
         int update = query.executeUpdate();
+        commitTransaction();
     }
 
     /**

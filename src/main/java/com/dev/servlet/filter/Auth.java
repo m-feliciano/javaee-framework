@@ -50,14 +50,15 @@ public class Auth implements Filter {
         String action = request.getParameter("action");
         String token = (String) request.getSession().getAttribute("token");
         try {
-            if (action == null || !isAuthorized(token, action)) {
-                if (action == null) {
-                    chain.doFilter(request, response);
-                } else {
-                    response.sendRedirect("view/login?action=loginForm");
-                }
+            if (action == null) {
+                chain.doFilter(request, response);
             } else {
-                dispatcher.dispatch(request, response);
+                if (!isAuthorized(token, action)) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.sendRedirect("view/login?action=loginForm");
+                } else {
+                    dispatcher.dispatch(request, response);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

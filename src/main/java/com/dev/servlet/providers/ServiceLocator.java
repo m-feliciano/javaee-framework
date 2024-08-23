@@ -41,14 +41,20 @@ public class ServiceLocator {
                 return serviceClass.cast(services.get(serviceClass));
             } else {
                 try {
-                    // Look up the CDI bean manager and use it to resolve the bean
-                    BeanManager beanManager = CDI.current().getBeanManager();
-                    Bean<?> bean = beanManager.resolve(beanManager.getBeans(serviceClass));
-                    T service = serviceClass.cast(
-                            beanManager.getReference(
-                                    bean, serviceClass, beanManager.createCreationalContext(bean)));
-                    services.put(serviceClass, service);
-                    return service;
+                    synchronized (this) {
+                        if (services.containsKey(serviceClass)) {
+                            return serviceClass.cast(services.get(serviceClass));
+                        }
+
+                        // Look up the CDI bean manager and use it to resolve the bean
+                        BeanManager beanManager = CDI.current().getBeanManager();
+                        Bean<?> bean = beanManager.resolve(beanManager.getBeans(serviceClass));
+                        T service = serviceClass.cast(
+                                beanManager.getReference(
+                                        bean, serviceClass, beanManager.createCreationalContext(bean)));
+                        services.putIfAbsent(serviceClass, service);
+                        return service;
+                    }
                 } catch (Exception e) {
                     logger.log(Level.SEVERE, "Failed to instantiate service: %s".formatted(serviceClass), e);
                 }
@@ -61,7 +67,7 @@ public class ServiceLocator {
     // Singleton instance
     private static ServiceLocatorInstance instance;
 
-    public ServiceLocator() {
+    private ServiceLocator() {
         // Empty constructor
     }
 

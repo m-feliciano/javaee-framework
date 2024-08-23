@@ -17,22 +17,22 @@ It uses MVC architecture and was developed using the following stack:
 <br>
 
 ### Home
-#### your_server/view/login?action=list
+#### your_server/product/login?action=list
 ![App home page](https://i.ibb.co/LQmByN2/temp.png)
 <br>
 
 ### Product
-#### your_server/view/login?action=list&id=2
+#### your_server/view/product?action=list&id=2
 ![App prolist list page](https://i.ibb.co/1fy8JtG/Screenshot.png)
 <br>
 
 ### User
-#### your_server/view/login?action=list
+#### your_server/view/user?action=list
 ![App prolist list page](https://i.ibb.co/nBbGMtG/temp.png)
 <br>
 
 ### 404
-#### your_server/view/login?action=list&id=some_invalid_id
+#### your_server/view/product?action=list&id=some_invalid_id
 ![App not found page](https://i.postimg.cc/Sx8D8GZP/Screenshot-2024-08-10-174059.png)
 <br>
 
@@ -53,6 +53,7 @@ It uses MVC architecture and was developed using the following stack:
 │   │               ├───dto
 │   │               ├───filter
 │   │               ├───interfaces
+│   │               ├───listeners
 │   │               ├───mapper
 │   │               ├───providers
 │   │               └───utils

@@ -1,5 +1,6 @@
-package com.dev.servlet.providers;
+package com.dev.servlet.listeners;
 
+import com.dev.servlet.providers.ServiceLocator;
 import com.dev.servlet.utils.ClassUtil;
 import com.dev.servlet.utils.CollectionUtils;
 import com.dev.servlet.utils.JPAUtil;
@@ -7,6 +8,7 @@ import com.dev.servlet.utils.JPAUtil;
 import javax.inject.Singleton;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
 import java.util.List;
 
 /**
@@ -14,6 +16,7 @@ import java.util.List;
  *
  * @since 1.3.0
  */
+@WebListener
 public class ContextListener implements ServletContextListener {
 
     /**

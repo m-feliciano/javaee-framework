@@ -105,6 +105,7 @@ public class ProductDAO extends BaseDAO<Product, Long> {
      */
     @Override
     public void delete(Product product) {
+        beginTransaction();
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaUpdate<Product> cu = builder.createCriteriaUpdate(Product.class);
         Root<Product> root = cu.from(Product.class);
@@ -112,6 +113,7 @@ public class ProductDAO extends BaseDAO<Product, Long> {
         cu.where(builder.equal(root.get("id"), product.getId()));
         Query query = em.createQuery(cu);
         int update = query.executeUpdate();
+        commitTransaction();
     }
 
 }

@@ -87,8 +87,16 @@ public final class ServletDispatchImp implements IServletDispatcher {
      */
     private void processResponse(HttpServletRequest request, HttpServletResponse response, String fullpath)
             throws ServletException {
-        if (fullpath == null) {
+        if (response.getStatus() == HttpServletResponse.SC_NOT_FOUND
+                || response.getStatus() == HttpServletResponse.SC_FORBIDDEN
+                || response.getStatus() == HttpServletResponse.SC_BAD_REQUEST) {
+            // TODO: Create a error custom page
             fullpath = "forward:pages/not-found.jsp";
+        }
+
+        if (fullpath == null) {
+            // We don't have a next chain, so we return the message that the service has set
+            return;
         }
 
         String[] path;

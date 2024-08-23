@@ -67,6 +67,7 @@ public class CategoryDAO extends BaseDAO<Category, Long> {
      * @param category
      */
     public void delete(Category category) {
+        beginTransaction();
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaUpdate<Category> cu = builder.createCriteriaUpdate(Category.class);
         Root<Category> root = cu.from(Category.class);
@@ -75,5 +76,6 @@ public class CategoryDAO extends BaseDAO<Category, Long> {
         cu.where(predicate);
         Query query = em.createQuery(cu);
         int update = query.executeUpdate();
+        commitTransaction();
     }
 }

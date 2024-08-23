@@ -60,6 +60,7 @@ public class UserDAO extends BaseDAO<User, Long> {
      * @param user
      */
     public void delete(User user) {
+        beginTransaction();
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaUpdate<User> cu = builder.createCriteriaUpdate(User.class);
         Root<User> root = cu.from(User.class);
@@ -68,5 +69,6 @@ public class UserDAO extends BaseDAO<User, Long> {
         cu.where(predicate);
         Query query = em.createQuery(cu);
         int update = query.executeUpdate();
+        commitTransaction();
     }
 }
