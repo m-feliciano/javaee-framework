@@ -1,8 +1,8 @@
-<%@ include file="../../components/common-imports.jsp" %>
-<jsp:include page="../../components/header.jsp"/>
+<%@ include file="/WEB-INF/jspf/common-imports.jspf" %>
+<jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <div class="main">
-    <form action="${ categoryLink }" method="post">
+    <form action="${ updateCategory }" method="post">
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputId" class="form-label">ID</label>
@@ -17,7 +17,7 @@
             </div>
 
             <!-- action -->
-            <input type="hidden" name="action" value="update">
+
             <button type="submit" class="btn btn-primary">Submit</button>
             <a type="button" href="${ categoryLink }?action=list&id=${category.id }" class="btn btn-light">
                 Cancel
@@ -26,4 +26,4 @@
     </form>
 </div>
 <!-- footer -->
-<jsp:include page="../../components/footer.jsp"/>
+<jsp:include page="/WEB-INF/view/components/footer.jsp"/>

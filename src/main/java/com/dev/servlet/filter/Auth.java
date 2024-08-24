@@ -2,6 +2,7 @@ package com.dev.servlet.filter;
 
 import com.dev.servlet.interfaces.IServletDispatcher;
 import com.dev.servlet.utils.PropertiesUtil;
+import com.dev.servlet.utils.URIUtils;
 
 import javax.inject.Inject;
 import javax.servlet.Filter;
@@ -10,6 +11,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Set;
 
 import static com.dev.servlet.utils.CryptoUtils.isValidToken;
@@ -19,19 +21,20 @@ public class Auth implements Filter {
 
     private static final Set<String> AUTHORIZED_ACTIONS = PropertiesUtil.getAuthorizedActions();
 
-    @Inject
     private IServletDispatcher dispatcher;
 
     public Auth() {
+        // Empty constructor
     }
 
-    public Auth(IServletDispatcher dispatcher) {
+    @Inject
+    public void setDependencies(IServletDispatcher dispatcher) {
         this.dispatcher = dispatcher;
     }
 
     /**
      * This method will check if the user is authorized to access the requested action,
-     * otherwise it will redirect the user to the login page.
+     * otherwise it will redirect the user to the login currentPage.
      * <p>
      * When the request has no action, it will allow the request to continue
      * because it may be a request for content like css, js, images etc.
@@ -42,17 +45,18 @@ public class Auth implements Filter {
      * @since 1.0
      */
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) {
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException {
 
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        String action = request.getParameter("action");
-        String token = (String) request.getSession().getAttribute("token");
         try {
-            if (action == null) {
+            if (!request.getServletPath().contains("view")) {
                 chain.doFilter(request, response);
             } else {
+                String token = (String) request.getSession().getAttribute("token");
+                String action =  URIUtils.getAction(request);
+
                 if (!isAuthorized(token, action)) {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     response.sendRedirect("view/login?action=loginForm");
@@ -61,7 +65,7 @@ public class Auth implements Filter {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -73,7 +77,7 @@ public class Auth implements Filter {
      * @return boolean
      */
     private boolean isAuthorized(String token, String action) {
-        boolean anyMatch = AUTHORIZED_ACTIONS.stream().anyMatch(action::equals);
+        boolean anyMatch = AUTHORIZED_ACTIONS.stream().anyMatch(e -> e.equals(action));
         return anyMatch || isValidToken(token);
     }
 }

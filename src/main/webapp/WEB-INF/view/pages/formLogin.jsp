@@ -1,18 +1,8 @@
-<%@ include file="../components/common-imports.jsp" %>
+<%@ include file="/WEB-INF/jspf/common-imports.jspf" %>
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="ISO-8859-1">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
-          integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn"
-          crossorigin="anonymous"/>
-    <link rel="stylesheet" href="<c:url value='/css/login.css'/>">
-    <title>Shopping</title>
-</head>
+<%@ include file="/WEB-INF/jspf/head-loginForm.jspf" %> <!-- This is a fragment -->
 <body>
 <div class="sidenav">
     <div class="login-main-text">
@@ -25,7 +15,7 @@
 <div class="main">
     <div class="col-md-6 col-sm-12">
         <div class="login-form">
-            <form action="${ loginLink }?action=login" method="post">
+            <form action="${ login }" method="post">
                 <div class="form-group">
                     <label for="inputEmail">Email</label> <input type="email"
                                                                  id="inputEmail" name="email"
@@ -53,7 +43,7 @@
                 <div>
                     <button type="submit" class="btn btn-black">Login</button>
                     <span class="ml-1"></span>
-                    <a type="button" href="${ loginLink }" class="btn btn-blue">Register</a>
+                    <a type="button" href="${ registerPage }" class="btn btn-blue">Register</a>
                 </div>
             </form>
         </div>

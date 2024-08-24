@@ -5,6 +5,7 @@ import com.dev.servlet.domain.Product;
 import com.dev.servlet.domain.enums.StatusEnum;
 import com.dev.servlet.utils.CollectionUtils;
 
+import javax.enterprise.inject.Model;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -17,6 +18,7 @@ import javax.persistence.criteria.Root;
 import java.util.Collections;
 import java.util.List;
 
+@Model
 public class ProductDAO extends BaseDAO<Product, Long> {
 
     public ProductDAO() {
@@ -49,6 +51,28 @@ public class ProductDAO extends BaseDAO<Product, Long> {
         CriteriaQuery<Product> query = cb.createQuery(Product.class).distinct(true);
         Root<Product> root = query.from(Product.class);
 
+        Predicate predicate = getDefaultPredicate(product, cb, root);
+
+        Order descId = cb.desc(root.get("id"));
+        query.where(predicate).select(root).orderBy(descId);
+
+        List<Product> resultList = em.createQuery(query).getResultList();
+        if (!CollectionUtils.isNullOrEmpty(resultList)) {
+            return resultList;
+        }
+
+        return Collections.emptyList();
+    }
+
+    /**
+     * Return the predicate to be used in the query
+     *
+     * @param product
+     * @param cb
+     * @param root
+     * @return
+     */
+    private static Predicate getDefaultPredicate(Product product, CriteriaBuilder cb, Root<Product> root) {
         Predicate predicate = cb.notEqual(root.get("status"), StatusEnum.DELETED.getName());
 
         if (product.getUser() != null) {
@@ -86,16 +110,7 @@ public class ProductDAO extends BaseDAO<Product, Long> {
                 }
             }
         }
-
-        Order descId = cb.desc(root.get("id"));
-        query.where(predicate).select(root).orderBy(descId);
-
-        List<Product> resultList = em.createQuery(query).getResultList();
-        if (!CollectionUtils.isNullOrEmpty(resultList)) {
-            return resultList;
-        }
-
-        return Collections.emptyList();
+        return predicate;
     }
 
     /**
@@ -116,4 +131,50 @@ public class ProductDAO extends BaseDAO<Product, Long> {
         commitTransaction();
     }
 
+    /**
+     * Find all products using pagination
+     *
+     * @param product
+     * @param first
+     * @param pageSize
+     * @return
+     */
+    public List<Product> findAll(Product product, int first, int pageSize) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Product> query = cb.createQuery(Product.class).distinct(true);
+        Root<Product> root = query.from(Product.class);
+
+        Predicate predicate = getDefaultPredicate(product, cb, root);
+
+        Order descId = cb.desc(root.get("id"));
+        query.where(predicate).select(root).orderBy(descId);
+
+        List<Product> resultList = em.createQuery(query)
+                .setFirstResult(first)
+                .setMaxResults(pageSize)
+                .getResultList();
+        if (!CollectionUtils.isNullOrEmpty(resultList)) {
+            return resultList;
+        }
+
+        return Collections.emptyList();
+    }
+
+    /**
+     * Count the number of products
+     *
+     * @param product
+     * @return
+     */
+    public Long getTotalResults(Product product) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<Product> root = query.from(Product.class);
+
+        Predicate predicate = getDefaultPredicate(product, cb, root);
+
+        query.where(predicate).select(cb.count(root));
+
+        return em.createQuery(query).getSingleResult();
+    }
 }

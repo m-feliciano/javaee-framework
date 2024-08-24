@@ -1,5 +1,5 @@
-<%@ include file="../../components/common-imports.jsp" %>
-<jsp:include page="../../components/header.jsp"/>
+<%@ include file="/WEB-INF/jspf/common-imports.jspf" %>
+<jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <div class="main">
     <c:if test="${ empty categories }">
@@ -12,7 +12,7 @@
         <div class="row">
             <div class="col-12">
                 <table class="table table-striped table-bordered table-hover mb-0">
-                    <caption class="pb-0">${categories.size()} records found</caption>
+                    <caption class="pb-0">${categories.size()} records</caption>
                     <thead class="thead-dark">
                     <tr>
                         <th scope="col">#</th>
@@ -44,4 +44,4 @@
         </div>
     </c:if>
 </div>
-<jsp:include page="../../components/footer.jsp"/>
+<jsp:include page="/WEB-INF/view/components/footer.jsp"/>

@@ -1,9 +1,8 @@
-<%@ include file="../../components/common-imports.jsp" %>
-
-<jsp:include page="../../components/header.jsp"/>
+<%@ include file="/WEB-INF/jspf/common-imports.jspf" %>
+<jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <div class="main">
-    <form action="${ userLink }" method="post">
+    <form action="${ updateUser }" method="post">
         <div class="col-md-6">
             <div class="row ml5 mb-3">
                 <div class="avatar mr-3 mt5">
@@ -52,7 +51,6 @@
 
             <!-- action -->
             <div class="row justify-content-end mr-0">
-                <input type="hidden" name="action" value="update">
                 <button type="submit" class="btn btn-primary mr-2">Submit</button>
                 <a type="button" href="${ listProducts }" class="btn btn-light">Go
                     back</a>
@@ -61,4 +59,4 @@
     </form>
 </div>
 <!-- footer -->
-<jsp:include page="../../components/footer.jsp"/>
+<jsp:include page="/WEB-INF/view/components/footer.jsp"/>

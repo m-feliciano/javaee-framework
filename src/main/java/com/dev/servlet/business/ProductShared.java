@@ -20,17 +20,16 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class ProductShared {
-
-    @Inject
     private ProductController productController;
-    @Inject
     private InventoryController inventoryController;
 
     public ProductShared() {
+        // Empty constructor
     }
 
-    public ProductShared(ProductController productController,
-                         InventoryController inventoryController) {
+    @Inject
+    public void setDependencies(ProductController productController,
+                                InventoryController inventoryController) {
         this.productController = productController;
         this.inventoryController = inventoryController;
     }

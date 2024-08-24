@@ -1,5 +1,6 @@
 package com.dev.servlet.business;
 
+import com.dev.servlet.business.base.BaseRequest;
 import com.dev.servlet.controllers.UserController;
 import com.dev.servlet.domain.User;
 import com.dev.servlet.dto.UserDto;
@@ -8,10 +9,10 @@ import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.mapper.UserMapper;
 import com.dev.servlet.utils.CacheUtil;
 import com.dev.servlet.utils.CryptoUtils;
-import com.dev.servlet.business.base.BaseRequest;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -26,14 +27,14 @@ import javax.servlet.http.HttpSession;
 public class LoginBusiness extends BaseRequest {
 
     private static final String REDIRECT_PRODUCT_ACTION_LIST_ALL = "redirect:product?action=list";
-
-    @Inject
     UserController controller;
 
     public LoginBusiness() {
+        // Empty constructor
     }
 
-    public LoginBusiness(UserController controller) {
+    @Inject
+    public void setDependencies(UserController controller) {
         this.controller = controller;
     }
 
@@ -66,6 +67,7 @@ public class LoginBusiness extends BaseRequest {
         if (user == null) {
             request.servletRequest().setAttribute(INVALID, USER_OR_PASSWORD_INVALID);
             request.servletRequest().setAttribute("email", getParameter(request, "email"));
+            request.servletResponse().setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return FORWARD_PAGES_FORM_LOGIN;
         }
 

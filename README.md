@@ -17,8 +17,8 @@ It uses MVC architecture and was developed using the following stack:
 <br>
 
 ### Home
-#### your_server/product/login?action=list
-![App home page](https://i.ibb.co/LQmByN2/temp.png)
+#### your_server/view/product?action=list&page=2
+![App home page](https://i.ibb.co/fFT7p2N/shopping-prod.png)
 <br>
 
 ### Product
@@ -32,7 +32,7 @@ It uses MVC architecture and was developed using the following stack:
 <br>
 
 ### 404
-#### your_server/view/product?action=list&id=some_invalid_id
+#### your_server/view/product?action=list&id=invalid_id
 ![App not found page](https://i.postimg.cc/Sx8D8GZP/Screenshot-2024-08-10-174059.png)
 <br>
 
@@ -105,9 +105,9 @@ The scripts to create the database are in the `resources/META-INF/sql` folder
 
 The database connection is set in the `resources/META-INF/persistence.xml` file
 
-## Features in progress or to be implemented
+## Features in progress
 - [x] Implement pagination
-- [ ] Export/Import data to CSV
+- [x] Export/Import data to CSV
 - [ ] Add filters
 - [ ] Dockerize the application
 - [ ] Jasper Reports

@@ -7,22 +7,21 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import java.util.List;
 
-public class BaseDAO<T, E> {
-
-    @Inject
+public abstract class BaseDAO<T, E> {
     protected EntityManager em;
     private Class<T> entityClass;
     protected static final Logger logger = LoggerFactory.getLogger(BaseDAO.class);
 
-    public BaseDAO() {
+    protected BaseDAO() {
+        // Empty constructor
     }
 
-    public BaseDAO(Class<T> entityClass) {
+    protected BaseDAO(Class<T> entityClass) {
         this.entityClass = entityClass;
     }
 
-    public BaseDAO(Class<T> entityClass, EntityManager em) {
-        this.entityClass = entityClass;
+    @Inject
+    public void setDependencies(EntityManager em) {
         this.em = em;
     }
 

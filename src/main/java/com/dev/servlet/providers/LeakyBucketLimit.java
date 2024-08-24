@@ -2,14 +2,14 @@ package com.dev.servlet.providers;
 
 import com.dev.servlet.interfaces.IRateLimiter;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Singleton;
 
 /**
  * This class is used to rate limit the number of requests from a client.
  *
  * @since 1.3.0
  */
-@ApplicationScoped
+@Singleton
 public class LeakyBucketLimit implements IRateLimiter {
 
     private static final int MAX_REQUESTS = 10; // 10 requests per second

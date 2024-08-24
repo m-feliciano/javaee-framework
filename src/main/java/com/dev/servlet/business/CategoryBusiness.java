@@ -1,5 +1,6 @@
 package com.dev.servlet.business;
 
+import com.dev.servlet.business.base.BaseRequest;
 import com.dev.servlet.controllers.CategoryController;
 import com.dev.servlet.domain.Category;
 import com.dev.servlet.domain.enums.StatusEnum;
@@ -9,13 +10,12 @@ import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.mapper.CategoryMapper;
 import com.dev.servlet.utils.CacheUtil;
 import com.dev.servlet.utils.CollectionUtils;
-import com.dev.servlet.business.base.BaseRequest;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
-@Singleton
 
 /**
  * Category Busines
@@ -25,6 +25,7 @@ import java.util.List;
  * @see BaseRequest
  * @since 1.0
  */
+@Singleton
 public class CategoryBusiness extends BaseRequest {
 
     private static final String FORWARD_PAGE_CREATE = "forward:pages/category/formCreateCategory.jsp";
@@ -38,13 +39,14 @@ public class CategoryBusiness extends BaseRequest {
     private static final String CATEGORY = "category";
     private static final String CACHE_KEY = "categories";
 
-    @Inject
     private CategoryController controller;
 
     public CategoryBusiness() {
+        // Empty constructor
     }
 
-    public CategoryBusiness(CategoryController controller) {
+    @Inject
+    public void setDependencies(CategoryController controller) {
         this.controller = controller;
     }
 
@@ -71,6 +73,8 @@ public class CategoryBusiness extends BaseRequest {
         cat.setName(getParameter(request, "name"));
         cat.setStatus(StatusEnum.ACTIVE.getName());
         controller.save(cat);
+        request.servletResponse().setStatus(HttpServletResponse.SC_CREATED);
+        CacheUtil.clear(CACHE_KEY, request.token());
         return REDIRECT_ACTION_LIST_BY_ID + cat.getId();
     }
 
@@ -87,6 +91,8 @@ public class CategoryBusiness extends BaseRequest {
         category.setName(getParameter(request, "name"));
         category = controller.update(category);
         request.servletRequest().setAttribute(CATEGORY, category);
+        request.servletResponse().setStatus(HttpServletResponse.SC_NO_CONTENT);
+        CacheUtil.clear(CACHE_KEY, request.token());
         return REDIRECT_ACTION_LIST_BY_ID + category.getId();
     }
 
@@ -137,6 +143,7 @@ public class CategoryBusiness extends BaseRequest {
         cat.setUser(getUser(request));
         controller.delete(cat);
         CacheUtil.clear(CACHE_KEY, request.token());
+        request.servletResponse().setStatus(HttpServletResponse.SC_NO_CONTENT);
         return REDIRECT_ACTION_LIST_ALL;
     }
 

@@ -1,11 +1,11 @@
-<%@ include file="../../components/common-imports.jsp" %>
-<jsp:include page="../../components/header.jsp"/>
+<%@ include file="/WEB-INF/jspf/common-imports.jspf" %>
+<jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <fmt:parseDate value="${product.registerDate}" type="date" pattern="yyyy-MM-dd" var="parsedDate"/>
 <fmt:formatDate value="${parsedDate}" type="date" pattern="dd-MM-yyyy" var="stdDate"/>
 
 <div class="main">
-    <form action="${ productLink }" method="post">
+    <form action="${ updateProduct }" method="post">
         <div class="col-md-6">
             <div class="mb-3">
                 <div class="row">
@@ -67,7 +67,7 @@
             </div>
             <!-- action -->
             <div class="row justify-content-end mr-0">
-                <input type="hidden" name="action" value="update">
+
                 <button type="submit" class="btn btn-primary mr-2">Submit</button>
                 <a type="button" href="${ productLink }?action=list&id=${product.id }" class="btn btn-light">Cancel</a>
             </div>
@@ -75,4 +75,4 @@
     </form>
 </div>
 <!-- footer -->
-<jsp:include page="../../components/footer.jsp"/>
+<jsp:include page="/WEB-INF/view/components/footer.jsp"/>

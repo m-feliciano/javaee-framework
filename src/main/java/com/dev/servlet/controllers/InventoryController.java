@@ -8,11 +8,15 @@ import javax.inject.Inject;
 import java.util.List;
 
 public final class InventoryController implements IController<Inventory, Long> {
-
-    @Inject
     private InventoryDAO inventoryDao;
 
     public InventoryController() {
+        // Empty constructor
+    }
+
+    @Inject
+    public void setDependencies(InventoryDAO inventoryDao) {
+        this.inventoryDao = inventoryDao;
     }
 
     @Override

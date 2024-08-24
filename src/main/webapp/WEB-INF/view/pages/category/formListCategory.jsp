@@ -1,8 +1,8 @@
-<%@ include file="../../components/common-imports.jsp" %>
-<jsp:include page="../../components/header.jsp"/>
+<%@ include file="/WEB-INF/jspf/common-imports.jspf" %>
+<jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <div class="main">
-    <form action="${ categoryLink }" method="post">
+    <form>
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputId" class="form-label">ID</label>
@@ -27,4 +27,4 @@
     </form>
 </div>
 <!-- footer -->
-<jsp:include page="../../components/footer.jsp"/>
+<jsp:include page="/WEB-INF/view/components/footer.jsp"/>

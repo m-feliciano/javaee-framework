@@ -8,11 +8,15 @@ import javax.inject.Inject;
 import java.util.List;
 
 public final class CategoryController implements IController<Category, Long> {
-
-    @Inject
     private CategoryDAO categoryDao;
 
     public CategoryController() {
+        // Empty constructor
+    }
+
+    @Inject
+    public void setDependencies(CategoryDAO categoryDao) {
+        this.categoryDao = categoryDao;
     }
 
     @Override

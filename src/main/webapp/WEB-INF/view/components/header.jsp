@@ -3,9 +3,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="ISO-8859-1">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="Product management"/>
+    <meta name="author" content="Feliciano"/>
+    <meta name="keywords" content="Shopping"/>
+    <meta name="robots" content="index, follow"/>
+    <meta name="googlebot" content="index, follow"/>
+    <meta name="google" content="notranslate"/>
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
           integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn"
@@ -18,6 +24,6 @@
 </head>
 <body>
 
-<%@ include file="navbar.jsp" %>
+<jsp:include page="/WEB-INF/view/components/navbar.jsp"/>
 
 <div class="content">

@@ -1,5 +1,5 @@
-<%@ include file="../../components/common-imports.jsp" %>
-<jsp:include page="../../components/header.jsp"/>
+<%@ include file="/WEB-INF/jspf/common-imports.jspf" %>
+<jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <fmt:formatNumber value="${product.price}" type="currency" minFractionDigits="2" var="parsedNumber"/>
 <fmt:parseDate value="${product.registerDate}" type="date" pattern="yyyy-MM-dd" var="parsedDate"/>
@@ -8,7 +8,7 @@
 <title>Product: ${ product.name }</title>
 
 <div class="main">
-    <form action="${ productLink }" method="post">
+    <form>
         <div class="col-md-6">
             <div class="mb-3">
                 <div class="row">
@@ -56,7 +56,6 @@
                     </div>
                 </div>
             </div>
-            <!-- action -->
             <div class="row justify-content-end mr-0">
                 <a type="button" href="${ editProduct }&id=${ product.id }" class="btn btn-success mr-2">
                     Edit <i class="bi bi-pencil-square"></i>
@@ -67,4 +66,4 @@
     </form>
 </div>
 <!-- footer -->
-<jsp:include page="../../components/footer.jsp"/>
+<jsp:include page="/WEB-INF/view/components/footer.jsp"/>

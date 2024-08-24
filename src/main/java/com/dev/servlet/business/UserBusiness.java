@@ -1,5 +1,6 @@
 package com.dev.servlet.business;
 
+import com.dev.servlet.business.base.BaseRequest;
 import com.dev.servlet.controllers.UserController;
 import com.dev.servlet.domain.User;
 import com.dev.servlet.domain.enums.PerfilEnum;
@@ -10,16 +11,17 @@ import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.mapper.UserMapper;
 import com.dev.servlet.utils.CacheUtil;
 import com.dev.servlet.utils.CryptoUtils;
-import com.dev.servlet.business.base.BaseRequest;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * The type User business.
  * <p>
  * This class is responsible for the user business logic.
+ *
  * @see BaseRequest
  */
 @Singleton
@@ -31,13 +33,14 @@ public class UserBusiness extends BaseRequest {
     private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:user?action=list&id=";
     private static final String REDIRECT_PRODUCT_ACTION_CREATE = "redirect:product?action=create";
 
-    @Inject
     private UserController controller;
 
     public UserBusiness() {
+        // Empty constructor
     }
 
-    public UserBusiness(UserController controller) {
+    @Inject
+    public void setDependencies(UserController controller) {
         this.controller = controller;
     }
 
@@ -58,15 +61,15 @@ public class UserBusiness extends BaseRequest {
      * @return the string
      */
     @ResourcePath(value = REGISTER)
-    public String register(StandardRequest standardRequest) {
-        HttpServletRequest request = standardRequest.servletRequest();
+    public String register(StandardRequest standardRequest) throws Exception {
 
         var password = getParameter(standardRequest, "password");
         var confirmPassword = getParameter(standardRequest, "confirmPassword");
 
         if (password == null || !password.equals(confirmPassword)) {
-            request.setAttribute("email", getParameter(standardRequest, "email"));
-            request.setAttribute("error", "password invalid");
+            standardRequest.servletRequest().setAttribute("email", getParameter(standardRequest, "email"));
+            standardRequest.servletRequest().setAttribute("error", "password invalid");
+            standardRequest.servletResponse().sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return FORWARD_PAGE_CREATE;
         }
 
@@ -76,7 +79,8 @@ public class UserBusiness extends BaseRequest {
         user = controller.find(user);
 
         if (user != null) {
-            request.setAttribute("error", "User already exists");
+            standardRequest.servletRequest().setAttribute("error", "User already exists");
+            standardRequest.servletResponse().sendError(HttpServletResponse.SC_FORBIDDEN);
             return FORWARD_PAGE_CREATE;
         }
 
@@ -87,11 +91,13 @@ public class UserBusiness extends BaseRequest {
             user.setStatus(StatusEnum.ACTIVE.getName());
             controller.save(user);
         } catch (Exception e) {
-            request.setAttribute("error", e.getMessage());
+            standardRequest.servletRequest().setAttribute("error", e.getMessage());
+            standardRequest.servletResponse().sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return REDIRECT_PRODUCT_ACTION_CREATE;
         }
 
-        request.setAttribute("sucess", "sucess");
+        standardRequest.servletRequest().setAttribute("sucess", "sucess");
+        standardRequest.servletResponse().setStatus(HttpServletResponse.SC_CREATED);
         return FORWARD_PAGES_FORM_LOGIN;
     }
 
@@ -115,6 +121,7 @@ public class UserBusiness extends BaseRequest {
         UserDto userDto = UserMapper.from(user);
         CacheUtil.storeToken(request.token(), userDto);
         setSessionAttribute(request.servletRequest(), "user", userDto);
+        request.servletResponse().setStatus(HttpServletResponse.SC_NO_CONTENT);
         return REDIRECT_ACTION_LIST_BY_ID + user.getId();
     }
 
@@ -158,6 +165,7 @@ public class UserBusiness extends BaseRequest {
         User user = getUser(request);
         controller.delete(user);
         CacheUtil.clearToken(request.token());
+        request.servletResponse().setStatus(HttpServletResponse.SC_NO_CONTENT);
         return FORWARD_PAGES_FORM_LOGIN;
     }
 

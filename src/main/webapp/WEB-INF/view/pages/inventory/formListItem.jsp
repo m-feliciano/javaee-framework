@@ -1,8 +1,8 @@
-<%@ include file="../../components/common-imports.jsp" %>
-<jsp:include page="../../components/header.jsp"/>
+<%@ include file="/WEB-INF/jspf/common-imports.jspf" %>
+<jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <div class="main">
-    <form action="${ inventoryServlet }" method="post">
+    <form>
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputItemId" class="form-label">ID</label>
@@ -31,11 +31,11 @@
             <a type="button" href="${ editItem }&id=${ item.id }" class="btn btn-success">
                 Edit <i class="bi bi-pencil-square"></i>
             </a>
-            <a type="button" href="${ inventoryServlet }?action=list" class="btn btn-light">
+            <a type="button" href="${ listInventories }" class="btn btn-light">
                 Go back
             </a>
         </div>
     </form>
 </div>
 <!-- footer -->
-<jsp:include page="../../components/footer.jsp"/>
+<jsp:include page="/WEB-INF/view/components/footer.jsp"/>

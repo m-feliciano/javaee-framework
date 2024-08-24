@@ -1,8 +1,8 @@
-<%@ include file="../../components/common-imports.jsp" %>
-<jsp:include page="../../components/header.jsp"/>
+<%@ include file="/WEB-INF/jspf/common-imports.jspf" %>
+<jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <div class="main">
-    <form action="${ inventoryLink }" method="post">
+    <form action="${ updateItem }" method="post">
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputItemId" class="form-label">ID</label>
@@ -33,7 +33,7 @@
             </c:if>
 
             <!-- action -->
-            <input type="hidden" name="action" value="update">
+
             <button type="submit" class="btn btn-primary">Submit</button>
             <a type="button" href="${ inventoryLink }?action=list&id=${ item.id }" class="btn btn-light">
                 Cancel
@@ -42,4 +42,4 @@
     </form>
 </div>
 <!-- footer -->
-<jsp:include page="../../components/footer.jsp"/>
+<jsp:include page="/WEB-INF/view/components/footer.jsp"/>

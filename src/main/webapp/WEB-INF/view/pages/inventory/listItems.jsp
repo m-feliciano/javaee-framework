@@ -1,6 +1,5 @@
-<%@ include file="../../components/common-imports.jsp" %>
-
-<jsp:include page="../../components/header.jsp"/>
+<%@ include file="/WEB-INF/jspf/common-imports.jspf" %>
+<jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <c:set var="total" value="${0}"/>
 <div class="main">
@@ -35,7 +34,6 @@
             <div>
                 <input type="text" name="value" class="form-control" id="inputSearchItem"
                        placeholder="search" required minlength="1"/>
-                <input type="hidden" name="action" value="listInventoriesByParam">
                 <button type="submit" class="btn btn-primary">Search</button>
                 <a type="button" href="${ listInventories }" class="btn btn-light">Clean</a>
             </div>
@@ -52,7 +50,7 @@
                     <thead class="thead-dark">
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">PRODUCT NAME</th>
+                        <th scope="col">PRODUCT</th>
                         <th scope="col">QUANTITY</th>
                         <th scope="col">DESCRIPTION</th>
                         <th scope="col">PRICE</th>
@@ -88,7 +86,7 @@
                         </tr>
                     </c:forEach>
                     </tbody>
-                    <caption class="pb-0">${items.size()} records found</caption>
+                    <caption class="pb-0">${items.size()} records</caption>
                     <caption class="pb-0">Total <fmt:formatNumber value="${ total }"
                                                                   type="currency" minFractionDigits="2"/></caption>
                 </table>
@@ -99,4 +97,4 @@
         <a type="button" href="${ newItem }" class="btn btn-success">New</a>
     </div>
 </div>
-<jsp:include page="../../components/footer.jsp"/>
+<jsp:include page="/WEB-INF/view/components/footer.jsp"/>

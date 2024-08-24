@@ -3,16 +3,21 @@ package com.dev.servlet.controllers;
 import com.dev.servlet.dao.ProductDAO;
 import com.dev.servlet.domain.Product;
 import com.dev.servlet.interfaces.IController;
+import com.dev.servlet.interfaces.IPagination;
 
 import javax.inject.Inject;
 import java.util.List;
 
-public class ProductController implements IController<Product, Long> {
-
-    @Inject
+public class ProductController implements IController<Product, Long>, IPagination<Product> {
     private ProductDAO productDao;
 
     public ProductController() {
+        // Empty constructor
+    }
+
+    @Inject
+    public void setDependencies(ProductDAO productDao) {
+        this.productDao = productDao;
     }
 
     @Override
@@ -45,4 +50,11 @@ public class ProductController implements IController<Product, Long> {
         return this.productDao.findAll(product);
     }
 
+    public List<Product> findAll(Product product, int first, int pageSize) {
+        return this.productDao.findAll(product, first, pageSize);
+    }
+
+    public Long getTotalResults(Product product) {
+        return this.productDao.getTotalResults(product);
+    }
 }

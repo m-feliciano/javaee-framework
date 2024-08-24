@@ -7,10 +7,8 @@ import com.dev.servlet.providers.ServiceLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
@@ -20,25 +18,19 @@ import java.lang.reflect.Method;
  *
  * @since 1.0.0
  */
-@ApplicationScoped
+@Singleton
 public class ResquestProcessImp implements IRequestProcessor {
 
     private static final Logger logger = LoggerFactory.getLogger(ResquestProcessImp.class);
-
-    @Inject
-    private Instance<IRateLimiter> ijRateLimit;
     private IRateLimiter rateLimit;
 
     public ResquestProcessImp() {
+        // Empty constructor
     }
 
-    public ResquestProcessImp(IRateLimiter rateLimit) {
-        this.rateLimit = rateLimit;
-    }
-
-    @PostConstruct
-    public void init() {
-        rateLimit = ijRateLimit.get();
+    @Inject
+    public void setDependencies(IRateLimiter ijRateLimit) {
+        this.rateLimit = ijRateLimit;
     }
 
     /**
@@ -49,7 +41,6 @@ public class ResquestProcessImp implements IRequestProcessor {
      */
     @Override
     public Object process(StandardRequest request) throws Exception {
-        request.servletRequest().getUserPrincipal();
         if (rateLimit != null && !rateLimit.acquire()) {
             logger.warn("Rate limit exceeded for class: {} and action: {}", request.clazz().getName(), request.action());
             request.servletResponse().sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Request limit exceeded. Please try again later");
@@ -88,7 +79,7 @@ public class ResquestProcessImp implements IRequestProcessor {
             Object invoke = method.invoke(service, request);
             return invoke;
         } catch (Exception e) {
-            logger.error("Error processing request: {}", e.getMessage());
+            logger.error("Error processing request: {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
             try {
                 request.servletResponse().sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
             } catch (Exception ex) {

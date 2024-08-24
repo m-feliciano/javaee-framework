@@ -19,12 +19,12 @@ public abstract class BaseRequest {
     protected static final String LOGIN_FORM = "loginForm";
     protected static final String INVALID = "invalid";
     protected static final String USER_OR_PASSWORD_INVALID = "User or password invalid.";
-    protected static final String CREATE = "create";
+    protected static final String CREATE = "create"; // Create resource
+    protected static final String REGISTER = "register"; //create a new user
     protected static final String LIST = "list";
     protected static final String UPDATE = "update";
-    protected static final String NEW = "new";
-    protected static final String REGISTER_PAGE = "registerPage";
-    protected static final String REGISTER = "register";
+    protected static final String NEW = "new"; // Forward to create
+    protected static final String REGISTER_PAGE = "registerPage"; // Forward to create user
     protected static final String EDIT = "edit";
     protected static final String DELETE = "delete";
     protected static final String PARAM = "param";
@@ -81,5 +81,17 @@ public abstract class BaseRequest {
             return attribute.trim();
         }
         return null;
+    }
+
+    /**
+     * Get the attribute from request
+     *
+     * @param request
+     * @param key
+     * @return
+     */
+    protected Object getAttribuite(StandardRequest request, String key) {
+        Object attribute = request.servletRequest().getAttribute(key);
+        return attribute;
     }
 }

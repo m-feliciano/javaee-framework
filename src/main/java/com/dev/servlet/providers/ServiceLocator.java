@@ -1,6 +1,5 @@
 package com.dev.servlet.providers;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.CDI;
@@ -13,7 +12,6 @@ import java.util.logging.Logger;
 /**
  * This class is responsible is an entry point for the service locator
  */
-@ApplicationScoped
 public class ServiceLocator {
 
     /**

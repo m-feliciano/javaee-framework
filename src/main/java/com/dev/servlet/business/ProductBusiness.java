@@ -1,5 +1,6 @@
 package com.dev.servlet.business;
 
+import com.dev.servlet.business.base.BaseRequest;
 import com.dev.servlet.controllers.ProductController;
 import com.dev.servlet.domain.Category;
 import com.dev.servlet.domain.Inventory;
@@ -9,13 +10,12 @@ import com.dev.servlet.dto.CategoryDto;
 import com.dev.servlet.dto.ProductDto;
 import com.dev.servlet.filter.StandardRequest;
 import com.dev.servlet.interfaces.ResourcePath;
-import com.dev.servlet.mapper.CategoryMapper;
 import com.dev.servlet.mapper.ProductMapper;
 import com.dev.servlet.utils.CurrencyFormatter;
-import com.dev.servlet.business.base.BaseRequest;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -36,22 +36,21 @@ public class ProductBusiness extends BaseRequest {
     private static final String FORWARD_PAGE_CREATE = "forward:pages/product/formCreateProduct.jsp";
     private static final String REDIRECT_ACTION_LIST_ALL = "redirect:product?action=list";
     private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:product?action=list&id=";
+    public static final String PRODUCT = "product";
+    public static final String CATEGORIES = "categories";
 
-    private static final String CACHE_KEY = "categories";
-
-    @Inject
     private ProductController controller;
-    @Inject
     private CategoryBusiness categoryBusiness;
-    @Inject
     private ProductShared productShared;
 
     public ProductBusiness() {
+        // Empty constructor
     }
 
-    public ProductBusiness(ProductController controller,
-                           CategoryBusiness categoryBusiness,
-                           ProductShared productShared) {
+    @Inject
+    public void setDependencies(ProductController controller,
+                                CategoryBusiness categoryBusiness,
+                                ProductShared productShared) {
         this.controller = controller;
         this.categoryBusiness = categoryBusiness;
         this.productShared = productShared;
@@ -65,7 +64,7 @@ public class ProductBusiness extends BaseRequest {
     @ResourcePath(value = NEW)
     public String forwardRegister(StandardRequest request) {
         List<CategoryDto> categories = categoryBusiness.findAll(request);
-        request.servletRequest().setAttribute("categories", categories);
+        request.servletRequest().setAttribute(CATEGORIES, categories);
         return FORWARD_PAGE_CREATE;
     }
 
@@ -92,7 +91,8 @@ public class ProductBusiness extends BaseRequest {
         product.setCategory(new Category(Long.valueOf(getParameter(request, "category"))));
         product.setStatus(StatusEnum.ACTIVE.getName());
         controller.save(product);
-        request.servletRequest().setAttribute("product", product);
+        request.servletRequest().setAttribute(PRODUCT, product);
+        request.servletResponse().setStatus(HttpServletResponse.SC_CREATED);
 
         return REDIRECT_ACTION_LIST_BY_ID + product.getId();
     }
@@ -111,30 +111,29 @@ public class ProductBusiness extends BaseRequest {
             return FORWARD_PAGES_NOT_FOUND;
         }
 
-        Product product = new Product();
-        product = controller.findById(Long.valueOf(id));
+        Product product = controller.findById(Long.valueOf(id));
 
-        request.servletRequest().setAttribute("product", ProductMapper.from(product));
-        request.servletRequest().setAttribute("categories", categoryBusiness.findAll(request));
+        request.servletRequest().setAttribute(PRODUCT, ProductMapper.from(product));
+        request.servletRequest().setAttribute(CATEGORIES, categoryBusiness.findAll(request));
 
         return FORWARD_PAGE_UPDATE;
     }
 
     /**
-     * List one or many
+     * List one or many (with pagination)
      *
      * @param request
      * @return the next path
      */
     @ResourcePath(value = LIST)
-    public String list(StandardRequest request) {
+    public String getAll(StandardRequest request) throws Exception {
         String id = getParameter(request, "id");
         if (id != null) {
             Product product = controller.findById(Long.valueOf(id));
             if (product == null) {
                 return FORWARD_PAGES_NOT_FOUND;
             }
-            request.servletRequest().setAttribute("product", ProductMapper.from(product));
+            request.servletRequest().setAttribute(PRODUCT, ProductMapper.from(product));
             return FORWARD_PAGE_LIST;
         }
 
@@ -151,12 +150,25 @@ public class ProductBusiness extends BaseRequest {
             }
         }
 
-        List<ProductDto> products = findAll(product);
+        request.pagination().setTotalRecords(controller.getTotalResults(product).intValue());
+        if (!request.pagination().validate()) {
+            request.servletResponse().sendError(HttpServletResponse.SC_NOT_FOUND, "Page not found");
+            return null;
+        }
+
+        List<ProductDto> products = findAll(product,
+                request.pagination().getFirstResult(), request.pagination().getPageSize());
+
         request.servletRequest().setAttribute("products", products);
 
         String categoryId = getParameter(request, "categoryId");
-        List<Category> categories = categoryBusiness.findAll(request).stream().map(CategoryMapper::from).toList();
-        request.servletRequest().setAttribute("categories", categories);
+        if (categoryId != null) {
+            CategoryDto categoryDto = categoryBusiness.findById(Long.parseLong(categoryId), request);
+            request.servletRequest().setAttribute("category", categoryDto);
+        } else {
+            List<CategoryDto> categoriesDto = categoryBusiness.findAll(request);
+            request.servletRequest().setAttribute(CATEGORIES, categoriesDto);
+        }
 
         return FORWARD_PAGE_LIST_PRODUCTS;
     }
@@ -178,8 +190,8 @@ public class ProductBusiness extends BaseRequest {
         product.setCategory(new Category(Long.parseLong(getParameter(request, "category"))));
 
         product = controller.update(product);
-        request.servletRequest().setAttribute("product", ProductMapper.from(product));
-
+        request.servletRequest().setAttribute(PRODUCT, ProductMapper.from(product));
+        request.servletResponse().setStatus(HttpServletResponse.SC_NO_CONTENT);
         return REDIRECT_ACTION_LIST_BY_ID + product.getId();
     }
 
@@ -201,6 +213,7 @@ public class ProductBusiness extends BaseRequest {
         }
 
         controller.delete(product);
+        request.servletResponse().setStatus(HttpServletResponse.SC_NO_CONTENT);
         return REDIRECT_ACTION_LIST_ALL;
     }
 
@@ -210,8 +223,8 @@ public class ProductBusiness extends BaseRequest {
      * @param product
      * @return the next path
      */
-    public List<ProductDto> findAll(Product product) {
-        List<Product> products = controller.findAll(product);
+    public List<ProductDto> findAll(Product product, int first, int pageSize) {
+        List<Product> products = controller.findAll(product, first, pageSize);
         return products.stream().map(ProductMapper::from).toList();
     }
 

@@ -1,11 +1,12 @@
 package com.dev.servlet.filter;
 
-import com.dev.servlet.builders.BusinessRequest;
+import com.dev.servlet.builders.RequestBuilder;
 import com.dev.servlet.interfaces.IRequestProcessor;
 import com.dev.servlet.interfaces.IServletDispatcher;
+import com.dev.servlet.utils.URIUtils;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,18 +18,17 @@ import java.io.IOException;
  * @since 1.0.0
  */
 //@WebFilter(urlPatterns = "/company")
-@ApplicationScoped
+@Singleton
 public final class ServletDispatchImp implements IServletDispatcher {
 
-    private static final String PACKAGE = "com.dev.servlet.business.%s";
-
-    @Inject
     private IRequestProcessor processor;
 
     public ServletDispatchImp() {
+        // Empty constructor
     }
 
-    public ServletDispatchImp(IRequestProcessor processor) {
+    @Inject
+    public void setDependencies(IRequestProcessor processor) {
         this.processor = processor;
     }
 
@@ -43,41 +43,23 @@ public final class ServletDispatchImp implements IServletDispatcher {
     @Override
     public void dispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String token = (String) request.getSession().getAttribute("token");
-        String next = (String) this.execute(token, request, response, this.getClassName(request));
+        String next = (String) this.execute(token, request, response, URIUtils.getClassName(request));
         processResponse(request, response, next);
     }
 
     private Object execute(String token, HttpServletRequest httpRequest, HttpServletResponse htttpResponse, String classname) throws Exception {
         Class<?> clazz = Class.forName(classname);
-        String action = httpRequest.getParameter("action");
-
-        StandardRequest request = BusinessRequest.builder()
-                .action(action)
+        StandardRequest request = RequestBuilder.builder()
                 .clazz(clazz)
                 .request(httpRequest)
                 .response(htttpResponse)
                 .token(token)
+                .pagination()
                 .build();
 
         Object result = processor.process(request);
         return result;
     }
-
-    /**
-     * Get the class name
-     *
-     * @param request
-     * @return String
-     */
-    private String getClassName(HttpServletRequest request) {
-        String classname;
-        int entityPos = request.getServletPath().lastIndexOf("/") + 1;
-        // fully qualified name
-        String entityName = request.getServletPath().substring(entityPos);
-        classname = String.format(PACKAGE, getServletClass(entityName));
-        return classname;
-    }
-
     /**
      * Process the request and redirect to
      *
@@ -90,7 +72,7 @@ public final class ServletDispatchImp implements IServletDispatcher {
         if (response.getStatus() == HttpServletResponse.SC_NOT_FOUND
                 || response.getStatus() == HttpServletResponse.SC_FORBIDDEN
                 || response.getStatus() == HttpServletResponse.SC_BAD_REQUEST) {
-            // TODO: Create a error custom page
+            // TODO: Create a error custom currentPage
             fullpath = "forward:pages/not-found.jsp";
         }
 
@@ -120,15 +102,5 @@ public final class ServletDispatchImp implements IServletDispatcher {
             e.printStackTrace();
             throw new ServletException("Error processing request: " + e.getMessage());
         }
-    }
-
-    /**
-     * format the class name to be used in the classpath
-     *
-     * @param entityName
-     * @return
-     */
-    private String getServletClass(String entityName) {
-        return entityName.substring(0, 1).toUpperCase() + entityName.substring(1) + "Business";
     }
 }

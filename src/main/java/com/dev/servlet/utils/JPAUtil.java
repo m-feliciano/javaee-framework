@@ -1,5 +1,7 @@
 package com.dev.servlet.utils;
 
+import org.hibernate.Session;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Disposes;
@@ -23,8 +25,8 @@ public final class JPAUtil {
      */
     @Produces
     @RequestScoped
-    public static EntityManager getEntityManager() {
-        return factory.createEntityManager();
+    public static Session getEntityManager() {
+        return (Session) factory.createEntityManager();
     }
 
     /**

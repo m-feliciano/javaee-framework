@@ -8,12 +8,15 @@ import javax.inject.Inject;
 import java.util.List;
 
 public final class UserController implements IController<User, Long> {
-
-    @Inject
     private UserDAO userDAO;
 
     public UserController() {
+        // Empty constructor
+    }
 
+    @Inject
+    public void setDependencies(UserDAO userDAO) {
+        this.userDAO = userDAO;
     }
 
     public User find(User login) {

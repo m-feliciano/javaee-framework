@@ -8,5 +8,6 @@ public record StandardRequest(HttpServletRequest servletRequest,
                               HttpServletResponse servletResponse,
                               String action,
                               Class<?> clazz,
-                              String token) {
+                              String token,
+                              StandardPagination pagination) {
 }

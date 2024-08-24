@@ -4,6 +4,7 @@ import com.dev.servlet.domain.Inventory;
 import com.dev.servlet.domain.enums.StatusEnum;
 import com.dev.servlet.utils.CollectionUtils;
 
+import javax.enterprise.inject.Model;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -15,6 +16,7 @@ import javax.persistence.criteria.Root;
 import java.util.Collections;
 import java.util.List;
 
+@Model
 public class InventoryDAO extends BaseDAO<Inventory, Long> {
 
     public InventoryDAO() {
@@ -99,7 +101,7 @@ public class InventoryDAO extends BaseDAO<Inventory, Long> {
     /**
      * Check if product has inventory
      *
-     * @param product
+     * @param inventory
      * @return boolean
      */
     public boolean hasInventory(Inventory inventory) {

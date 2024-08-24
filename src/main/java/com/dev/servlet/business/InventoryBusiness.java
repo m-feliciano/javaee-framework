@@ -1,5 +1,6 @@
 package com.dev.servlet.business;
 
+import com.dev.servlet.business.base.BaseRequest;
 import com.dev.servlet.controllers.InventoryController;
 import com.dev.servlet.domain.Category;
 import com.dev.servlet.domain.Inventory;
@@ -10,7 +11,6 @@ import com.dev.servlet.dto.ProductDto;
 import com.dev.servlet.filter.StandardRequest;
 import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.mapper.InventoryMapper;
-import com.dev.servlet.business.base.BaseRequest;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -36,26 +36,25 @@ public class InventoryBusiness extends BaseRequest {
     private static final String REDIRECT_ACTION_LIST_ALL = "redirect:inventory?action=list";
     private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:inventory?action=list&id=";
 
-    @Inject
     private InventoryController controller;
-    @Inject
     private CategoryBusiness categoryBusiness;
-    @Inject
     private ProductShared productShared;
 
     public InventoryBusiness() {
+        // Empty constructor
     }
 
-    public InventoryBusiness(InventoryController controller,
-                             CategoryBusiness categoryBusiness,
-                             ProductShared productShared) {
+    @Inject
+    public void setDependencies(InventoryController controller,
+                                CategoryBusiness categoryBusiness,
+                                ProductShared productShared) {
         this.controller = controller;
         this.categoryBusiness = categoryBusiness;
         this.productShared = productShared;
     }
 
     /**
-     * Forward page form
+     * Forward currentPage form
      *
      * @param
      * @return the next path
@@ -84,6 +83,7 @@ public class InventoryBusiness extends BaseRequest {
         controller.save(item);
 
         request.servletRequest().setAttribute("item", item);
+        request.servletResponse().setStatus(HttpServletResponse.SC_CREATED);
         return REDIRECT_ACTION_LIST_BY_ID + item.getId();
     }
 
@@ -136,6 +136,7 @@ public class InventoryBusiness extends BaseRequest {
         inventory.setProduct(new Product(productId));
         inventory = controller.update(inventory);
         standardRequest.servletRequest().setAttribute("item", InventoryMapper.from(inventory));
+        standardRequest.servletResponse().setStatus(HttpServletResponse.SC_NO_CONTENT);
         return REDIRECT_ACTION_LIST_BY_ID + inventory.getId();
     }
 
@@ -165,6 +166,7 @@ public class InventoryBusiness extends BaseRequest {
         Long id = Long.valueOf(getParameter(request, "id"));
         Inventory obj = new Inventory(id);
         controller.delete(obj);
+        request.servletResponse().setStatus(HttpServletResponse.SC_NO_CONTENT);
         return REDIRECT_ACTION_LIST_ALL;
     }
 

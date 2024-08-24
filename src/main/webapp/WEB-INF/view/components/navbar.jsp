@@ -1,4 +1,4 @@
-<%@ include file="common-imports.jsp" %>
+<%@ include file="/WEB-INF/jspf/common-imports.jspf" %>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="collapse navbar-collapse nav-items" id="navbarTogglerDemo01">
@@ -31,6 +31,6 @@
             </div>
             <a class="nav-link btn-logout mr-2" href="${userLink}?action=list">Perfil</a>
         </div>
-        <a class="nav-link btn-logout" href="${loginLink}?action=logout">Logout</a>
+        <a class="nav-link btn-logout" href="${logout}">Logout</a>
     </div>
 </nav>
