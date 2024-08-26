@@ -1,6 +1,5 @@
-<!-- Defining the URLs for the application -->
 <c:set value="inventory" var="inventoryLink"/>
-<c:url value="${inventoryLink}?action=new" var="newItem"/> <!-- This is the URL for the new item form -->
+<c:url value="${inventoryLink}?action=new" var="newItem"/>
 <c:url value="${inventoryLink}?action=delete" var="deleteItem"/>
 <c:url value="${inventoryLink}?action=list" var="listInventories"/>
 <c:url value="${inventoryLink}?action=edit" var="editItem"/>
@@ -8,7 +7,7 @@
 <c:url value="${inventoryLink}?action=update" var="updateItem"/>
 
 <c:set value="product" var="productLink"/>
-<c:url value="${productLink}?action=new" var="newProduct"/> <!-- This is the URL for the new product form -->
+<c:url value="${productLink}?action=new" var="newProduct"/>
 <c:url value="${productLink}?action=list" var="listProducts"/>
 <c:url value="${productLink}?action=delete" var="deleteProduct"/>
 <c:url value="${productLink}?action=edit" var="editProduct"/>
@@ -16,7 +15,7 @@
 <c:url value="${productLink}?action=update" var="updateProduct"/>
 
 <c:set value="category" var="categoryLink"/>
-<c:url value="${categoryLink}?action=new" var="newCategory"/> <!-- This is the URL for the new category form -->
+<c:url value="${categoryLink}?action=new" var="newCategory"/>
 <c:url value="${categoryLink}?action=delete" var="deleteCategory"/>
 <c:url value="${categoryLink}?action=list" var="listCategories"/>
 <c:url value="${categoryLink}?action=edit" var="editCategory"/>
@@ -29,7 +28,7 @@
 <c:url value="${loginLink}?action=logout" var="logout"/>
 
 <c:set value="user" var="userLink"/>
-<c:url value="${userLink}?action=registerPage" var="registerPage"/> <!-- This is the URL for the registration form -->
+<c:url value="${userLink}?action=registerPage" var="registerPage"/>
 <c:url value="${userLink}?action=register" var="createUser"/>
 <c:url value="${userLink}?action=edit" var="editUser"/>
 <c:url value="${userLink}?action=delete" var="deleteUser"/>

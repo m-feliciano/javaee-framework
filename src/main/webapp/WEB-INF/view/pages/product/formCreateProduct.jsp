@@ -41,7 +41,7 @@
             </div>
             <!-- action -->
 
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary">Save</button>
             <a type="button" href="${ listProducts }" class="btn btn-light">Cancel</a>
         </div>
     </form>

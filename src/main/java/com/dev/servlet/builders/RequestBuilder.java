@@ -58,7 +58,7 @@ public class RequestBuilder {
      */
     public RequestBuilder pagination() {
         int currentPage = 1;
-        int pageSize = 4;
+        int pageSize = 5;
 
         if (this.parameters.get("request") != null) {
             HttpServletRequest httpRequest = (HttpServletRequest) this.parameters.get("request");

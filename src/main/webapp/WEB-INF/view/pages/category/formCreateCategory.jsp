@@ -11,7 +11,7 @@
             </div>
             <!-- action -->
 
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary">Save</button>
             <a type="button" href="${ listCategories }" class="btn btn-light">
                 Cancel
             </a>

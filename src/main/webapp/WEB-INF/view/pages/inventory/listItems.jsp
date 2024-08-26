@@ -68,7 +68,7 @@
                             <th class="w-7" scope="row">${ item.id }</th>
                             <td class="w-20">
                                 <a style="text-decoration: none; color: inherit;  padding: 2rem 0;"
-                                   href="${ listProducts }&id=${ item.getProduct().getId() }">${ item.getProduct().getName() }</a>
+                                   href="${ listProducts }&id=${ item.getProduct().getId() }" target="_blank">${ item.getProduct().getName() }</a>
                             </td>
                             <td class="w-10">${ item.quantity }</td>
                             <td class="w-25">${ item.description }</td>

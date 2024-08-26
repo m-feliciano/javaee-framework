@@ -4,6 +4,7 @@ import com.dev.servlet.interfaces.IRateLimiter;
 import com.dev.servlet.interfaces.IRequestProcessor;
 import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.providers.ServiceLocator;
+import com.dev.servlet.utils.PropertiesUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,9 +24,10 @@ public class ResquestProcessImp implements IRequestProcessor {
 
     private static final Logger logger = LoggerFactory.getLogger(ResquestProcessImp.class);
     private IRateLimiter rateLimit;
+    private final boolean rateLimitActive;
 
     public ResquestProcessImp() {
-        // Empty constructor
+        rateLimitActive = PropertiesUtil.isRateLimitEnabled();
     }
 
     @Inject
@@ -36,12 +38,12 @@ public class ResquestProcessImp implements IRequestProcessor {
     /**
      * Process the request, it checks if it has to apply rate limit and then process the request
      *
-     * @param request
+     * @param request StandardRequest
      * @return the next path
      */
     @Override
     public Object process(StandardRequest request) throws Exception {
-        if (rateLimit != null && !rateLimit.acquire()) {
+        if (rateLimitActive && !rateLimit.acquire()) {
             logger.warn("Rate limit exceeded for class: {} and action: {}", request.clazz().getName(), request.action());
             request.servletResponse().sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Request limit exceeded. Please try again later");
             return null;
@@ -59,7 +61,6 @@ public class ResquestProcessImp implements IRequestProcessor {
     private Object processRequest(StandardRequest request) {
         try {
             Method method = null;
-
             ResourcePath annotation;
             for (Method object : request.clazz().getDeclaredMethods()) {
                 annotation = object.getAnnotation(ResourcePath.class);

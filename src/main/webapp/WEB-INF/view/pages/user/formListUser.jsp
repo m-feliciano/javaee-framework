@@ -4,8 +4,8 @@
 <div class="main">
     <form action="${ updateUser }" method="post">
         <div class="col-md-6">
-            <div class="row ml5 mb-3">
-                <div class="avatar mr-3 mt5">
+            <div class="row ml5 mb-3 justify-center">
+                <div class="avatar mr-3 align-center">
                     <c:if test="${not empty user.imgUrl }">
                         <img src="${user.imgUrl}" alt="user"
                              class="avatar-img rounded-circle">
@@ -15,9 +15,9 @@
                              class="avatar-img rounded-circle">
                     </c:if>
                 </div>
-                <div class="col-md-10">
+                <div class="col-md-9">
                     <label for="imgUrl" class="form-label">Image</label>
-                    <textarea rows="2" name="imgUrl" class="form-control" minlength="5"
+                    <textarea rows="4" name="imgUrl" class="form-control" minlength="5"
                               maxlength="140" id="imgUrl" placeholder="URL">${user.imgUrl}
                     </textarea>
                 </div>
@@ -51,7 +51,7 @@
 
             <!-- action -->
             <div class="row justify-content-end mr-0">
-                <button type="submit" class="btn btn-primary mr-2">Submit</button>
+                <button type="submit" class="btn btn-primary mr-2">Save</button>
                 <a type="button" href="${ listProducts }" class="btn btn-light">Go
                     back</a>
             </div>

@@ -2,7 +2,7 @@
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <fmt:parseDate value="${product.registerDate}" type="date" pattern="yyyy-MM-dd" var="parsedDate"/>
-<fmt:formatDate value="${parsedDate}" type="date" pattern="dd-MM-yyyy" var="stdDate"/>
+<fmt:formatDate value="${parsedDate}" type="date" pattern="dd/MM/yyyy" var="stdDate"/>
 
 <div class="main">
     <form action="${ updateProduct }" method="post">
@@ -68,7 +68,7 @@
             <!-- action -->
             <div class="row justify-content-end mr-0">
 
-                <button type="submit" class="btn btn-primary mr-2">Submit</button>
+                <button type="submit" class="btn btn-primary mr-2">Save</button>
                 <a type="button" href="${ productLink }?action=list&id=${product.id }" class="btn btn-light">Cancel</a>
             </div>
         </div>

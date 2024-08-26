@@ -32,14 +32,18 @@ textarea {
     margin: 0px;
 }
 
-html, body {
+html {
+    background: #f3f3f3;
+}
+
+body {
     max-width: 1200px;
     margin: 0 auto;
     height: 100%;
 }
 
 .navbar {
-    padding: 1.3rem;
+    padding: 1rem;
     font-family: 'Playfair Display SC', serif;
 }
 
@@ -50,7 +54,6 @@ html, body {
 
 .nav-items {
     display: flex;
-    gap: 20px;
 }
 
 .nav-link {
@@ -63,7 +66,7 @@ html, body {
 }
 
 .content {
-    min-height: 100%;
+    min-height: calc(100vh - 75px);
     position: relative;
 }
 
@@ -76,8 +79,7 @@ html, body {
 }
 
 .main {
-    padding: 3rem;
-    padding-bottom: 6rem;
+    padding: 4rem 2rem;
 }
 
 #footer {
@@ -170,16 +172,16 @@ html, body {
 
 .avatar.avatar-sm {
     font-size: .9rem;
-    width: 2.625rem;
-    height: 2.625rem;
+    width: 3.625rem;
+    height: 3.625rem;
 }
 
 .avatar {
     font-size: 1rem;
     position: relative;
     display: inline-block;
-    width: 3.875rem;
-    height: 3.875rem;
+    width: 6.875rem;
+    height: 6.875rem;
 }
 
 .avatar .avatar-img {
@@ -189,8 +191,8 @@ html, body {
     object-fit: cover;
 }
 
-.mt5 {
-    margin-top: 5px;
+.align-center {
+    align-self: center !important;
 }
 
 .ml5 {
@@ -204,4 +206,8 @@ html, body {
 
 .pagination {
     margin-bottom: 0 !important;
+}
+
+.justify-center {
+    justify-content: center;
 }

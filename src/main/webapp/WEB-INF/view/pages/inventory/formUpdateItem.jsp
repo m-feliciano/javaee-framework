@@ -34,7 +34,7 @@
 
             <!-- action -->
 
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary">Save</button>
             <a type="button" href="${ inventoryLink }?action=list&id=${ item.id }" class="btn btn-light">
                 Cancel
             </a>

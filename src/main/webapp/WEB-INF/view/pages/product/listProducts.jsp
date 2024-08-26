@@ -70,7 +70,7 @@
                             <tr>
                                 <th class="w-7" scope="row">${ product.id }</th>
                                 <td class="text-center w-10">
-                                    <a href="${ listProducts }&id=${ product.id }">
+                                    <a href="${ listProducts }&id=${ product.id }" target="_blank">
                                         <c:if test="${empty product.url }">
                                             <img class="img-square-min fit-img"
                                                  src="<c:url value='/assets/no_image_available.png'/>"

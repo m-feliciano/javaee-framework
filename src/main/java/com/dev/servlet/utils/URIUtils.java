@@ -2,7 +2,7 @@ package com.dev.servlet.utils;
 
 import javax.servlet.http.HttpServletRequest;
 
-public class URIUtils {
+public final class URIUtils {
 
     private static final String PACKAGE = "com.dev.servlet.business.%s";
 

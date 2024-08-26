@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 /**
  * This class is responsible is an entry point for the service locator
  */
-public class ServiceLocator {
+public final class ServiceLocator {
 
     /**
      * This class represents the service locator instance

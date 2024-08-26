@@ -18,7 +18,7 @@
 
             <!-- action -->
 
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary">Save</button>
             <a type="button" href="${ categoryLink }?action=list&id=${category.id }" class="btn btn-light">
                 Cancel
             </a>

@@ -19,7 +19,7 @@
                 <input type="text" name="description" class="form-control" id="inputDescription"
                        placeholder="simple descripton" required minlength="4"/>
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary">Save</button>
             <a type="button" href="${ inventoryLink }?action=list" class="btn btn-light">
                 Cancel
             </a>
