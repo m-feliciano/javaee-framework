@@ -1,8 +1,11 @@
 package com.dev.servlet.dao;
 
-import com.dev.servlet.domain.Category;
-import com.dev.servlet.domain.Product;
-import com.dev.servlet.domain.enums.StatusEnum;
+import com.dev.servlet.pojo.Category;
+import com.dev.servlet.pojo.Product;
+import com.dev.servlet.pojo.enums.StatusEnum;
+import com.dev.servlet.pojo.records.Order;
+import com.dev.servlet.pojo.records.Pagable;
+import com.dev.servlet.pojo.records.Sort;
 import com.dev.servlet.utils.CollectionUtils;
 
 import javax.enterprise.inject.Model;
@@ -12,7 +15,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.Collections;
@@ -53,7 +56,7 @@ public class ProductDAO extends BaseDAO<Product, Long> {
 
         Predicate predicate = getDefaultPredicate(product, cb, root);
 
-        Order descId = cb.desc(root.get("id"));
+        javax.persistence.criteria.Order descId = cb.desc(root.get("id"));
         query.where(predicate).select(root).orderBy(descId);
 
         List<Product> resultList = em.createQuery(query).getResultList();
@@ -73,7 +76,7 @@ public class ProductDAO extends BaseDAO<Product, Long> {
      * @return
      */
     private static Predicate getDefaultPredicate(Product product, CriteriaBuilder cb, Root<Product> root) {
-        Predicate predicate = cb.notEqual(root.get("status"), StatusEnum.DELETED.getName());
+        Predicate predicate = cb.notEqual(root.get("status"), StatusEnum.DELETED.value);
 
         if (product.getUser() != null) {
             predicate = cb.and(predicate, cb.equal(root.get("user"), product.getUser()));
@@ -97,7 +100,7 @@ public class ProductDAO extends BaseDAO<Product, Long> {
             }
 
             if (product.getCategory() != null) {
-                Join<Product, Category> join = root.join("category");
+                Join<Product, Category> join = root.join("category", javax.persistence.criteria.JoinType.LEFT);
 
                 if (product.getCategory().getId() != null) {
                     cb.equal(join.get("id"), product.getCategory().getId());
@@ -124,10 +127,16 @@ public class ProductDAO extends BaseDAO<Product, Long> {
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaUpdate<Product> cu = builder.createCriteriaUpdate(Product.class);
         Root<Product> root = cu.from(Product.class);
-        cu.set("status", StatusEnum.DELETED.getName());
-        cu.where(builder.equal(root.get("id"), product.getId()));
+        cu.set("status", StatusEnum.DELETED.value);
+
+        Predicate predicate = builder.equal(root.get("id"), product.getId());
+        predicate = builder.and(predicate,
+                builder.equal(root.get("user").get("id"), product.getUser().getId()));
+
+        cu.where(predicate);
+
         Query query = em.createQuery(cu);
-        int update = query.executeUpdate();
+        query.executeUpdate();
         commitTransaction();
     }
 
@@ -135,24 +144,32 @@ public class ProductDAO extends BaseDAO<Product, Long> {
      * Find all products using pagination
      *
      * @param product
-     * @param first
-     * @param pageSize
+     * @param pagable
      * @return
      */
-    public List<Product> findAll(Product product, int first, int pageSize) {
+    public List<Product> findAll(Product product, Pagable pagable) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Product> query = cb.createQuery(Product.class).distinct(true);
         Root<Product> root = query.from(Product.class);
 
         Predicate predicate = getDefaultPredicate(product, cb, root);
 
-        Order descId = cb.desc(root.get("id"));
-        query.where(predicate).select(root).orderBy(descId);
+        Order order = pagable.getOrder();
+        Sort sort = pagable.getSort();
+        Path<Object> path = root.get(sort.getValue().toLowerCase());
+        if (order.equals(Order.ASC)) {
+            query.orderBy(cb.asc(path));
+        } else {
+            query.orderBy(cb.desc(path));
+        }
+
+        query.where(predicate).select(root);
 
         List<Product> resultList = em.createQuery(query)
-                .setFirstResult(first)
-                .setMaxResults(pageSize)
+                .setFirstResult(pagable.getFirstResult())
+                .setMaxResults(pagable.getPageSize())
                 .getResultList();
+
         if (!CollectionUtils.isNullOrEmpty(resultList)) {
             return resultList;
         }

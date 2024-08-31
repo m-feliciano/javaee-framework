@@ -2,7 +2,7 @@
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <div class="main">
-    <form class="form-inline d-flex flex-row-reverse mb-2 pr-2" action="${ listProducts }" method="post">
+    <form class="form-inline d-flex flex-row-reverse mb20 mb-2 pr-2" action="${ listProducts }" method="post">
         <div class="mb-3 form-row">
             <!-- combo category -->
             <div class="form-row mr-2">
@@ -65,12 +65,11 @@
                         </thead>
                         <tbody>
                         <c:forEach items="${ products }" var="product">
-                            <fmt:formatNumber value="${product.price}" type="currency" minFractionDigits="2"
-                                              var="parsedPrice"/>
+                            <fmt:formatNumber value="${product.price}" type="currency" minFractionDigits="2" var="parsedPrice"/>
                             <tr>
-                                <th class="w-7" scope="row">${ product.id }</th>
-                                <td class="text-center w-10">
-                                    <a href="${ listProducts }&id=${ product.id }" target="_blank">
+                                <th class="w-5" scope="row">${ product.id }</th>
+                                <td class="text-center w-8">
+                                    <a href="${ listProducts }/${ product.id }" target="_blank">
                                         <c:if test="${empty product.url }">
                                             <img class="img-square-min fit-img"
                                                  src="<c:url value='/assets/no_image_available.png'/>"
@@ -85,16 +84,16 @@
                                 <td class="w-20">
                                     <div id="prod-name">${ product.name }</div>
                                 </td>
-                                <td class="w-25">
+                                <td class="w-30">
                                     <div id="prod-desc">${ product.description }</div>
                                 </td>
                                 <td class="w-10">${ parsedPrice }</td>
                                 <td class="w-10">${ product.registerDate }</td>
                                 <td class="w-10">
-                                    <a type="button" href="${ listProducts }&id=${ product.id }" class="btn btn-primary">
+                                    <a type="button" href="${ listProducts }/${ product.id }" class="btn btn-primary">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <a type="button" href="${ deleteProduct }&id=${ product.id }" class="btn btn-danger">
+                                    <a type="button" href="${ deleteProduct }/${ product.id }" class="btn btn-danger">
                                         <i class="bi bi-trash3"></i>
                                     </a>
                                 </td>
@@ -111,10 +110,10 @@
                     <div class="col-md-24">
                         <nav aria-label="Page navigation">
                             <ul class="pagination justify-content-center">
-                                <c:if test="${pagination.currentPage != 1}">
+                                <c:if test="${pagination.currentPage gt 1}">
                                     <li class="page-item">
-                                        <a class="page-link" href="${listProducts}&page=${pagination.currentPage - 1}"
-                                           style="color: #343a40;" aria-label="Previous">
+                                        <a class="page-link" style="color: #343a40;" aria-label="Previous"
+                                           href="${listProducts}?page=${pagination.currentPage - 1}&page_size=${pagination.pageSize}&sort=${pagination.sort.value}&order=${pagination.order.value}">
                                             <span aria-hidden="true">&laquo;</span>
                                             <span class="sr-only">Previous</span>
                                         </a>
@@ -126,20 +125,23 @@
                                         <c:when test="${pagination.currentPage eq i}">
                                             <li class="page-item active" aria-current="page">
                                                 <a class="page-link" style="background-color: #343a40; border-color: #343a40"
-                                                   disabled="true" tabindex="-1">${i}</a>
+                                                   disabled="true" tabindex="-1">${i}
+                                                </a>
                                             </li>
                                         </c:when>
                                         <c:otherwise>
                                             <li class="page-item">
-                                                <a class="page-link" style="color: #343a40;" href="${listProducts}&page=${i}">${i}</a>
+                                                <a class="page-link" style="color: #343a40;"
+                                                   href="${listProducts}?page=${i}&page_size=${pagination.pageSize}&sort=${pagination.sort.value}&order=${pagination.order.value}">${i}
+                                                </a>
                                             </li>
                                         </c:otherwise>
                                     </c:choose>
                                 </c:forEach>
 
                                 <c:if test="${pagination.currentPage lt pagination.getTotalPages()}">
-                                    <a class="page-link" href="${listProducts}&page=${pagination.currentPage + 1}"
-                                       style="color: #343a40;" aria-label="Next">
+                                    <a class="page-link" style="color: #343a40;" aria-label="Next"
+                                       href="${listProducts}?page=${pagination.currentPage + 1}&page_size=${pagination.pageSize}&sort=${pagination.sort.value}&order=${pagination.order.value}">
                                         <span aria-hidden="true">&raquo;</span>
                                         <span class="sr-only">Next</span>
                                     </a>
@@ -152,7 +154,7 @@
         </div>
     </c:if>
 
-    <div class="d-flex flex-row-reverse">
+    <div class="d-flex flex-row-reverse mb20">
         <a type="button" href="${ newProduct }" class="btn btn-success">New</a>
     </div>
 </div>

@@ -1,7 +1,7 @@
 package com.dev.servlet.dao;
 
-import com.dev.servlet.domain.Category;
-import com.dev.servlet.domain.enums.StatusEnum;
+import com.dev.servlet.pojo.Category;
+import com.dev.servlet.pojo.enums.StatusEnum;
 import com.dev.servlet.utils.CollectionUtils;
 
 import javax.enterprise.inject.Model;
@@ -33,7 +33,7 @@ public class CategoryDAO extends BaseDAO<Category, Long> {
         CriteriaQuery<Category> cq = cb.createQuery(Category.class);
         Root<Category> root = cq.from(Category.class);
 
-        Predicate predicate = cb.equal(root.get("status"), StatusEnum.ACTIVE.getName());
+        Predicate predicate = cb.equal(root.get("status"), StatusEnum.ACTIVE.value);
         predicate = cb.and(predicate, cb.equal(root.get("user"), category.getUser()));
 
         if (category.getName() != null) {
@@ -45,8 +45,7 @@ public class CategoryDAO extends BaseDAO<Category, Long> {
         Order desc = cb.desc(root.get("id"));
         cq.select(root).where(predicate).orderBy(desc);
 
-        List<Category> categories = em.createQuery(cq).getResultList();
-        return categories;
+        return em.createQuery(cq).getResultList();
     }
 
     /**
@@ -55,6 +54,7 @@ public class CategoryDAO extends BaseDAO<Category, Long> {
      * @param category
      * @return {@link Category}
      */
+    @Override
     public Category find(Category category) {
         List<Category> all = findAll(category);
         if (CollectionUtils.isNullOrEmpty(all)) {
@@ -68,16 +68,21 @@ public class CategoryDAO extends BaseDAO<Category, Long> {
      *
      * @param category
      */
+    @Override
     public void delete(Category category) {
         beginTransaction();
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaUpdate<Category> cu = builder.createCriteriaUpdate(Category.class);
         Root<Category> root = cu.from(Category.class);
-        cu.set("status", StatusEnum.DELETED.getName());
+        cu.set("status", StatusEnum.DELETED.value);
+
         Predicate predicate = builder.equal(root.get("id"), category.getId());
+        predicate = builder.and(predicate,
+                builder.equal(root.get("user").get("id"), category.getUser().getId()));
+
         cu.where(predicate);
         Query query = em.createQuery(cu);
-        int update = query.executeUpdate();
+        query.executeUpdate();
         commitTransaction();
     }
 }

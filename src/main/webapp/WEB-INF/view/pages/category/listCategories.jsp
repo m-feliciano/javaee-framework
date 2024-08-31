@@ -3,7 +3,7 @@
 
 <div class="main">
     <c:if test="${ empty categories }">
-        <div class="d-flex flex-row-reverse mb-4">
+        <div class="d-flex flex-row-reverse mb20 mb-4">
             <a type="button" href="${ newCategory }" class="btn btn btn-success">New</a>
         </div>
         <p>No one new category created.</p>
@@ -26,10 +26,10 @@
                             <th width="10%" scope="row">${ category.id }</th>
                             <td width=50%>${ category.name }</td>
                             <td width=25%>
-                                <a type="button" href="${ listCategories }&id=${ category.id }" class="btn btn-primary">
+                                <a type="button" href="${ listCategories }/${ category.id }" class="btn btn-primary">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <a type="button" href="${ deleteCategory }&id=${ category.id }" class="btn btn-danger">
+                                <a type="button" href="${ deleteCategory }/${ category.id }" class="btn btn-danger">
                                     <i class="bi bi-trash3"></i>
                                 </a>
                             </td>
@@ -37,7 +37,7 @@
                     </c:forEach>
                     </tbody>
                 </table>
-                <div class="d-flex flex-row-reverse">
+                <div class="d-flex flex-row-reverse mb20">
                     <a type="button" href="${ newCategory }" class="btn btn-success">New</a>
                 </div>
             </div>

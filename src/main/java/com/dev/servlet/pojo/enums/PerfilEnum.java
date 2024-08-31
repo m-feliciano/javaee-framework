@@ -1,4 +1,4 @@
-package com.dev.servlet.domain.enums;
+package com.dev.servlet.pojo.enums;
 
 public enum PerfilEnum {
 

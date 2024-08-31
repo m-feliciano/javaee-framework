@@ -2,10 +2,10 @@ package com.dev.servlet.business;
 
 import com.dev.servlet.controllers.InventoryController;
 import com.dev.servlet.controllers.ProductController;
-import com.dev.servlet.domain.Inventory;
-import com.dev.servlet.domain.Product;
 import com.dev.servlet.dto.ProductDto;
 import com.dev.servlet.mapper.ProductMapper;
+import com.dev.servlet.pojo.Inventory;
+import com.dev.servlet.pojo.Product;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

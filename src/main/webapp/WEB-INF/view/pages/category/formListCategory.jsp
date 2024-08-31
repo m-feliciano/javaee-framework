@@ -17,7 +17,7 @@
             </div>
 
             <!-- action -->
-            <a type="button" href="${ editCategory }&id=${ category.id }" class="btn btn-success">
+            <a type="button" href="${ editCategory }/${ category.id }" class="btn btn-success">
                 Edit <i class="bi bi-pencil-square"></i>
             </a>
             <a type="button" href="${ listCategories }" class="btn btn-light">

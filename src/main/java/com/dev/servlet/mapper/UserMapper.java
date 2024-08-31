@@ -1,7 +1,7 @@
 package com.dev.servlet.mapper;
 
-import com.dev.servlet.domain.User;
 import com.dev.servlet.dto.UserDto;
+import com.dev.servlet.pojo.User;
 
 public final class UserMapper {
     private UserMapper() {

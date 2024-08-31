@@ -1,8 +1,8 @@
 package com.dev.servlet.controllers;
 
 import com.dev.servlet.dao.CategoryDAO;
-import com.dev.servlet.domain.Category;
 import com.dev.servlet.interfaces.IController;
+import com.dev.servlet.pojo.Category;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -19,10 +19,10 @@ public final class CategoryController implements IController<Category, Long> {
         this.categoryDao = categoryDao;
     }
 
-    @Override
-    public Category findById(Long id) {
-        return this.categoryDao.findById(id);
-    }
+//    @Override
+//    public Category findById(Long id) {
+//        return this.categoryDao.findById(id);
+//    }
 
     @Override
     public Category find(Category object) {

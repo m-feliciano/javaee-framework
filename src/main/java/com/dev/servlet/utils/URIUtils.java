@@ -1,62 +1,84 @@
 package com.dev.servlet.utils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class URIUtils {
 
-    private static final String PACKAGE = "com.dev.servlet.business.%s";
+    /**
+     * the pattern is used to match the URI like /{service}/{action}/{id} (optional) or /{service}/{action}?{query}
+     */
+    public static final Pattern P_URI = Pattern.compile("/[^/]+(?:/([^/]+))?(?:/([^/]+))?(?:/([^/]+))?");
+    public static final Pattern P_ID = Pattern.compile("id=\\d+");
+    public static final Pattern P_NUMBER = Pattern.compile("\\d+");
 
     private URIUtils() {
         // Empty constructor
     }
 
     /**
-     * This method is used to get the action from the request
+     * This method is used to get the service name from the request.
      *
      * @param request
      * @return
      */
-    public static String getAction(HttpServletRequest request) {
-        if (request == null) return null;
-
-        String queryString = request.getQueryString();
-        String action = null;
-        if (queryString != null) {
-            for (String param : queryString.split("&")) {
-                String[] keyValue = param.split("=");
-                if (keyValue.length == 2 && "action".equals(keyValue[0])) {
-                    action = keyValue[1];
-                    break;
-                }
-            }
+    public static String service(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        Matcher matcher = P_URI.matcher(uri);
+        if (matcher.find()) {
+            return matcher.group(1);
         }
-
-        return action;
+        return null;
     }
 
     /**
-     * Get the class name
+     * Get the action from the request.
      *
      * @param request
      * @return String
      */
-    public static String getClassName(HttpServletRequest request) {
-        String classname;
-        int entityPos = request.getServletPath().lastIndexOf("/") + 1;
-        // fully qualified name
-        String entityName = request.getServletPath().substring(entityPos);
-        classname = String.format(PACKAGE, getServletClass(entityName));
-        return classname;
+    public static String action(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        Matcher matcher = P_URI.matcher(uri);
+        if (matcher.find()) {
+            return matcher.group(2);
+        }
+        return null;
     }
 
     /**
-     * format the class name to be used in the classpath
+     * Return the path variable from the request.
      *
-     * @param entityName
+     * @param httpServletRequest
      * @return
      */
-    private static String getServletClass(String entityName) {
-        return entityName.substring(0, 1).toUpperCase() + entityName.substring(1) + "Business";
-    }
+    public static Long recourceId(HttpServletRequest httpServletRequest) {
+        if (httpServletRequest.getParameter("id") != null) {
+            return Long.parseLong(httpServletRequest.getParameter("id"));
+        }
 
+//        if (httpServletRequest.getQueryString() != null) {
+//            Matcher matcher = P_ID.matcher(httpServletRequest.getQueryString());
+//            if (matcher.find()) {
+//                String[] split = matcher.group().split("=");
+//                return Long.parseLong(split[1]);
+//            }
+//        }
+
+        Matcher matcher = P_URI.matcher(httpServletRequest.getRequestURI());
+
+        if (matcher.find()) {
+            String pathVariable = matcher.group(3);
+
+            if (pathVariable != null) {
+                Matcher matcherPathVariable = P_NUMBER.matcher(pathVariable);
+                if (matcherPathVariable.find()) {
+                    return Long.parseLong(matcherPathVariable.group());
+                }
+            }
+        }
+
+        return null;
+    }
 }

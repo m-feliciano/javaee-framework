@@ -1,6 +1,6 @@
 package com.dev.servlet.dto;
 
-import com.dev.servlet.domain.User;
+import com.dev.servlet.pojo.User;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.io.Serializable;

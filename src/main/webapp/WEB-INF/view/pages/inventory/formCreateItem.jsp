@@ -20,7 +20,7 @@
                        placeholder="simple descripton" required minlength="4"/>
             </div>
             <button type="submit" class="btn btn-primary">Save</button>
-            <a type="button" href="${ inventoryLink }?action=list" class="btn btn-light">
+            <a type="button" href="${ listInventories }" class="btn btn-light">
                 Cancel
             </a>
         </div>

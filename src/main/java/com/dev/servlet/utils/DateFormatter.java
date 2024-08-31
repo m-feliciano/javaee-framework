@@ -6,7 +6,8 @@ import java.util.Date;
 
 public final class DateFormatter {
 
-    private DateFormatter() {}
+    private DateFormatter() {
+    }
 
     /**
      * @param strDate - the string yyyy-MM-dd

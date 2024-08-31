@@ -1,5 +1,7 @@
 package com.dev.servlet.interfaces;
 
+import com.dev.servlet.pojo.records.Pagable;
+
 import java.util.Collection;
 
 /**
@@ -11,6 +13,6 @@ public interface IPagination<T> {
 
     Long getTotalResults(T object);
 
-    Collection<T> findAll(T object, int first, int pageSize);
+    Collection<T> findAll(T object, Pagable pagable);
 
 }

@@ -20,7 +20,7 @@
         </ul>
         <div class="d-flex">
             <div class="avatar mt-1 mx30">
-                <a href="${userLink}?action=list">
+                <a href="${listUsers}/${user.id}">
                     <c:if test="${not empty user.imgUrl }">
                         <img src="${user.imgUrl}" alt="user" class="avatar-img rounded-circle">
                     </c:if>
@@ -29,7 +29,7 @@
                     </c:if>
                 </a>
             </div>
-            <a class="nav-link btn-logout mr-2" href="${userLink}?action=list">Perfil</a>
+            <a class="nav-link btn-logout mr-2" href="${listUsers}/${user.id}">Perfil</a>
         </div>
         <a class="nav-link btn-logout" href="${logout}">Logout</a>
     </div>

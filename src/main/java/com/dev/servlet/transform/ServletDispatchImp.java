@@ -1,9 +1,9 @@
-package com.dev.servlet.filter;
+package com.dev.servlet.transform;
 
 import com.dev.servlet.builders.RequestBuilder;
 import com.dev.servlet.interfaces.IRequestProcessor;
 import com.dev.servlet.interfaces.IServletDispatcher;
-import com.dev.servlet.utils.URIUtils;
+import com.dev.servlet.pojo.records.StandardRequest;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -43,23 +43,22 @@ public final class ServletDispatchImp implements IServletDispatcher {
     @Override
     public void dispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String token = (String) request.getSession().getAttribute("token");
-        String next = (String) this.execute(token, request, response, URIUtils.getClassName(request));
+        String next = (String) this.execute(token, request, response);
         processResponse(request, response, next);
     }
 
-    private Object execute(String token, HttpServletRequest httpRequest, HttpServletResponse htttpResponse, String classname) throws Exception {
-        Class<?> clazz = Class.forName(classname);
+    private Object execute(String token, HttpServletRequest httpRequest, HttpServletResponse htttpResponse) throws Exception {
         StandardRequest request = RequestBuilder.builder()
-                .clazz(clazz)
                 .request(httpRequest)
                 .response(htttpResponse)
                 .token(token)
                 .pagination()
                 .build();
 
-        Object result = processor.process(request);
-        return result;
+        Object next = processor.process(request);
+        return next;
     }
+
     /**
      * Process the request and redirect to
      *
@@ -69,13 +68,6 @@ public final class ServletDispatchImp implements IServletDispatcher {
      */
     private void processResponse(HttpServletRequest request, HttpServletResponse response, String fullpath)
             throws ServletException {
-        if (response.getStatus() == HttpServletResponse.SC_NOT_FOUND
-                || response.getStatus() == HttpServletResponse.SC_FORBIDDEN
-                || response.getStatus() == HttpServletResponse.SC_BAD_REQUEST) {
-            // TODO: Create a error custom currentPage
-            fullpath = "forward:pages/not-found.jsp";
-        }
-
         if (fullpath == null) {
             // We don't have a next chain, so we return the message that the service has set
             return;
@@ -83,7 +75,6 @@ public final class ServletDispatchImp implements IServletDispatcher {
 
         String[] path;
         try {
-
             path = fullpath.split(":");
         } catch (Exception e) {
             throw new ServletException("cannot parse url: {}" + fullpath);
@@ -93,14 +84,13 @@ public final class ServletDispatchImp implements IServletDispatcher {
         String pathUrl = path[1];
 
         try {
-            if ("forward".equals(pathAction)) {
+            if ("forward".equalsIgnoreCase(pathAction)) {
                 request.getRequestDispatcher("/WEB-INF/view/" + pathUrl).forward(request, response);
             } else {
                 response.sendRedirect(pathUrl);
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new ServletException("Error processing request: " + e.getMessage());
+            throw new ServletException("Error processing request: " + (e.getCause() != null ? e.getCause().getMessage() : e.getMessage()));
         }
     }
 }

@@ -28,7 +28,7 @@
             </div>
 
             <!-- action -->
-            <a type="button" href="${ editItem }&id=${ item.id }" class="btn btn-success">
+            <a type="button" href="${ editItem }/${ item.id }" class="btn btn-success">
                 Edit <i class="bi bi-pencil-square"></i>
             </a>
             <a type="button" href="${ listInventories }" class="btn btn-light">

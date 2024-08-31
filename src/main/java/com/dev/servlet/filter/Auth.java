@@ -3,10 +3,12 @@ package com.dev.servlet.filter;
 import com.dev.servlet.interfaces.IServletDispatcher;
 import com.dev.servlet.utils.PropertiesUtil;
 import com.dev.servlet.utils.URIUtils;
+import org.slf4j.Logger;
 
 import javax.inject.Inject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -14,10 +16,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Set;
 
-import static com.dev.servlet.utils.CryptoUtils.isValidToken;
-
 //@WebFilter(urlPatterns = "/company")
 public class Auth implements Filter {
+
+    private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(Auth.class);
 
     private static final Set<String> AUTHORIZED_ACTIONS = PropertiesUtil.getAuthorizedActions();
 
@@ -45,39 +47,39 @@ public class Auth implements Filter {
      * @since 1.0
      */
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException {
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
 
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        try {
-            if (!request.getServletPath().contains("view")) {
-                chain.doFilter(request, response);
-            } else {
-                String token = (String) request.getSession().getAttribute("token");
-                String action =  URIUtils.getAction(request);
+        if (!request.getServletPath().contains("view")) {
+            chain.doFilter(request, response);
+        } else {
+            String token = (String) request.getSession().getAttribute("token");
+            String service = URIUtils.service(request);
 
-                if (!isAuthorized(token, action)) {
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.sendRedirect("view/login?action=loginForm");
-                } else {
+            if (token == null && !isAuthorizedService(service)) {
+                LOGGER.warn("Unauthorized access to the service: {}, redirecting to login page", service);
+
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.sendRedirect("/view/login/loginForm");
+            } else {
+                try {
                     dispatcher.dispatch(request, response);
+                } catch (Exception e) {
+                    LOGGER.error("Error while dispatching the request", e);
                 }
             }
-        } catch (Exception e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
-     * Return true if the user token is valid or the action is authorized
+     * Return true if the user is authorized to access the requested action.
      *
-     * @param token
      * @param action
      * @return boolean
      */
-    private boolean isAuthorized(String token, String action) {
-        boolean anyMatch = AUTHORIZED_ACTIONS.stream().anyMatch(e -> e.equals(action));
-        return anyMatch || isValidToken(token);
+    private boolean isAuthorizedService(String action) {
+        return AUTHORIZED_ACTIONS.contains(action);
     }
 }

@@ -30,7 +30,14 @@ public final class PropertiesUtil {
 //            Properties catalogProps = new Properties();
 //            catalogProps.load(new FileInputStream(catalogConfigPath));
 
-            return appProps.getProperty(key);
+            String property = appProps.getProperty(key);
+
+            while (property != null && property.contains("{") && property.contains("}")) {
+                String otherProperty = property.substring(property.indexOf("{") + 1, property.indexOf("}"));
+                String otherValue = appProps.getProperty(otherProperty);
+                property = property.replace("{" + otherProperty + "}", otherValue);
+            }
+            return property;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -40,7 +47,7 @@ public final class PropertiesUtil {
      * Gets property.
      *
      * @param key          the key
-     * @param defaultValue  the default value
+     * @param defaultValue the default value
      * @return the property
      */
     public static String getProperty(String key, String defaultValue) {
@@ -54,15 +61,13 @@ public final class PropertiesUtil {
      * @return the authorized actions
      */
     public static Set<String> getAuthorizedActions() {
-        String props = getProperty("auth.authorized", "login,loginForm,register,registerPage");
+        String props = getProperty("auth.authorized", "login");
         return Set.of(props.split(","));
     }
 
     /**
      * Returns true if rate limit is enabled.
-     * It is enabled by default.
      * If the environment is development, it is disabled (there is no need to limit the requests).
-     *
      */
     public static boolean isRateLimitEnabled() {
         if ("development".equalsIgnoreCase(getProperty("env"))) {

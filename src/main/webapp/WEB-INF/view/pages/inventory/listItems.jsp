@@ -3,7 +3,7 @@
 
 <c:set var="total" value="${0}"/>
 <div class="main">
-    <form class="form-inline d-flex flex-row-reverse mb-2 pr-2" action="${ listInventories }" method="post">
+    <form class="form-inline d-flex flex-row-reverse mb20 mb-2 pr-2" action="${ listInventories }" method="post">
         <div class="mb-3 form-row">
             <div class="form-row mr-4">
                 <select name="category" class="form-control text-center" id="inputCategory">
@@ -68,17 +68,17 @@
                             <th class="w-7" scope="row">${ item.id }</th>
                             <td class="w-20">
                                 <a style="text-decoration: none; color: inherit;  padding: 2rem 0;"
-                                   href="${ listProducts }&id=${ item.getProduct().getId() }" target="_blank">${ item.getProduct().getName() }</a>
+                                   href="${ listProducts }/${ item.getProduct().getId() }" target="_blank">${ item.getProduct().getName() }</a>
                             </td>
                             <td class="w-10">${ item.quantity }</td>
                             <td class="w-25">${ item.description }</td>
                             <td class="w-10">${ parsedPrice }</td>
                             <td class="w-10">
-                                <a type="button" href="${ listInventories }&id=${ item.id }"
+                                <a type="button" href="${ listInventories }/${ item.id }"
                                    class="btn btn-primary">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <a type="button" href="${ deleteItem }&id=${ item.id }"
+                                <a type="button" href="${ deleteItem }/${ item.id }"
                                    class="btn btn-danger">
                                     <i class="bi bi-trash3"></i>
                                 </a>
@@ -93,7 +93,7 @@
             </div>
         </div>
     </c:if>
-    <div class="d-flex flex-row-reverse mt-0">
+    <div class="d-flex flex-row-reverse mb20 mt-0">
         <a type="button" href="${ newItem }" class="btn btn-success">New</a>
     </div>
 </div>

@@ -1,8 +1,8 @@
 package com.dev.servlet.controllers;
 
 import com.dev.servlet.dao.InventoryDAO;
-import com.dev.servlet.domain.Inventory;
 import com.dev.servlet.interfaces.IController;
+import com.dev.servlet.pojo.Inventory;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -19,10 +19,10 @@ public final class InventoryController implements IController<Inventory, Long> {
         this.inventoryDao = inventoryDao;
     }
 
-    @Override
-    public Inventory findById(Long id) {
-        return inventoryDao.findById(id);
-    }
+//    @Override
+//    public Inventory findById(Long id) {
+//        return inventoryDao.findById(id);
+//    }
 
     @Override
     public Inventory find(Inventory object) {

@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * DTO for {@link com.dev.servlet.domain.Product}
+ * DTO for {@link com.dev.servlet.pojo.Product}
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductDto implements Serializable {

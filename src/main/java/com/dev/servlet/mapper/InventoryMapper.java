@@ -1,7 +1,7 @@
 package com.dev.servlet.mapper;
 
-import com.dev.servlet.domain.Inventory;
 import com.dev.servlet.dto.InventoryDto;
+import com.dev.servlet.pojo.Inventory;
 
 public final class InventoryMapper {
     private InventoryMapper() {

@@ -1,8 +1,8 @@
 package com.dev.servlet.controllers;
 
 import com.dev.servlet.dao.UserDAO;
-import com.dev.servlet.domain.User;
 import com.dev.servlet.interfaces.IController;
+import com.dev.servlet.pojo.User;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -23,10 +23,10 @@ public final class UserController implements IController<User, Long> {
         return userDAO.find(login);
     }
 
-    @Override
-    public User findById(Long id) {
-        return this.userDAO.findById(id);
-    }
+//    @Override
+//    public User findById(Long id) {
+//        return this.userDAO.findById(id);
+//    }
 
     @Override
     public List<User> findAll(User user) {

@@ -2,12 +2,13 @@ package com.dev.servlet.business;
 
 import com.dev.servlet.business.base.BaseRequest;
 import com.dev.servlet.controllers.CategoryController;
-import com.dev.servlet.domain.Category;
-import com.dev.servlet.domain.enums.StatusEnum;
 import com.dev.servlet.dto.CategoryDto;
-import com.dev.servlet.filter.StandardRequest;
+import com.dev.servlet.interfaces.IService;
 import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.mapper.CategoryMapper;
+import com.dev.servlet.pojo.Category;
+import com.dev.servlet.pojo.enums.StatusEnum;
+import com.dev.servlet.pojo.records.StandardRequest;
 import com.dev.servlet.utils.CacheUtil;
 import com.dev.servlet.utils.CollectionUtils;
 
@@ -26,18 +27,13 @@ import java.util.List;
  * @since 1.0
  */
 @Singleton
+@IService("category")
 public class CategoryBusiness extends BaseRequest {
-
-    private static final String FORWARD_PAGE_CREATE = "forward:pages/category/formCreateCategory.jsp";
-    private static final String FORWARD_PAGE_LIST = "forward:pages/category/listCategories.jsp";
-    private static final String FORWARD_PAGE_LIST_BY_ID = "forward:pages/category/formListCategory.jsp";
-    private static final String FORWARD_PAGE_UPDATE = "forward:pages/category/formUpdateCategory.jsp";
-
-    private static final String REDIRECT_ACTION_LIST_ALL = "redirect:category?action=list";
-    private static final String REDIRECT_ACTION_LIST_BY_ID = "redirect:category?action=list&id=";
-
     private static final String CATEGORY = "category";
     private static final String CACHE_KEY = "categories";
+    public static final String FORWARD_PAGES_CATEGORY = "forward:pages/category/";
+    public static final String REDIRECT_VIEW_CATEGORY = "redirect:/view/category/";
+    private static final String REDIRECT_ACTION_LIST_BY_ID = REDIRECT_VIEW_CATEGORY + "list/<id>";
 
     private CategoryController controller;
 
@@ -55,9 +51,9 @@ public class CategoryBusiness extends BaseRequest {
      *
      * @return the next path
      */
-    @ResourcePath(value = NEW)
+    @ResourcePath(NEW)
     public String forwardRegister(StandardRequest request) {
-        return FORWARD_PAGE_CREATE;
+        return FORWARD_PAGES_CATEGORY + "formCreateCategory.jsp";
     }
 
     /**
@@ -66,16 +62,16 @@ public class CategoryBusiness extends BaseRequest {
      * @param request
      * @return the string
      */
-    @ResourcePath(value = CREATE)
+    @ResourcePath(CREATE)
     public String registerOne(StandardRequest request) {
         Category cat = new Category();
         cat.setUser(getUser(request));
         cat.setName(getParameter(request, "name"));
-        cat.setStatus(StatusEnum.ACTIVE.getName());
+        cat.setStatus(StatusEnum.ACTIVE.value);
         controller.save(cat);
         request.servletResponse().setStatus(HttpServletResponse.SC_CREATED);
         CacheUtil.clear(CACHE_KEY, request.token());
-        return REDIRECT_ACTION_LIST_BY_ID + cat.getId();
+        return REDIRECT_ACTION_LIST_BY_ID.replace("<id>", cat.getId().toString());
     }
 
     /**
@@ -84,16 +80,18 @@ public class CategoryBusiness extends BaseRequest {
      * @param request
      * @return the string
      */
-    @ResourcePath(value = UPDATE)
+    @ResourcePath(UPDATE)
     public String update(StandardRequest request) {
-        Long id = Long.parseLong(getParameter(request, "id"));
-        var category = controller.findById(id);
-        category.setName(getParameter(request, "name"));
-        category = controller.update(category);
-        request.servletRequest().setAttribute(CATEGORY, category);
+        CategoryDto categoryDto = findById(request.requestObject().resourceId(), request);
+        categoryDto.setName(getParameter(request, "name"));
+
+        Category category = CategoryMapper.from(categoryDto);
+        controller.update(category);
+
+        request.servletRequest().setAttribute(CATEGORY, categoryDto);
         request.servletResponse().setStatus(HttpServletResponse.SC_NO_CONTENT);
         CacheUtil.clear(CACHE_KEY, request.token());
-        return REDIRECT_ACTION_LIST_BY_ID + category.getId();
+        return REDIRECT_ACTION_LIST_BY_ID.replace("<id>", categoryDto.getId().toString());
     }
 
     /**
@@ -102,18 +100,17 @@ public class CategoryBusiness extends BaseRequest {
      * @param request
      * @return the string
      */
-    @ResourcePath(value = LIST)
+    @ResourcePath(LIST)
     public String list(StandardRequest request) {
-        String id = getParameter(request, "id");
-        if (id != null) {
-            CategoryDto dto = findById(Long.valueOf(id), request);
+        CategoryDto dto = findById(request.requestObject().resourceId(), request);
+        if (dto != null) {
             request.servletRequest().setAttribute(CATEGORY, dto);
-            return FORWARD_PAGE_LIST_BY_ID;
+            return FORWARD_PAGES_CATEGORY + "formListCategory.jsp";
         }
 
         List<CategoryDto> all = findAll(request);
         request.servletRequest().setAttribute("categories", all);
-        return FORWARD_PAGE_LIST;
+        return FORWARD_PAGES_CATEGORY + "listCategories.jsp";
 
     }
 
@@ -123,11 +120,11 @@ public class CategoryBusiness extends BaseRequest {
      * @param request
      * @return the string
      */
-    @ResourcePath(value = EDIT)
+    @ResourcePath(EDIT)
     public String edit(StandardRequest request) {
-        Long id = Long.valueOf(getParameter(request, "id"));
-        request.servletRequest().setAttribute(CATEGORY, controller.findById(id));
-        return FORWARD_PAGE_UPDATE;
+        CategoryDto dto = findById(request.requestObject().resourceId(), request);
+        request.servletRequest().setAttribute(CATEGORY, dto);
+        return FORWARD_PAGES_CATEGORY + "formUpdateCategory.jsp";
     }
 
     /**
@@ -136,15 +133,14 @@ public class CategoryBusiness extends BaseRequest {
      * @param request
      * @return the string
      */
-    @ResourcePath(value = DELETE)
+    @ResourcePath(DELETE)
     public String delete(StandardRequest request) {
-        Long id = Long.valueOf(getParameter(request, "id"));
-        Category cat = new Category(id);
+        Category cat = new Category(request.requestObject().resourceId());
         cat.setUser(getUser(request));
         controller.delete(cat);
         CacheUtil.clear(CACHE_KEY, request.token());
         request.servletResponse().setStatus(HttpServletResponse.SC_NO_CONTENT);
-        return REDIRECT_ACTION_LIST_ALL;
+        return REDIRECT_VIEW_CATEGORY + "list";
     }
 
     /**
@@ -176,13 +172,11 @@ public class CategoryBusiness extends BaseRequest {
      * @return {@link Category}
      */
     public CategoryDto findById(Long id, StandardRequest request) {
+        if (id == null) return null;
+
         List<CategoryDto> dtoList = findAll(request);
         if (!CollectionUtils.isNullOrEmpty(dtoList)) {
-            CategoryDto categoryDto = dtoList.stream()
-                    .filter(c -> c.getId().equals(id))
-                    .findFirst()
-                    .orElse(null);
-            return categoryDto;
+            return dtoList.stream().filter(c -> c.getId().equals(id)).findFirst().orElse(null);
         }
 
         return null;

@@ -1,4 +1,4 @@
-package com.dev.servlet.domain;
+package com.dev.servlet.pojo;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,26 +8,25 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 
-@Table(name = "tb_inventory")
+@Table(name = "tb_category")
 @Entity
-public class Inventory {
+public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "quantity")
-    private Integer quantity;
+    @Column(name = "name")
+    private String name;
 
-    @Column(name = "description")
-    private String description;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
-    private Product product;
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    private List<Product> products;
 
     @Column(name = "status")
     private String status;
@@ -36,17 +35,15 @@ public class Inventory {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public Inventory() {
+    public Category() {
     }
 
-    public Inventory(Long id) {
+    public Category(Long id) {
         this.id = id;
     }
 
-    public Inventory(Product product, Integer quantity, String description) {
-        this.product = product;
-        this.quantity = quantity;
-        this.description = description;
+    public Category(String name) {
+        this.name = name;
     }
 
     public Long getId() {
@@ -57,28 +54,20 @@ public class Inventory {
         this.id = id;
     }
 
-    public Product getProduct() {
-        return product;
+    public String getName() {
+        return name;
     }
 
-    public void setProduct(Product product) {
-        this.product = product;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public Integer getQuantity() {
-        return quantity;
+    public List<Product> getProducts() {
+        return products;
     }
 
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public void setProducts(List<Product> products) {
+        this.products = products;
     }
 
     public String getStatus() {
@@ -95,5 +84,11 @@ public class Inventory {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public void addProduct(Product product) {
+        if (products == null)
+            products = new ArrayList<>();
+        products.add(product);
     }
 }

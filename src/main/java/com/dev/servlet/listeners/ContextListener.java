@@ -1,15 +1,11 @@
 package com.dev.servlet.listeners;
 
 import com.dev.servlet.providers.ServiceLocator;
-import com.dev.servlet.utils.ClassUtil;
-import com.dev.servlet.utils.CollectionUtils;
 import com.dev.servlet.utils.JPAUtil;
 
-import javax.inject.Singleton;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
-import java.util.List;
 
 /**
  * The listener interface for receiving context events.
@@ -38,18 +34,6 @@ public class ContextListener implements ServletContextListener {
     @Override
     @SuppressWarnings("unchecked")
     public void contextInitialized(ServletContextEvent arg0) {
-        // Add the code to initialize the servlet context
-        List<Class<?>> clazzList = null;
-        try {
-            clazzList = ClassUtil.loadClasses("com.dev.servlet.business", new Class[]{Singleton.class});
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        if (!CollectionUtils.isNullOrEmpty(clazzList)) {
-            for (Class<?> bean : clazzList) {
-                ServiceLocator.getInstance().getService(bean);
-            }
-        }
+        ServiceLocator.getInstance().resolveAll();
     }
 }

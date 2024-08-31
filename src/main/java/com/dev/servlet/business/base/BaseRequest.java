@@ -1,8 +1,8 @@
 package com.dev.servlet.business.base;
 
-import com.dev.servlet.domain.User;
-import com.dev.servlet.filter.StandardRequest;
 import com.dev.servlet.mapper.UserMapper;
+import com.dev.servlet.pojo.User;
+import com.dev.servlet.pojo.records.StandardRequest;
 import com.dev.servlet.utils.CacheUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -13,12 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 public abstract class BaseRequest {
-
-    protected static final String LOGIN = "login";
-    protected static final String LOGOUT = "logout";
-    protected static final String LOGIN_FORM = "loginForm";
     protected static final String INVALID = "invalid";
-    protected static final String USER_OR_PASSWORD_INVALID = "User or password invalid.";
     protected static final String CREATE = "create"; // Create resource
     protected static final String REGISTER = "register"; //create a new user
     protected static final String LIST = "list";
@@ -29,7 +24,6 @@ public abstract class BaseRequest {
     protected static final String DELETE = "delete";
     protected static final String PARAM = "param";
     protected static final String VALUE = "value";
-    protected static final String FORWARD_PAGES_NOT_FOUND = "forward:pages/not-found.jsp";
     protected static final String FORWARD_PAGES_FORM_LOGIN = "forward:pages/formLogin.jsp";
     protected final Logger logger;
     protected final Gson gson;

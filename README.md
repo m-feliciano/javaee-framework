@@ -1,40 +1,58 @@
-# Servlets (Full Stack Java Web Application)
+### Application Overview
 
-This project is a Java/JSP web application, designed for product management.
+This project is a full Java/JSP web application designed for managing products.
+It follows the Model-View-Controller (MVC) architecture,
+ensuring a clear separation of concerns and facilitating maintainability and scalability.
 
-It uses MVC architecture and was developed using the following stack:
-- Java (JDK 17)
-- Habernate (ORM) 
-- Tomcat 9 (Server)
-- PostgreSQL (Database)
+### Technology Stack
+- **Java (JDK 17)**: The core programming language.
+- **Hibernate (ORM)**: An Object-Relational Mapping framework that simplifies database interactions.
+- **Tomcat 9 (Server)**: A web server and servlet container used to deploy and run the application.
+- **PostgreSQL (Database)**: An open-source relational database management system.*
+- **Criteria API**: A type-safe way to build queries for the database decoupling the queries from the underlying database.
+
+*The application can be configured to work with other databases like MySQL, Oracle, etc.
+
+### Key Features
+1. **Product Management**: Allows users to create, read, update, and delete product information.
+2. **User Management**: Manages user information and roles within the application.
+3. **Pagination**: Implements pagination to handle large datasets efficiently.
+4. **Sorting and Filtering**: Provides sorting and filtering capabilities to easily navigate through products.
+5. **CSV Export/Import**: Allows exporting and importing product data in CSV format.
+6. **Authentication and Authorization**: Ensures secure access to the application using login mechanisms.
+7. **Error Handling**: Custom error pages for handling various HTTP errors like 404.
+
+## URL Design
+- `{context}/view/{service}/{action}/{id}`
+- `{context}/view/{service}/{action}?{queries}`
+
+Example:
+- `http://server/view/product/list/1`
+- `http://server/view/product/list?page=1&page_size=5`
 
 ## Layout
 
 ### Login
-
-#### your_server/view/login?action=loginForm
+#### `/view/login/form`
 ![App login page](https://i.ibb.co/R0xM6Ps/Screenshot-2022-07-17-034301.png)
-<br>
 
-### Home
-#### your_server/view/product?action=list&page=2
+### Home Page
+#### `/view/product/list?page=<page>&page_size=<size>&sort=<field>&order=<asc|desc>`
+Default values: `page=1`, `page_size=5`, `sort=id`, `order=desc` (can be changed in `app.properties`)
+
 ![App home page](https://i.ibb.co/fFT7p2N/shopping-prod.png)
-<br>
 
 ### Product
-#### your_server/view/product?action=list&id=2
-![App prolist list page](https://i.ibb.co/1fy8JtG/Screenshot.png)
-<br>
+#### `/view/product/list/<id>`
+![App product list page](https://i.ibb.co/1fy8JtG/Screenshot.png)
 
 ### User
-#### your_server/view/user?action=list
-![App prolist list page](https://i.ibb.co/nBbGMtG/temp.png)
-<br>
+#### `/view/user/list/<id>`
+![App user list page](https://i.ibb.co/nBbGMtG/temp.png)
 
-### 404
-#### your_server/view/product?action=list&id=invalid_id
+### Error page (in progress)
+#### `/view/product/list/<invalid_id>`
 ![App not found page](https://i.postimg.cc/Sx8D8GZP/Screenshot-2024-08-10-174059.png)
-<br>
 
 ## Packages
 ```
@@ -44,32 +62,35 @@ It uses MVC architecture and was developed using the following stack:
 │   │       └───dev
 │   │           └───servlet
 │   │               ├───builders
-│   │               ├───business
-│   │               │   └───base
+│   │               ├───business        (services)
+│   │               │   └───base 
 │   │               ├───controllers
-│   │               ├───dao
-│   │               ├───domain
-│   │               │   └───enums
-│   │               ├───dto
-│   │               ├───filter
-│   │               ├───interfaces
-│   │               ├───listeners
-│   │               ├───mapper
-│   │               ├───providers
+│   │               ├───dao             (infra)
+│   │               ├───dto             (data transfer objects)
+│   │               ├───filter          (servlet filters)
+│   │               ├───interfaces      (contracts)
+│   │               ├───listeners 
+│   │               ├───mapper          (object mapping/transfers)
+│   │               ├───pojo            (plain old java objects)
+│   │               │   ├───enums
+│   │               │   └───records     (Immutable objects)
+│   │               ├───providers       (dependency injection, sevice locator etc.)
+│   │               ├───transform
 │   │               └───utils
 │   ├───resources
 │   │   └───META-INF
-│   │       └───sql
+│   │       └───sql                     (database scripts, default data, etc.)
 │   └───webapp
-│       ├───assets
-│       ├───css
+│       ├───assets                      (images, fonts, etc.)
+│       ├───css                         (stylesheets)
 │       ├───META-INF
 │       ├───web
 │       │   └───WEB-INF
 │       └───WEB-INF
-│           └───view
-│               ├───components
-│               └───pages
+│           ├───jspf                    (JSP fragments)
+│           └───view                    
+│               ├───components          (JSP components like header, footer, etc.)
+│               └───pages               (JSP pages)
 │                   ├───category
 │                   ├───inventory
 │                   ├───product
@@ -81,36 +102,35 @@ It uses MVC architecture and was developed using the following stack:
 
 ```
 
-## Database example
+## Database Example
 ```docker
+## create network
+docker network create -d bridge <network-name>
 
-## create nw
-docker network create -d bridge servlet
-
-## run container
-docker run --name servlet \
---network=servlet -p 5432:5432 \
--e "POSTGRES_USER=postgres" \
--e "POSTGRES_PASSWORD=password" \
+## run container (example)
+docker run --name <container-name> \
+--network=<network-name> -p 5432:5432 \
+-e "POSTGRES_USER=<user>" \
+-e "POSTGRES_PASSWORD=<password>" \
 -d postgres
 
-## exec 
-docker exec -it servlet psql -U postgres
+## exec into container
+docker exec -it <container-name> psql -U postgres
 ## create table
 
-##etc
+## etc
 ```
 
-The scripts to create the database are in the `resources/META-INF/sql` folder
+The scripts to create the database are in the `resources/META-INF/sql` folder.
 
-The database connection is set in the `resources/META-INF/persistence.xml` file
+The database connection is set in the `resources/META-INF/persistence.xml` file.
 
-## Features in progress
+## Features in Progress
 - [x] Implement pagination
 - [x] Export/Import data to CSV
 - [ ] Add filters
 - [ ] Dockerize the application
 - [ ] Jasper Reports
 
-## Questions, suggestions, problems or improvements
+## Questions, Suggestions, Problems, or Improvements
 Please contact me at `marcelo@tuta.io`.

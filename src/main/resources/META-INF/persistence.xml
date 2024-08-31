@@ -7,10 +7,10 @@
 
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
-        <class>com.dev.servlet.domain.Category</class>
-        <class>com.dev.servlet.domain.Inventory</class>
-        <class>com.dev.servlet.domain.Product</class>
-        <class>com.dev.servlet.domain.User</class>
+        <class>com.dev.servlet.pojo.Category</class>
+        <class>com.dev.servlet.pojo.Inventory</class>
+        <class>com.dev.servlet.pojo.Product</class>
+        <class>com.dev.servlet.pojo.User</class>
 
         <properties>
             <property name="javax.persistence.jdbc.url"

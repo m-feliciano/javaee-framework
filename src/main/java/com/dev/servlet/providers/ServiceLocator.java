@@ -1,13 +1,18 @@
 package com.dev.servlet.providers;
 
+import com.dev.servlet.interfaces.IService;
+import com.dev.servlet.utils.ClassUtil;
+import com.dev.servlet.utils.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.CDI;
 import javax.inject.Singleton;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class is responsible is an entry point for the service locator
@@ -19,47 +24,55 @@ public final class ServiceLocator {
      */
     @Singleton
     public static class ServiceLocatorInstance {
-        private final Map<Class<?>, Object> services;
+        private final Map<String, Object> services;
         private final Logger logger;
 
         private ServiceLocatorInstance() {
             services = new ConcurrentHashMap<>();
-            logger = Logger.getLogger(ServiceLocatorInstance.class.getName());
+            logger = LoggerFactory.getLogger(ServiceLocatorInstance.class.getName());
+        }
+
+        /**
+         * This method is responsible for resolving all the services
+         *
+         * @since 1.3.4
+         */
+        @SuppressWarnings({"unchecked"})
+        public synchronized void resolveAll() {
+            List<Class<?>> clazzList = null;
+            Class<IService> annotation = IService.class;
+
+            try {
+                clazzList = ClassUtil.loadClasses("com.dev.servlet.business", new Class[]{annotation});
+            } catch (Exception e) {
+                logger.error("Failed to load classes", e);
+            }
+
+            if (!CollectionUtils.isNullOrEmpty(clazzList)) {
+                for (Class<?> aClass : clazzList) {
+                    try {
+                        BeanManager beanManager = CDI.current().getBeanManager();
+                        Bean<?> bean = beanManager.resolve(beanManager.getBeans(aClass));
+                        Object service = beanManager.getReference(
+                                bean, bean.getBeanClass(), beanManager.createCreationalContext(bean));
+                        services.putIfAbsent(aClass.getAnnotation(annotation).value(), service);
+
+                    } catch (Exception e) {
+                        logger.error("Failed to instantiate service: %s".formatted(aClass.getName()), e);
+                    }
+                }
+            }
         }
 
         /**
          * This method is responsible for getting an instance of the service
          *
-         * @param serviceClass
-         * @param <T>
+         * @param serviceName
          * @return
          */
-        public <T> T getService(Class<T> serviceClass) {
-            if (services.containsKey(serviceClass)) {
-                return serviceClass.cast(services.get(serviceClass));
-            } else {
-                try {
-                    synchronized (this) {
-                        if (services.containsKey(serviceClass)) {
-                            return serviceClass.cast(services.get(serviceClass));
-                        }
-
-                        // Look up the CDI bean manager and use it to resolve the bean
-                        BeanManager beanManager = CDI.current().getBeanManager();
-                        Bean<?> bean = beanManager.resolve(beanManager.getBeans(serviceClass));
-                        T service = serviceClass.cast(
-                                beanManager.getReference(
-                                        bean, serviceClass, beanManager.createCreationalContext(bean)));
-                        services.putIfAbsent(serviceClass, service);
-                        return service;
-                    }
-                } catch (Exception e) {
-                    logger.log(Level.SEVERE, "Failed to instantiate service: %s".formatted(serviceClass), e);
-                }
-            }
-            return null;
+        public Object getService(String serviceName) {
+            return services.get(serviceName);
         }
-
     }
 
     // Singleton instance

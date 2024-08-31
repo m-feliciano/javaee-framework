@@ -5,7 +5,8 @@ import java.math.RoundingMode;
 
 public final class CurrencyFormatter {
 
-    private CurrencyFormatter() {}
+    private CurrencyFormatter() {
+    }
 
     /**
      * This method is used to format a string to a currency value. The value is

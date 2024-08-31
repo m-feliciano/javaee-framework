@@ -1,7 +1,7 @@
 package com.dev.servlet.mapper;
 
-import com.dev.servlet.domain.Category;
 import com.dev.servlet.dto.CategoryDto;
+import com.dev.servlet.pojo.Category;
 
 public final class CategoryMapper {
     private CategoryMapper() {

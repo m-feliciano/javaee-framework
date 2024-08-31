@@ -1,7 +1,10 @@
 package com.dev.servlet.builders;
 
-import com.dev.servlet.filter.StandardPagination;
-import com.dev.servlet.filter.StandardRequest;
+import com.dev.servlet.pojo.records.Order;
+import com.dev.servlet.pojo.records.Pagable;
+import com.dev.servlet.pojo.records.RequestObject;
+import com.dev.servlet.pojo.records.Sort;
+import com.dev.servlet.pojo.records.StandardRequest;
 import com.dev.servlet.utils.URIUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,8 +28,8 @@ public class RequestBuilder {
         return this;
     }
 
-    public RequestBuilder clazz(Class<?> clazz) {
-        this.parameters.put("clazz", clazz);
+    public RequestBuilder service(String service) {
+        this.parameters.put("service", service);
         return this;
     }
 
@@ -41,16 +44,25 @@ public class RequestBuilder {
     }
 
     public StandardRequest build() {
-        String action = URIUtils.getAction((HttpServletRequest) this.parameters.get("request"));
-        this.parameters.put("action", action);
+        if (!this.parameters.containsKey("request") || !this.parameters.containsKey("response")) {
+            throw new IllegalArgumentException("Request and response are required");
+        }
 
-        return new StandardRequest(
-                (HttpServletRequest) this.parameters.get("request"),
-                (HttpServletResponse) this.parameters.get("response"),
+        var httpServletRequest = (HttpServletRequest) this.parameters.get("request");
+        var httpServletResponse = (HttpServletResponse) this.parameters.get("response");
+
+        this.parameters.putIfAbsent("service", URIUtils.service(httpServletRequest));
+        this.parameters.putIfAbsent("action", URIUtils.action(httpServletRequest));
+        this.parameters.putIfAbsent("resourceId", URIUtils.recourceId(httpServletRequest));
+
+        RequestObject requestObject = new RequestObject(
                 (String) this.parameters.get("action"),
-                (Class<?>) this.parameters.get("clazz"),
+                (String) this.parameters.get("service"),
+                (Long) this.parameters.get("resourceId"),
                 (String) this.parameters.get("token"),
-                (StandardPagination) this.parameters.get("pagination"));
+                (Pagable) this.parameters.get("pagination"));
+
+        return new StandardRequest(httpServletRequest, httpServletResponse, requestObject);
     }
 
     /**
@@ -59,20 +71,30 @@ public class RequestBuilder {
     public RequestBuilder pagination() {
         int currentPage = 1;
         int pageSize = 5;
+        Sort sort = Sort.ID;
+        Order order = Order.DESC;
 
-        if (this.parameters.get("request") != null) {
-            HttpServletRequest httpRequest = (HttpServletRequest) this.parameters.get("request");
-
-            if (httpRequest.getParameter("pageSize") != null) {
-                pageSize = Integer.parseInt(httpRequest.getParameter("pageSize"));
+        HttpServletRequest request = (HttpServletRequest) this.parameters.get("request");
+        String query = request.getQueryString();
+        if (query != null) {
+            for (String param : query.split("&")) {
+                String[] pair = param.split("=");
+                if (pair.length != 2) continue;
+                if (pair[0].equals("page")) currentPage = Integer.parseInt(pair[1]);
+                if (pair[0].equals("page_size")) pageSize = Math.min(Integer.parseInt(pair[1]), 100);
+                if (pair[0].equals("sort")) sort = Sort.from(pair[1]);
+                if (pair[0].equals("order")) order = Order.from(pair[1]);
             }
-            if (httpRequest.getParameter("page") != null) {
-                currentPage = Integer.parseInt(httpRequest.getParameter("page"));
-            }
-
-            this.parameters.put("pagination", StandardPagination.of(currentPage, pageSize));
-            httpRequest.setAttribute("pagination", parameters.get("pagination"));
         }
+
+        Pagable pagination = new Pagable();
+        pagination.setCurrentPage(currentPage);
+        pagination.setPageSize(pageSize);
+        pagination.setSort(sort);
+        pagination.setOrder(order);
+
+        request.setAttribute("pagination", pagination);
+        this.parameters.put("pagination", pagination);
 
         return this;
     }

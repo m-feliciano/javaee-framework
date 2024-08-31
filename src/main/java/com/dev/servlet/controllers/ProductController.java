@@ -1,11 +1,13 @@
 package com.dev.servlet.controllers;
 
 import com.dev.servlet.dao.ProductDAO;
-import com.dev.servlet.domain.Product;
 import com.dev.servlet.interfaces.IController;
 import com.dev.servlet.interfaces.IPagination;
+import com.dev.servlet.pojo.Product;
+import com.dev.servlet.pojo.records.Pagable;
 
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.List;
 
 public class ProductController implements IController<Product, Long>, IPagination<Product> {
@@ -20,10 +22,10 @@ public class ProductController implements IController<Product, Long>, IPaginatio
         this.productDao = productDao;
     }
 
-    @Override
-    public Product findById(Long id) {
-        return this.productDao.findById(id);
-    }
+//    @Override
+//    public Product findById(Long id) {
+//        return this.productDao.findById(id);
+//    }
 
     @Override
     public Product find(Product product) {
@@ -50,11 +52,12 @@ public class ProductController implements IController<Product, Long>, IPaginatio
         return this.productDao.findAll(product);
     }
 
-    public List<Product> findAll(Product product, int first, int pageSize) {
-        return this.productDao.findAll(product, first, pageSize);
-    }
-
     public Long getTotalResults(Product product) {
         return this.productDao.getTotalResults(product);
+    }
+
+    @Override
+    public Collection<Product> findAll(Product object, Pagable pagable) {
+        return this.productDao.findAll(object, pagable);
     }
 }

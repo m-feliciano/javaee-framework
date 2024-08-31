@@ -2,7 +2,7 @@
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <div class="main">
-    <form action="${ updateItem }" method="post">
+    <form action="${ updateItem }/${item.id}" method="post">
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputItemId" class="form-label">ID</label>
@@ -35,7 +35,7 @@
             <!-- action -->
 
             <button type="submit" class="btn btn-primary">Save</button>
-            <a type="button" href="${ inventoryLink }?action=list&id=${ item.id }" class="btn btn-light">
+            <a type="button" href="${ listInventories }/${ item.id }" class="btn btn-light">
                 Cancel
             </a>
         </div>

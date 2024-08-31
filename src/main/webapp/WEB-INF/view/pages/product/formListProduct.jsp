@@ -56,8 +56,8 @@
                     </div>
                 </div>
             </div>
-            <div class="row justify-content-end mr-0">
-                <a type="button" href="${ editProduct }&id=${ product.id }" class="btn btn-success mr-2">
+            <div class="row justify-content-end mr-0 mb20">
+                <a type="button" href="${ editProduct }/${ product.id }" class="btn btn-success mr-2">
                     Edit <i class="bi bi-pencil-square"></i>
                 </a>
                 <a type="button" href="${ listProducts }" class="btn btn-light">Go back</a>

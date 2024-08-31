@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * DTO for {@link com.dev.servlet.domain.Category}
+ * DTO for {@link com.dev.servlet.pojo.Category}
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CategoryDto implements Serializable {

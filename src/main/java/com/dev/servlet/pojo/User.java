@@ -1,4 +1,4 @@
-package com.dev.servlet.domain;
+package com.dev.servlet.pojo;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;

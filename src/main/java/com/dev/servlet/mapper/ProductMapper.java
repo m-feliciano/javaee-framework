@@ -1,7 +1,7 @@
 package com.dev.servlet.mapper;
 
-import com.dev.servlet.domain.Product;
 import com.dev.servlet.dto.ProductDto;
+import com.dev.servlet.pojo.Product;
 
 public final class ProductMapper {
     private ProductMapper() {

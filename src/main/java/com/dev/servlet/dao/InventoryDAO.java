@@ -1,7 +1,7 @@
 package com.dev.servlet.dao;
 
-import com.dev.servlet.domain.Inventory;
-import com.dev.servlet.domain.enums.StatusEnum;
+import com.dev.servlet.pojo.Inventory;
+import com.dev.servlet.pojo.enums.StatusEnum;
 import com.dev.servlet.utils.CollectionUtils;
 
 import javax.enterprise.inject.Model;
@@ -49,7 +49,7 @@ public class InventoryDAO extends BaseDAO<Inventory, Long> {
         CriteriaQuery<Inventory> cq = cb.createQuery(Inventory.class);
         Root<Inventory> root = cq.from(Inventory.class);
 
-        Predicate predicate = cb.equal(root.get("status"), StatusEnum.ACTIVE.getName());
+        Predicate predicate = cb.equal(root.get("status"), StatusEnum.ACTIVE.value);
         predicate = cb.and(predicate, cb.equal(root.get("user").get("id"), inventory.getUser().getId()));
 
         if (inventory.getDescription() != null) {
@@ -85,16 +85,21 @@ public class InventoryDAO extends BaseDAO<Inventory, Long> {
      *
      * @param inventory
      */
+    @Override
     public void delete(Inventory inventory) {
         beginTransaction();
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaUpdate<Inventory> cu = builder.createCriteriaUpdate(Inventory.class);
         Root<Inventory> root = cu.from(Inventory.class);
-        cu.set("status", StatusEnum.DELETED.getName());
+        cu.set("status", StatusEnum.DELETED.value);
+        
         Predicate predicate = builder.equal(root.get("id"), inventory.getId());
+        predicate = builder.and(predicate, 
+                builder.equal(root.get("user").get("id"), inventory.getUser().getId()));
+        
         cu.where(predicate);
         Query query = em.createQuery(cu);
-        int update = query.executeUpdate();
+        query.executeUpdate();
         commitTransaction();
     }
 
@@ -109,7 +114,7 @@ public class InventoryDAO extends BaseDAO<Inventory, Long> {
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
         Root<Inventory> root = cq.from(Inventory.class);
 
-        Predicate predicate = cb.equal(root.get("status"), StatusEnum.ACTIVE.getName());
+        Predicate predicate = cb.equal(root.get("status"), StatusEnum.ACTIVE.value);
         predicate = cb.and(predicate, cb.equal(root.get("product").get("id"), inventory.getProduct().getId()));
 
         cq.select(cb.count(root)).where(predicate);

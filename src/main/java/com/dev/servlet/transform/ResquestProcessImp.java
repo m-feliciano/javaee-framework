@@ -1,8 +1,9 @@
-package com.dev.servlet.filter;
+package com.dev.servlet.transform;
 
 import com.dev.servlet.interfaces.IRateLimiter;
 import com.dev.servlet.interfaces.IRequestProcessor;
 import com.dev.servlet.interfaces.ResourcePath;
+import com.dev.servlet.pojo.records.StandardRequest;
 import com.dev.servlet.providers.ServiceLocator;
 import com.dev.servlet.utils.PropertiesUtil;
 import org.slf4j.Logger;
@@ -44,8 +45,7 @@ public class ResquestProcessImp implements IRequestProcessor {
     @Override
     public Object process(StandardRequest request) throws Exception {
         if (rateLimitActive && !rateLimit.acquire()) {
-            logger.warn("Rate limit exceeded for class: {} and action: {}", request.clazz().getName(), request.action());
-            request.servletResponse().sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Request limit exceeded. Please try again later");
+            request.servletResponse().sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Request limit exceeded");
             return null;
         }
 
@@ -60,31 +60,34 @@ public class ResquestProcessImp implements IRequestProcessor {
      */
     private Object processRequest(StandardRequest request) {
         try {
+            Object service = ServiceLocator.getInstance().getService(request.service());
+            if (service == null) {
+                return "forward:pages/not-found.jsp";
+            }
+
             Method method = null;
-            ResourcePath annotation;
-            for (Method object : request.clazz().getDeclaredMethods()) {
-                annotation = object.getAnnotation(ResourcePath.class);
+            for (Method methodObject : service.getClass().getDeclaredMethods()) {
+                ResourcePath annotation = methodObject.getAnnotation(ResourcePath.class);
 
                 if (annotation != null && annotation.value().equals(request.action())) {
-                    method = object;
+                    method = methodObject;
                     break;
                 }
             }
 
-            Object service = ServiceLocator.getInstance().getService(request.clazz());
-            if (method == null || !request.clazz().isInstance(service)) {
-                request.servletResponse().sendError(HttpServletResponse.SC_BAD_REQUEST);
-                return null;
+            if (method == null) {
+                return "forward:pages/not-found.jsp";
             }
 
-            Object invoke = method.invoke(service, request);
-            return invoke;
+            Object invoked = method.invoke(service, request);
+            return invoked;
         } catch (Exception e) {
-            logger.error("Error processing request: {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+            logger.error("ERROR: {}", (e.getCause() != null ? e.getCause().getMessage() : e.getMessage()));
+
             try {
-                request.servletResponse().sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-            } catch (Exception ex) {
-                logger.error(ex.getMessage());
+                request.servletResponse().sendError(
+                        HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error. Contact support");
+            } catch (Exception ignored) {
             } finally {
                 HttpServletRequest httpRequest = request.servletRequest();
                 httpRequest.getAttributeNames().asIterator().forEachRemaining(httpRequest::removeAttribute);

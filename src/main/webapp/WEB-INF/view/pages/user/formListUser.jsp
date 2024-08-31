@@ -50,7 +50,7 @@
             </c:if>
 
             <!-- action -->
-            <div class="row justify-content-end mr-0">
+            <div class="row justify-content-end mr-0 mb20">
                 <button type="submit" class="btn btn-primary mr-2">Save</button>
                 <a type="button" href="${ listProducts }" class="btn btn-light">Go
                     back</a>

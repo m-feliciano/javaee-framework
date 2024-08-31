@@ -5,7 +5,7 @@
 <fmt:formatDate value="${parsedDate}" type="date" pattern="dd/MM/yyyy" var="stdDate"/>
 
 <div class="main">
-    <form action="${ updateProduct }" method="post">
+    <form action="${ updateProduct }/${product.id}" method="post">
         <div class="col-md-6">
             <div class="mb-3">
                 <div class="row">
@@ -66,10 +66,10 @@
                 </div>
             </div>
             <!-- action -->
-            <div class="row justify-content-end mr-0">
+            <div class="row justify-content-end mr-0 mb20">
 
                 <button type="submit" class="btn btn-primary mr-2">Save</button>
-                <a type="button" href="${ productLink }?action=list&id=${product.id }" class="btn btn-light">Cancel</a>
+                <a type="button" href="${ listProducts }/${product.id }" class="btn btn-light">Cancel</a>
             </div>
         </div>
     </form>

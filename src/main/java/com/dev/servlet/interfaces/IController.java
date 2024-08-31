@@ -3,7 +3,7 @@ package com.dev.servlet.interfaces;
 import java.util.List;
 
 public interface IController<T, E> {
-    T findById(E id);
+//    T findById(E id); // This method is not used in the project
 
     T find(T object);
 
