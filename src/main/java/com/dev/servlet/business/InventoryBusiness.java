@@ -178,6 +178,8 @@ public class InventoryBusiness extends BaseRequest {
     @ResourcePath(DELETE)
     public String delete(StandardRequest request) {
         Inventory obj = new Inventory(request.requestObject().resourceId());
+        obj.setUser(getUser(request));
+
         controller.delete(obj);
         request.servletResponse().setStatus(HttpServletResponse.SC_NO_CONTENT);
         return REDIRECT_VIEW_INVENTORY + "list";

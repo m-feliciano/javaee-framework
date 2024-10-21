@@ -56,7 +56,13 @@ public class LoginBusiness extends BaseRequest {
      * @return the next path
      */
     @ResourcePath(LOGIN_FORM)
-    public String forwardLogin(StandardRequest request) {
+    public String forwardLogin(StandardRequest request) throws IOException {
+        if (CacheUtil.hasToken(request.token())) {
+            String homepage = PropertiesUtil.getProperty("homepage");
+            request.servletResponse().setStatus(HttpServletResponse.SC_OK);
+            request.servletResponse().sendRedirect(homepage);
+            return null;
+        }
         return FORWARD_PAGES_FORM_LOGIN;
     }
 
@@ -68,7 +74,7 @@ public class LoginBusiness extends BaseRequest {
      */
     @ResourcePath(LOGIN)
     public String login(StandardRequest request) throws IOException {
-        if (getParameter(request, "sucess") != null) {
+        if (getParameter(request, "success") != null) {
             return FORWARD_PAGES_FORM_LOGIN;
         }
 
@@ -87,9 +93,11 @@ public class LoginBusiness extends BaseRequest {
 
         setSessionAttribute(request.servletRequest(), "token", CryptoUtils.generateToken(dto));
         setSessionAttribute(request.servletRequest(), "user", dto);
-        request.servletResponse().setStatus(HttpServletResponse.SC_FOUND);
+
         // Force redirect to homepage
-        request.servletResponse().sendRedirect(PropertiesUtil.getProperty("homepage"));
+        String homepage = PropertiesUtil.getProperty("homepage");
+        request.servletResponse().setStatus(HttpServletResponse.SC_OK);
+        request.servletResponse().sendRedirect(homepage);
         return null;
     }
 
@@ -122,7 +130,7 @@ public class LoginBusiness extends BaseRequest {
      * @return the next path
      */
     @ResourcePath(LOGOUT)
-    public String logout(StandardRequest request) {
+    public String logout(StandardRequest request) throws Exception {
         HttpSession session = request.servletRequest().getSession();
         CacheUtil.clearToken(request.token());
         session.invalidate();

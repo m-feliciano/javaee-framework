@@ -6,6 +6,7 @@ import com.dev.servlet.utils.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.CDI;
@@ -17,6 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * This class is responsible is an entry point for the service locator
  */
+
+@SuppressWarnings("unchecked")
 public final class ServiceLocator {
 
     /**
@@ -24,7 +27,7 @@ public final class ServiceLocator {
      */
     @Singleton
     public static class ServiceLocatorInstance {
-        private final Map<String, Object> services;
+        private final Map<String, Class<?>> services;
         private final Logger logger;
 
         private ServiceLocatorInstance() {
@@ -37,30 +40,39 @@ public final class ServiceLocator {
          *
          * @since 1.3.4
          */
-        @SuppressWarnings({"unchecked"})
         public synchronized void resolveAll() {
             List<Class<?>> clazzList = null;
-            Class<IService> annotation = IService.class;
-
             try {
-                clazzList = ClassUtil.loadClasses("com.dev.servlet.business", new Class[]{annotation});
+                clazzList = ClassUtil.loadClasses(
+                        "com.dev.servlet.business", new Class[]{IService.class});
             } catch (Exception e) {
                 logger.error("Failed to load classes", e);
             }
 
             if (!CollectionUtils.isNullOrEmpty(clazzList)) {
                 for (Class<?> aClass : clazzList) {
-                    try {
-                        BeanManager beanManager = CDI.current().getBeanManager();
-                        Bean<?> bean = beanManager.resolve(beanManager.getBeans(aClass));
-                        Object service = beanManager.getReference(
-                                bean, bean.getBeanClass(), beanManager.createCreationalContext(bean));
-                        services.putIfAbsent(aClass.getAnnotation(annotation).value(), service);
-
-                    } catch (Exception e) {
-                        logger.error("Failed to instantiate service: %s".formatted(aClass.getName()), e);
-                    }
+                    IService ann = aClass.getAnnotation(IService.class);
+                    services.putIfAbsent(ann.value(), aClass);
                 }
+            }
+        }
+
+        /**
+         * This method is responsible for resolving the service
+         *
+         * @param aClass
+         * @return
+         */
+        private Object resolve(Class<?> aClass) {
+            try {
+                BeanManager beanManager = CDI.current().getBeanManager();
+                Bean<?> bean = beanManager.resolve(beanManager.getBeans(aClass));
+                CreationalContext<?> ctx = beanManager.createCreationalContext(bean);
+                return beanManager.getReference(
+                        bean, bean.getBeanClass(), ctx);
+            } catch (Exception e) {
+                logger.error("Failed to instantiate service: {}", aClass.getName(), e);
+                return null;
             }
         }
 
@@ -71,7 +83,8 @@ public final class ServiceLocator {
          * @return
          */
         public Object getService(String serviceName) {
-            return services.get(serviceName);
+            Class<?> aClass = services.get(serviceName);
+            return resolve(aClass);
         }
     }
 

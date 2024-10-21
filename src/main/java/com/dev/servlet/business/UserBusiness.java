@@ -79,7 +79,7 @@ public class UserBusiness extends BaseRequest {
         user.setStatus(StatusEnum.ACTIVE.value);
         controller.save(user);
 
-        standardRequest.servletRequest().setAttribute("sucess", "sucess");
+        standardRequest.servletRequest().setAttribute("success", "success");
         standardRequest.servletResponse().setStatus(HttpServletResponse.SC_CREATED);
         return FORWARD_PAGES_FORM_LOGIN;
     }

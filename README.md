@@ -13,18 +13,8 @@ ensuring a clear separation of concerns and facilitating maintainability and sca
 
 *The application can be configured to work with other databases like MySQL, Oracle, etc.
 
-### Key Features
-1. **Product Management**: Allows users to create, read, update, and delete product information.
-2. **User Management**: Manages user information and roles within the application.
-3. **Pagination**: Implements pagination to handle large datasets efficiently.
-4. **Sorting and Filtering**: Provides sorting and filtering capabilities to easily navigate through products.
-5. **CSV Export/Import**: Allows exporting and importing product data in CSV format.
-6. **Authentication and Authorization**: Ensures secure access to the application using login mechanisms.
-7. **Error Handling**: Custom error pages for handling various HTTP errors like 404.
-
 ## URL Design
-- `{context}/view/{service}/{action}/{id}`
-- `{context}/view/{service}/{action}?{queries}`
+- `{context}/view/{service}/{action}/{id|query}`
 
 Example:
 - `http://server/view/product/list/1`
