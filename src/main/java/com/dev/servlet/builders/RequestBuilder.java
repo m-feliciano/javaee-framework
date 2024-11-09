@@ -1,10 +1,8 @@
 package com.dev.servlet.builders;
 
-import com.dev.servlet.pojo.records.Order;
-import com.dev.servlet.pojo.records.Pagable;
-import com.dev.servlet.pojo.records.RequestObject;
-import com.dev.servlet.pojo.records.Sort;
 import com.dev.servlet.pojo.records.StandardRequest;
+import com.dev.servlet.pojo.records.Query;
+import com.dev.servlet.pojo.records.RequestObject;
 import com.dev.servlet.utils.URIUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -44,58 +42,37 @@ public class RequestBuilder {
     }
 
     public StandardRequest build() {
-        if (!this.parameters.containsKey("request") || !this.parameters.containsKey("response")) {
-            throw new IllegalArgumentException("Request and response are required");
-        }
-
         var httpServletRequest = (HttpServletRequest) this.parameters.get("request");
         var httpServletResponse = (HttpServletResponse) this.parameters.get("response");
 
-        this.parameters.putIfAbsent("service", URIUtils.service(httpServletRequest));
-        this.parameters.putIfAbsent("action", URIUtils.action(httpServletRequest));
-        this.parameters.putIfAbsent("resourceId", URIUtils.recourceId(httpServletRequest));
+        if (httpServletRequest == null || httpServletResponse == null) {
+            throw new IllegalArgumentException("Request and response are required");
+        }
 
-        RequestObject requestObject = new RequestObject(
-                (String) this.parameters.get("action"),
-                (String) this.parameters.get("service"),
-                (Long) this.parameters.get("resourceId"),
-                (String) this.parameters.get("token"),
-                (Pagable) this.parameters.get("pagination"));
+        String service = URIUtils.service(httpServletRequest);
+        this.parameters.putIfAbsent("service", service);
+
+        String action = URIUtils.action(httpServletRequest);
+        this.parameters.putIfAbsent("action", action);
+
+        Long id = URIUtils.recourceId(httpServletRequest);
+        this.parameters.putIfAbsent("id", id);
+
+        RequestObject requestObject = new RequestObject(service, action, id,
+                (Query) httpServletRequest.getAttribute("query"),
+                (String) this.parameters.get("token"));
 
         return new StandardRequest(httpServletRequest, httpServletResponse, requestObject);
     }
 
     /**
-     * This method creates a standard pagination object.
+     * This action is used to get the query from the request.
+     *
+     * @return
      */
-    public RequestBuilder pagination() {
-        int currentPage = 1;
-        int pageSize = 5;
-        Sort sort = Sort.ID;
-        Order order = Order.DESC;
-
-        HttpServletRequest request = (HttpServletRequest) this.parameters.get("request");
-        String query = request.getQueryString();
-        if (query != null) {
-            for (String param : query.split("&")) {
-                String[] pair = param.split("=");
-                if (pair.length != 2) continue;
-                if (pair[0].equals("page")) currentPage = Integer.parseInt(pair[1]);
-                if (pair[0].equals("page_size")) pageSize = Math.min(Integer.parseInt(pair[1]), 100);
-                if (pair[0].equals("sort")) sort = Sort.from(pair[1]);
-                if (pair[0].equals("order")) order = Order.from(pair[1]);
-            }
-        }
-
-        Pagable pagination = new Pagable();
-        pagination.setCurrentPage(currentPage);
-        pagination.setPageSize(pageSize);
-        pagination.setSort(sort);
-        pagination.setOrder(order);
-
-        request.setAttribute("pagination", pagination);
-        this.parameters.put("pagination", pagination);
-
+    public RequestBuilder query() {
+        var httpServletRequest = (HttpServletRequest) this.parameters.get("request");
+        httpServletRequest.setAttribute("query", URIUtils.query(httpServletRequest));
         return this;
     }
 

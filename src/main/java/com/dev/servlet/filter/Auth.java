@@ -1,6 +1,7 @@
 package com.dev.servlet.filter;
 
 import com.dev.servlet.interfaces.IServletDispatcher;
+import com.dev.servlet.utils.CryptoUtils;
 import com.dev.servlet.utils.PropertiesUtil;
 import com.dev.servlet.utils.URIUtils;
 import org.slf4j.Logger;
@@ -52,25 +53,30 @@ public class Auth implements Filter {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        if (!request.getServletPath().contains("view")) {
-            chain.doFilter(request, response);
-        } else {
-            String token = (String) request.getSession().getAttribute("token");
-            String service = URIUtils.service(request);
+        String token = (String) request.getSession().getAttribute("token");
+        String service = URIUtils.service(request);
 
-            if (token == null && !isAuthorizedService(service)) {
-                LOGGER.warn("Unauthorized access to the service: {}, redirecting to login page", service);
-
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.sendRedirect("/view/login/loginForm");
-            } else {
-                try {
-                    dispatcher.dispatch(request, response);
-                } catch (Exception e) {
-                    LOGGER.error("Error while dispatching the request", e);
-                }
+        if (isAuthorizedAction(service) || isValidToken(token)) {
+            try {
+                dispatcher.dispatch(request, response);
+            } catch (Exception e) {
+                LOGGER.error("Error while dispatching the request", e);
             }
+        } else {
+            LOGGER.warn("Unauthorized access to the service: {}, redirecting to login page", service);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.sendRedirect("/view/login/loginForm");
         }
+    }
+
+    /**
+     * Check if the token is valid.
+     *
+     * @param token
+     * @return boolean
+     */
+    private boolean isValidToken(String token) {
+        return token != null && CryptoUtils.verifyToken(token);
     }
 
     /**
@@ -79,7 +85,7 @@ public class Auth implements Filter {
      * @param action
      * @return boolean
      */
-    private boolean isAuthorizedService(String action) {
-        return AUTHORIZED_ACTIONS.contains(action);
+    private boolean isAuthorizedAction(String action) {
+        return action != null && AUTHORIZED_ACTIONS.contains(action);
     }
 }

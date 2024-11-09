@@ -1,51 +1,67 @@
 package com.dev.servlet.utils;
 
+import com.dev.servlet.pojo.records.Order;
+import com.dev.servlet.pojo.records.Pagination;
+import com.dev.servlet.pojo.records.Query;
+import com.dev.servlet.pojo.records.Sort;
+
 import javax.servlet.http.HttpServletRequest;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public final class URIUtils {
 
-    /**
-     * the pattern is used to match the URI like /{service}/{action}/{id} (optional) or /{service}/{action}?{query}
-     */
-    public static final Pattern P_URI = Pattern.compile("/[^/]+(?:/([^/]+))?(?:/([^/]+))?(?:/([^/]+))?");
-    public static final Pattern P_ID = Pattern.compile("id=\\d+");
-    public static final Pattern P_NUMBER = Pattern.compile("\\d+");
+    public static final String URI_INTERNAL_CACHE_KEY = "uri_internal_cache_key";
 
     private URIUtils() {
         // Empty constructor
     }
 
     /**
-     * This method is used to get the service name from the request.
+     * This action is used to get the service name from the request.
      *
-     * @param request
-     * @return
+     * @param request HttpServletRequest
+     * @return service name
      */
     public static String service(HttpServletRequest request) {
-        String uri = request.getRequestURI();
-        Matcher matcher = P_URI.matcher(uri);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-        return null;
+        return extractURIPath(request, 1);
     }
 
     /**
      * Get the action from the request.
      *
-     * @param request
-     * @return String
+     * @param request HttpServletRequest
+     * @return action name
      */
     public static String action(HttpServletRequest request) {
+        return extractURIPath(request, 2);
+    }
+
+    /**
+     * Extracts a part of the URI based on the given index.
+     * <p>
+     * Obs: the uri must be in the format /view/{service}/{action}/{id|query} or /view/{service}/{action}
+     * <p>
+     * @param request HttpServletRequest
+     * @param index   the index of the part to extract
+     * @return the extracted part of the URI
+     */
+    private static String extractURIPath(HttpServletRequest request, int index) {
         String uri = request.getRequestURI();
-        Matcher matcher = P_URI.matcher(uri);
-        if (matcher.find()) {
-            return matcher.group(2);
+        String[] uriParts = uri.split("/view/")[1].split("/");
+
+        int correctIndex = index - 1;
+        if (uriParts.length > correctIndex) {
+            return uriParts[correctIndex];
         }
+
         return null;
     }
+
 
     /**
      * Return the path variable from the request.
@@ -54,31 +70,90 @@ public final class URIUtils {
      * @return
      */
     public static Long recourceId(HttpServletRequest httpServletRequest) {
-        if (httpServletRequest.getParameter("id") != null) {
-            return Long.parseLong(httpServletRequest.getParameter("id"));
-        }
+        return Optional.ofNullable(httpServletRequest.getParameter("id"))
+                .map(Long::parseLong)
+                .orElseGet(() -> {
+                    String[] uriParts = httpServletRequest.getRequestURI().split("/");
+                    String urlID = uriParts[uriParts.length - 1];
 
-//        if (httpServletRequest.getQueryString() != null) {
-//            Matcher matcher = P_ID.matcher(httpServletRequest.getQueryString());
-//            if (matcher.find()) {
-//                String[] split = matcher.group().split("=");
-//                return Long.parseLong(split[1]);
-//            }
-//        }
+                    Long id = urlID.matches("\\d+") ? Long.parseLong(urlID) : null;
+                    return id;
+                });
+    }
 
-        Matcher matcher = P_URI.matcher(httpServletRequest.getRequestURI());
+    /**
+     * Create the query object from the request.
+     *
+     * @param request
+     * @return
+     */
+    public static Query query(HttpServletRequest request) {
+        String search = null, type = null;
+        Pagination pagination = getDefaultPageValue();
 
-        if (matcher.find()) {
-            String pathVariable = matcher.group(3);
+        if (request.getQueryString() != null) {
+            int page = 1, size = 5;
+            Sort sort = Sort.ID;
+            Order order = Order.ASC;
 
-            if (pathVariable != null) {
-                Matcher matcherPathVariable = P_NUMBER.matcher(pathVariable);
-                if (matcherPathVariable.find()) {
-                    return Long.parseLong(matcherPathVariable.group());
+            var entries = parseQueryParams(request.getQueryString()).entrySet();
+            for (var entry : entries) {
+                switch (entry.getKey()) {
+                    case "page" -> page = Math.max(Math .abs(Integer.parseInt(entry.getValue())), 1);
+                    case "limit" -> size = Math.min(Math .abs(Integer.parseInt(entry.getValue())), 50);
+                    case "sort" -> sort = Sort.from(entry.getValue());
+                    case "order" -> order = Order.from(entry.getValue());
+                    case "s" -> search = URLDecoder.decode(entry.getValue().trim(), StandardCharsets.UTF_8);
+                    case "k" -> type = entry.getValue();
                 }
             }
+
+            pagination = new Pagination(page, size, sort, order);
         }
 
-        return null;
+        return new Query(pagination, search, type);
+    }
+
+    /**
+     * Parse the query parameters from the request.
+     *
+     * @param query
+     * @return
+     */
+    private static Map<String, String> parseQueryParams(String query) {
+        Map<String, String> queryParams = new HashMap<>();
+        for (String param : query.split("&")) {
+            String[] pair = param.split("=");
+            if (pair.length == 2) {
+                queryParams.put(pair[0], pair[1]);
+            }
+        }
+        return queryParams;
+    }
+
+    /**
+     * Get the default query value.
+     * If the value is not found in the cache, then it will be created and stored in the cache.
+     * The default values are read from the properties file.
+     *
+     * @return
+     */
+    private static Pagination getDefaultPageValue() {
+        List<Object> objects = CacheUtil.get(URI_INTERNAL_CACHE_KEY, "default_pagination");
+
+        if (!CollectionUtils.isNullOrEmpty(objects)) {
+            return (Pagination) objects.get(0);
+        }
+
+        int page = Integer.parseInt(PropertiesUtil.getProperty("pagination.page", "1"));
+        int size = Integer.parseInt(PropertiesUtil.getProperty("pagination.size", "5"));
+        Sort sort = Sort.from(PropertiesUtil.getProperty("pagination.sort", "id"));
+        Order order = Order.from(PropertiesUtil.getProperty("pagination.order", "asc"));
+
+        Pagination pagination = new Pagination(page, size, sort, order);
+
+        CacheUtil.set(URI_INTERNAL_CACHE_KEY, "default_pagination", List.of(pagination));
+
+        return pagination;
     }
 }

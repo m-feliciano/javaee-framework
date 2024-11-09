@@ -33,7 +33,10 @@ public class UserDAO extends BaseDAO<User, Long> {
         Root<User> root = cq.from(User.class);
         Predicate predicate = cb.notEqual(root.get("status"), StatusEnum.DELETED.value);
         predicate = cb.and(predicate, cb.equal(root.get("login"), user.getLogin()));
-        predicate = cb.and(predicate, cb.equal(root.get("password"), user.getPassword()));
+
+        if (user.getPassword() != null) {
+            predicate = cb.and(predicate, cb.equal(root.get("password"), user.getPassword()));
+        }
 
         Order descId = cb.desc(root.get("id"));
         cq.select(root).where(predicate).orderBy(descId);

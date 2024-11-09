@@ -2,7 +2,6 @@ package com.dev.servlet.providers;
 
 import com.dev.servlet.interfaces.IService;
 import com.dev.servlet.utils.ClassUtil;
-import com.dev.servlet.utils.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,19 +40,17 @@ public final class ServiceLocator {
          * @since 1.3.4
          */
         public synchronized void resolveAll() {
-            List<Class<?>> clazzList = null;
+            List<Class<?>> clazzList;
             try {
-                clazzList = ClassUtil.loadClasses(
-                        "com.dev.servlet.business", new Class[]{IService.class});
+                clazzList = ClassUtil.loadClasses("com.dev.servlet.business", new Class[]{IService.class});
             } catch (Exception e) {
                 logger.error("Failed to load classes", e);
+                return;
             }
 
-            if (!CollectionUtils.isNullOrEmpty(clazzList)) {
-                for (Class<?> aClass : clazzList) {
-                    IService ann = aClass.getAnnotation(IService.class);
-                    services.putIfAbsent(ann.value(), aClass);
-                }
+            for (Class<?> aClass : clazzList) {
+                IService ann = aClass.getAnnotation(IService.class);
+                services.putIfAbsent(ann.value(), aClass);
             }
         }
 

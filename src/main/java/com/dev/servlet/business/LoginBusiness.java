@@ -2,6 +2,7 @@ package com.dev.servlet.business;
 
 import com.dev.servlet.business.base.BaseRequest;
 import com.dev.servlet.controllers.UserController;
+import com.dev.servlet.dto.ServiceException;
 import com.dev.servlet.dto.UserDto;
 import com.dev.servlet.interfaces.IService;
 import com.dev.servlet.interfaces.ResourcePath;
@@ -57,12 +58,12 @@ public class LoginBusiness extends BaseRequest {
      */
     @ResourcePath(LOGIN_FORM)
     public String forwardLogin(StandardRequest request) throws IOException {
-        if (CacheUtil.hasToken(request.token())) {
+        if (CryptoUtils.verifyToken(request.getToken())) {
             String homepage = PropertiesUtil.getProperty("homepage");
-            request.servletResponse().setStatus(HttpServletResponse.SC_OK);
-            request.servletResponse().sendRedirect(homepage);
-            return null;
+            request.setStatus(HttpServletResponse.SC_OK);
+            return "redirect:/view" + homepage;
         }
+
         return FORWARD_PAGES_FORM_LOGIN;
     }
 
@@ -74,31 +75,31 @@ public class LoginBusiness extends BaseRequest {
      */
     @ResourcePath(LOGIN)
     public String login(StandardRequest request) throws IOException {
-        if (getParameter(request, "success") != null) {
+        if (request.getParameter("success") != null) {
             return FORWARD_PAGES_FORM_LOGIN;
         }
 
         User user = new User();
-        user.setLogin(getParameter(request, "email"));
-        user.setPassword(CryptoUtils.encrypt(getParameter(request, "password")));
+        user.setLogin(request.getParameter("email"));
+        user.setPassword(CryptoUtils.encrypt(request.getParameter("password")));
         user = controller.find(user);
         if (user == null) {
-            request.servletRequest().setAttribute(INVALID, "User or password invalid.");
-            request.servletRequest().setAttribute("email", getParameter(request, "email"));
-            request.servletResponse().setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            request.setAttribute(INVALID, "User or password invalid.");
+            request.setAttribute("email", request.getParameter("email"));
+            request.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return FORWARD_PAGES_FORM_LOGIN;
         }
 
         UserDto dto = UserMapper.from(user);
 
-        setSessionAttribute(request.servletRequest(), "token", CryptoUtils.generateToken(dto));
-        setSessionAttribute(request.servletRequest(), "user", dto);
+        String jwtToken = CryptoUtils.generateJWTToken(user);
+        request.setSessionAttribute("token", jwtToken);
+        request.setSessionAttribute("user", dto);
 
         // Force redirect to homepage
         String homepage = PropertiesUtil.getProperty("homepage");
-        request.servletResponse().setStatus(HttpServletResponse.SC_OK);
-        request.servletResponse().sendRedirect(homepage);
-        return null;
+        request.setStatus(HttpServletResponse.SC_OK);
+        return "redirect:/view" + homepage;
     }
 
     /**
@@ -119,7 +120,7 @@ public class LoginBusiness extends BaseRequest {
      * @throws Exception
      */
     @ResourcePath(REGISTER)
-    public String register(StandardRequest request) throws Exception {
+    public String register(StandardRequest request) throws Exception, ServiceException {
         return this.userBusiness.register(request);
     }
 
@@ -131,8 +132,8 @@ public class LoginBusiness extends BaseRequest {
      */
     @ResourcePath(LOGOUT)
     public String logout(StandardRequest request) throws Exception {
-        HttpSession session = request.servletRequest().getSession();
-        CacheUtil.clearToken(request.token());
+        HttpSession session = request.getSession();
+        CacheUtil.clearAll(request.getToken());
         session.invalidate();
         return this.forwardLogin(request);
     }

@@ -21,6 +21,6 @@
     </filter>
     <filter-mapping>
         <filter-name>AFUSER</filter-name>
-        <url-pattern>*</url-pattern>
+        <url-pattern>/view/*</url-pattern>
     </filter-mapping>
 </web-app>

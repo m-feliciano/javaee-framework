@@ -1,12 +1,17 @@
 package com.dev.servlet.utils;
 
-import com.dev.servlet.dto.UserDto;
-import org.apache.commons.lang3.RandomStringUtils;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.dev.servlet.pojo.User;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import java.time.Instant;
 import java.util.Base64;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 public final class CryptoUtils {
 
@@ -23,6 +28,12 @@ public final class CryptoUtils {
         String key = PropertiesUtil.getProperty("security.encrypt.algorithm");
         if (key == null) throw new Exception("Cypher algorithm is not set");
         return key;
+    }
+
+    private static byte[] getJWTSecretKey() throws Exception {
+        String key = PropertiesUtil.getProperty("security.jwt.key");
+        if (key == null) throw new Exception("Security key is not set");
+        return key.getBytes();
     }
 
     /**
@@ -71,32 +82,65 @@ public final class CryptoUtils {
     }
 
     /**
-     * Get a new token
+     * Get a JWT Token from a User
      *
      * @param user
      * @return
      */
-    public static String generateToken(UserDto user) {
-        String token = Instant.now().toEpochMilli() + RandomStringUtils.randomAlphanumeric(6);
-        CacheUtil.storeToken(token, user);
-        return token;
+    public static String generateJWTToken(User user) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(getJWTSecretKey());
+
+            int sevenDays = 7 * 24 * 60 * 60 * 1000;
+
+            String jwtToken = JWT.create()
+                    .withIssuer("Servlet")
+                    .withSubject("User Authentication")
+                    .withClaim("userId", user.getId())
+                    .withArrayClaim("roles", user.getPerfis().toArray(new Long[0]))
+                    .withIssuedAt(new Date())
+                    .withExpiresAt(new Date(System.currentTimeMillis() + sevenDays))
+                    .withJWTId(UUID.randomUUID().toString())
+//                    .withNotBefore(new Date(System.currentTimeMillis() + 1000L))
+                    .sign(algorithm);
+            return jwtToken;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
-     * Verify if the token really exists
+     * Verify a JWT Token
      *
      * @param token
      * @return
      */
-    public static boolean isValidToken(String token) {
-        if (token == null) {
-            return false;
+    public static boolean verifyToken(String token) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(getJWTSecretKey());
+            JWTVerifier verifier = JWT.require(algorithm)
+                    .withIssuer("Servlet")
+                    .build();
+            verifier.verify(token);
+            return true;
+        } catch (Exception ignored) {
         }
-        return CacheUtil.hasToken(token);
+
+        return false;
     }
 
-    public static boolean validate(String planText, String cipherText) {
-        String encrypt = encrypt(planText);
-        return encrypt.equals(cipherText);
+    /**
+     * Get the user from a token
+     *
+     * @param token
+     */
+    public static User getUser(String token) {
+        DecodedJWT decodedJWT = JWT.decode(token);
+        Long userId = decodedJWT.getClaim("userId").asLong();
+        List<Long> roles = decodedJWT.getClaim("roles").asList(Long.class);
+
+        User user = new User(userId);
+        user.setPerfis(roles);
+        return user;
     }
 }

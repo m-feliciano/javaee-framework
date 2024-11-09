@@ -4,6 +4,7 @@ import com.dev.servlet.business.base.BaseRequest;
 import com.dev.servlet.controllers.InventoryController;
 import com.dev.servlet.dto.InventoryDto;
 import com.dev.servlet.dto.ProductDto;
+import com.dev.servlet.dto.ServiceException;
 import com.dev.servlet.interfaces.IService;
 import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.mapper.InventoryMapper;
@@ -16,6 +17,7 @@ import com.dev.servlet.pojo.records.StandardRequest;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -68,19 +70,18 @@ public class InventoryBusiness extends BaseRequest {
      * @return the next path
      */
     @ResourcePath(CREATE)
-    public String register(StandardRequest request) {
-        int quantity = Integer.parseInt(getParameter(request, "quantity"));
-        String description = getParameter(request, "description");
-        Long productId = Long.valueOf(getParameter(request, "productId"));
+    public String register(StandardRequest request) throws ServiceException {
+        int quantity = Integer.parseInt(request.getRequiredParameter("quantity"));
+        Long productId = Long.valueOf(request.getRequiredParameter("productId"));
 
         Product product = new Product(productId);
-        Inventory item = new Inventory(product, quantity, description);
+        Inventory item = new Inventory(product, quantity, request.getParameter("description"));
         item.setStatus(StatusEnum.ACTIVE.value);
         item.setUser(getUser(request));
         controller.save(item);
 
-        request.servletRequest().setAttribute("item", item);
-        request.servletResponse().setStatus(HttpServletResponse.SC_CREATED);
+        request.setAttribute("item", item);
+        request.setStatus(HttpServletResponse.SC_CREATED);
         return REDIRECT_ACTION_LIST_BY_ID.replace("<id>", item.getId().toString());
     }
 
@@ -91,61 +92,59 @@ public class InventoryBusiness extends BaseRequest {
      * @return the string
      */
     @ResourcePath(LIST)
-    public String list(StandardRequest request) throws Exception {
-        Long resourceId = request.requestObject().resourceId();
+    public String list(StandardRequest request) throws ServiceException {
+        Long resourceId = request.getId();
         if (resourceId != null) {
             Inventory inventory = new Inventory(resourceId);
             inventory.setUser(getUser(request));
             inventory = controller.find(inventory);
-            if (inventory == null) {
-                request.servletResponse().sendError(HttpServletResponse.SC_BAD_REQUEST);
-                return null;
-            }
 
-            request.servletResponse().setStatus(HttpServletResponse.SC_OK);
-            request.servletRequest().setAttribute("item", InventoryMapper.from(inventory));
+            if (inventory == null) throwResourceNotFoundException(resourceId);
+
+            request.setStatus(HttpServletResponse.SC_OK);
+            request.setAttribute("item", InventoryMapper.from(inventory));
             return FORWARD_PAGES_INVENTORY + "formListItem.jsp";
         }
 
         List<InventoryDto> list = findAll(request);
-        request.servletRequest().setAttribute("items", list);
-        request.servletRequest().setAttribute("categories", categoryBusiness.findAll(request));
+        request.setAttribute("items", list);
+        request.setAttribute("categories", categoryBusiness.getAllFromCache(request));
         return FORWARD_PAGES_INVENTORY + "listItems.jsp";
     }
 
     /**
      * update one.
      *
-     * @param standardRequest
+     * @param request
      * @return the string
      */
     @ResourcePath(UPDATE)
-    public String update(StandardRequest standardRequest) throws Exception {
-        Inventory inventory = new Inventory(standardRequest.requestObject().resourceId());
-        inventory.setUser(getUser(standardRequest));
+    public String update(StandardRequest request) throws ServiceException, IOException {
+        if (request.getId() == null) throwResourceNotFoundException(null);
+
+        Inventory inventory = new Inventory(request.getId());
+        inventory.setUser(getUser(request));
 
         inventory = controller.find(inventory);
-        if (inventory == null) {
-            standardRequest.servletResponse().sendError(HttpServletResponse.SC_BAD_REQUEST);
-            return null;
-        }
+        if (inventory == null) throwResourceNotFoundException(request.getId());
 
-        inventory.setQuantity(Integer.parseInt(getParameter(standardRequest, "quantity")));
-        inventory.setDescription(getParameter(standardRequest, "description"));
+        inventory.setQuantity(Integer.parseInt(request.getRequiredParameter("quantity")));
+        inventory.setDescription(request.getParameter("description"));
 
-        Long productId = Long.valueOf(getParameter(standardRequest, "productId"));
+        String productId = request.getRequiredParameter("productId");
 
-        ProductDto productDto = productShared.find(productId);
+        Long idProduct = Long.valueOf(productId);
+        ProductDto productDto = productShared.find(idProduct);
         if (productDto == null) {
-            standardRequest.servletRequest().setAttribute("error", "ERROR: Product ID " + productId + " was not found.");
-            standardRequest.servletResponse().sendError(HttpServletResponse.SC_BAD_REQUEST);
-            return this.forwardRegister(standardRequest);
+            request.setAttribute("error", "ERROR: Product ID " + productId + " was not found.");
+            request.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return this.forwardRegister(request);
         }
 
-        inventory.setProduct(new Product(productId));
+        inventory.setProduct(new Product(idProduct));
         inventory = controller.update(inventory);
-        standardRequest.servletRequest().setAttribute("item", InventoryMapper.from(inventory));
-        standardRequest.servletResponse().setStatus(HttpServletResponse.SC_NO_CONTENT);
+        request.setAttribute("item", InventoryMapper.from(inventory));
+        request.setStatus(HttpServletResponse.SC_NO_CONTENT);
         return REDIRECT_ACTION_LIST_BY_ID.replace("<id>", inventory.getId().toString());
     }
 
@@ -156,16 +155,16 @@ public class InventoryBusiness extends BaseRequest {
      * @return the string
      */
     @ResourcePath(EDIT)
-    public String edit(StandardRequest request) throws Exception {
-        Inventory inventory = new Inventory(request.requestObject().resourceId());
+    public String edit(StandardRequest request) throws ServiceException {
+        if (request.getId() == null) throwResourceNotFoundException(null);
+
+        Inventory inventory = new Inventory(request.getId());
         inventory.setUser(getUser(request));
         inventory = controller.find(inventory);
-        if (inventory == null) {
-            request.servletResponse().sendError(HttpServletResponse.SC_BAD_REQUEST);
-            return null;
-        }
 
-        request.servletRequest().setAttribute("item", InventoryMapper.from(inventory));
+        if (inventory == null) throwResourceNotFoundException(request.getId());
+
+        request.setAttribute("item", InventoryMapper.from(inventory));
         return FORWARD_PAGES_INVENTORY + "formUpdateItem.jsp";
     }
 
@@ -177,11 +176,11 @@ public class InventoryBusiness extends BaseRequest {
      */
     @ResourcePath(DELETE)
     public String delete(StandardRequest request) {
-        Inventory obj = new Inventory(request.requestObject().resourceId());
+        Inventory obj = new Inventory(request.getId());
         obj.setUser(getUser(request));
 
         controller.delete(obj);
-        request.servletResponse().setStatus(HttpServletResponse.SC_NO_CONTENT);
+        request.setStatus(HttpServletResponse.SC_NO_CONTENT);
         return REDIRECT_VIEW_INVENTORY + "list";
     }
 
@@ -195,20 +194,20 @@ public class InventoryBusiness extends BaseRequest {
         Inventory inventory = new Inventory();
         inventory.setUser(getUser(request));
 
-        String param = getParameter(request, PARAM);
-        String value = getParameter(request, VALUE);
+        String param = request.getQuery().type();
+        String value = request.getQuery().search();
         if (param != null && value != null) {
             if (param.equals("name")) {
                 Product product = new Product();
-                product.setName(value);
-                String category = getParameter(request, "category");
+                product.setName(value.trim());
+                String category = request.getParameter("category");
                 if (category != null && !category.isEmpty()) {
                     product.setCategory(new Category(Long.valueOf(category)));
                 }
 
                 inventory.setProduct(product);
             } else {
-                inventory.setDescription(value);
+                inventory.setDescription(value.trim());
             }
         }
 

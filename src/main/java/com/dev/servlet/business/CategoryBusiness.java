@@ -3,6 +3,7 @@ package com.dev.servlet.business;
 import com.dev.servlet.business.base.BaseRequest;
 import com.dev.servlet.controllers.CategoryController;
 import com.dev.servlet.dto.CategoryDto;
+import com.dev.servlet.dto.ServiceException;
 import com.dev.servlet.interfaces.IService;
 import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.mapper.CategoryMapper;
@@ -63,14 +64,14 @@ public class CategoryBusiness extends BaseRequest {
      * @return the string
      */
     @ResourcePath(CREATE)
-    public String registerOne(StandardRequest request) {
+    public String registerOne(StandardRequest request) throws ServiceException {
         Category cat = new Category();
         cat.setUser(getUser(request));
-        cat.setName(getParameter(request, "name"));
+        cat.setName(request.getRequiredParameter("name"));
         cat.setStatus(StatusEnum.ACTIVE.value);
         controller.save(cat);
-        request.servletResponse().setStatus(HttpServletResponse.SC_CREATED);
-        CacheUtil.clear(CACHE_KEY, request.token());
+        request.setStatus(HttpServletResponse.SC_CREATED);
+        CacheUtil.clear(CACHE_KEY, request.getToken());
         return REDIRECT_ACTION_LIST_BY_ID.replace("<id>", cat.getId().toString());
     }
 
@@ -81,16 +82,18 @@ public class CategoryBusiness extends BaseRequest {
      * @return the string
      */
     @ResourcePath(UPDATE)
-    public String update(StandardRequest request) {
-        CategoryDto categoryDto = findById(request.requestObject().resourceId(), request);
-        categoryDto.setName(getParameter(request, "name"));
+    public String update(StandardRequest request) throws ServiceException {
+        if (request.getId() == null) throwResourceNotFoundException(null);
+
+        CategoryDto categoryDto = findById(request.getId(), request);
+        categoryDto.setName(request.getParameter("name"));
 
         Category category = CategoryMapper.from(categoryDto);
         controller.update(category);
 
-        request.servletRequest().setAttribute(CATEGORY, categoryDto);
-        request.servletResponse().setStatus(HttpServletResponse.SC_NO_CONTENT);
-        CacheUtil.clear(CACHE_KEY, request.token());
+        request.setAttribute(CATEGORY, categoryDto);
+        request.setStatus(HttpServletResponse.SC_NO_CONTENT);
+        CacheUtil.clear(CACHE_KEY, request.getToken());
         return REDIRECT_ACTION_LIST_BY_ID.replace("<id>", categoryDto.getId().toString());
     }
 
@@ -102,14 +105,20 @@ public class CategoryBusiness extends BaseRequest {
      */
     @ResourcePath(LIST)
     public String list(StandardRequest request) {
-        CategoryDto dto = findById(request.requestObject().resourceId(), request);
+        CategoryDto dto = findById(request.getId(), request);
         if (dto != null) {
-            request.servletRequest().setAttribute(CATEGORY, dto);
+            request.setAttribute(CATEGORY, dto);
             return FORWARD_PAGES_CATEGORY + "formListCategory.jsp";
         }
 
-        List<CategoryDto> all = findAll(request);
-        request.servletRequest().setAttribute("categories", all);
+        List<CategoryDto> all = getAllFromCache(request);
+
+        String parameter = request.getParameter("name");
+        if (parameter != null) {
+            all = all.stream().filter(c -> c.getName().toLowerCase().contains(parameter.toLowerCase())).toList();
+        }
+
+        request.setAttribute("categories", all);
         return FORWARD_PAGES_CATEGORY + "listCategories.jsp";
 
     }
@@ -122,8 +131,8 @@ public class CategoryBusiness extends BaseRequest {
      */
     @ResourcePath(EDIT)
     public String edit(StandardRequest request) {
-        CategoryDto dto = findById(request.requestObject().resourceId(), request);
-        request.servletRequest().setAttribute(CATEGORY, dto);
+        CategoryDto dto = findById(request.getId(), request);
+        request.setAttribute(CATEGORY, dto);
         return FORWARD_PAGES_CATEGORY + "formUpdateCategory.jsp";
     }
 
@@ -134,12 +143,14 @@ public class CategoryBusiness extends BaseRequest {
      * @return the string
      */
     @ResourcePath(DELETE)
-    public String delete(StandardRequest request) {
-        Category cat = new Category(request.requestObject().resourceId());
+    public String delete(StandardRequest request) throws ServiceException {
+        if (request.getId() == null) throwResourceNotFoundException(null);
+
+        Category cat = new Category(request.getId());
         cat.setUser(getUser(request));
         controller.delete(cat);
-        CacheUtil.clear(CACHE_KEY, request.token());
-        request.servletResponse().setStatus(HttpServletResponse.SC_NO_CONTENT);
+        CacheUtil.clear(CACHE_KEY, request.getToken());
+        request.setStatus(HttpServletResponse.SC_NO_CONTENT);
         return REDIRECT_VIEW_CATEGORY + "list";
     }
 
@@ -149,18 +160,20 @@ public class CategoryBusiness extends BaseRequest {
      * @param request
      * @return {@link List}
      */
-    public List<CategoryDto> findAll(StandardRequest request) {
-        List<CategoryDto> dtoList = CacheUtil.get(CACHE_KEY, request.token());
+    public List<CategoryDto> getAllFromCache(StandardRequest request) {
+        List<CategoryDto> dtoList = CacheUtil.get(CACHE_KEY, request.getToken());
+
         if (CollectionUtils.isNullOrEmpty(dtoList)) {
             Category category = new Category();
-            category.setName(getParameter(request, "name"));
             category.setUser(getUser(request));
             var categories = controller.findAll(category);
+
             if (!CollectionUtils.isNullOrEmpty(categories)) {
                 dtoList = categories.stream().map(CategoryMapper::from).toList();
-                CacheUtil.set(CACHE_KEY, request.token(), dtoList);
+                CacheUtil.set(CACHE_KEY, request.getToken(), dtoList);
             }
         }
+
         return dtoList;
     }
 
@@ -174,7 +187,7 @@ public class CategoryBusiness extends BaseRequest {
     public CategoryDto findById(Long id, StandardRequest request) {
         if (id == null) return null;
 
-        List<CategoryDto> dtoList = findAll(request);
+        List<CategoryDto> dtoList = getAllFromCache(request);
         if (!CollectionUtils.isNullOrEmpty(dtoList)) {
             return dtoList.stream().filter(c -> c.getId().equals(id)).findFirst().orElse(null);
         }

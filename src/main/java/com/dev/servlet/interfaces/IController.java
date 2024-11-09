@@ -3,7 +3,9 @@ package com.dev.servlet.interfaces;
 import java.util.List;
 
 public interface IController<T, E> {
-//    T findById(E id); // This method is not used in the project
+    default T findById(E id) {
+        return null;
+    }
 
     T find(T object);
 

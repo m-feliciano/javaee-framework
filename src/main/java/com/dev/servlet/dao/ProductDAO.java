@@ -4,12 +4,10 @@ import com.dev.servlet.pojo.Category;
 import com.dev.servlet.pojo.Product;
 import com.dev.servlet.pojo.enums.StatusEnum;
 import com.dev.servlet.pojo.records.Order;
-import com.dev.servlet.pojo.records.Pagable;
-import com.dev.servlet.pojo.records.Sort;
+import com.dev.servlet.pojo.records.Pagination;
 import com.dev.servlet.utils.CollectionUtils;
 
 import javax.enterprise.inject.Model;
-import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
@@ -135,39 +133,37 @@ public class ProductDAO extends BaseDAO<Product, Long> {
 
         cu.where(predicate);
 
-        Query query = em.createQuery(cu);
+        javax.persistence.Query query = em.createQuery(cu);
         query.executeUpdate();
         commitTransaction();
     }
 
     /**
-     * Find all products using pagination
+     * Find all products using query
      *
      * @param product
-     * @param pagable
+     * @param pagination
      * @return
      */
-    public List<Product> findAll(Product product, Pagable pagable) {
+    public List<Product> findAll(Product product, Pagination pagination) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Product> query = cb.createQuery(Product.class).distinct(true);
-        Root<Product> root = query.from(Product.class);
+        CriteriaQuery<Product> cQuery = cb.createQuery(Product.class).distinct(true);
+        Root<Product> root = cQuery.from(Product.class);
 
         Predicate predicate = getDefaultPredicate(product, cb, root);
 
-        Order order = pagable.getOrder();
-        Sort sort = pagable.getSort();
-        Path<Object> path = root.get(sort.getValue().toLowerCase());
-        if (order.equals(Order.ASC)) {
-            query.orderBy(cb.asc(path));
+        Path<Object> path = root.get(pagination.getSort().getValue());
+        if (Order.DESC.equals(pagination.getOrder())) {
+            cQuery.orderBy(cb.desc(path));
         } else {
-            query.orderBy(cb.desc(path));
+            cQuery.orderBy(cb.asc(path));
         }
 
-        query.where(predicate).select(root);
+        cQuery.where(predicate).select(root);
 
-        List<Product> resultList = em.createQuery(query)
-                .setFirstResult(pagable.getFirstResult())
-                .setMaxResults(pagable.getPageSize())
+        List<Product> resultList = em.createQuery(cQuery)
+                .setFirstResult(pagination.getFirstResult())
+                .setMaxResults(pagination.getPageSize())
                 .getResultList();
 
         if (!CollectionUtils.isNullOrEmpty(resultList)) {

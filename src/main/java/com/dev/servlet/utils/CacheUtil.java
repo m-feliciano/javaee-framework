@@ -13,26 +13,8 @@ import java.util.Map;
 public final class CacheUtil {
     // token, cacheKey, collection
     private static final Map<String, Map<String, Collection<?>>> IN_MEMORY_CACHE = Collections.synchronizedMap(new HashMap<>());
-    private static final Map<String, UserDto> TOKENS = new HashMap<>();
 
     private CacheUtil() {
-    }
-
-    public static void storeToken(String token, UserDto user) {
-        TOKENS.put(token, user);
-    }
-
-    public static boolean hasToken(String token) {
-        return TOKENS.containsKey(token);
-    }
-
-    public static void clearToken(String token) {
-        if (token != null) TOKENS.remove(token);
-    }
-
-    public static UserDto getUser(String token) {
-        if (!hasToken(token)) return null;
-        return CloneUtils.clone(TOKENS.get(token));
     }
 
     public static void set(String key, String token, Collection<? extends Serializable> collection) {
@@ -51,6 +33,10 @@ public final class CacheUtil {
     public static void clear(String key, String token) {
         String cacheKey = getCacheKey(key, token);
         getHash(token).remove(cacheKey);
+    }
+
+    public static void clearAll(String token) {
+        IN_MEMORY_CACHE.remove(token);
     }
 
     private static Map<String, Collection<?>> getHash(String token) {

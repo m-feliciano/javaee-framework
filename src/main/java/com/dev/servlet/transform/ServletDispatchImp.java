@@ -33,7 +33,7 @@ public final class ServletDispatchImp implements IServletDispatcher {
     }
 
     /**
-     * This method is used to dispatch the request to the appropriate servlet,
+     * This action is used to dispatch the request to the appropriate servlet,
      * it will not return anything or do any business logic
      *
      * @param request
@@ -52,7 +52,7 @@ public final class ServletDispatchImp implements IServletDispatcher {
                 .request(httpRequest)
                 .response(htttpResponse)
                 .token(token)
-                .pagination()
+                .query()
                 .build();
 
         Object next = processor.process(request);

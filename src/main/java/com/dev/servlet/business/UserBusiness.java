@@ -2,6 +2,7 @@ package com.dev.servlet.business;
 
 import com.dev.servlet.business.base.BaseRequest;
 import com.dev.servlet.controllers.UserController;
+import com.dev.servlet.dto.ServiceException;
 import com.dev.servlet.dto.UserDto;
 import com.dev.servlet.interfaces.IService;
 import com.dev.servlet.interfaces.ResourcePath;
@@ -15,8 +16,8 @@ import com.dev.servlet.utils.CryptoUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -46,30 +47,30 @@ public class UserBusiness extends BaseRequest {
     /**
      * Redirect to Edit user.
      *
-     * @param standardRequest
+     * @param request
      * @return the string
      */
 //    @ResourcePath(REGISTER)
-    public String register(StandardRequest standardRequest) throws Exception {
+    public String register(StandardRequest request) throws ServiceException, IOException {
 
-        var password = getParameter(standardRequest, "password");
-        var confirmPassword = getParameter(standardRequest, "confirmPassword");
+        var password = request.getParameter("password");
+        var confirmPassword = request.getParameter("confirmPassword");
 
         if (password == null || !password.equals(confirmPassword)) {
-            standardRequest.servletRequest().setAttribute("email", getParameter(standardRequest, "email"));
-            standardRequest.servletRequest().setAttribute("error", "password invalid");
-            standardRequest.servletResponse().sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            request.setAttribute("email", request.getParameter("email"));
+            request.setAttribute("error", "password invalid");
+            request.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return FORWARD_PAGE_CREATE;
         }
 
         User user = new User();
-        String email = getParameter(standardRequest, "email").toLowerCase();
+        String email = request.getRequiredParameter("email").toLowerCase();
         user.setLogin(email);
         user = controller.find(user);
 
         if (user != null) {
-            standardRequest.servletRequest().setAttribute("error", "User already exists");
-            standardRequest.servletResponse().sendError(HttpServletResponse.SC_FORBIDDEN);
+            request.setAttribute("error", "User already exists");
+            request.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return FORWARD_PAGE_CREATE;
         }
 
@@ -79,8 +80,8 @@ public class UserBusiness extends BaseRequest {
         user.setStatus(StatusEnum.ACTIVE.value);
         controller.save(user);
 
-        standardRequest.servletRequest().setAttribute("success", "success");
-        standardRequest.servletResponse().setStatus(HttpServletResponse.SC_CREATED);
+        request.setAttribute("success", "success");
+        request.setStatus(HttpServletResponse.SC_CREATED);
         return FORWARD_PAGES_FORM_LOGIN;
     }
 
@@ -91,33 +92,27 @@ public class UserBusiness extends BaseRequest {
      * @return the string
      */
     @ResourcePath(UPDATE)
-    public String update(StandardRequest request) throws Exception {
-        Long resourceId = request.requestObject().resourceId();
-        if (resourceId == null) {
-            request.servletResponse().sendError(HttpServletResponse.SC_BAD_REQUEST);
-            return null;
-        }
+    public String update(StandardRequest request) throws ServiceException {
+        User userCache = getUserFromCache(request);
 
-        User cached = getUser(request);
-
-        if (!Objects.equals(request.token(), cached.getToken())) {
-            request.servletResponse().sendError(HttpServletResponse.SC_UNAUTHORIZED);
-            return null;
-        }
-
-        User user = new User(resourceId);
-        user.setLogin(getParameter(request, "email").toLowerCase());
-        user.setImgUrl(getParameter(request, "imgUrl"));
-        user.setPassword(CryptoUtils.encrypt(getParameter(request, "password")));
-        user.setPerfis(cached.getPerfis());
-        user.setStatus(cached.getStatus());
+        User user = new User(userCache.getId());
+        user.setLogin(request.getRequiredParameter("email").toLowerCase());
+        user.setImgUrl(request.getParameter("imgUrl"));
+        user.setPassword(CryptoUtils.encrypt(request.getRequiredParameter("password")));
+        user.setPerfis(userCache.getPerfis());
+        user.setStatus(StatusEnum.ACTIVE.value);
         user = controller.update(user);
 
         UserDto updated = UserMapper.from(user);
-        CacheUtil.storeToken(request.token(), updated);
 
-        setSessionAttribute(request.servletRequest(), "user", updated);
-        request.servletResponse().setStatus(HttpServletResponse.SC_NO_CONTENT);
+        // the roles may have changed, so we need to clear the cache and generate a new token
+        CacheUtil.clearAll(request.getToken());
+
+        String jwtToken = CryptoUtils.generateJWTToken(user);
+        request.setSessionAttribute("token", jwtToken);
+        request.setSessionAttribute("user", updated);
+
+        request.setStatus(HttpServletResponse.SC_NO_CONTENT);
         return "redirect:/view/user/list/<id>".replace("<id>", user.getId().toString());
     }
 
@@ -129,9 +124,8 @@ public class UserBusiness extends BaseRequest {
      */
     @ResourcePath(LIST)
     public String find(StandardRequest standardRequest) {
-        HttpServletRequest request = standardRequest.servletRequest();
         User user = getUser(standardRequest);
-        request.setAttribute("user", UserMapper.from(user));
+        standardRequest.setAttribute("user", UserMapper.from(user));
         return FORWARD_PAGES_USER + "formListUser.jsp";
     }
 
@@ -142,23 +136,12 @@ public class UserBusiness extends BaseRequest {
      * @return the string
      */
     @ResourcePath(EDIT)
-    public String edit(StandardRequest request) throws Exception {
-        Long resourceId = request.requestObject().resourceId();
-        if (resourceId == null) {
-            request.servletResponse().sendError(HttpServletResponse.SC_BAD_REQUEST);
-            return null;
-        }
-
-        User cached = getUser(request);
-        if (!Objects.equals(request.token(), cached.getToken())) {
-            request.servletResponse().sendError(HttpServletResponse.SC_UNAUTHORIZED);
-            return null;
-        }
-
-        User user = new User(resourceId);
+    public String edit(StandardRequest request) throws ServiceException {
+        User userCache = getUserFromCache(request);
+        User user = new User(userCache.getId());
         user = controller.find(user);
 
-        request.servletRequest().setAttribute("user", UserMapper.from(user));
+        request.setAttribute("user", UserMapper.from(user));
         return FORWARD_PAGES_USER + "formUpdateUser.jsp";
     }
 
@@ -169,23 +152,34 @@ public class UserBusiness extends BaseRequest {
      * @return
      */
     @ResourcePath(DELETE)
-    public String delete(StandardRequest request) throws Exception {
-        Long resourceId = request.requestObject().resourceId();
-        if (resourceId == null) {
-            request.servletResponse().sendError(HttpServletResponse.SC_BAD_REQUEST);
-            return null;
-        }
+    public String delete(StandardRequest request) throws ServiceException {
+        User cached = getUserFromCache(request);
+        controller.delete(cached);
+        CacheUtil.clearAll(request.getToken());
+        request.setStatus(HttpServletResponse.SC_NO_CONTENT);
+        return FORWARD_PAGES_FORM_LOGIN;
+    }
+
+    /**
+     * get user from cache
+     *
+     * @param request
+     * @return the string
+     */
+    private User getUserFromCache(StandardRequest request) throws ServiceException {
+        if (request.getId() == null) throwResourceNotFoundException(null);
 
         User cached = getUser(request);
-        if (!Objects.equals(request.token(), cached.getToken())) {
-            request.servletResponse().sendError(HttpServletResponse.SC_UNAUTHORIZED);
-            return null;
+
+        if (!Objects.equals(cached.getId(), request.getId())) {
+            throw new ServiceException(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
         }
 
-        controller.delete(cached);
-        CacheUtil.clearToken(request.token());
-        request.servletResponse().setStatus(HttpServletResponse.SC_NO_CONTENT);
-        return FORWARD_PAGES_FORM_LOGIN;
+        if (!Objects.equals(request.getToken(), cached.getToken())) {
+            throw new ServiceException(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+        }
+
+        return cached;
     }
 
 }

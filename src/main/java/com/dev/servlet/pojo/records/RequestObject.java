@@ -8,15 +8,15 @@ package com.dev.servlet.pojo.records;
  * It contains the following fields: <br>
  * - action: the action to be performed <br>
  * - service: the service to be used <br>
- * - resourceId: the resource id <br>
+ * - id: the resource id <br>
  * - token: the token <br>
- * - pagination: the pagination object <br>
+ * - query: the query object <br>
  *
  * @since 1.3.5
  */
-public record RequestObject(String action,
-                            String service,
-                            Long resourceId,
-                            String token,
-                            Pagable pagination) {
+public record RequestObject(String service,
+                            String action,
+                            Long id,
+                            Query query,
+                            String token) {
 }

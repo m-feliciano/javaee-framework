@@ -4,7 +4,7 @@ import com.dev.servlet.dao.ProductDAO;
 import com.dev.servlet.interfaces.IController;
 import com.dev.servlet.interfaces.IPagination;
 import com.dev.servlet.pojo.Product;
-import com.dev.servlet.pojo.records.Pagable;
+import com.dev.servlet.pojo.records.Pagination;
 
 import javax.inject.Inject;
 import java.util.Collection;
@@ -57,7 +57,7 @@ public class ProductController implements IController<Product, Long>, IPaginatio
     }
 
     @Override
-    public Collection<Product> findAll(Product object, Pagable pagable) {
-        return this.productDao.findAll(object, pagable);
+    public Collection<Product> findAll(Product object, Pagination pagination) {
+        return this.productDao.findAll(object, pagination);
     }
 }
