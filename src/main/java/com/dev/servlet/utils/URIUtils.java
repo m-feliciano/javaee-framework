@@ -103,7 +103,7 @@ public final class URIUtils {
                     case "limit" -> size = Math.min(Math .abs(Integer.parseInt(entry.getValue())), 50);
                     case "sort" -> sort = Sort.from(entry.getValue());
                     case "order" -> order = Order.from(entry.getValue());
-                    case "s" -> search = URLDecoder.decode(entry.getValue().trim(), StandardCharsets.UTF_8);
+                    case "q" -> search = URLDecoder.decode(entry.getValue().trim(), StandardCharsets.UTF_8);
                     case "k" -> type = entry.getValue();
                 }
             }

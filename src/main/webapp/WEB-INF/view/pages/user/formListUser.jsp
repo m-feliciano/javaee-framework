@@ -2,7 +2,7 @@
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <div class="main">
-    <form action="${ updateUser }" method="post">
+    <form action="${ updateUser }/${user.id}" method="post">
         <div class="col-md-6">
             <div class="row ml5 mb-3 justify-center">
                 <div class="avatar mr-3 align-center">
@@ -43,7 +43,7 @@
                     placeholder="password" required />
             </div>
             -->
-            <c:if test="${not empty invalid}">
+            <c:if test="${not empty invalid }">
                 <div class="alert alert-danger hidden-alert" role="alert">
                     <c:out value="${invalid}"/>
                 </div>

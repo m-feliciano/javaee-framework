@@ -3,42 +3,13 @@
 
 <c:set var="total" value="${0}"/>
 <div class="main">
-    <form class="form-inline d-flex flex-row-reverse mb20 mb-2 pr-2" action="${ listInventories }" method="get">
-        <div class="mb-3 form-row">
-            <div class="form-row mr-4">
-                <select name="category" class="form-control text-center" id="inputCategory">
-                    <option value="" selected>All</option>
-                    <c:if test="${ not empty categories }">
-                        <c:forEach items="${ categories }" var="category">
-                            <option value="${ category.id }">${ category.name }</option>
-                        </c:forEach>
-                    </c:if>
-                </select>
-            </div>
-            <div class="form-row mr-2">
-                <div class="form-check col mr-2">
-                    <input class="form-check-input" type="radio" name="k" id="radioName"
-                           value="name" checked>
-                    <label class="form-check-label" for="radioName">
-                        <span id="name">Name</span>
-                    </label>
-                </div>
-                <div class="form-check col">
-                    <input class="form-check-input" type="radio" name="k" id="radioDescription"
-                           value="description">
-                    <label class="form-check-label" for="radioDescription">
-                        Description
-                    </label>
-                </div>
-            </div>
-            <div>
-                <input type="text" name="s" class="form-control" id="inputSearchItem"
-                       placeholder="search" required minlength="1"/>
-                <button type="submit" class="btn btn-primary">Search</button>
-                <a type="button" href="${ listInventories }" class="btn btn-light">Clean</a>
-            </div>
-        </div>
-    </form>
+    <div class="d-flex list-inline flex-row-reverse">
+        <a href="${ listInventories }" class="btn btn-light fit-content">Clear</a>
+
+        <jsp:include page="/WEB-INF/view/components/search.jsp">
+            <jsp:param name="action" value="${ listInventories }"/>
+        </jsp:include>
+    </div>
 
     <c:if test="${ empty items }">
         <p>Products not found.</p>
@@ -68,7 +39,8 @@
                             <th class="w-7" scope="row">${ item.id }</th>
                             <td class="w-20">
                                 <a style="text-decoration: none; color: inherit;  padding: 2rem 0;"
-                                   href="${ listProducts }/${ item.getProduct().getId() }" target="_blank">${ item.getProduct().getName() }</a>
+                                   href="${ listProducts }/${ item.getProduct().getId() }"
+                                   target="_blank">${ item.getProduct().getName() }</a>
                             </td>
                             <td class="w-10">${ item.quantity }</td>
                             <td class="w-25">${ item.description }</td>

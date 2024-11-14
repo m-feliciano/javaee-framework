@@ -76,4 +76,25 @@ public class UserDAO extends BaseDAO<User, Long> {
         query.executeUpdate();
         commitTransaction();
     }
+
+    /**
+     * Check if email is already in use
+     *
+     * @param email
+     * @param id
+     * @return boolean
+     */
+    public boolean isEmailAlreadyInUse(String email, Long id) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<User> root = cq.from(User.class);
+        Predicate predicate = cb.equal(root.get("login"), email);
+
+        predicate = cb.and(predicate, cb.notEqual(root.get("status"), StatusEnum.DELETED.value));
+        predicate = cb.and(predicate, cb.notEqual(root.get("id"), id));
+
+        cq.select(cb.count(root)).where(predicate);
+        Long count = em.createQuery(cq).getSingleResult();
+        return count > 0;
+    }
 }

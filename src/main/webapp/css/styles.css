@@ -227,3 +227,7 @@ body {
 .mb20 {
     margin-bottom: 20px;
 }
+
+.fit-content {
+    height: fit-content;
+}

@@ -5,7 +5,8 @@ import com.dev.servlet.controllers.ProductController;
 import com.dev.servlet.dto.CategoryDto;
 import com.dev.servlet.dto.ProductDto;
 import com.dev.servlet.dto.ServiceException;
-import com.dev.servlet.interfaces.IService;
+import com.dev.servlet.interfaces.IPagination;
+import com.dev.servlet.interfaces.ResourceMapping;
 import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.mapper.ProductMapper;
 import com.dev.servlet.pojo.Category;
@@ -23,7 +24,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Product Business
@@ -33,8 +36,8 @@ import java.util.List;
  * @see BaseRequest
  */
 @Singleton
-@IService("product")
-public class ProductBusiness extends BaseRequest {
+@ResourcePath("product")
+public class ProductBusiness extends BaseRequest implements IPagination<Product> {
     public static final String PRODUCT = "product";
     public static final String CATEGORIES = "categories";
     public static final String FORWARD_PAGES_PRODUCT = "forward:pages/product/";
@@ -63,7 +66,7 @@ public class ProductBusiness extends BaseRequest {
      *
      * @return the next path
      */
-    @ResourcePath(NEW)
+    @ResourceMapping(NEW)
     public String forwardRegister(StandardRequest request) {
         List<CategoryDto> categories = categoryBusiness.getAllFromCache(request);
         request.setAttribute(CATEGORIES, categories);
@@ -76,7 +79,7 @@ public class ProductBusiness extends BaseRequest {
      * @param request
      * @return the next path
      */
-    @ResourcePath(CREATE)
+    @ResourceMapping(CREATE)
     public String register(StandardRequest request) throws ServiceException {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
@@ -105,7 +108,7 @@ public class ProductBusiness extends BaseRequest {
      * @param request
      * @return the next path
      */
-    @ResourcePath(EDIT)
+    @ResourceMapping(EDIT)
     public String edit(StandardRequest request) throws IOException, ServiceException {
         Long resourceId = request.getId();
         if (resourceId == null) throwResourceNotFoundException(null);
@@ -127,10 +130,11 @@ public class ProductBusiness extends BaseRequest {
      * @param request
      * @return the next path
      */
-    @ResourcePath(LIST)
+    @ResourceMapping(LIST)
     public String getAll(StandardRequest request) throws Exception, ServiceException {
+        Product product = new Product();
         if (request.getId() != null) {
-            Product product = new Product(request.getId());
+            product.setId(request.getId());
             product.setUser(getUser(request));
             ProductDto dto = find(product);
 
@@ -140,7 +144,6 @@ public class ProductBusiness extends BaseRequest {
             return FORWARD_PAGES_PRODUCT + "formListProduct.jsp";
         }
 
-        Product product = new Product();
         product.setUser(getUser(request));
 
         Query query = request.getQuery();
@@ -152,22 +155,17 @@ public class ProductBusiness extends BaseRequest {
             }
         }
 
-        List<ProductDto> products = findAll(product, query.pagination());
+        query.pagination().setTotalRecords(getTotalResults(product).intValue());
 
-        query.pagination().setTotalRecords(controller.getTotalResults(product).intValue());
+        List<ProductDto> products = findAll(product, query.pagination())
+                .stream()
+                .map(ProductMapper::from)
+                .collect(Collectors.toList());
 
         request.setAttribute("products", products);
-
-        String categoryId = request.getParameter("categoryId");
-        if (categoryId != null) {
-            CategoryDto categoryDto = categoryBusiness.findById(Long.parseLong(categoryId), request);
-            request.setAttribute("category", categoryDto);
-        } else {
-            List<CategoryDto> categoriesDto = categoryBusiness.getAllFromCache(request);
-            request.setAttribute(CATEGORIES, categoriesDto);
-        }
-
+        request.setAttribute(CATEGORIES, categoryBusiness.getAllFromCache(request));
         request.setStatus(HttpServletResponse.SC_OK);
+
         return FORWARD_PAGES_PRODUCT + "listProducts.jsp";
     }
 
@@ -177,7 +175,7 @@ public class ProductBusiness extends BaseRequest {
      * @param request
      * @return the next path
      */
-    @ResourcePath(UPDATE)
+    @ResourceMapping(UPDATE)
     public String update(StandardRequest request) throws ServiceException {
         if (request.getId() == null) throwResourceNotFoundException(null);
 
@@ -206,7 +204,7 @@ public class ProductBusiness extends BaseRequest {
      * @param request
      * @return the next path
      */
-    @ResourcePath(DELETE)
+    @ResourceMapping(DELETE)
     public String delete(StandardRequest request) throws ServiceException {
         if (request.getId() == null) throwResourceNotFoundException(null);
 
@@ -224,6 +222,11 @@ public class ProductBusiness extends BaseRequest {
         return REDIRECT_VIEW_PRODUCT + "list";
     }
 
+    @Override
+    public Long getTotalResults(Product object) {
+        return controller.getTotalResults(object);
+    }
+
     /**
      * Find All
      *
@@ -231,9 +234,9 @@ public class ProductBusiness extends BaseRequest {
      * @param pagination
      * @return the next path
      */
-    public List<ProductDto> findAll(Product product, Pagination pagination) {
-        List<Product> products = (List<Product>) controller.findAll(product, pagination);
-        return products.stream().map(ProductMapper::from).toList();
+    @Override
+    public Collection<Product> findAll(Product product, Pagination pagination) {
+        return controller.findAll(product, pagination);
     }
 
     /**

@@ -5,8 +5,8 @@ import com.dev.servlet.controllers.InventoryController;
 import com.dev.servlet.dto.InventoryDto;
 import com.dev.servlet.dto.ProductDto;
 import com.dev.servlet.dto.ServiceException;
-import com.dev.servlet.interfaces.IService;
 import com.dev.servlet.interfaces.ResourcePath;
+import com.dev.servlet.interfaces.ResourceMapping;
 import com.dev.servlet.mapper.InventoryMapper;
 import com.dev.servlet.pojo.Category;
 import com.dev.servlet.pojo.Inventory;
@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -29,7 +30,7 @@ import java.util.List;
  * @since 1.0
  */
 @Singleton
-@IService("inventory")
+@ResourcePath("inventory")
 public class InventoryBusiness extends BaseRequest {
     public static final String FORWARD_PAGES_INVENTORY = "forward:pages/inventory/";
     public static final String REDIRECT_VIEW_INVENTORY = "redirect:/view/inventory/";
@@ -58,7 +59,7 @@ public class InventoryBusiness extends BaseRequest {
      * @param
      * @return the next path
      */
-    @ResourcePath(NEW)
+    @ResourceMapping(NEW)
     public String forwardRegister(StandardRequest request) {
         return FORWARD_PAGES_INVENTORY + "formCreateItem.jsp";
     }
@@ -69,8 +70,8 @@ public class InventoryBusiness extends BaseRequest {
      * @param request
      * @return the next path
      */
-    @ResourcePath(CREATE)
-    public String register(StandardRequest request) throws ServiceException {
+    @ResourceMapping(CREATE)
+    public String create(StandardRequest request) throws ServiceException {
         int quantity = Integer.parseInt(request.getRequiredParameter("quantity"));
         Long productId = Long.valueOf(request.getRequiredParameter("productId"));
 
@@ -91,7 +92,7 @@ public class InventoryBusiness extends BaseRequest {
      * @param request
      * @return the string
      */
-    @ResourcePath(LIST)
+    @ResourceMapping(LIST)
     public String list(StandardRequest request) throws ServiceException {
         Long resourceId = request.getId();
         if (resourceId != null) {
@@ -118,7 +119,7 @@ public class InventoryBusiness extends BaseRequest {
      * @param request
      * @return the string
      */
-    @ResourcePath(UPDATE)
+    @ResourceMapping(UPDATE)
     public String update(StandardRequest request) throws ServiceException, IOException {
         if (request.getId() == null) throwResourceNotFoundException(null);
 
@@ -154,7 +155,7 @@ public class InventoryBusiness extends BaseRequest {
      * @param request
      * @return the string
      */
-    @ResourcePath(EDIT)
+    @ResourceMapping(EDIT)
     public String edit(StandardRequest request) throws ServiceException {
         if (request.getId() == null) throwResourceNotFoundException(null);
 
@@ -174,7 +175,7 @@ public class InventoryBusiness extends BaseRequest {
      * @param request
      * @return the string
      */
-    @ResourcePath(DELETE)
+    @ResourceMapping(DELETE)
     public String delete(StandardRequest request) {
         Inventory obj = new Inventory(request.getId());
         obj.setUser(getUser(request));
@@ -211,7 +212,7 @@ public class InventoryBusiness extends BaseRequest {
             }
         }
 
-        List<Inventory> inventories = controller.findAll(inventory);
+        Collection<Inventory> inventories = controller.findAll(inventory);
         return inventories.stream().map(InventoryMapper::from).toList();
     }
 }

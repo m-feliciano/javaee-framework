@@ -2,41 +2,14 @@
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <div class="main">
-    <form class="form-inline d-flex flex-row-reverse mb20 mb-2 pr-2" action="${ listProducts }" method="get">
-        <div class="mb-3 form-row">
-            <!-- combo category -->
-            <div class="form-row mr-2">
-                <c:if test="${ not empty categories }">
-                    <div class="form-check col mr-2">
-                        <select name="category" class="form-control text-center" id="inputCategory">
-                            <option value="" selected>All</option>
-                            <c:forEach items="${ categories }" var="category">
-                                <option value="${ category.id }">${ category.name }</option>
-                            </c:forEach>
-                        </select>
-                    </div>
-                </c:if>
-                <div class="form-check col mr-2">
-                    <input class="form-check-input" type="radio" name="k" id="radioName" value="name" checked>
-                    <label class="form-check-label" for="radioName">
-                        Name
-                    </label>
-                </div>
-                <div class="form-check col">
-                    <input class="form-check-input" type="radio" name="k" id="radioDescription" value="description">
-                    <label class="form-check-label" for="radioDescription">
-                        Description
-                    </label>
-                </div>
-            </div>
-            <div>
-                <label for="search"></label>
-                <input id="search" type="text" name="s" class="form-control" placeholder="search" required minlength="1"/>
-                <button type="submit" class="btn btn-primary">Search</button>
-                <a type="button" href="${listProducts}" class="btn btn-light">Clean</a>
-            </div>
-        </div>
-    </form>
+    <div class="d-flex list-inline flex-row-reverse">
+        <a href="${ listProducts }" class="btn btn-light fit-content">Clear</a>
+
+        <jsp:include page="/WEB-INF/view/components/search.jsp">
+            <jsp:param name="action" value="${ listProducts }"/>
+        </jsp:include>
+    </div>
+
     <c:if test="${ empty products }">
         <p>No one product found.</p>
     </c:if>
@@ -61,20 +34,23 @@
                         </thead>
                         <tbody>
                         <c:forEach items="${ products }" var="product">
-                            <fmt:formatNumber value="${product.price}" type="currency" minFractionDigits="2" var="parsedPrice"/>
+                            <fmt:formatNumber value="${product.price}" type="currency" minFractionDigits="2"
+                                              var="parsedPrice"/>
                             <tr>
                                 <th class="w-5" scope="row">${ product.id }</th>
                                 <td class="text-center w-8">
                                     <a href="${ listProducts }/${ product.id }" target="_blank">
-                                        <c:if test="${empty product.url }">
-                                            <img class="img-square-min fit-img"
-                                                 src="<c:url value='/assets/no_image_available.png'/>"
-                                                 alt="no image available">
-                                        </c:if>
-                                        <c:if test="${not empty product.url }">
-                                            <img class="img-square-min fit-img" src="${ product.url }"
-                                                 alt="Image of product ${ product.name }">
-                                        </c:if>
+                                        <c:choose>
+                                            <c:when test="${empty product.url }">
+                                                <img class="img-square-min fit-img"
+                                                     src="<c:url value='/assets/no_image_available.png'/>"
+                                                     alt="no image available">
+                                            </c:when>
+                                            <c:otherwise>
+                                                <img class="img-square-min fit-img" src="${ product.url }"
+                                                     alt="Image of product ${ product.name }">
+                                            </c:otherwise>
+                                        </c:choose>
                                     </a>
                                 </td>
                                 <td class="w-20">

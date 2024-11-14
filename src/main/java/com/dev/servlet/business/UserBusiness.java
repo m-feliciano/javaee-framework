@@ -3,8 +3,7 @@ package com.dev.servlet.business;
 import com.dev.servlet.business.base.BaseRequest;
 import com.dev.servlet.controllers.UserController;
 import com.dev.servlet.dto.ServiceException;
-import com.dev.servlet.dto.UserDto;
-import com.dev.servlet.interfaces.IService;
+import com.dev.servlet.interfaces.ResourceMapping;
 import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.mapper.UserMapper;
 import com.dev.servlet.pojo.User;
@@ -28,7 +27,7 @@ import java.util.Objects;
  * @see BaseRequest
  */
 @Singleton
-@IService("user")
+@ResourcePath("user")
 public class UserBusiness extends BaseRequest {
     public static final String FORWARD_PAGES_USER = "forward:pages/user/";
     public static final String FORWARD_PAGE_CREATE = FORWARD_PAGES_USER + "formCreateUser.jsp";
@@ -50,7 +49,7 @@ public class UserBusiness extends BaseRequest {
      * @param request
      * @return the string
      */
-//    @ResourcePath(REGISTER)
+//    @ResourceMapping(CREATE)
     public String register(StandardRequest request) throws ServiceException, IOException {
 
         var password = request.getParameter("password");
@@ -59,7 +58,7 @@ public class UserBusiness extends BaseRequest {
         if (password == null || !password.equals(confirmPassword)) {
             request.setAttribute("email", request.getParameter("email"));
             request.setAttribute("error", "password invalid");
-            request.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            request.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return FORWARD_PAGE_CREATE;
         }
 
@@ -91,26 +90,32 @@ public class UserBusiness extends BaseRequest {
      * @param request
      * @return the string
      */
-    @ResourcePath(UPDATE)
+    @ResourceMapping(UPDATE)
     public String update(StandardRequest request) throws ServiceException {
         User userCache = getUserFromCache(request);
 
+        String email = request.getRequiredParameter("email").toLowerCase();
+
+        if (controller.isEmailAlreadyInUse(email, userCache.getId())) {
+            request.setAttribute("invalid", "Email '" + email + "' already in use");
+            request.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return FORWARD_PAGES_USER + "formListUser.jsp";
+        }
+
         User user = new User(userCache.getId());
-        user.setLogin(request.getRequiredParameter("email").toLowerCase());
+        user.setLogin(email.toLowerCase());
         user.setImgUrl(request.getParameter("imgUrl"));
         user.setPassword(CryptoUtils.encrypt(request.getRequiredParameter("password")));
         user.setPerfis(userCache.getPerfis());
         user.setStatus(StatusEnum.ACTIVE.value);
         user = controller.update(user);
 
-        UserDto updated = UserMapper.from(user);
-
         // the roles may have changed, so we need to clear the cache and generate a new token
         CacheUtil.clearAll(request.getToken());
 
         String jwtToken = CryptoUtils.generateJWTToken(user);
         request.setSessionAttribute("token", jwtToken);
-        request.setSessionAttribute("user", updated);
+        request.setSessionAttribute("user", UserMapper.from(user));
 
         request.setStatus(HttpServletResponse.SC_NO_CONTENT);
         return "redirect:/view/user/list/<id>".replace("<id>", user.getId().toString());
@@ -122,27 +127,11 @@ public class UserBusiness extends BaseRequest {
      * @param standardRequest
      * @return the string
      */
-    @ResourcePath(LIST)
+    @ResourceMapping(LIST)
     public String find(StandardRequest standardRequest) {
         User user = getUser(standardRequest);
         standardRequest.setAttribute("user", UserMapper.from(user));
         return FORWARD_PAGES_USER + "formListUser.jsp";
-    }
-
-    /**
-     * Edit user.
-     *
-     * @param request
-     * @return the string
-     */
-    @ResourcePath(EDIT)
-    public String edit(StandardRequest request) throws ServiceException {
-        User userCache = getUserFromCache(request);
-        User user = new User(userCache.getId());
-        user = controller.find(user);
-
-        request.setAttribute("user", UserMapper.from(user));
-        return FORWARD_PAGES_USER + "formUpdateUser.jsp";
     }
 
     /**
@@ -151,7 +140,7 @@ public class UserBusiness extends BaseRequest {
      * @param request
      * @return
      */
-    @ResourcePath(DELETE)
+    @ResourceMapping(DELETE)
     public String delete(StandardRequest request) throws ServiceException {
         User cached = getUserFromCache(request);
         controller.delete(cached);
@@ -172,10 +161,6 @@ public class UserBusiness extends BaseRequest {
         User cached = getUser(request);
 
         if (!Objects.equals(cached.getId(), request.getId())) {
-            throw new ServiceException(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
-        }
-
-        if (!Objects.equals(request.getToken(), cached.getToken())) {
             throw new ServiceException(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
         }
 

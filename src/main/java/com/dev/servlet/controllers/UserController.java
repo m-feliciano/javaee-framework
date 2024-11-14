@@ -1,51 +1,31 @@
 package com.dev.servlet.controllers;
 
 import com.dev.servlet.dao.UserDAO;
-import com.dev.servlet.interfaces.IController;
 import com.dev.servlet.pojo.User;
 
 import javax.inject.Inject;
-import java.util.List;
+import java.util.Collection;
 
-public final class UserController implements IController<User, Long> {
-    private UserDAO userDAO;
+public final class UserController extends BaseController<User, Long> {
+
+    public UserDAO userDAO;
 
     public UserController() {
         // Empty constructor
     }
 
     @Inject
-    public void setDependencies(UserDAO userDAO) {
+    public UserController(UserDAO userDAO) {
+        super(userDAO);
         this.userDAO = userDAO;
     }
 
-    public User find(User login) {
-        return userDAO.find(login);
-    }
-
-//    @Override
-//    public User findById(Long id) {
-//        return this.userDAO.findById(id);
-//    }
-
     @Override
-    public List<User> findAll(User user) {
+    public Collection<User> findAll(User user) {
         return this.userDAO.findAll(user);
     }
 
-    @Override
-    public void save(User object) {
-        this.userDAO.save(object);
+    public boolean isEmailAlreadyInUse(String email, Long id) {
+        return this.userDAO.isEmailAlreadyInUse(email, id);
     }
-
-    @Override
-    public User update(User object) {
-        return this.userDAO.update(object);
-    }
-
-    @Override
-    public void delete(User object) {
-        this.userDAO.delete(object);
-    }
-
 }

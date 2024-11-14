@@ -1,15 +1,14 @@
 package com.dev.servlet.interfaces;
 
-import java.util.List;
+import java.util.Collection;
 
 public interface IController<T, E> {
-    default T findById(E id) {
-        return null;
-    }
+
+    T findById(E id);
 
     T find(T object);
 
-    List<T> findAll(T object);
+    Collection<T> findAll(T object);
 
     void save(T object);
 

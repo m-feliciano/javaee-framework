@@ -1,6 +1,6 @@
 package com.dev.servlet.providers;
 
-import com.dev.servlet.interfaces.IService;
+import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.utils.ClassUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,15 +42,17 @@ public final class ServiceLocator {
         public synchronized void resolveAll() {
             List<Class<?>> clazzList;
             try {
-                clazzList = ClassUtil.loadClasses("com.dev.servlet.business", new Class[]{IService.class});
+                clazzList = ClassUtil.loadClasses("com.dev.servlet.business", new Class[]{ResourcePath.class});
             } catch (Exception e) {
                 logger.error("Failed to load classes", e);
                 return;
             }
 
             for (Class<?> aClass : clazzList) {
-                IService ann = aClass.getAnnotation(IService.class);
-                services.putIfAbsent(ann.value(), aClass);
+                resolve(aClass); // if there is an error, it will be detected here
+
+                String path = aClass.getAnnotation(ResourcePath.class).value();
+                services.putIfAbsent(path, aClass);
             }
         }
 

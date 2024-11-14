@@ -4,7 +4,7 @@ import com.dev.servlet.business.base.BaseRequest;
 import com.dev.servlet.controllers.UserController;
 import com.dev.servlet.dto.ServiceException;
 import com.dev.servlet.dto.UserDto;
-import com.dev.servlet.interfaces.IService;
+import com.dev.servlet.interfaces.ResourceMapping;
 import com.dev.servlet.interfaces.ResourcePath;
 import com.dev.servlet.mapper.UserMapper;
 import com.dev.servlet.pojo.User;
@@ -30,7 +30,7 @@ import static com.dev.servlet.business.UserBusiness.FORWARD_PAGE_CREATE;
  * @since 1.0
  */
 @Singleton
-@IService("login")
+@ResourcePath("login")
 public class LoginBusiness extends BaseRequest {
 
     protected static final String LOGIN = "login";
@@ -56,7 +56,7 @@ public class LoginBusiness extends BaseRequest {
      *
      * @return the next path
      */
-    @ResourcePath(LOGIN_FORM)
+    @ResourceMapping(LOGIN_FORM)
     public String forwardLogin(StandardRequest request) throws IOException {
         if (CryptoUtils.verifyToken(request.getToken())) {
             String homepage = PropertiesUtil.getProperty("homepage");
@@ -73,7 +73,7 @@ public class LoginBusiness extends BaseRequest {
      * @param request
      * @return the next path
      */
-    @ResourcePath(LOGIN)
+    @ResourceMapping(LOGIN)
     public String login(StandardRequest request) throws IOException {
         if (request.getParameter("success") != null) {
             return FORWARD_PAGES_FORM_LOGIN;
@@ -84,7 +84,7 @@ public class LoginBusiness extends BaseRequest {
         user.setPassword(CryptoUtils.encrypt(request.getParameter("password")));
         user = controller.find(user);
         if (user == null) {
-            request.setAttribute(INVALID, "User or password invalid.");
+            request.setAttribute("invalid", "User or password invalid.");
             request.setAttribute("email", request.getParameter("email"));
             request.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return FORWARD_PAGES_FORM_LOGIN;
@@ -107,7 +107,7 @@ public class LoginBusiness extends BaseRequest {
      *
      * @return
      */
-    @ResourcePath(REGISTER_PAGE)
+    @ResourceMapping("registerPage")
     public String forwardRegister(StandardRequest request) {
         return FORWARD_PAGE_CREATE;
     }
@@ -119,7 +119,7 @@ public class LoginBusiness extends BaseRequest {
      * @return
      * @throws Exception
      */
-    @ResourcePath(REGISTER)
+    @ResourceMapping("register")
     public String register(StandardRequest request) throws Exception, ServiceException {
         return this.userBusiness.register(request);
     }
@@ -130,7 +130,7 @@ public class LoginBusiness extends BaseRequest {
      * @param request
      * @return the next path
      */
-    @ResourcePath(LOGOUT)
+    @ResourceMapping(LOGOUT)
     public String logout(StandardRequest request) throws Exception {
         HttpSession session = request.getSession();
         CacheUtil.clearAll(request.getToken());

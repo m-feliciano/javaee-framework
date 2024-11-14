@@ -4,8 +4,8 @@ import com.dev.servlet.business.base.BaseRequest;
 import com.dev.servlet.controllers.CategoryController;
 import com.dev.servlet.dto.CategoryDto;
 import com.dev.servlet.dto.ServiceException;
-import com.dev.servlet.interfaces.IService;
 import com.dev.servlet.interfaces.ResourcePath;
+import com.dev.servlet.interfaces.ResourceMapping;
 import com.dev.servlet.mapper.CategoryMapper;
 import com.dev.servlet.pojo.Category;
 import com.dev.servlet.pojo.enums.StatusEnum;
@@ -28,7 +28,7 @@ import java.util.List;
  * @since 1.0
  */
 @Singleton
-@IService("category")
+@ResourcePath("category")
 public class CategoryBusiness extends BaseRequest {
     private static final String CATEGORY = "category";
     private static final String CACHE_KEY = "categories";
@@ -52,7 +52,7 @@ public class CategoryBusiness extends BaseRequest {
      *
      * @return the next path
      */
-    @ResourcePath(NEW)
+    @ResourceMapping(NEW)
     public String forwardRegister(StandardRequest request) {
         return FORWARD_PAGES_CATEGORY + "formCreateCategory.jsp";
     }
@@ -63,7 +63,7 @@ public class CategoryBusiness extends BaseRequest {
      * @param request
      * @return the string
      */
-    @ResourcePath(CREATE)
+    @ResourceMapping(CREATE)
     public String registerOne(StandardRequest request) throws ServiceException {
         Category cat = new Category();
         cat.setUser(getUser(request));
@@ -81,7 +81,7 @@ public class CategoryBusiness extends BaseRequest {
      * @param request
      * @return the string
      */
-    @ResourcePath(UPDATE)
+    @ResourceMapping(UPDATE)
     public String update(StandardRequest request) throws ServiceException {
         if (request.getId() == null) throwResourceNotFoundException(null);
 
@@ -103,7 +103,7 @@ public class CategoryBusiness extends BaseRequest {
      * @param request
      * @return the string
      */
-    @ResourcePath(LIST)
+    @ResourceMapping(LIST)
     public String list(StandardRequest request) {
         CategoryDto dto = findById(request.getId(), request);
         if (dto != null) {
@@ -129,7 +129,7 @@ public class CategoryBusiness extends BaseRequest {
      * @param request
      * @return the string
      */
-    @ResourcePath(EDIT)
+    @ResourceMapping(EDIT)
     public String edit(StandardRequest request) {
         CategoryDto dto = findById(request.getId(), request);
         request.setAttribute(CATEGORY, dto);
@@ -142,7 +142,7 @@ public class CategoryBusiness extends BaseRequest {
      * @param request
      * @return the string
      */
-    @ResourcePath(DELETE)
+    @ResourceMapping(DELETE)
     public String delete(StandardRequest request) throws ServiceException {
         if (request.getId() == null) throwResourceNotFoundException(null);
 

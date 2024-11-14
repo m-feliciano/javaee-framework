@@ -3,7 +3,7 @@ package com.dev.servlet.transform;
 import com.dev.servlet.dto.ServiceException;
 import com.dev.servlet.interfaces.IRateLimiter;
 import com.dev.servlet.interfaces.IRequestProcessor;
-import com.dev.servlet.interfaces.ResourcePath;
+import com.dev.servlet.interfaces.ResourceMapping;
 import com.dev.servlet.pojo.records.StandardRequest;
 import com.dev.servlet.providers.ServiceLocator;
 import com.dev.servlet.utils.PropertiesUtil;
@@ -87,11 +87,14 @@ public class ResquestProcessImp implements IRequestProcessor {
                 try {
                     request.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error. Contact support");
                 } catch (Exception ignored) {
-                } finally {
-                    HttpServletRequest httpRequest = request.servletRequest();
-                    httpRequest.getAttributeNames().asIterator().forEachRemaining(httpRequest::removeAttribute);
                 }
             }
+        } finally {
+            // Set all query parameters as attributes in the request
+            HttpServletRequest httpServletRequest = request.servletRequest();
+            httpServletRequest.getParameterNames()
+                    .asIterator()
+                    .forEachRemaining(a -> httpServletRequest.setAttribute(a, request.getParameter(a)));
         }
 
         return null;
@@ -106,8 +109,8 @@ public class ResquestProcessImp implements IRequestProcessor {
      */
     private static Method findMethod(String method, Object service) {
         return Arrays.stream(service.getClass().getDeclaredMethods()).parallel()
-                .filter(mo -> mo.getAnnotation(ResourcePath.class) != null)
-                .filter(mo -> mo.getAnnotation(ResourcePath.class).value().equals(method))
+                .filter(mo -> mo.getAnnotation(ResourceMapping.class) != null)
+                .filter(mo -> mo.getAnnotation(ResourceMapping.class).value().equals(method))
                 .findFirst()
                 .orElse(null);
     }

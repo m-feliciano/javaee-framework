@@ -1,55 +1,31 @@
 package com.dev.servlet.controllers;
 
 import com.dev.servlet.dao.InventoryDAO;
-import com.dev.servlet.interfaces.IController;
 import com.dev.servlet.pojo.Inventory;
 
 import javax.inject.Inject;
-import java.util.List;
+import java.util.Collection;
 
-public final class InventoryController implements IController<Inventory, Long> {
-    private InventoryDAO inventoryDao;
+public final class InventoryController extends BaseController<Inventory, Long> {
+
+    public InventoryDAO inventoryDAO;
 
     public InventoryController() {
         // Empty constructor
     }
 
     @Inject
-    public void setDependencies(InventoryDAO inventoryDao) {
-        this.inventoryDao = inventoryDao;
-    }
-
-//    @Override
-//    public Inventory findById(Long id) {
-//        return inventoryDao.findById(id);
-//    }
-
-    @Override
-    public Inventory find(Inventory object) {
-        return this.inventoryDao.find(object);
+    public InventoryController(InventoryDAO inventoryDAO) {
+        super(inventoryDAO);
+        this.inventoryDAO = inventoryDAO;
     }
 
     @Override
-    public void save(Inventory object) {
-        this.inventoryDao.save(object);
-    }
-
-    @Override
-    public void delete(Inventory obj) {
-        this.inventoryDao.delete(obj);
-    }
-
-    @Override
-    public Inventory update(Inventory object) {
-        return this.inventoryDao.update(object);
-    }
-
-    @Override
-    public List<Inventory> findAll(Inventory object) {
-        return inventoryDao.findAll(object);
+    public Collection<Inventory> findAll(Inventory object) {
+        return inventoryDAO.findAll(object);
     }
 
     public boolean hasInventory(Inventory inventory) {
-        return inventoryDao.hasInventory(inventory);
+        return inventoryDAO.hasInventory(inventory);
     }
 }

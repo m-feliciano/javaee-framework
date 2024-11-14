@@ -10,7 +10,6 @@ This project is a full Java/JSP web application designed for managing products. 
 - [Setup Instructions](#setup-instructions)
 - [Usage Instructions](#usage-instructions)
 - [Features in Progress](#features-in-progress)
-- [Contact](#contact)
 
 ## Technology Stack
 - **Java (JDK 17)**: The core programming language.
@@ -24,8 +23,6 @@ This project is a full Java/JSP web application designed for managing products. 
 
 Example:
 - `server/view/product/list/1`
-- `server/view/product/list?page=1&limit=5`
-- `server/view/product/list?q=macbook+pro&k=name`
 
 ## Layout
 
@@ -156,8 +153,5 @@ Default values can be changed in the `app.properties` file.
 - [ ] Decouple backend from frontend
 - [ ] Dockerize the application
 - [ ] Jasper Reports
-
-## Contact
-For questions, suggestions, problems, or improvements, please contact me at `feliciano@keemail.me`.
 
 [Back to top](#product-management-application)
