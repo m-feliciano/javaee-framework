@@ -1,79 +1,93 @@
 package com.dev.servlet.builders;
 
-import com.dev.servlet.pojo.records.StandardRequest;
+import com.dev.servlet.pojo.records.KeyPair;
 import com.dev.servlet.pojo.records.Query;
-import com.dev.servlet.pojo.records.RequestObject;
+import com.dev.servlet.pojo.records.Request;
 import com.dev.servlet.utils.URIUtils;
+import lombok.Builder;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
+import java.util.List;
 
+/**
+ * This class is used to create a {@linkplain Request} from the {@linkplain HttpServletRequest}.
+ *
+ * @since 1.4.0
+ */
+@Builder(builderClassName = "RequestCreator", builderMethodName = "newBuilder")
 public class RequestBuilder {
 
-    private final Map<String, Object> parameters;
-
-    public static RequestBuilder builder() {
-        return new RequestBuilder();
-    }
-
-    public RequestBuilder() {
-        parameters = new java.util.HashMap<>();
-    }
-
-    public RequestBuilder token(String token) {
-        this.parameters.put("token", token);
-        return this;
-    }
-
-    public RequestBuilder service(String service) {
-        this.parameters.put("service", service);
-        return this;
-    }
-
-    public RequestBuilder request(HttpServletRequest request) {
-        this.parameters.put("request", request);
-        return this;
-    }
-
-    public RequestBuilder response(HttpServletResponse response) {
-        this.parameters.put("response", response);
-        return this;
-    }
-
-    public StandardRequest build() {
-        var httpServletRequest = (HttpServletRequest) this.parameters.get("request");
-        var httpServletResponse = (HttpServletResponse) this.parameters.get("response");
-
-        if (httpServletRequest == null || httpServletResponse == null) {
-            throw new IllegalArgumentException("Request and response are required");
-        }
-
-        String service = URIUtils.service(httpServletRequest);
-        this.parameters.putIfAbsent("service", service);
-
-        String action = URIUtils.action(httpServletRequest);
-        this.parameters.putIfAbsent("action", action);
-
-        Long id = URIUtils.recourceId(httpServletRequest);
-        this.parameters.putIfAbsent("id", id);
-
-        RequestObject requestObject = new RequestObject(service, action, id,
-                (Query) httpServletRequest.getAttribute("query"),
-                (String) this.parameters.get("token"));
-
-        return new StandardRequest(httpServletRequest, httpServletResponse, requestObject);
-    }
+    private final HttpServletRequest httpServletRequest;
 
     /**
-     * This action is used to get the query from the request.
-     *
-     * @return
+     * This build method will be used to create the {@linkplain  Request} from the {@linkplain HttpServletRequest}.
      */
-    public RequestBuilder query() {
-        var httpServletRequest = (HttpServletRequest) this.parameters.get("request");
-        httpServletRequest.setAttribute("query", URIUtils.query(httpServletRequest));
-        return this;
-    }
+    public static class RequestCreator {
+        private String endpoint;
+        private String method;
+        private List<KeyPair> body;
+        private String token;
+        private String id;
+        private Query query;
+        private int retry;
 
+        public RequestCreator endpoint() {
+            this.endpoint = URIUtils.getEndpoint(httpServletRequest);
+            return this;
+        }
+
+        public RequestCreator method() {
+            this.method = httpServletRequest.getMethod();
+            return this;
+        }
+
+        public RequestCreator body() {
+            this.body = URIUtils.getParameters(httpServletRequest);
+            return this;
+        }
+
+        public RequestCreator token() {
+            this.token = getToken(httpServletRequest);
+            return this;
+        }
+
+        public RequestCreator entityId() {
+            this.id = URIUtils.getResourceId(httpServletRequest);
+            return this;
+        }
+
+        public RequestCreator query() {
+            this.query = URIUtils.getQuery(httpServletRequest);
+            return this;
+        }
+
+        public void validate() {
+            if (id != null && method.equalsIgnoreCase("GET")) {
+                endpoint = endpoint.concat("/{id}");
+            }
+
+            // TODO: validations
+        }
+
+        public RequestCreator retry(int retry) {
+            this.retry = retry;
+            return this;
+        }
+
+        public RequestCreator complete() {
+            return this.endpoint().method().body().token().entityId().query();
+        }
+
+        public Request build() {
+            this.validate();
+
+            return Request.builder()
+                    .endpoint(endpoint).method(method).body(body).token(token).entityId(id).query(query).retry(retry)
+                    .build();
+        }
+
+        private String getToken(HttpServletRequest request) {
+            return (String) request.getSession().getAttribute("token");
+        }
+    }
 }

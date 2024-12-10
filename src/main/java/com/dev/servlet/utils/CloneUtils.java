@@ -2,6 +2,7 @@ package com.dev.servlet.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.Serializable;
@@ -9,12 +10,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+@SuppressWarnings("unchecked")
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class CloneUtils {
 
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-    private CloneUtils() {
-    }
 
     public static <T extends Serializable> T clone(T object) {
         try {
