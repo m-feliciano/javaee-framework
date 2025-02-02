@@ -5,8 +5,7 @@ import com.dev.servlet.interfaces.IServletDispatcher;
 import com.dev.servlet.utils.CryptoUtils;
 import com.dev.servlet.utils.PropertiesUtil;
 import com.dev.servlet.utils.URIUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -24,9 +23,8 @@ import java.util.List;
  *
  * @since 1.0
  */
+@Slf4j
 public class Auth implements Filter {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(Auth.class);
 
     private static final List<String> AUTHORIZED_PATH =
             PropertiesUtil.getProperty("auth.authorized", List.of("login, registerUser"));
@@ -50,7 +48,7 @@ public class Auth implements Filter {
         if (isAuthorizedAction(request) || isValidToken(token)) {
             dispatcher.dispatch(request, response);
         } else {
-            LOGGER.warn("Unauthorized access to the service: {}, redirecting to login page", request.getRequestURI());
+            log.warn("Unauthorized access to the service: {}, redirecting to login page", request.getRequestURI());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.sendRedirect(PropertiesUtil.getProperty("loginpage"));
         }

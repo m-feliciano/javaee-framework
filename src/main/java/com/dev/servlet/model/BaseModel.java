@@ -1,8 +1,7 @@
 package com.dev.servlet.model;
 
 import com.dev.servlet.dao.BaseDAO;
-import com.dev.servlet.interfaces.IModel;
-import com.dev.servlet.interfaces.IPagination;
+import com.dev.servlet.interfaces.CrudRepository;
 import com.dev.servlet.pojo.Identifier;
 import com.dev.servlet.pojo.User;
 import com.dev.servlet.pojo.records.KeyPair;
@@ -14,8 +13,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
 import java.util.List;
@@ -31,13 +29,11 @@ import java.util.Optional;
  * @implNote You should extend this class and provide a DAO specialization, which extends {@linkplain BaseDAO}.
  * @see BaseDAO
  */
+@Slf4j
 @Getter(AccessLevel.PROTECTED)
 @Setter(AccessLevel.PROTECTED)
 @NoArgsConstructor
-public abstract class BaseModel<T extends Identifier<K>, K> implements IModel<T, K>, IPagination<T, K> {
-
-    // Logger
-    protected static final Logger LOGGER = LoggerFactory.getLogger(BaseModel.class);
+public abstract class BaseModel<T extends Identifier<K>, K> implements CrudRepository<T, K> {
 
     protected BaseDAO<T, K> baseDAO;
 

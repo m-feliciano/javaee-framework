@@ -10,6 +10,7 @@ import com.dev.servlet.utils.CacheUtil;
 import com.dev.servlet.utils.CryptoUtils;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.enterprise.inject.Model;
 import javax.inject.Inject;
@@ -24,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
  * @see BaseModel
  * @since 1.0
  */
+@Slf4j
 @Setter
 @NoArgsConstructor
 @Model
@@ -49,7 +51,7 @@ public class LoginModel extends BaseModel<User, Long> {
      * @return the next path
      */
     public UserDTO login(Request request) throws ServiceException {
-        LOGGER.trace("");
+        log.trace("");
 
         User user = userBusiness.getEntity(request);
 
@@ -68,7 +70,7 @@ public class LoginModel extends BaseModel<User, Long> {
      * @param request {@linkplain Request}
      */
     public void logout(Request request) {
-        LOGGER.trace("");
+        log.trace("");
 
         CacheUtil.clearAll(request.getToken());
     }

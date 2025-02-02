@@ -15,6 +15,7 @@ import com.dev.servlet.pojo.records.HttpResponse;
 import com.dev.servlet.pojo.records.Request;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.enterprise.inject.Model;
 import javax.inject.Inject;
@@ -30,6 +31,7 @@ import java.util.Optional;
  * @see BaseModel
  * @since 1.0
  */
+@Slf4j
 @Setter
 @NoArgsConstructor
 @Model
@@ -59,7 +61,7 @@ public class InventoryModel extends BaseModel<Inventory, Long> {
 
     @Override
     protected Inventory getEntity(Request request) {
-        LOGGER.trace("");
+        log.trace("");
 
         Inventory inventory = super.getEntity(request);
         inventory = Optional.ofNullable(inventory).orElse(new Inventory());
@@ -100,7 +102,7 @@ public class InventoryModel extends BaseModel<Inventory, Long> {
      * @throws ServiceException if any error occurs
      */
     public InventoryDTO create(Request request) throws ServiceException {
-        LOGGER.trace("");
+        log.trace("");
 
         User user = getUser(request.getToken());
 
@@ -127,7 +129,7 @@ public class InventoryModel extends BaseModel<Inventory, Long> {
      * @return {@linkplain HttpResponse}
      */
     public List<InventoryDTO> list(Request request) {
-        LOGGER.trace("");
+        log.trace("");
         return this.findAll(request);
     }
 
@@ -138,7 +140,7 @@ public class InventoryModel extends BaseModel<Inventory, Long> {
      * @return {@linkplain HttpResponse}
      */
     public InventoryDTO listById(Request request) throws ServiceException {
-        LOGGER.trace("");
+        log.trace("");
 
         long id = Long.parseLong(request.getEntityId());
         String token = request.getToken();
@@ -155,7 +157,7 @@ public class InventoryModel extends BaseModel<Inventory, Long> {
      * @return {@linkplain HttpResponse}
      */
     public InventoryDTO update(Request request) throws ServiceException {
-        LOGGER.trace("");
+        log.trace("");
 
         Long id = Long.parseLong(request.getEntityId());
 
@@ -188,7 +190,7 @@ public class InventoryModel extends BaseModel<Inventory, Long> {
      * @return {@linkplain HttpResponse}
      */
     public InventoryDTO delete(Request request) {
-        LOGGER.trace("");
+        log.trace("");
 
         Inventory inventory = this.getEntity(request);
         inventory.setUser(getUser(request.getToken()));
@@ -204,7 +206,7 @@ public class InventoryModel extends BaseModel<Inventory, Long> {
      * @return list of {@linkplain InventoryDTO}
      */
     private List<InventoryDTO> findAll(Request request) {
-        LOGGER.trace("");
+        log.trace("");
 
         Inventory inventory = this.getEntity(request);
         inventory.setUser(getUser(request.getToken()));

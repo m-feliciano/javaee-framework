@@ -1,5 +1,6 @@
 package com.dev.servlet.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 
 import javax.annotation.PreDestroy;
@@ -10,12 +11,10 @@ import javax.enterprise.inject.Produces;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import java.util.logging.Logger;
 
+@Slf4j
 @ApplicationScoped
 public class EntityManagerProducer {
-
-    private static final Logger LOGGER = Logger.getLogger(EntityManagerProducer.class.getName());
 
     private EntityManagerFactory factory;
 
@@ -31,7 +30,7 @@ public class EntityManagerProducer {
     @RequestScoped
     public Session getEntityManager() {
         if (factory == null) {
-            LOGGER.severe("EntityManagerFactory is null. Check persistence.xml configuration.");
+            log.error("EntityManagerFactory is null. Check persistence.xml configuration.");
             throw new IllegalStateException("EntityManagerFactory is not initialized.");
         }
         return (Session) factory.createEntityManager();

@@ -6,6 +6,7 @@ import com.dev.servlet.pojo.Product;
 import com.dev.servlet.pojo.enums.StatusEnum;
 import com.dev.servlet.utils.CollectionUtils;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.criterion.MatchMode;
 
@@ -28,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+@Slf4j
 @NoArgsConstructor
 @RequestScoped
 public class ProductDAO extends BaseDAO<Product, Long> {
@@ -102,7 +104,7 @@ public class ProductDAO extends BaseDAO<Product, Long> {
      */
 //    @Override
     public void saveAll(List<Product> products) throws ServiceException {
-        LOGGER.trace("");
+        log.trace("");
 
         Session session = getNewOpenSession();
 

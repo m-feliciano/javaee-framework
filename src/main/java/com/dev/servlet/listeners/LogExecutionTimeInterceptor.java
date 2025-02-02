@@ -1,19 +1,17 @@
 package com.dev.servlet.listeners;
 
 import com.dev.servlet.interfaces.LogExecutionTime;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.StopWatch;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 
+@Slf4j
 @Interceptor
 @LogExecutionTime
 public class LogExecutionTimeInterceptor {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(LogExecutionTimeInterceptor.class);
 
     @AroundInvoke
     public Object logMethodExecutionTime(InvocationContext context) throws Exception {
@@ -31,7 +29,7 @@ public class LogExecutionTimeInterceptor {
                     .replace("{class}", context.getTarget().getClass().getSuperclass().getName())
                     .replace("{time}", String.valueOf(time));
 
-            LOGGER.info(message);
+            log.info(message);
         }
     }
 }

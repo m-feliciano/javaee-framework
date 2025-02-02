@@ -10,6 +10,7 @@ import com.dev.servlet.pojo.records.KeyPair;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Set;
 
@@ -21,6 +22,7 @@ import java.util.Set;
  * @implNote You should extend this class and provide a Model specialization, which extends {@linkplain BaseModel}.
  * @see BaseModel
  */
+@Slf4j
 @NoArgsConstructor
 @Getter(AccessLevel.PROTECTED)
 public abstract class BaseController<T extends Identifier<K>, K> {

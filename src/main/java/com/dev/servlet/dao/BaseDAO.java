@@ -4,9 +4,8 @@ import com.dev.servlet.pojo.enums.Order;
 import com.dev.servlet.pojo.records.Pagination;
 import com.dev.servlet.utils.ClassUtil;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -25,10 +24,10 @@ import java.util.Collection;
  * @param <E> identifier
  * @implNote You should extend this class and provide a specialization
  */
+@Slf4j
 @NoArgsConstructor
 public abstract class BaseDAO<T, E> implements Serializable {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(BaseDAO.class);
     protected static final String STATUS = "status";
     protected static final String USER = "user";
     protected static final String ID = "id";
@@ -60,7 +59,7 @@ public abstract class BaseDAO<T, E> implements Serializable {
             this.commitTransaction();
 
         } catch (Exception e) {
-            LOGGER.error("Error saving object: {}", e.getMessage());
+            log.error("Error saving object: {}", e.getMessage());
             rollbackTransaction();
         }
 
@@ -75,7 +74,7 @@ public abstract class BaseDAO<T, E> implements Serializable {
 
             return object;
         } catch (Exception e) {
-            LOGGER.error("Error updating object: {}", e.getMessage());
+            log.error("Error updating object: {}", e.getMessage());
             rollbackTransaction();
         }
         return null;
@@ -100,7 +99,7 @@ public abstract class BaseDAO<T, E> implements Serializable {
             beginTransaction();
             em.getTransaction().commit();
         } catch (Exception e) {
-            LOGGER.error("Error committing transaction: {}", e.getMessage());
+            log.error("Error committing transaction: {}", e.getMessage());
             rollbackTransaction();
         }
     }
@@ -111,7 +110,7 @@ public abstract class BaseDAO<T, E> implements Serializable {
                 em.getTransaction().rollback();
             }
         } catch (Exception e) {
-            LOGGER.error("Error rolling back transaction: {}", e.getMessage());
+            log.error("Error rolling back transaction: {}", e.getMessage());
         }
     }
 

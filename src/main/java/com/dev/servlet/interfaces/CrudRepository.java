@@ -8,7 +8,7 @@ import java.util.Collection;
  * @param <T> the type of the object
  * @param <K> the type of the object's identifier
  */
-public interface IModel<T, K> {
+public interface CrudRepository<T, K> extends IPagination<T, K> {
 
     /**
      * Find an object by its identifier.

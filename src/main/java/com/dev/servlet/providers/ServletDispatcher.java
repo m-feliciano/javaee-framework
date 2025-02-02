@@ -13,8 +13,7 @@ import com.dev.servlet.pojo.records.Query;
 import com.dev.servlet.pojo.records.Request;
 import com.dev.servlet.utils.PropertiesUtil;
 import com.dev.servlet.utils.URIUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -34,11 +33,11 @@ import java.util.Set;
  * @author marcelo.feliciano
  * @since 1.0.0
  */
+@Slf4j
 @Singleton
 @Named("ServletDispatch")
 public class ServletDispatcher implements IServletDispatcher {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(ServletDispatcher.class);
     public static final int WAIT_TIME = 600; // 600ms
 
     @Inject
@@ -150,7 +149,7 @@ public class ServletDispatcher implements IServletDispatcher {
 
             if (request.getRetry() > attempt) {
                 waitBeforeRetry(attempt);
-                LOGGER.info("Retrying request {} attempt={}", request.getEndpoint(), attempt + 1);
+                log.info("Retrying request {} attempt={}", request.getEndpoint(), attempt + 1);
             }
 
         } while (attempt < request.getRetry());
@@ -165,7 +164,7 @@ public class ServletDispatcher implements IServletDispatcher {
      */
     private void logErrors(Set<String> errors) {
         String messages = String.join(", ", errors);
-        LOGGER.error("Error executing request: {}", messages);
+        log.error("Error executing request: {}", messages);
     }
 
     /**
@@ -317,7 +316,7 @@ public class ServletDispatcher implements IServletDispatcher {
             writer.flush();
         } catch (Exception e) {
             String cause = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
-            LOGGER.error("Error writing response: {}", cause);
+            log.error("Error writing response: {}", cause);
         }
     }
 }

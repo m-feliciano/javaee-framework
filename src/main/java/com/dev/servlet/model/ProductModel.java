@@ -13,6 +13,7 @@ import com.dev.servlet.pojo.enums.StatusEnum;
 import com.dev.servlet.pojo.records.Query;
 import com.dev.servlet.pojo.records.Request;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.enterprise.inject.Model;
 import javax.inject.Inject;
@@ -29,6 +30,7 @@ import java.util.Optional;
  *
  * @see BaseModel
  */
+@Slf4j
 @NoArgsConstructor
 @Model
 public class ProductModel extends BaseModel<Product, Long> {
@@ -87,7 +89,7 @@ public class ProductModel extends BaseModel<Product, Long> {
      */
     // @ResourceMapping(CREATE)
     public ProductDTO create(Request request) {
-        LOGGER.trace("");
+        log.trace("");
 
         Product product = this.getEntity(request);
         product.setUser(getUser(request.getToken()));
@@ -107,7 +109,7 @@ public class ProductModel extends BaseModel<Product, Long> {
      * @return {@linkplain Collection} of {@linkplain ProductDTO}
      */
     public Collection<Long> findAll(Request request) {
-        LOGGER.trace("");
+        log.trace("");
 
         Product filter = this.getEntity(request);
         filter.setUser(getUser(request.getToken()));
@@ -123,7 +125,7 @@ public class ProductModel extends BaseModel<Product, Long> {
      * @throws ServiceException
      */
     public ProductDTO getById(Request request) throws ServiceException {
-        LOGGER.trace("");
+        log.trace("");
 
         long entityId = Long.parseLong(request.getEntityId());
 
@@ -140,7 +142,7 @@ public class ProductModel extends BaseModel<Product, Long> {
      * @return the next path
      */
     public ProductDTO update(Request request) throws ServiceException {
-        LOGGER.trace("");
+        log.trace("");
 
         Long id = Long.parseLong(request.getEntityId());
 
@@ -166,7 +168,7 @@ public class ProductModel extends BaseModel<Product, Long> {
      * @return the next path
      */
     public void delete(Request request) throws ServiceException {
-        LOGGER.trace("");
+        log.trace("");
 
         Long entityId = Long.parseLong(request.getEntityId());
 

@@ -2,10 +2,9 @@ package com.dev.servlet.utils;
 
 import com.dev.servlet.interfaces.Controller;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.spi.CreationalContext;
@@ -23,10 +22,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * Utility class for managing bean dependencies and service resolution.
  */
 @SuppressWarnings({"unchecked"})
+@Slf4j
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class BeanUtil {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(BeanUtil.class);
 
     /**
      * This class is responsible for holding the singleton instance of the DependencyResolver and BeanManager.
@@ -83,12 +81,12 @@ public final class BeanUtil {
                     services.putIfAbsent(path, clazz);
 
                     Object resolve = resolve(clazz);
-                    LOGGER.info("Resolved service: {}", clazz.getName());
+                    log.info("Resolved service: {}", clazz.getName());
                 }
 
-                LOGGER.info("All services have been resolved");
+                log.info("All services have been resolved");
             } catch (Exception e) {
-                LOGGER.error("Failed to load classes", e);
+                log.error("Failed to load classes", e);
             }
         }
 
@@ -105,7 +103,7 @@ public final class BeanUtil {
                 CreationalContext<?> ctx = bm.createCreationalContext(bean);
                 return bm.getReference(bean, bean.getBeanClass(), ctx);
             } catch (Exception e) {
-                LOGGER.error("Failed to resolve bean: {}", beanType.getName(), e);
+                log.error("Failed to resolve bean: {}", beanType.getName(), e);
                 return null;
             }
         }
@@ -121,7 +119,7 @@ public final class BeanUtil {
                 injectMethods(object);
                 invokePostConstructMethods(object);
             } catch (Exception e) {
-                LOGGER.error("Failed to instantiate service: {}", object.getClass().getName(), e);
+                log.error("Failed to instantiate service: {}", object.getClass().getName(), e);
             }
         }
 

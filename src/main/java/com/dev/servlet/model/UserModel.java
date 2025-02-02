@@ -12,6 +12,7 @@ import com.dev.servlet.pojo.records.HttpResponse;
 import com.dev.servlet.pojo.records.Request;
 import com.dev.servlet.utils.CacheUtil;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.enterprise.inject.Model;
 import javax.inject.Inject;
@@ -26,6 +27,7 @@ import java.util.Optional;
  *
  * @see BaseModel
  */
+@Slf4j
 @Model
 @NoArgsConstructor
 public class UserModel extends BaseModel<User, Long> {
@@ -76,7 +78,7 @@ public class UserModel extends BaseModel<User, Long> {
      * @return {@linkplain UserDTO} the user
      */
     public UserDTO register(Request request) throws ServiceException {
-        LOGGER.trace("");
+        log.trace("");
 
         /// Both passwords are encrypted already
         var password = request.getRequiredParameter(PASSWORD);
@@ -114,7 +116,7 @@ public class UserModel extends BaseModel<User, Long> {
      * @return {@linkplain UserDTO} the user
      */
     public UserDTO update(Request request) throws ServiceException {
-        LOGGER.trace("");
+        log.trace("");
 
         User userToken = getUser(request.getToken());
 
@@ -145,7 +147,7 @@ public class UserModel extends BaseModel<User, Long> {
      * @return {@linkplain HttpResponse}
      */
     public UserDTO findById(Request request) throws ServiceException {
-        LOGGER.trace("");
+        log.trace("");
 
         if (request.getEntityId() == null) {
             throw new ServiceException(HttpServletResponse.SC_FORBIDDEN, "User # null not found.");
@@ -167,7 +169,7 @@ public class UserModel extends BaseModel<User, Long> {
      * @param request {@linkplain Request}
      */
     public void delete(Request request) throws ServiceException {
-        LOGGER.trace("");
+        log.trace("");
 
         User user = getUser(request.getToken());
         if (!user.getId().equals(Long.parseLong(request.getEntityId()))) {

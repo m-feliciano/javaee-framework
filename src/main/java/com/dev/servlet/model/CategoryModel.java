@@ -14,6 +14,7 @@ import com.dev.servlet.utils.CollectionUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.enterprise.inject.Model;
 import javax.inject.Inject;
@@ -27,6 +28,7 @@ import java.util.Optional;
  * @see BaseModel
  * @since 1.0
  */
+@Slf4j
 @Getter
 @Setter
 @NoArgsConstructor
@@ -59,7 +61,7 @@ public class CategoryModel extends BaseModel<Category, Long> {
      * @throws ServiceException if an error occurs during creation
      */
     public CategoryDTO register(Request request) throws ServiceException {
-        LOGGER.trace("");
+        log.trace("");
 
         Category category = super.getEntity(request);
         category.setUser(getUser(request.getToken()));
@@ -79,7 +81,7 @@ public class CategoryModel extends BaseModel<Category, Long> {
      * @throws ServiceException if an error occurs during update
      */
     public CategoryDTO update(Request request) throws ServiceException {
-        LOGGER.trace("");
+        log.trace("");
 
         long id = Long.parseLong(request.getEntityId());
 
@@ -101,7 +103,7 @@ public class CategoryModel extends BaseModel<Category, Long> {
      * @return {@linkplain HttpResponse}
      */
     public CategoryDTO listById(Request request) throws ServiceException {
-        LOGGER.trace("");
+        log.trace("");
 
         Long entityId = Long.parseLong(request.getEntityId());
 
@@ -118,7 +120,7 @@ public class CategoryModel extends BaseModel<Category, Long> {
      * @return {@linkplain HttpResponse}
      */
     public Collection<CategoryDTO> list(Request request) {
-        LOGGER.trace("");
+        log.trace("");
 
         Collection<CategoryDTO> categories = getAllFromCache(request.getToken());
         String parameter = request.getParameter("name");
@@ -139,7 +141,7 @@ public class CategoryModel extends BaseModel<Category, Long> {
      * @throws ServiceException if occurs errors
      */
     public CategoryDTO delete(Request request) throws ServiceException {
-        LOGGER.trace("");
+        log.trace("");
 
         long id = Long.parseLong(request.getEntityId());
 

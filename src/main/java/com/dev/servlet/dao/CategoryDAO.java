@@ -5,6 +5,7 @@ import com.dev.servlet.pojo.Category;
 import com.dev.servlet.pojo.enums.StatusEnum;
 import com.dev.servlet.utils.CollectionUtils;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.criterion.MatchMode;
 
@@ -22,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+@Slf4j
 @NoArgsConstructor
 @RequestScoped
 public class CategoryDAO extends BaseDAO<Category, Long> {
@@ -84,7 +86,7 @@ public class CategoryDAO extends BaseDAO<Category, Long> {
      */
 //    @Override
     public void saveAll(List<Category> categories) throws ServiceException {
-        LOGGER.trace("");
+        log.trace("");
 
         Session session = getNewOpenSession();
 

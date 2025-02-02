@@ -8,9 +8,8 @@ import com.dev.servlet.pojo.records.HttpResponse;
 import com.dev.servlet.pojo.records.Request;
 import com.dev.servlet.utils.BeanUtil;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.reflect.MethodUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
@@ -24,10 +23,10 @@ import java.util.List;
  * @author marcelo.feliciano
  * @since 1.0.0
  */
+@Slf4j
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class LocalExecutor<J> implements IHttpExecutor<J> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LocalExecutor.class);
     private static final String ERROR_CHECK_YOUR_URL = "Check your URL.";
 
     public static <J> LocalExecutor<J> newInstance() {
@@ -87,7 +86,7 @@ public class LocalExecutor<J> implements IHttpExecutor<J> {
             code = serviceException.getCode();
             message = serviceException.getMessage();
         } else {
-            LOGGER.error("An error occurred while processing the request", exception);
+            log.error("An error occurred while processing the request", exception);
         }
 
         return HttpResponse.ofError(code, message);
