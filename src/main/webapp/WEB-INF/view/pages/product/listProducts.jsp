@@ -16,8 +16,8 @@
 <div class="main">
     <jsp:include page="/WEB-INF/view/components/search.jsp">
         <jsp:param name="placeholder" value="Search product"/>
-        <jsp:param name="action" value="${ listProduct }"/>
-        <jsp:param name="onclear" value="${ listProduct }"/>
+        <jsp:param name="action" value="${baseLink}/v1${ listProduct }"/>
+        <jsp:param name="onclear" value="${baseLink}/v1${ listProduct }"/>
         <jsp:param name="categories" value="${ categories }"/>
     </jsp:include>
 
@@ -48,7 +48,7 @@
                             <tr>
                                 <th class="w-8" scope="row">${ product.id }</th>
                                 <td class="text-center w-9">
-                                    <a href="${ listProduct }?id=${ product.id }" target="_blank">
+                                    <a href="${baseLink}/v1${ listProduct }/${ product.id }" target="_blank">
                                         <c:choose>
                                             <c:when test="${empty product.url }">
                                                 <img class="img-thumbnail img-square-min"
@@ -67,13 +67,10 @@
                                 <td class="w-10">${ parsedPrice }</td>
                                 <td class="w-14">${ product.registerDate }</td>
                                 <td class="w-14">
-                                    <form action="${ listProduct }" method="get" class="d-inline">
-                                        <input type="hidden" name="id" value="${ product.id }"/>
-                                        <button type="submit" class="btn btn-auto btn-primary">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
-                                    </form>
-                                    <form action="${ listInventory }" method="get" class="d-inline">
+                                    <a href="${baseLink}/v1${ listProduct }/${ product.id }" class="btn btn-auto btn-primary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <form action="${baseLink}/v1${ listInventory }" method="get" class="d-inline">
                                         <input type="hidden" name="k" value="product"/>
                                         <input type="hidden" name="q" value="${ product.id }"/>
 
@@ -86,7 +83,7 @@
                                             <i class="bi bi-box"></i>
                                         </button>
                                     </form>
-                                    <form action="${ deleteProduct }/${ product.id }" method="post" class="d-inline">
+                                    <form action="${baseLink}/v1${ deleteProduct }/${ product.id }" method="post" class="d-inline">
                                         <button type="submit" class="btn btn-auto btn-danger"
                                                 onclick="return confirm('Are you sure?')">
                                             <i class="bi bi-trash3"></i>
@@ -113,7 +110,7 @@
     </c:if>
 
     <div class="d-flex flex-row-reverse mb20">
-        <a type="button" href="${ newProduct }" class="btn btn-success">
+        <a type="button" href="${baseLink}/v1${ newProduct }" class="btn btn-success">
             <i class="bi bi-plus-circle"></i> New
         </a>
     </div>

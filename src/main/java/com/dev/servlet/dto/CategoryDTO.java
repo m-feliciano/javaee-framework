@@ -1,24 +1,23 @@
 package com.dev.servlet.dto;
 
-import com.dev.servlet.pojo.Identifier;
+import com.dev.servlet.pojo.domain.Category;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
- * DTO for {@linkplain com.dev.servlet.pojo.Category}
+ * DTO for {@linkplain Category}
  */
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CategoryDTO implements Identifier<Long>, Serializable {
+public class CategoryDTO extends TransferObject<Long> {
     private Long id;
     private String name;
     private List<ProductDTO> products;

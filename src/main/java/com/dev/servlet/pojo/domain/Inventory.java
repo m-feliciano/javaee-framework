@@ -1,5 +1,6 @@
-package com.dev.servlet.pojo;
+package com.dev.servlet.pojo.domain;
 
+import com.dev.servlet.interfaces.Identifier;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

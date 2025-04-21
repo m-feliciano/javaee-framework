@@ -1,5 +1,6 @@
 package com.dev.servlet.pojo.records;
 
+import com.dev.servlet.pojo.Pagination;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

@@ -1,10 +1,11 @@
 package com.dev.servlet.dao;
 
-import com.dev.servlet.pojo.enums.Order;
-import com.dev.servlet.pojo.records.Pagination;
+import com.dev.servlet.pojo.records.Sort;
+import com.dev.servlet.pojo.Pagination;
 import com.dev.servlet.utils.ClassUtil;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.hibernate.Session;
 
 import javax.annotation.PostConstruct;
@@ -13,6 +14,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import java.io.Serializable;
 import java.util.Collection;
@@ -33,11 +35,11 @@ public abstract class BaseDAO<T, E> implements Serializable {
     protected static final String ID = "id";
     public static final String NOT_IMPLEMENTED = "Not implemented";
 
-    @Inject
     protected EntityManager em;
     private Class<T> specialization;
 
-    protected BaseDAO(EntityManager em) {
+    @Inject
+    public void setEm(EntityManager em) {
         this.em = em;
     }
 
@@ -140,15 +142,11 @@ public abstract class BaseDAO<T, E> implements Serializable {
         String identifier = sanitize(getIdentifier());
         cq.select(root).where(root.get(identifier).in(identifiers));
 
-        Order order = Order.ASC;
-        if (pagination.getOrder() != null) {
-            order = pagination.getOrder();
-        }
-
         if (pagination.getSort() != null) {
-            cq.orderBy(Order.DESC.equals(order)
-                    ? cb.desc(root.get(pagination.getSort().getValue()))
-                    : cb.asc(root.get(pagination.getSort().getValue())));
+            Sort.Direction direction = ObjectUtils.defaultIfNull(pagination.getSort().direction(), Sort.Direction.ASC);
+
+            Path<Object> path = root.get(pagination.getSort().field());
+            cq.orderBy(Sort.Direction.DESC.equals(direction) ? cb.desc(path) : cb.asc(path));
         } else {
             cq.orderBy(cb.asc(root.get(identifier)));
         }

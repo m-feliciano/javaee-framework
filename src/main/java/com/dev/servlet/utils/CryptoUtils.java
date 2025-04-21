@@ -5,7 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.dev.servlet.dto.UserDTO;
-import com.dev.servlet.pojo.User;
+import com.dev.servlet.pojo.domain.User;
 import lombok.NoArgsConstructor;
 
 import javax.crypto.Cipher;

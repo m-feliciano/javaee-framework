@@ -7,6 +7,7 @@ import com.dev.servlet.utils.URIUtils;
 import lombok.Builder;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,16 +43,16 @@ public class RequestBuilder {
         }
 
         public RequestCreator body() {
-            this.body = URIUtils.getParameters(httpServletRequest);
+            this.body = new ArrayList<>(URIUtils.getParameters(httpServletRequest));
             return this;
         }
 
         public RequestCreator token() {
-            this.token = getToken(httpServletRequest);
+            this.token = token(httpServletRequest);
             return this;
         }
 
-        public RequestCreator entityId() {
+        public RequestCreator id() {
             this.id = URIUtils.getResourceId(httpServletRequest);
             return this;
         }
@@ -61,33 +62,43 @@ public class RequestBuilder {
             return this;
         }
 
-        public void validate() {
-            if (id != null && method.equalsIgnoreCase("GET")) {
-                endpoint = endpoint.concat("/{id}");
-            }
-
-            // TODO: validations
-        }
-
         public RequestCreator retry(int retry) {
             this.retry = retry;
             return this;
         }
 
         public RequestCreator complete() {
-            return this.endpoint().method().body().token().entityId().query();
+            return this.endpoint().method().body().token().id().query();
         }
 
         public Request build() {
-            this.validate();
+            this.setUp();
 
-            return Request.builder()
-                    .endpoint(endpoint).method(method).body(body).token(token).entityId(id).query(query).retry(retry)
-                    .build();
+            return Request.of(endpoint, method, body, token, query, retry);
         }
 
-        private String getToken(HttpServletRequest request) {
+        private String token(HttpServletRequest request) {
             return (String) request.getSession().getAttribute("token");
+        }
+
+        private void setUp() {
+            if (id != null) {
+                // Here we're going to remove the last part of the endpoint
+                // Example: /api/v1/products/1 become /api/v1/products/{id}
+                endpoint = endpoint.substring(0, endpoint.lastIndexOf("/"));
+                endpoint = endpoint.concat("/{id}");
+
+                addBody(KeyPair.of("id", id));
+            }
+
+            // TODO: validations
+        }
+
+        private void addBody(KeyPair id) {
+            if (body == null) {
+                body = new ArrayList<>();
+            }
+            body.add(id);
         }
     }
 }

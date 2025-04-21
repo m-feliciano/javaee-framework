@@ -1,8 +1,8 @@
 package com.dev.servlet.dao;
 
 import com.dev.servlet.dto.ServiceException;
-import com.dev.servlet.pojo.Inventory;
-import com.dev.servlet.pojo.Product;
+import com.dev.servlet.pojo.domain.Inventory;
+import com.dev.servlet.pojo.domain.Product;
 import com.dev.servlet.pojo.enums.StatusEnum;
 import com.dev.servlet.utils.CollectionUtils;
 import lombok.NoArgsConstructor;

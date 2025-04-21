@@ -1,11 +1,12 @@
 package com.dev.servlet.model;
 
 import com.dev.servlet.dao.BaseDAO;
+import com.dev.servlet.dto.ServiceException;
 import com.dev.servlet.interfaces.CrudRepository;
-import com.dev.servlet.pojo.Identifier;
-import com.dev.servlet.pojo.User;
+import com.dev.servlet.interfaces.Identifier;
+import com.dev.servlet.pojo.Pagination;
+import com.dev.servlet.pojo.domain.User;
 import com.dev.servlet.pojo.records.KeyPair;
-import com.dev.servlet.pojo.records.Pagination;
 import com.dev.servlet.pojo.records.Request;
 import com.dev.servlet.utils.ClassUtil;
 import com.dev.servlet.utils.CryptoUtils;
@@ -97,7 +98,7 @@ public abstract class BaseModel<T extends Identifier<K>, K> implements CrudRepos
     protected abstract T toEntity(Object object);
 
     protected User getUser(String token) {
-        return CryptoUtils.getUser(token);
+        return token != null ? CryptoUtils.getUser(token) : null;
     }
 
     /**
@@ -108,7 +109,9 @@ public abstract class BaseModel<T extends Identifier<K>, K> implements CrudRepos
      * @author marcelo.feliciano
      */
     protected T getEntity(Request request) {
-        return Optional.ofNullable(getTransferObject(request))
+        Object transferObject = getTransferObject(request);
+
+        return Optional.ofNullable(transferObject)
                 .map(this::toEntity)
                 .orElse(null);
     }
@@ -121,13 +124,10 @@ public abstract class BaseModel<T extends Identifier<K>, K> implements CrudRepos
      * @author marcelo.feliciano
      */
     protected Object getTransferObject(Request request) {
-        Optional<? extends Identifier<K>> optional = ClassUtil.createInstance(getTransferClass());
+        var optIdentifier = ClassUtil.createInstance(getTransferClass());
 
-        String entityId = request.getEntityId();
-        List<KeyPair> parameters = request.getBody();
-
-        return optional
-                .map(entity -> fillObjectData(entity, entityId, parameters))
+        return optIdentifier
+                .map(entity -> fillObjectData(entity, request.id(), request.body()))
                 .orElse(null);
     }
 
@@ -152,4 +152,25 @@ public abstract class BaseModel<T extends Identifier<K>, K> implements CrudRepos
         return object;
     }
 
+    /**
+     * Create a new service exception
+     *
+     * @param statusCode the status code
+     * @param entityId   the entity id
+     * @return {@linkplain ServiceException}
+     */
+    protected ServiceException newServiceExceptionOf(int statusCode, Object entityId) {
+        var className = ClassUtil.extractType(this.getClass(), 1).getSimpleName();
+        return new ServiceException(statusCode, String.format("%s with id %s not found.", className, entityId));
+    }
+
+    /**
+     * Create a new 404 service exception
+     *
+     * @param entityId the entity id
+     * @return {@linkplain ServiceException}
+     */
+    protected ServiceException new404NotFoundException(Object entityId) {
+        return newServiceExceptionOf(404, entityId);
+    }
 }

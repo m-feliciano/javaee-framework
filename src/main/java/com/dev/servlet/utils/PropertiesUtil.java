@@ -93,7 +93,7 @@ public final class PropertiesUtil {
     @SuppressWarnings("unchecked")
     private static <T> Collection<T> getPropertyCollection(String property, Collection<T> defaultValue) {
         // if its a responseData, parse the responseData with the default value type
-        String[] split = property.split(";");
+        String[] split = property.split(",");
         if (split.length == 0) return defaultValue;
 
         String[] trimmed = Arrays.stream(split).map(String::trim).toArray(String[]::new);

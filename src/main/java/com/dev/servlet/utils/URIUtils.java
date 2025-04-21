@@ -1,10 +1,9 @@
 package com.dev.servlet.utils;
 
-import com.dev.servlet.pojo.enums.Order;
-import com.dev.servlet.pojo.enums.Sort;
+import com.dev.servlet.pojo.Pagination;
 import com.dev.servlet.pojo.records.KeyPair;
-import com.dev.servlet.pojo.records.Pagination;
 import com.dev.servlet.pojo.records.Query;
+import com.dev.servlet.pojo.records.Sort;
 import lombok.NoArgsConstructor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,8 +13,8 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * This class is used to extract the URI information from the request.
@@ -26,6 +25,10 @@ import java.util.Optional;
 public final class URIUtils {
 
     public static final String URI_INTERNAL_CACHE_KEY = "uri_internal_cache_key";
+    public static final String DEFAULT_SORT_FIELD = "id";
+    public static final String DEFAULT_SORT_ORDER = "asc";
+    public static final int DEFAULT_PAGE_LIMIT = 5;
+    public static final int DEFAULT_PAGE_INITIAL = 1;
 
     /**
      * This action is used to get the service key from the request.
@@ -34,7 +37,7 @@ public final class URIUtils {
      * @return service key
      */
     public static String getServicePath(HttpServletRequest request) {
-        return getPathURI(request, 1);
+        return getPathURI(request, 2);
     }
 
     /**
@@ -44,13 +47,13 @@ public final class URIUtils {
      * @return action key
      */
     public static String getServiceName(HttpServletRequest request) {
-        return getPathURI(request, 2);
+        return getPathURI(request, 3);
     }
 
     /**
      * Extracts a part of the URI based on the given index.
      * <p>
-     * Obs: the uri must be in the format /view/{service}/{action}/{resourceId|query} or /view/{service}/{action}
+     * Obs: the uri must be in the format /{service}/{action}/{resourceId|query} or /{service}/{action}
      * <p>
      *
      * @param request {@linkplain HttpServletRequest}
@@ -59,14 +62,12 @@ public final class URIUtils {
      */
     private static String getPathURI(HttpServletRequest request, int index) {
         String pathInfo = request.getServletPath();
-        String uri = Arrays.stream(pathInfo.split("/"))
+
+        return Arrays.stream(pathInfo.split("/"))
                 .filter(s -> !s.isBlank())
                 .skip(index)
                 .findFirst()
                 .orElse(null);
-
-        if (uri == null) return null;
-        return "/" + uri;
     }
 
 
@@ -79,11 +80,10 @@ public final class URIUtils {
      */
     public static String getResourceId(HttpServletRequest httpServletRequest) {
         String parameter = httpServletRequest.getParameter("id");
-        if (parameter == null) {
-            String[] array = httpServletRequest.getRequestURI().split("/");
-            parameter = Arrays.stream(array).skip(4).findFirst().orElse(null);
-        }
+        if (parameter != null) return parameter;
 
+        String[] array = httpServletRequest.getRequestURI().split("/");
+        parameter = Arrays.stream(array).skip(5).findFirst().orElse(null);
         return parameter;
     }
 
@@ -94,41 +94,47 @@ public final class URIUtils {
      * @return {@linkplain Query}
      */
     public static Query getQuery(HttpServletRequest request) {
-        String search = null;
-        String type = null;
+        HashMap<String, String> queryParams = new HashMap<>();
+        Pagination pagination;
 
-        Pagination pagination = null;
         if (request.getQueryString() != null) {
-            int page = 1;
-            int size = 5;
-            Sort sort = Sort.ID;
-            Order order = Order.ASC;
-
             List<KeyPair> params = parseQueryParams(request.getQueryString());
             for (var param : params) {
-                final String value = ((String) param.value()).trim();
-
-                switch (param.getKey()) {
-                    case "page", "limit" -> {
-                        int integer = Math.max(Math.abs(Integer.parseInt(value)), 1);
-
-                        if (param.getKey().equals("page")) page = integer;
-                        else size = integer;
-                    }
-                    case "sort" -> sort = Sort.from(value);
-                    case "order" -> order = Order.from(value);
-                    case "q" -> search = URLDecoder.decode(value, StandardCharsets.UTF_8);
-                    case "k" -> type = value;
-                    default -> { // Do nothing
-                    }
-                }
-
-                pagination = Pagination.builder().currentPage(page).pageSize(size).sort(sort).order(order).build();
+                queryParams.put(param.getKey(), ((String) param.value()).trim());
             }
+
+            int pageInitial = Math.max(
+                    Math.abs(Integer.parseInt(queryParams.getOrDefault("page", String.valueOf(DEFAULT_PAGE_INITIAL)))),
+                    DEFAULT_PAGE_INITIAL
+            );
+
+            int pageSize = Math.max(
+                    Math.abs(Integer.parseInt(queryParams.getOrDefault("limit", String.valueOf(DEFAULT_PAGE_LIMIT)))),
+                    DEFAULT_PAGE_LIMIT
+            );
+
+            String sortField = queryParams.getOrDefault("sort", DEFAULT_SORT_FIELD);
+            Sort.Direction direction = Sort.Direction.from(queryParams.getOrDefault("order", DEFAULT_SORT_ORDER));
+
+            String search = queryParams.get("q") != null
+                    ? URLDecoder.decode(queryParams.get("q"), StandardCharsets.UTF_8)
+                    : null;
+
+            String type = queryParams.get("k") != null
+                    ? URLDecoder.decode(queryParams.get("k"), StandardCharsets.UTF_8)
+                    : null;
+
+            pagination = Pagination.builder()
+                    .currentPage(pageInitial)
+                    .pageSize(pageSize)
+                    .sort(Sort.of(sortField, direction))
+                    .build();
+
+            return new Query(pagination, search, type);
         }
 
-        pagination = Optional.ofNullable(pagination).orElseGet(URIUtils::getDefaultPageValue);
-        return new Query(pagination, search, type);
+        pagination = getDefaultPageValue();
+        return new Query(pagination, null, null);
     }
 
     /**
@@ -142,7 +148,7 @@ public final class URIUtils {
         for (String param : query.split("&")) {
             String[] pair = param.split("=");
             if (pair.length == 2) {
-                queryParams.add(new KeyPair(pair[0], pair[1]));
+                queryParams.add(new KeyPair(pair[0], pair[DEFAULT_PAGE_INITIAL]));
             }
         }
 
@@ -163,16 +169,27 @@ public final class URIUtils {
             return (Pagination) object;
         }
 
-        int page = PropertiesUtil.getProperty("pagination.page", 1);
-        int size = PropertiesUtil.getProperty("pagination.limit", 5);
-        Sort sort = Sort.from(PropertiesUtil.getProperty("pagination.sort", "id"));
-        Order order = Order.from(PropertiesUtil.getProperty("pagination.order", "asc"));
-
-        Pagination pagination = Pagination.builder().currentPage(page).pageSize(size).sort(sort).order(order).build();
+        var pagination = buildPagination();
 
         CacheUtil.set(URI_INTERNAL_CACHE_KEY, "default_pagination_internal", List.of(pagination));
 
         return pagination;
+    }
+
+    /**
+     * Build the pagination object.
+     *
+     * @return
+     */
+    private static Pagination buildPagination() {
+        int page = PropertiesUtil.getProperty("pagination.page", DEFAULT_PAGE_INITIAL);
+        int size = PropertiesUtil.getProperty("pagination.limit", DEFAULT_PAGE_LIMIT);
+        String sortField = PropertiesUtil.getProperty("pagination.sort", DEFAULT_SORT_FIELD);
+        String order = PropertiesUtil.getProperty("pagination.order", DEFAULT_SORT_ORDER);
+
+        Sort sort = Sort.of(sortField, Sort.Direction.from(order));
+
+        return Pagination.builder().currentPage(page).pageSize(size).sort(sort).build();
     }
 
     /**
@@ -217,10 +234,6 @@ public final class URIUtils {
      * @author marcelo.feliciano
      */
     public static String getEndpoint(HttpServletRequest httpServletRequest) {
-        String servicePath = getServicePath(httpServletRequest);
-        String serviceName = getServiceName(httpServletRequest);
-        if (serviceName == null) return servicePath;
-
-        return servicePath + serviceName;
+        return httpServletRequest.getRequestURI().substring(1);
     }
 }

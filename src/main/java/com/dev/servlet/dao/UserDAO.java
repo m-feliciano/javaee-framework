@@ -1,6 +1,6 @@
 package com.dev.servlet.dao;
 
-import com.dev.servlet.pojo.User;
+import com.dev.servlet.pojo.domain.User;
 import com.dev.servlet.pojo.enums.StatusEnum;
 import com.dev.servlet.utils.CollectionUtils;
 import lombok.NoArgsConstructor;

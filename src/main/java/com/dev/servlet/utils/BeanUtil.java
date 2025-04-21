@@ -63,6 +63,7 @@ public final class BeanUtil {
          */
         public Object getService(String serviceName) {
             if (!services.containsKey(serviceName)) {
+                log.error("Service not found: {}", serviceName);
                 return null;
             }
 
@@ -75,9 +76,15 @@ public final class BeanUtil {
         @SuppressWarnings("unchecked")
         public synchronized void resolveAll() {
             try {
-                List<Class<?>> clazzList = ClassUtil.loadClasses(BUSINESS_PACKAGE, new Class[]{Controller.class});
+                List<Class<?>> clazzList = ClassUtil.scanPackage(BUSINESS_PACKAGE, new Class[]{Controller.class});
                 for (Class<?> clazz : clazzList) {
                     String path = clazz.getAnnotation(Controller.class).path();
+
+                    // Remove leading slash from path
+                    if (path.startsWith("/")) {
+                        path = path.substring(1);
+                    }
+
                     services.putIfAbsent(path, clazz);
 
                     Object resolve = resolve(clazz);

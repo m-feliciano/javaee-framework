@@ -1,5 +1,6 @@
-package com.dev.servlet.pojo;
+package com.dev.servlet.pojo.domain;
 
+import com.dev.servlet.interfaces.Identifier;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -60,6 +61,15 @@ public class User implements Identifier<Long> {
 
     public User(Long id) {
         this.id = id;
+    }
+
+    public User(String login) {
+        this.login = login;
+    }
+
+    public User(String login, String password) {
+        this.login = login;
+        this.password = password;
     }
 
     public void addPerfil(Long perfil) {

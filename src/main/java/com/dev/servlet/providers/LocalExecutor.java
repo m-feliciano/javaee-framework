@@ -6,16 +6,14 @@ import com.dev.servlet.interfaces.IHttpResponse;
 import com.dev.servlet.interfaces.RequestMapping;
 import com.dev.servlet.pojo.records.HttpResponse;
 import com.dev.servlet.pojo.records.Request;
-import com.dev.servlet.utils.BeanUtil;
+import com.dev.servlet.utils.EndpointParser;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.reflect.MethodUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * This class is responsible for executing the HTTP request.
@@ -27,158 +25,110 @@ import java.util.List;
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class LocalExecutor<J> implements IHttpExecutor<J> {
 
-    private static final String ERROR_CHECK_YOUR_URL = "Check your URL.";
-
     public static <J> LocalExecutor<J> newInstance() {
         return new LocalExecutor<>();
     }
 
     /**
-     * Calls the appropriate service method based on the request.
-     *
-     * @return {@linkplain HttpResponse}
-     * @author marcelo.feliciano
-     */
-    public IHttpResponse<J> send(Request request) {
-        IHttpResponse<J> response;
-
-        try {
-            // /category/new -> [category, new]
-            String[] parts = parserEndpoint(request);
-
-            String path = "/".concat(parts[0]);
-            Object instance = this.newInstance(path);
-            if (instance == null) {
-                throw new ServiceException(HttpServletResponse.SC_BAD_REQUEST, ERROR_CHECK_YOUR_URL);
-            }
-
-            String endpoint = parts.length > 1 ? "/".concat(parts[1]) : "/";
-
-            Method method = getServiceMethod(endpoint, instance);
-            if (method == null) {
-                throw new ServiceException(HttpServletResponse.SC_BAD_REQUEST, ERROR_CHECK_YOUR_URL);
-            }
-
-            this.validateRequestMethod(request, method);
-
-            Object[] args = {request}; // Can be extended to include more arguments as needed
-            response = invokeMethod(instance, method, args);
-
-        } catch (Exception exception) {
-            return newHttpResponseError(exception);
-        }
-
-        return response;
-    }
-
-    /**
-     * Handles the generic exception.
-     *
-     * @param exception {@linkplain Exception} the exception to handle
-     * @return {@linkplain IHttpResponse} with the error message
-     */
-    private <U> IHttpResponse<U> newHttpResponseError(Exception exception) {
-        String message = exception.getMessage();
-        int code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-
-        if (exception instanceof ServiceException || exception.getCause() instanceof ServiceException) {
-            var serviceException = (ServiceException) (exception instanceof ServiceException ? exception : exception.getCause());
-            code = serviceException.getCode();
-            message = serviceException.getMessage();
-        } else {
-            log.error("An error occurred while processing the request", exception);
-        }
-
-        return HttpResponse.ofError(code, message);
-    }
-
-    /**
-     * Parses the endpoint to get the service and action.
-     *
-     * @param request the request to parse
-     * @return {@linkplain String[]}
-     */
-    private String[] parserEndpoint(Request request) {
-        return Arrays.stream(request.getEndpoint().split("/"))
-                .skip(1)
-                .toArray(String[]::new);
-    }
-
-    /**
-     * Validates the request method.
+     * Executes the HTTP request.
      *
      * @param request {@linkplain Request}
-     * @param method  {@linkplain Method}
+     * @return {@linkplain IHttpResponse}
      */
-    private void validateRequestMethod(Request request, Method method) throws ServiceException {
-        RequestMapping mapping = method.getDeclaredAnnotation(RequestMapping.class);
+    @Override
+    public IHttpResponse<J> send(Request request) {
+        try {
+            //Example: api/v1/<service>/<method>/<id|query>
+            var parser = new EndpointParser(request);
 
-        if (!mapping.method().equals(request.getMethod())) {
-            throw new ServiceException(400, "Method not allowed. Expected: " + mapping.method() + " but got: " + request.getMethod());
+            Object instance = ServiceResolver.resolveServiceInstance(parser.getService());
+            Method method = ServiceResolver.resolveServiceMethod(
+                    parser.getServiceName(), parser.getApiVersion(), instance);
+
+            RequestValidator.validate(request, method.getAnnotation(RequestMapping.class));
+
+            Object[] args = prepareMethodArguments(method, request);
+            return invokeServiceMethod(instance, method, args);
+
+        } catch (Exception e) {
+            return handleException(e);
         }
     }
 
     /**
-     * Invokes the method in the given instance.
+     * Prepares the method arguments based on the request parameters.
      *
-     * @param instance {@linkplain Object}
-     * @param method   {@linkplain Method}
-     * @param args     {@linkplain Object} the arguments to pass to the method
-     * @return the result of the method invocation
-     * @throws Exception if an error occurs during the method invocation
+     * @param method  The service method
+     * @param request The HTTP request
+     * @return Array of method arguments
      */
-    @SuppressWarnings("unchecked")
-    private static <U> IHttpResponse<U> invokeMethod(Object instance, Method method, Object[] args) throws
-            Exception {
-        IHttpResponse<U> response;
-        response = (IHttpResponse<U>) invokeActionMethod(instance, method, args);
-        return response;
-    }
-
-    private Object newInstance(String service) {
-        // Get the service instance from the dependency resolver
-        var resolver = BeanUtil.getResolver();
-        return resolver.getService(service);
+    private Object[] prepareMethodArguments(Method method, Request request) {
+        return Arrays.stream(method.getParameters())
+                .map(parameter -> resolveArgument(parameter, request))
+                .toArray();
     }
 
     /**
-     * Finds the method corresponding to the action in the given object.
+     * Resolves the argument based on the parameter type.
      *
-     * @param instance {@linkplain Object}
-     * @param method   {@linkplain Method}
-     * @param params   {@linkplain Object[]} the arguments to pass to the method
-     * @return the result of the method invocation
-     * @author marcelo.feliciano
+     * @param parameter The method parameter
+     * @param request   The HTTP request
+     * @return The resolved argument
      */
-    private static Object invokeActionMethod(Object instance, Method method, Object[] params) throws Exception {
-        Object[] args = new Object[method.getParameters().length];
+    private Object resolveArgument(Parameter parameter, Request request) {
+        if (parameter.getType().isAssignableFrom(Request.class)) {
+            return request;
+        }
 
-        for (int i = 0; i < args.length; i++) {
-            Parameter parameter = method.getParameters()[i];
-            args[i] = Arrays.stream(params)
-                    .filter(d -> d != null && d.getClass().equals(parameter.getType()))
-                    .map(parameter.getType()::cast)
+        if (request.body() != null) {
+            return request.body()
+                    .stream()
+                    .filter(body -> body.getClass().isAssignableFrom(parameter.getType()))
                     .findFirst()
                     .orElse(null);
         }
 
-        return method.invoke(instance, args);
+        // Add more argument resolution logic if needed
+        return null;
     }
 
     /**
-     * Finds the method corresponding to the action in the given object.
+     * Invokes the service method with the provided arguments.
      *
-     * @param serviceName as defined in the ResourceMapping annotation
-     * @param object      an instance of the object
-     * @return the method corresponding or null
-     * @author marcelo.feliciano
+     * @param instance The service instance
+     * @param method   The service method
+     * @param args     The method arguments
+     * @return The HTTP response
+     * @throws Exception if an error occurs during invocation
      */
-    private static Method getServiceMethod(String serviceName, Object object) {
-        List<Method> methods = MethodUtils.getMethodsListWithAnnotation(object.getClass(), RequestMapping.class);
+    private <U> IHttpResponse<U> invokeServiceMethod(Object instance, Method method, Object[] args) throws Exception {
+        @SuppressWarnings("ALL")
+        var response = (IHttpResponse<U>) method.invoke(instance, args);
+        return response;
+    }
 
-        return methods.stream()
-                .filter(m -> m.getAnnotation(RequestMapping.class).value().equals(serviceName))
-                .findFirst()
-                .orElse(null);
+    /**
+     * Handles exceptions that occur during request processing.
+     *
+     * @param srcException The exception
+     * @return The HTTP response with error details
+     */
+    private <U> IHttpResponse<U> handleException(Exception srcException) {
+        int code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+        String message = "An unexpected error occurred.";
+
+        if (srcException instanceof ServiceException exception) {
+            code = exception.getCode();
+            message = exception.getMessage();
+
+        } else if (srcException.getCause() instanceof ServiceException cause) {
+            code = cause.getCode();
+            message = cause.getMessage();
+
+        } else {
+            log.error("An error occurred while processing the request", srcException);
+        }
+
+        return HttpResponse.ofError(code, message);
     }
 }

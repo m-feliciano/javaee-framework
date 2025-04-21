@@ -1,13 +1,12 @@
 package com.dev.servlet.mapper;
 
 import com.dev.servlet.dto.CategoryDTO;
-import com.dev.servlet.pojo.Category;
+import com.dev.servlet.pojo.domain.Category;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CategoryMapper {
-
-    private CategoryMapper() {
-        throw new IllegalStateException("CategoryMapper class");
-    }
 
     /**
      * {@linkplain CategoryDTO} from {@linkplain Category}

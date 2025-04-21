@@ -88,10 +88,10 @@ public class ServletDispatcher implements IServletDispatcher {
             writeResponseError(httpServletRequest, httpServletResponse, e.getCode(), e.getMessage());
 
         } catch (Exception e) {
-            String message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
-            int status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+            String message = "An error occurred while processing the request. Contact the support team.";
 
-            writeResponseError(httpServletRequest, httpServletResponse, status, message);
+            writeResponseError(httpServletRequest, httpServletResponse,
+                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message);
         }
     }
 
@@ -104,7 +104,7 @@ public class ServletDispatcher implements IServletDispatcher {
     private static Request newRequest(HttpServletRequest httpServletRequest) {
         return RequestBuilder.newBuilder()
                 .httpServletRequest(httpServletRequest).complete()
-                .retry(2)
+                .retry(1)
                 .build();
     }
 
@@ -117,7 +117,7 @@ public class ServletDispatcher implements IServletDispatcher {
      */
     private IHttpResponse<?> executeRequest(IHttpExecutor<?> httpExecutor, Request request) {
         IHttpResponse<?> response;
-        if (request.getRetry() > 0) {
+        if (request.retry() > 0) {
             response = this.sendWithRetry(httpExecutor, request);
         } else {
             response = httpExecutor.send(request);
@@ -147,12 +147,12 @@ public class ServletDispatcher implements IServletDispatcher {
                 logErrors(response.errors());
             }
 
-            if (request.getRetry() > attempt) {
+            if (request.retry() > attempt) {
                 waitBeforeRetry(attempt);
-                log.info("Retrying request {} attempt={}", request.getEndpoint(), attempt + 1);
+                log.info("Retrying request {} attempt={}", request.endpoint(), attempt + 1);
             }
 
-        } while (attempt < request.getRetry());
+        } while (attempt < request.retry());
 
         return response;
     }
@@ -237,15 +237,15 @@ public class ServletDispatcher implements IServletDispatcher {
      */
     private void processResponseData(HttpServletRequest httpRequest, HttpServletResponse httpResponse, Request request, IHttpResponse<?> response) {
 
-        if (request.getToken() == null && response.body() instanceof UserDTO user) {
+        if (request.token() == null && response.body() instanceof UserDTO user) {
             this.setSessionAttributes(httpRequest.getSession(), user);
         } else {
-            this.setRequestAttributes(httpRequest, response, request.getQuery());
+            this.setRequestAttributes(httpRequest, response, request.query());
         }
 
         this.handleResponseErrors(httpRequest, httpResponse, response);
 
-        if (request.getEndpoint().contains("logout")) {
+        if (request.endpoint().contains("logout")) {
             httpRequest.getSession().invalidate();
         }
     }

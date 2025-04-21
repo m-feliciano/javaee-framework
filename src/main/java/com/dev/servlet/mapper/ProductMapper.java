@@ -1,13 +1,12 @@
 package com.dev.servlet.mapper;
 
 import com.dev.servlet.dto.ProductDTO;
-import com.dev.servlet.pojo.Product;
+import com.dev.servlet.pojo.domain.Product;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ProductMapper {
-
-    private ProductMapper() {
-        throw new IllegalStateException("ProductMapper class");
-    }
 
     /**
      * {@linkplain ProductDTO} from {@linkplain Product}

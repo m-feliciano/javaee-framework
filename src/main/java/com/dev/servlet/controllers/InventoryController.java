@@ -3,12 +3,15 @@ package com.dev.servlet.controllers;
 import com.dev.servlet.dto.CategoryDTO;
 import com.dev.servlet.dto.InventoryDTO;
 import com.dev.servlet.dto.ServiceException;
+import com.dev.servlet.interfaces.Constraints;
 import com.dev.servlet.interfaces.Controller;
 import com.dev.servlet.interfaces.IHttpResponse;
 import com.dev.servlet.interfaces.IServletResponse;
 import com.dev.servlet.interfaces.RequestMapping;
+import com.dev.servlet.interfaces.Validator;
 import com.dev.servlet.model.InventoryModel;
-import com.dev.servlet.pojo.Inventory;
+import com.dev.servlet.pojo.domain.Inventory;
+import com.dev.servlet.pojo.enums.RequestMethod;
 import com.dev.servlet.pojo.records.HttpResponse;
 import com.dev.servlet.pojo.records.KeyPair;
 import com.dev.servlet.pojo.records.Request;
@@ -23,12 +26,16 @@ import java.util.Set;
 @Controller(path = "/inventory")
 public final class InventoryController extends BaseController<Inventory, Long> {
 
-    @Inject
     CategoryController categoryController;
 
     @Inject
     public InventoryController(InventoryModel model) {
         super(model);
+    }
+
+    @Inject
+    public void setCategoryController(CategoryController categoryController) {
+        this.categoryController = categoryController;
     }
 
     private InventoryModel getModel() {
@@ -40,7 +47,7 @@ public final class InventoryController extends BaseController<Inventory, Long> {
      *
      * @return the response {@linkplain IHttpResponse} with the next path
      */
-    @RequestMapping(value = NEW, method = "GET")
+    @RequestMapping(value = "/new")
     public IHttpResponse<Void> forwardRegister() {
         return HttpResponse.ofNext(super.forwardTo("formCreateItem"));
     }
@@ -52,7 +59,20 @@ public final class InventoryController extends BaseController<Inventory, Long> {
      * @return the response {@linkplain IHttpResponse} with the next path
      * @throws ServiceException if any error occurs
      */
-    @RequestMapping(value = CREATE, method = "POST")
+    @RequestMapping(
+            value = "/create",
+            method = RequestMethod.POST,
+            validators = {
+                    @Validator(values = "description", constraints = {
+                            @Constraints(minLength = 5, message = "Description must be between {0} and {1} characters")
+                    }),
+                    @Validator(values = "quantity", constraints = {
+                            @Constraints(min = 1, message = "Quantity must be greater than or equal to {0}")
+                    }),
+                    @Validator(values = "productId", constraints = {
+                            @Constraints(min = 1, message = "Product ID must be greater than or equal to {0}")
+                    })
+            })
     public IHttpResponse<Void> create(Request request) throws ServiceException {
         InventoryDTO inventory = this.getModel().create(request);
         // Created
@@ -65,7 +85,14 @@ public final class InventoryController extends BaseController<Inventory, Long> {
      * @param request {@linkplain Request}
      * @return the response {@linkplain IHttpResponse} with the next path
      */
-    @RequestMapping(value = DELETE, method = "POST")
+    @RequestMapping(
+            value = "/delete/{id}",
+            method = RequestMethod.POST,
+            validators = {
+                    @Validator(values = "id", constraints = {
+                            @Constraints(min = 1, message = "ID must be greater than or equal to {0}")
+                    })
+            })
     public IHttpResponse<Void> delete(Request request) {
         this.getModel().delete(request);
 
@@ -78,14 +105,14 @@ public final class InventoryController extends BaseController<Inventory, Long> {
      * @param request {@linkplain Request}
      * @return the response {@linkplain IServletResponse} with the next path
      */
-    @RequestMapping(value = LIST, method = "GET")
+    @RequestMapping(value = "/list")
     public IServletResponse list(Request request) {
         Collection<InventoryDTO> inventories = this.getModel().list(request);
         Collection<CategoryDTO> categories = categoryController.list(request).body();
 
         Set<KeyPair> data = Set.of(
-                new KeyPair("items", inventories),
-                new KeyPair("categories", categories)
+                KeyPair.of("items", inventories),
+                KeyPair.of("categories", categories)
         );
 
         return super.newServletResponse(data, super.forwardTo("listItems"));
@@ -98,11 +125,17 @@ public final class InventoryController extends BaseController<Inventory, Long> {
      * @return the response {@linkplain IServletResponse} with the next path
      * @throws ServiceException if any error occurs
      */
-    @RequestMapping(value = "/{id}", method = "GET")
+    @RequestMapping(
+            value = "/list/{id}",
+            validators = {
+                    @Validator(values = "id", constraints = {
+                            @Constraints(min = 1, message = "ID must be greater than or equal to {0}")
+                    })
+            })
     public IHttpResponse<InventoryDTO> listById(Request request) throws ServiceException {
         InventoryDTO inventory = this.getModel().listById(request);
         // OK
-        return super.newHttpResponse(200, inventory, super.forwardTo("formListItem"));
+        return super.okHttpResponse(inventory, super.forwardTo("formListItem"));
     }
 
     /**
@@ -112,11 +145,17 @@ public final class InventoryController extends BaseController<Inventory, Long> {
      * @return the response {@linkplain IServletResponse} with the next path
      * @throws ServiceException if any error occurs
      */
-    @RequestMapping(value = EDIT, method = "GET")
+    @RequestMapping(
+            value = "/edit/{id}",
+            validators = {
+                    @Validator(values = "id", constraints = {
+                            @Constraints(min = 1, message = "ID must be greater than or equal to {0}")
+                    })
+            })
     public IHttpResponse<InventoryDTO> edit(Request request) throws ServiceException {
         InventoryDTO inventory = this.getModel().listById(request);
         // OK
-        return super.newHttpResponse(200, inventory, super.forwardTo("formUpdateItem"));
+        return super.okHttpResponse(inventory, super.forwardTo("formUpdateItem"));
     }
 
     /**
@@ -126,7 +165,23 @@ public final class InventoryController extends BaseController<Inventory, Long> {
      * @return the response {@linkplain IServletResponse} with the next path
      * @throws ServiceException if any error occurs
      */
-    @RequestMapping(value = UPDATE, method = "POST")
+    @RequestMapping(
+            value = "/update/{id}",
+            method = RequestMethod.POST,
+            validators = {
+                    @Validator(values = "id", constraints = {
+                            @Constraints(min = 1, message = "ID must be greater than {0}")
+                    }),
+                    @Validator(values = "description", constraints = {
+                            @Constraints(minLength = 5, message = "Description must be between {0} and {1} characters")
+                    }),
+                    @Validator(values = "quantity", constraints = {
+                            @Constraints(min = 1, message = "Quantity must be greater than or equal to {0}")
+                    }),
+                    @Validator(values = "productId", constraints = {
+                            @Constraints(min = 1, message = "Product ID must be greater than {0}")
+                    })
+            })
     public IHttpResponse<Void> update(Request request) throws ServiceException {
         InventoryDTO inventory = this.getModel().update(request);
         // No content

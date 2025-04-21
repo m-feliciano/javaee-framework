@@ -8,7 +8,7 @@
 
 
 <div class="main">
-    <form action="${ updateCategory }/${category.id}" method="post">
+    <form action="${baseLink}/v1${ updateCategory }/${category.id}" method="post">
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputId" class="form-label">ID</label>

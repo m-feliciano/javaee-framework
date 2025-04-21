@@ -1,6 +1,6 @@
 package com.dev.servlet.interfaces;
 
-import com.dev.servlet.pojo.records.Pagination;
+import com.dev.servlet.pojo.Pagination;
 
 import java.util.Collection;
 

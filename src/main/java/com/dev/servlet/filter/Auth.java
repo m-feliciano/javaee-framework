@@ -26,8 +26,7 @@ import java.util.List;
 @Slf4j
 public class Auth implements Filter {
 
-    private static final List<String> AUTHORIZED_PATH =
-            PropertiesUtil.getProperty("auth.authorized", List.of("login, registerUser"));
+    private static final List<String> AUTHORIZED_PATH = PropertiesUtil.getProperty("auth.authorized", List.of("login,user"));
 
     @Inject
     @Named("ServletDispatch") // No need to specify the name if the class has only one implementation
@@ -45,7 +44,7 @@ public class Auth implements Filter {
         UserDTO user = (UserDTO) request.getSession().getAttribute("user");
         String token = user != null ? user.getToken() : null;
 
-        if (isAuthorizedAction(request) || isValidToken(token)) {
+        if (isAuthorizedRequest(request, token)) {
             dispatcher.dispatch(request, response);
         } else {
             log.warn("Unauthorized access to the service: {}, redirecting to login page", request.getRequestURI());
@@ -70,18 +69,18 @@ public class Auth implements Filter {
      * @param request the HTTP request
      * @return true if the action is authorized, false otherwise
      */
-    private boolean isAuthorizedAction(HttpServletRequest request) {
-        String action = URIUtils.getServiceName(request);
-        String service = URIUtils.getServicePath(request);
-
-        if (action == null && service == null) {
-            return false;
-        }
-
-        if (service != null && AUTHORIZED_PATH.contains(service)) {
+    private boolean isAuthorizedRequest(HttpServletRequest request, String token) {
+        if (isValidToken(token)) {
             return true;
         }
 
-        return action != null && AUTHORIZED_PATH.contains(action);
+        String service = URIUtils.getServicePath(request);
+        String serviceName = URIUtils.getServiceName(request);
+
+        if (serviceName == null && service == null) {
+            return false;
+        }
+
+        return service != null && AUTHORIZED_PATH.contains(service);
     }
 }

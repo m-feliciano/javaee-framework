@@ -7,10 +7,10 @@
 <body>
 <div class="login-container">
     <h2 class="text-center">Sign up</h2>
-    <form action="${registerUser}" method="post">
+    <form action="${baseLink}/v1${registerUser}" method="post">
         <div class="mb-3">
             <label for="inputLogin" class="form-label">Email</label>
-            <input type="email" id="inputLogin" name="login" value="${email}" class="form-control" placeholder="Email"
+            <input type="text" id="inputLogin" name="login" value="${email}" class="form-control" placeholder="Email"
                    required>
         </div>
         <div class="mb-3">
@@ -34,7 +34,7 @@
             <button type="submit" class="btn btn-primary">Sign up</button>
         </div>
         <div class="mt-3 text-center">
-            <button type="button" class="btn btn-link" onclick="window.location.href='${loginPage}'">Login</button>
+            <button type="button" class="btn btn-link" onclick="window.location.href='${baseLink}/v1${loginPage}'">Login</button>
         </div>
     </form>
 </div>

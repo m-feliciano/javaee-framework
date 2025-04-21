@@ -21,7 +21,7 @@
     </filter>
     <filter-mapping>
         <filter-name>PasswordEncryptionFilter</filter-name>
-        <url-pattern>/view/*</url-pattern>
+        <url-pattern>/api/*</url-pattern>
     </filter-mapping>
     <filter>
         <filter-name>XSSFilter</filter-name>
@@ -29,7 +29,7 @@
     </filter>
     <filter-mapping>
         <filter-name>XSSFilter</filter-name>
-        <url-pattern>/view/*</url-pattern>
+        <url-pattern>/api/*</url-pattern>
     </filter-mapping>
     <filter>
         <filter-name>AFUSER</filter-name>
@@ -37,6 +37,6 @@
     </filter>
     <filter-mapping>
         <filter-name>AFUSER</filter-name>
-        <url-pattern>/view/*</url-pattern>
+        <url-pattern>/api/*</url-pattern>
     </filter-mapping>
 </web-app>

@@ -2,8 +2,8 @@ package com.dev.servlet.model.shared;
 
 import com.dev.servlet.model.InventoryModel;
 import com.dev.servlet.model.ProductModel;
-import com.dev.servlet.pojo.Inventory;
-import com.dev.servlet.pojo.Product;
+import com.dev.servlet.pojo.domain.Inventory;
+import com.dev.servlet.pojo.domain.Product;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -18,10 +18,19 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class BusinessShared {
-    @Inject
+
     private ProductModel productModel;
-    @Inject
     private InventoryModel inventoryModel;
+
+    @Inject
+    public void setProductModel(ProductModel productModel) {
+        this.productModel = productModel;
+    }
+
+    @Inject
+    public void setInventoryModel(InventoryModel inventoryModel) {
+        this.inventoryModel = inventoryModel;
+    }
 
     public BusinessShared() {
         // Empty constructor

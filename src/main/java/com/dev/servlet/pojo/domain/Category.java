@@ -1,5 +1,6 @@
-package com.dev.servlet.pojo;
+package com.dev.servlet.pojo.domain;
 
+import com.dev.servlet.interfaces.Identifier;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,64 +17,53 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import java.math.BigDecimal;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @javax.persistence.Entity
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@Table(name = "tb_product")
-@ToString(exclude = {"user", "category"})
-public class Product implements Identifier<Long> {
+@Table(name = "tb_category")
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@ToString(of = {"id", "name"})
+public class Category implements Identifier<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name", length = 100, nullable = false)
+    @Column(name = "name", nullable = false)
+    @ColumnTransformer(write = "UPPER(?)")
     private String name;
-
-    @Column(name = "description")
-    private String description;
-
-    @Column(name = "url_img")
-    private String url;
-
-    @Column(name = "register_date")
-    @Temporal(TemporalType.DATE)
-    private Date registerDate;
-
-    @Column(name = "price", nullable = false)
-    private BigDecimal price;
 
     @Column(name = "status", nullable = false)
     @ColumnTransformer(write = "UPPER(?)")
     private String status;
 
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    private List<Product> products;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    private Category category;
-
-    public Product(Long id) {
+    public Category(Long id) {
         this.id = id;
     }
 
-    public void setCategory(Category category) {
-        this.category = category;
-        if (category != null) {
-            category.addProduct(this);
-        }
+    public Category(User user) {
+        this.user = user;
     }
 
+    public void addProduct(Product product) {
+        if (products == null)
+            products = new ArrayList<>();
+        products.add(product);
+    }
 }

@@ -25,23 +25,24 @@ I've used the latest Java features and best practices to build this application.
 
 The URL structure is designed to be RESTful and easy to understand.
 
-- `{context}/view/{path}/{service}/?{query}`
+- `{context}/api/v{version}/{path}/{service}/?{query}`
 
 The URL structure is as follows:
 
-- `{context}`: The application context path e.g., `https://your-domain.com/view/`.
+- `{context}`: The application context path e.g., `https://your-domain.com/`.
+- `{version}`: The API version, e.g., `v1`.
 - `{path}`: The controller path.
 - `{service}`: The service to be performed.
 - `{query}`: The query parameters if needed.
 
 Example GET:
 
-- `server/view/product/` - List all products
-- `server/view/product/?id=1` - Get product by ID
+- `/api/{version}/product/list` - List all products
+- `/api/{version}/product/list/{id}` - Get product by ID
 
 Example POST:
 
-- `server/view/product/update` - Update product
+- `/api/{version}/product/update/{id}` - Update product
 
 Example of controller:
 
@@ -50,26 +51,51 @@ Example of controller:
 @Controller(path = "/product")
 public final class ProductController extends BaseController<Product, Long> {
 
-    // POST /product/create
-    @RequestMapping(value = CREATE, method = "POST")
-    public IHttpResponse<Void> create(Request request) {
-        ProductDTO product = this.getModel().create(request);
-        // Created
-       return super.newHttpResponse(201, null, super.redirectTo(product.getId()));
+    // POST ap1/v2/user/registerUser
+    @RequestMapping(
+            value = "/registerUser",
+            method = RequestMethod.POST,
+            apiVersion = "v2",
+            requestAuth = false,
+            validators = {
+                    @Validator(values = "login", constraints = {
+                            @Constraints(isEmail = true, message = "Login must be a valid email")
+                    }),
+                    @Validator(values = {"password", "confirmPassword"},
+                            constraints = {
+//                                    @Constraints(minLength = 5, maxLength = 30, message = "Password must be between {0} and {1} characters")
+                                    @Constraints(minLength = 5, message = "Password must have at least {0} characters"),
+                                    @Constraints(maxLength = 30, message = "Password must have at most {0} characters"),
+                            }),
+            })
+    public IHttpResponse<Void> register(Request request) throws ServiceException {
+       this.getModel().register(request);
+       // Created
+       return super.newHttpResponse(201, null, "redirect:/api/v1/login/form");
+    }
+    
+    // GET /category/list/{id}
+    @RequestMapping(
+            value = "/list/{id}",
+            validators = {
+                    @Validator(values = "id", constraints = {
+                            @Constraints(min = 1, message = "ID must be greater than or equal to {0}")
+                    })
+            })
+    public IHttpResponse<CategoryDTO> listById(Request request) throws ServiceException {
+       CategoryDTO category = this.getModel().listById(request);
+       // OK
+       return super.okHttpResponse(category, super.forwardTo("formListCategory"));
     }
 
-    // GET /product/{id}
-    @RequestMapping(value = "/{id}", method = "GET")
-    public IHttpResponse<ProductDTO> listById(Request request) throws ServiceException {
-        ProductDTO product = this.getModel().getById(request);
-        // OK
-        return super.newHttpResponse(200, product, super.forwardTo("formListProduct"));
+    // Superclass method
+    protected <U> IHttpResponse<U> newHttpResponse(int status, U response, String nextPath) {
+        return HttpResponse.<U>newBuilder().statusCode(status).body(response).next(nextPath).build();
     }
 
-   // Superclass method
-   protected <U> IHttpResponse<U> newHttpResponse(int status, U response, String nextPath) {
-      return HttpResponse.<U>newBuilder().statusCode(status).body(response).next(nextPath).build();
-   }
+    protected <U> IHttpResponse<U> okHttpResponse(U response, String nextPath) {
+        // Use newHttpResponse
+    }
 }
 ```
 
@@ -95,7 +121,7 @@ Default values can be changed in the `app.properties` file.
 
 ### Product
 
-#### `/product/?id={id}`
+#### `/product/{id}`
 
 ![App product list page](./images/product-list.png)
 
@@ -204,7 +230,7 @@ C:.
     - Start the Tomcat server.
       <br><br>
 7. Usage Instructions
-    - Access the application at `<server>/view/<context-path>` (e.g., `http://localhost:8080/view/login/form`).
+    - Access the application at `<server>/<context-path>` (e.g., `http://localhost:8080/api/v1/login/form`).
 
 ## Notes
 

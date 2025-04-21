@@ -15,18 +15,18 @@
         </a>
         <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
             <li class="nav-item">
-                <a class="nav-link" href="${listProduct}">Products</a>
+                <a class="nav-link" href="${baseLink}/v1${listProduct}">Products</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="${listCategory}">Categories</a>
+                <a class="nav-link" href="${baseLink}/v1${listCategory}">Categories</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="${listInventory}">Inventory</a>
+                <a class="nav-link" href="${baseLink}/v1${listInventory}">Inventory</a>
             </li>
         </ul>
         <div class="d-flex">
             <div class="avatar mt-1 mx30">
-                <a href="${listUser}?id=${user.id}">
+                <a href="${baseLink}/v1${listUser}/${user.id}">
                     <c:if test="${not empty user.imgUrl and user.imgUrl ne ''}">
                         <img src="${user.imgUrl}" alt="user" class="avatar-img rounded-circle">
                     </c:if>
@@ -35,8 +35,12 @@
                     </c:if>
                 </a>
             </div>
-            <a class="nav-link btn-logout mr-2" href="${listUser}/?id=${user.id}">Perfil</a>
+            <a class="nav-link btn-logout mr-2" href="${baseLink}/v1${listUser}/${user.id}">Perfil</a>
         </div>
-        <a class="nav-link btn-logout" href="${logout}">Logout</a>
+        <form class="form-inline" action="${baseLink}/v1${logout}" METHOD="post">
+            <button class="btn btn-outline-secondary my-2 my-sm-0" type="submit">
+                LOGOUT
+            </button>
+        </form>
     </div>
 </nav>

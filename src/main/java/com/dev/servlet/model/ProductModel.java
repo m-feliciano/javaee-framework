@@ -5,10 +5,10 @@ import com.dev.servlet.dto.ProductDTO;
 import com.dev.servlet.dto.ServiceException;
 import com.dev.servlet.mapper.ProductMapper;
 import com.dev.servlet.model.shared.BusinessShared;
-import com.dev.servlet.pojo.Category;
-import com.dev.servlet.pojo.Identifier;
-import com.dev.servlet.pojo.Inventory;
-import com.dev.servlet.pojo.Product;
+import com.dev.servlet.pojo.domain.Category;
+import com.dev.servlet.interfaces.Identifier;
+import com.dev.servlet.pojo.domain.Inventory;
+import com.dev.servlet.pojo.domain.Product;
 import com.dev.servlet.pojo.enums.StatusEnum;
 import com.dev.servlet.pojo.records.Query;
 import com.dev.servlet.pojo.records.Request;
@@ -35,10 +35,16 @@ import java.util.Optional;
 @Model
 public class ProductModel extends BaseModel<Product, Long> {
 
-    public static final String NOT_FOUND = "Product #%s not found.";
+    public static final String DESCRIPTION = "description";
+    public static final String NAME = "name";
+    public static final String CATEGORY = "category";
+
+    private BusinessShared businessShared;
 
     @Inject
-    private BusinessShared businessShared;
+    public void setBusinessShared(BusinessShared businessShared) {
+        this.businessShared = businessShared;
+    }
 
     @Inject
     protected ProductModel(ProductDAO dao) {
@@ -64,20 +70,21 @@ public class ProductModel extends BaseModel<Product, Long> {
         Product product = super.getEntity(request);
         product = Optional.ofNullable(product).orElse(new Product());
 
-        String categoryId = request.getParameter("category");
+        String categoryId = request.getParameter(CATEGORY);
         if (categoryId != null && !categoryId.isBlank()) {
             product.setCategory(new Category(Long.valueOf(categoryId)));
         }
 
-        Query query = request.getQuery();
+        Query query = request.query();
         if (query.getSearch() != null && query.getType() != null) {
-            if (query.getType().equals("name")) {
+            if (query.getType().equals(NAME)) {
                 product.setName(query.getSearch());
-            } else if (query.getType().equals("description")) {
+            } else if (query.getType().equals(DESCRIPTION)) {
                 product.setDescription(query.getSearch());
             }
         }
 
+        product.setUser(getUser(request.token()));
         return product;
     }
 
@@ -87,12 +94,10 @@ public class ProductModel extends BaseModel<Product, Long> {
      * @param request {@linkplain Request}
      * @return the next path
      */
-    // @ResourceMapping(CREATE)
     public ProductDTO create(Request request) {
         log.trace("");
 
         Product product = this.getEntity(request);
-        product.setUser(getUser(request.getToken()));
         product.setRegisterDate(new Date());
         product.setStatus(StatusEnum.ACTIVE.getValue());
 
@@ -112,8 +117,6 @@ public class ProductModel extends BaseModel<Product, Long> {
         log.trace("");
 
         Product filter = this.getEntity(request);
-        filter.setUser(getUser(request.getToken()));
-
         return super.findAllOnlyIds(filter);
     }
 
@@ -127,11 +130,10 @@ public class ProductModel extends BaseModel<Product, Long> {
     public ProductDTO getById(Request request) throws ServiceException {
         log.trace("");
 
-        long entityId = Long.parseLong(request.getEntityId());
+        Product filter = getEntity(request);
 
-        Product product = this.findById(request.getToken(), entityId)
-                .orElseThrow(() -> new ServiceException(404, NOT_FOUND.formatted(entityId)));
-
+        Optional<Product> optProduct = this.findById(filter);
+        Product product = optProduct.orElseThrow(() -> new404NotFoundException(filter.getId()));
         return ProductMapper.full(product);
     }
 
@@ -144,18 +146,15 @@ public class ProductModel extends BaseModel<Product, Long> {
     public ProductDTO update(Request request) throws ServiceException {
         log.trace("");
 
-        Long id = Long.parseLong(request.getEntityId());
+        Product filter = getEntity(request);
+        Optional<Product> optProduct = this.findById(filter);
+        var product = optProduct.orElseThrow(() -> new404NotFoundException(filter.getId()));
 
-        Product product = this.findById(request.getToken(), id).orElseThrow(
-                () -> new ServiceException(404, "Product #" + id + " not found."));
-
-        Product productRequest = this.getEntity(request);
-
-        product.setName(productRequest.getName());
-        product.setDescription(productRequest.getDescription());
-        product.setPrice(productRequest.getPrice());
-        product.setUrl(productRequest.getUrl());
-        product.setCategory(productRequest.getCategory());
+        product.setName(filter.getName());
+        product.setDescription(filter.getDescription());
+        product.setPrice(filter.getPrice());
+        product.setUrl(filter.getUrl());
+        product.setCategory(filter.getCategory());
 
         super.update(product);
         return ProductMapper.full(product);
@@ -170,13 +169,13 @@ public class ProductModel extends BaseModel<Product, Long> {
     public void delete(Request request) throws ServiceException {
         log.trace("");
 
-        Long entityId = Long.parseLong(request.getEntityId());
+        Product filter = getEntity(request);
 
-        Product product = this.findById(request.getToken(), entityId).orElseThrow(
-                () -> new ServiceException(404, "Product #" + entityId + " not found."));
+        Optional<Product> optProduct = this.findById(filter);
+        Product product = optProduct.orElseThrow(() -> new404NotFoundException(filter.getId()));
 
         Inventory inventory = new Inventory();
-        inventory.setUser(getUser(request.getToken()));
+        inventory.setUser(filter.getUser());
         inventory.setProduct(product);
 
         if (businessShared.hasInventory(inventory)) {
@@ -189,17 +188,12 @@ public class ProductModel extends BaseModel<Product, Long> {
     /**
      * Get by id
      *
-     * @param token the user token
-     * @param id    the product id
+     * @param filter - product filter
      * @return {@linkplain Optional} of {@linkplain Product}
      */
-    private Optional<Product> findById(String token, Long id) {
-        if (id == null) return Optional.empty();
+    private Optional<Product> findById(Product filter) {
 
-        Product product = new Product(id);
-        product.setUser(getUser(token));
-        product = super.find(product);
-
+        Product product = super.find(filter);
         return Optional.ofNullable(product);
     }
 

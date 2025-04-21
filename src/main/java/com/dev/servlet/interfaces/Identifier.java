@@ -1,4 +1,4 @@
-package com.dev.servlet.pojo;
+package com.dev.servlet.interfaces;
 
 /**
  * This class is a generic identifier for the entities.

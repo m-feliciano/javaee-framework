@@ -1,24 +1,23 @@
 package com.dev.servlet.dto;
 
-import com.dev.servlet.pojo.Identifier;
+import com.dev.servlet.pojo.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
- * DTO for {@linkplain com.dev.servlet.pojo.User}
+ * DTO for {@linkplain User}
  */
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDTO implements Identifier<Long>, Serializable {
+public class UserDTO extends TransferObject<Long> {
     private Long id;
     private String login;
     private String password;

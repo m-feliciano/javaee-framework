@@ -1,25 +1,24 @@
 package com.dev.servlet.dto;
 
-import com.dev.servlet.pojo.Identifier;
+import com.dev.servlet.pojo.domain.Product;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * DTO for {@linkplain com.dev.servlet.pojo.Product}
+ * DTO for {@linkplain Product}
  */
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductDTO implements Identifier<Long>, Serializable {
+public class ProductDTO extends TransferObject<Long> {
     private Long id;
     private String name;
     private String description;

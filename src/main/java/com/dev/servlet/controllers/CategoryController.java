@@ -2,11 +2,14 @@ package com.dev.servlet.controllers;
 
 import com.dev.servlet.dto.CategoryDTO;
 import com.dev.servlet.dto.ServiceException;
+import com.dev.servlet.interfaces.Constraints;
 import com.dev.servlet.interfaces.Controller;
 import com.dev.servlet.interfaces.IHttpResponse;
 import com.dev.servlet.interfaces.RequestMapping;
+import com.dev.servlet.interfaces.Validator;
 import com.dev.servlet.model.CategoryModel;
-import com.dev.servlet.pojo.Category;
+import com.dev.servlet.pojo.domain.Category;
+import com.dev.servlet.pojo.enums.RequestMethod;
 import com.dev.servlet.pojo.records.HttpResponse;
 import com.dev.servlet.pojo.records.Request;
 import lombok.NoArgsConstructor;
@@ -33,7 +36,7 @@ public final class CategoryController extends BaseController<Category, Long> {
      *
      * @return the response {@linkplain IHttpResponse} with the next path
      */
-    @RequestMapping(value = NEW, method = "GET")
+    @RequestMapping(value = "/new")
     public IHttpResponse<Void> forwardRegister() {
 
         return HttpResponse.ofNext(super.forwardTo("formCreateCategory"));
@@ -46,7 +49,14 @@ public final class CategoryController extends BaseController<Category, Long> {
      * @return {@linkplain IHttpResponse} with no content {@linkplain Void}
      * @throws ServiceException if an error occurs during deletion
      */
-    @RequestMapping(value = DELETE, method = "POST")
+    @RequestMapping(
+            value = "/delete/{id}",
+            method = RequestMethod.POST,
+            validators = {
+                    @Validator(values = "id", constraints = {
+                            @Constraints(min = 1, message = "ID must be greater than or equal to {0}")
+                    })
+            })
     public IHttpResponse<Void> delete(Request request) throws ServiceException {
         this.getModel().delete(request);
 
@@ -60,11 +70,17 @@ public final class CategoryController extends BaseController<Category, Long> {
      * @return the response {@linkplain IHttpResponse} with the next path
      * @throws ServiceException if an error occurs during edition
      */
-    @RequestMapping(value = EDIT, method = "GET")
+    @RequestMapping(
+            value = "/edit/{id}",
+            validators = {
+                    @Validator(values = "id", constraints = {
+                            @Constraints(min = 1, message = "ID must be greater than or equal to {0}")
+                    })
+            })
     public IHttpResponse<CategoryDTO> edit(Request request) throws ServiceException {
         CategoryDTO category = this.getModel().listById(request);
         // OK
-        return super.newHttpResponse(200, category, super.forwardTo("formUpdateCategory"));
+        return super.okHttpResponse(category, super.forwardTo("formUpdateCategory"));
     }
 
     /**
@@ -74,7 +90,14 @@ public final class CategoryController extends BaseController<Category, Long> {
      * @return the response {@linkplain IHttpResponse} with the next path
      * @throws ServiceException if an error occurs during registration
      */
-    @RequestMapping(value = CREATE, method = "POST")
+    @RequestMapping(
+            value = "/create",
+            method = RequestMethod.POST,
+            validators = {
+                    @Validator(values = "name", constraints = {
+                            @Constraints(minLength = 3, maxLength = 50, message = "Name must be between {0} and {1} characters")
+                    })
+            })
     public IHttpResponse<Void> register(Request request) throws ServiceException {
         CategoryDTO category = this.getModel().register(request);
         // Created
@@ -88,7 +111,19 @@ public final class CategoryController extends BaseController<Category, Long> {
      * @return the response {@linkplain IHttpResponse} with the next path
      * @throws ServiceException if an error occurs during update
      */
-    @RequestMapping(value = UPDATE, method = "POST")
+    @RequestMapping(
+            value = "/update/{id}",
+            method = RequestMethod.POST,
+            validators = {
+                    @Validator(values = "id", constraints = {
+                            @Constraints(min = 1, message = "ID must be greater than or equal to {0}")
+                    }),
+                    @Validator(values = "name", constraints = {
+//                            @Constraints(minLength = 5, maxLength = 50, message = "Name must be between {0} and {1} characters"),
+                            @Constraints(minLength = 5, message = "Name must be at least {0} characters"),
+                            @Constraints(maxLength = 50, message = "Name must be at most {0} characters")
+                    })
+            })
     public IHttpResponse<Void> update(Request request) throws ServiceException {
         CategoryDTO category = this.getModel().update(request);
         // No Content
@@ -101,11 +136,11 @@ public final class CategoryController extends BaseController<Category, Long> {
      * @param request the request containing the category data
      * @return the response {@linkplain IHttpResponse} with the next path
      */
-    @RequestMapping(value = LIST, method = "GET")
+    @RequestMapping(value = "/list")
     public IHttpResponse<Collection<CategoryDTO>> list(Request request) {
         Collection<CategoryDTO> categories = this.getModel().list(request);
         // OK
-        return super.newHttpResponse(200, categories, super.forwardTo("listCategories"));
+        return super.okHttpResponse(categories, super.forwardTo("listCategories"));
     }
 
     /**
@@ -114,10 +149,16 @@ public final class CategoryController extends BaseController<Category, Long> {
      * @param request the request containing the category id
      * @return the response {@linkplain IHttpResponse} with the next path
      */
-    @RequestMapping(value = "/{id}", method = "GET")
+    @RequestMapping(
+            value = "/list/{id}",
+            validators = {
+                    @Validator(values = "id", constraints = {
+                            @Constraints(min = 1, message = "ID must be greater than or equal to {0}")
+                    })
+            })
     public IHttpResponse<CategoryDTO> listById(Request request) throws ServiceException {
         CategoryDTO category = this.getModel().listById(request);
         // OK
-        return super.newHttpResponse(200, category, super.forwardTo("formListCategory"));
+        return super.okHttpResponse(category, super.forwardTo("formListCategory"));
     }
 }

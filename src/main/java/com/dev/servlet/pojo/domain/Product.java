@@ -1,5 +1,6 @@
-package com.dev.servlet.pojo;
+package com.dev.servlet.pojo.domain;
 
+import com.dev.servlet.interfaces.Identifier;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,49 +17,64 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
-
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import java.math.BigDecimal;
+import java.util.Date;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @javax.persistence.Entity
-@Table(name = "tb_category")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-@ToString(of = {"id", "name"})
-public class Category implements Identifier<Long> {
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Table(name = "tb_product")
+@ToString(exclude = {"user", "category"})
+public class Product implements Identifier<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name", nullable = false)
-    @ColumnTransformer(write = "UPPER(?)")
+    @Column(name = "name", length = 100, nullable = false)
     private String name;
+
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "url_img")
+    private String url;
+
+    @Column(name = "register_date")
+    @Temporal(TemporalType.DATE)
+    private Date registerDate;
+
+    @Column(name = "price", nullable = false)
+    private BigDecimal price;
 
     @Column(name = "status", nullable = false)
     @ColumnTransformer(write = "UPPER(?)")
     private String status;
 
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-    private List<Product> products;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public Category(Long id) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    public Product(Long id) {
         this.id = id;
     }
 
-    public void addProduct(Product product) {
-        if (products == null)
-            products = new ArrayList<>();
-        products.add(product);
+    public void setCategory(Category category) {
+        this.category = category;
+        if (category != null) {
+            category.addProduct(this);
+        }
     }
+
 }

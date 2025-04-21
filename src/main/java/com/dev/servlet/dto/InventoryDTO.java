@@ -1,24 +1,21 @@
 package com.dev.servlet.dto;
 
-import com.dev.servlet.pojo.Identifier;
+import com.dev.servlet.pojo.domain.Inventory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
-
 /**
- * DTO for {@linkplain com.dev.servlet.pojo.Inventory}
+ * DTO for {@linkplain Inventory}
  */
-
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class InventoryDTO implements Identifier<Long>, Serializable {
+public class InventoryDTO extends TransferObject<Long> {
     private Long id;
     private Integer quantity;
     private String description;

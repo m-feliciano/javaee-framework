@@ -2,7 +2,7 @@
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <div class="main">
-    <form action="${ createItem }" method="post">
+    <form action="${baseLink}/v1${ createItem }" method="post">
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputProductId" class="form-label">PRODUCT ID</label>
@@ -17,7 +17,7 @@
             <div class="mb-3">
                 <label for="inputDescription" class="form-label">DESCRIPTION</label>
                 <input type="text" name="description" class="form-control" id="inputDescription"
-                       placeholder="simple descripton" required minlength="4"/>
+                       placeholder="simple descripton"/>
             </div>
 
             <jsp:include page="/WEB-INF/view/components/buttons/backButton.jsp"/>

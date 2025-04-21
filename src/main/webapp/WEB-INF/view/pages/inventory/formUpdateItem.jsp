@@ -7,7 +7,7 @@
 %>
 
 <div class="main">
-    <form action="${ updateItem }/${inventory.id}" method="post">
+    <form action="${baseLink}/v1${ updateItem }/${inventory.id}" method="post">
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputItemId" class="form-label">ID</label>
@@ -27,8 +27,7 @@
             <div class="mb-3">
                 <label for="inputDescription" class="form-label">DESCRIPTION</label>
                 <textarea name="description" class="form-control" id="inputDescription"
-                          placeholder="descripton" rows="6" required
-                          minlength="4" maxlength="1400">${ inventory.description }</textarea>
+                          placeholder="descripton" rows="6">${ inventory.description }</textarea>
             </div>
 
             <c:if test="${not empty error}">

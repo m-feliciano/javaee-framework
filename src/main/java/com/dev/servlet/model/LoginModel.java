@@ -2,9 +2,9 @@ package com.dev.servlet.model;
 
 import com.dev.servlet.dto.ServiceException;
 import com.dev.servlet.dto.UserDTO;
+import com.dev.servlet.interfaces.Identifier;
 import com.dev.servlet.mapper.UserMapper;
-import com.dev.servlet.pojo.Identifier;
-import com.dev.servlet.pojo.User;
+import com.dev.servlet.pojo.domain.User;
 import com.dev.servlet.pojo.records.Request;
 import com.dev.servlet.utils.CacheUtil;
 import com.dev.servlet.utils.CryptoUtils;
@@ -31,8 +31,12 @@ import javax.servlet.http.HttpServletResponse;
 @Model
 public class LoginModel extends BaseModel<User, Long> {
 
-    @Inject
     private UserModel userBusiness;
+
+    @Inject
+    public void setUserBusiness(UserModel userBusiness) {
+        this.userBusiness = userBusiness;
+    }
 
     @Override
     protected Class<? extends Identifier<Long>> getTransferClass() {
@@ -53,10 +57,13 @@ public class LoginModel extends BaseModel<User, Long> {
     public UserDTO login(Request request) throws ServiceException {
         log.trace("");
 
-        User user = userBusiness.getEntity(request);
+        User user = new User(
+                request.getParameter("login"),
+                request.getParameter("password")
+        );
 
-        user = userBusiness.findByLoginAndPassword(user).orElseThrow(
-                () -> new ServiceException(HttpServletResponse.SC_UNAUTHORIZED, "Invalid login or password"));
+        user = userBusiness.findByLoginAndPassword(user)
+                .orElseThrow(() -> new ServiceException(HttpServletResponse.SC_UNAUTHORIZED, "Invalid login or password"));
 
         var userDTO = UserMapper.full(user);
         String jwtToken = CryptoUtils.generateJWTToken(userDTO);
@@ -72,6 +79,6 @@ public class LoginModel extends BaseModel<User, Long> {
     public void logout(Request request) {
         log.trace("");
 
-        CacheUtil.clearAll(request.getToken());
+        CacheUtil.clearAll(request.token());
     }
 }

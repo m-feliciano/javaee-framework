@@ -4,8 +4,8 @@ import com.dev.servlet.dao.UserDAO;
 import com.dev.servlet.dto.ServiceException;
 import com.dev.servlet.dto.UserDTO;
 import com.dev.servlet.mapper.UserMapper;
-import com.dev.servlet.pojo.Identifier;
-import com.dev.servlet.pojo.User;
+import com.dev.servlet.interfaces.Identifier;
+import com.dev.servlet.pojo.domain.User;
 import com.dev.servlet.pojo.enums.PerfilEnum;
 import com.dev.servlet.pojo.enums.StatusEnum;
 import com.dev.servlet.pojo.records.HttpResponse;
@@ -34,7 +34,6 @@ public class UserModel extends BaseModel<User, Long> {
 
     private static final String LOGIN = "login";
     private static final String PASSWORD = "password";
-    private static final String USER_NOT_FOUND = "User not found.";
     private static final String CONFIRM_PASSWORD = "confirmPassword";
 
     @Inject
@@ -56,19 +55,28 @@ public class UserModel extends BaseModel<User, Long> {
         return UserMapper.full((UserDTO) object);
     }
 
+    @Override
+    protected User getEntity(Request request) {
+        return getUser(request.token());
+    }
+
     /**
      * Find user.
      *
      * @param email
-     * @param id
+     * @param candidate
      * @return if the email is already in use
      */
-    public boolean isEmailAlreadyInUse(String email, Long id) {
+    public boolean isEmailAvailable(String email, User candidate) {
         User user = new User();
         user.setLogin(email);
         user = this.find(user);
 
-        return user != null && !user.getId().equals(id);
+        if (user != null) {
+            return user.getId().equals(candidate.getId());
+        }
+
+        return true;
     }
 
     /**
@@ -81,32 +89,30 @@ public class UserModel extends BaseModel<User, Long> {
         log.trace("");
 
         /// Both passwords are encrypted already
-        var password = request.getRequiredParameter(PASSWORD);
-        var confirmPassword = request.getRequiredParameter(CONFIRM_PASSWORD);
+        var password = request.getParameter(PASSWORD);
+        var confirmPassword = request.getParameter(CONFIRM_PASSWORD);
 
         if (password == null || !password.equals(confirmPassword)) {
             throw new ServiceException(HttpServletResponse.SC_FORBIDDEN, "Passwords do not match.");
         }
 
-        String email = request.getRequiredParameter(LOGIN).toLowerCase();
-        User user = new User();
-        user.setLogin(email);
+        User user = new User(request.getParameter(LOGIN).toLowerCase());
         user = this.find(user);
 
         if (user != null) {
             throw new ServiceException(HttpServletResponse.SC_FORBIDDEN, "Login already in use.");
         }
 
-        User userRegister = new User();
-        userRegister.setLogin(email);
-        userRegister.setPassword(password);  // already encrypted
-        userRegister.setImgUrl(request.getParameter("imgUrl"));
-        userRegister.setStatus(StatusEnum.ACTIVE.getValue());
-        userRegister.setPerfis(List.of(PerfilEnum.DEFAULT.getCode()));
+        User newUser = new User();
+        newUser.setLogin(request.getParameter(LOGIN).toLowerCase());
+        newUser.setPassword(password);  // already encrypted
+        newUser.setImgUrl(request.getParameter("imgUrl"));
+        newUser.setStatus(StatusEnum.ACTIVE.getValue());
+        newUser.setPerfis(List.of(PerfilEnum.DEFAULT.getCode()));
 
-        super.save(userRegister);
+        super.save(newUser);
 
-        return UserMapper.full(userRegister);
+        return UserMapper.full(newUser);
     }
 
     /**
@@ -118,22 +124,19 @@ public class UserModel extends BaseModel<User, Long> {
     public UserDTO update(Request request) throws ServiceException {
         log.trace("");
 
-        User userToken = getUser(request.getToken());
+        User fromToken = getEntity(request);
+        validadeUserRequest(request, fromToken);
 
-        if (!userToken.getId().equals(Long.parseLong(request.getEntityId()))) {
-            throw new ServiceException(HttpServletResponse.SC_FORBIDDEN, USER_NOT_FOUND);
-        }
-
-        String email = request.getRequiredParameter(LOGIN).toLowerCase();
-        if (this.isEmailAlreadyInUse(email, userToken.getId())) {
+        String email = request.getParameter(LOGIN).toLowerCase();
+        if (!this.isEmailAvailable(email, fromToken)) {
             throw new ServiceException(HttpServletResponse.SC_FORBIDDEN, "Email already in use.");
         }
 
-        User user = new User(userToken.getId());
-        user.setPerfis(userToken.getPerfis());
-        user.setLogin(email.toLowerCase());
+        User user = new User(fromToken.getId());
+        user.setPerfis(fromToken.getPerfis());
+        user.setLogin(email);
         user.setImgUrl(request.getParameter("imgUrl"));
-        user.setPassword(request.getRequiredParameter(PASSWORD));
+        user.setPassword(request.getParameter(PASSWORD));
         user.setStatus(StatusEnum.ACTIVE.getValue());
         user = super.update(user);
 
@@ -149,17 +152,10 @@ public class UserModel extends BaseModel<User, Long> {
     public UserDTO findById(Request request) throws ServiceException {
         log.trace("");
 
-        if (request.getEntityId() == null) {
-            throw new ServiceException(HttpServletResponse.SC_FORBIDDEN, "User # null not found.");
-        }
+        User fromToken = getEntity(request);
+        validadeUserRequest(request, fromToken);
 
-        User user = getUser(request.getToken());
-        if (!user.getId().equals(Long.parseLong(request.getEntityId()))) {
-            throw new ServiceException(HttpServletResponse.SC_FORBIDDEN, USER_NOT_FOUND);
-        }
-
-        user = super.findById(user.getId());
-
+        User user = super.findById(fromToken.getId());
         return UserMapper.full(user);
     }
 
@@ -171,13 +167,26 @@ public class UserModel extends BaseModel<User, Long> {
     public void delete(Request request) throws ServiceException {
         log.trace("");
 
-        User user = getUser(request.getToken());
-        if (!user.getId().equals(Long.parseLong(request.getEntityId()))) {
-            throw new ServiceException(HttpServletResponse.SC_FORBIDDEN, USER_NOT_FOUND);
-        }
+        User fromToken = this.getEntity(request);
+        validadeUserRequest(request, fromToken);
 
-        super.delete(user);
-        CacheUtil.clearAll(request.getToken());
+        super.delete(fromToken);
+        CacheUtil.clearAll(request.token());
+    }
+
+    /**
+     * Validate if the user is the same as the one in the request.
+     *
+     * @param request
+     * @param fromToken
+     * @throws ServiceException
+     */
+    private static void validadeUserRequest(Request request, User fromToken) throws ServiceException {
+        long requestId = Long.parseLong(request.id());
+
+        if (!fromToken.getId().equals(requestId)) {
+            throw new ServiceException(HttpServletResponse.SC_FORBIDDEN, "User not found.");
+        }
     }
 
     /**

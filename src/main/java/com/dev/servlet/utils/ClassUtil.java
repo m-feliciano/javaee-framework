@@ -29,8 +29,8 @@ public final class ClassUtil {
      * @return
      * @throws Exception
      */
-    public static List<Class<?>> loadClasses(String packageName) throws Exception {
-        return loadClasses(packageName, null);
+    public static List<Class<?>> scanPackage(String packageName) throws Exception {
+        return scanPackage(packageName, null);
     }
 
     /**
@@ -41,7 +41,7 @@ public final class ClassUtil {
      * @return
      * @throws Exception
      */
-    public static List<Class<?>> loadClasses(String packageName, Class<? extends Annotation>[] annotations) throws Exception {
+    public static List<Class<?>> scanPackage(String packageName, Class<? extends Annotation>[] annotations) throws Exception {
         List<Class<?>> classes = new ArrayList<>();
 
         // Get the files in the package
@@ -51,7 +51,7 @@ public final class ClassUtil {
             // Check if the file is a directory
             if (file.isDirectory()) {
                 // Load the classes in the subdirectory
-                classes.addAll(loadClasses(packageName + "." + file.getName(), annotations));
+                classes.addAll(scanPackage(packageName + "." + file.getName(), annotations));
             } else if (file.getName().endsWith(".class")) {
                 // Get the class key
                 String className = packageName + '.' + file.getName().substring(0, file.getName().length() - 6);
@@ -160,25 +160,30 @@ public final class ClassUtil {
     public static <T> T castWrapper(Class<T> type, Object value) {
         if (value == null) return null;
 
-        if (type == String.class) {
-            value = value.toString();
-        } else if (type == Integer.class) {
-            value = Integer.parseInt(value.toString());
-        } else if (type == Long.class) {
-            value = Long.parseLong(value.toString());
-        } else if (type == Double.class) {
-            value = Double.parseDouble(value.toString());
-        } else if (type == Float.class) {
-            value = Float.parseFloat(value.toString());
-        } else if (type == Boolean.class) {
-            value = Boolean.parseBoolean(value.toString());
-        } else if (type == BigDecimal.class) {
-            value = FormatterUtil.parseCurrency(value.toString());
-        } else if (type == Date.class) {
-            value = FormatterUtil.toDate(value.toString());
+        try {
+            if (type == String.class) {
+                value = value.toString();
+            } else if (type == Integer.class) {
+                value = Integer.parseInt(value.toString());
+            } else if (type == Long.class) {
+                value = Long.parseLong(value.toString());
+            } else if (type == Double.class) {
+                value = Double.parseDouble(value.toString());
+            } else if (type == Float.class) {
+                value = Float.parseFloat(value.toString());
+            } else if (type == Boolean.class) {
+                value = Boolean.parseBoolean(value.toString());
+            } else if (type == BigDecimal.class) {
+                value = FormatterUtil.parseCurrency(value.toString());
+            } else if (type == Date.class) {
+                value = FormatterUtil.toDate(value.toString());
+            }
+
+            return type.cast(value);
+        } catch (Exception ignored) {
         }
 
-        return type.cast(value);
+        return null;
     }
 
     /**

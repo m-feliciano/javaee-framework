@@ -1,13 +1,12 @@
 package com.dev.servlet.mapper;
 
 import com.dev.servlet.dto.UserDTO;
-import com.dev.servlet.pojo.User;
+import com.dev.servlet.pojo.domain.User;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class UserMapper {
-
-    private UserMapper() {
-        throw new IllegalStateException("UserMapper class");
-    }
 
     public static UserDTO full(User user) {
         if (user == null) return null;

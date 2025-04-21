@@ -1,14 +1,12 @@
 package com.dev.servlet.mapper;
 
 import com.dev.servlet.dto.InventoryDTO;
-import com.dev.servlet.pojo.Inventory;
+import com.dev.servlet.pojo.domain.Inventory;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class InventoryMapper {
-
-    private InventoryMapper() {
-        throw new IllegalStateException("InventoryMapper class");
-    }
-
     /**
      * {@linkplain Inventory} from {@linkplain InventoryDTO}
      *

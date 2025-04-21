@@ -4,7 +4,7 @@
 <body>
 <div class="login-container">
     <h2 class="text-center">Login</h2>
-    <form action="${login}" method="post">
+    <form action="${baseLink}/v1${login}" method="post">
         <div class="mb-3">
             <label for="inputLogin" class="form-label">Email</label>
             <input type="email" id="inputLogin" name="login" class="form-control" placeholder="Email" required>
@@ -23,7 +23,7 @@
             <button type="submit" class="btn btn-primary">Login</button>
         </div>
         <div class="mt-3 text-center">
-            <button type="button" class="btn btn-link" onclick="window.location.href='${registerPage}'">Sign up</button>
+            <button type="button" class="btn btn-link" onclick="window.location.href='${baseLink}/v1${registerPage}'">Sign up</button>
         </div>
     </form>
 </div>
