@@ -9,6 +9,7 @@ import com.dev.servlet.interfaces.RequestMapping;
 import com.dev.servlet.interfaces.Validator;
 import com.dev.servlet.model.UserModel;
 import com.dev.servlet.pojo.domain.User;
+import com.dev.servlet.pojo.enums.PerfilEnum;
 import com.dev.servlet.pojo.enums.RequestMethod;
 import com.dev.servlet.pojo.records.HttpResponse;
 import com.dev.servlet.pojo.records.Request;
@@ -66,6 +67,9 @@ public final class UserController extends BaseController<User, Long> {
     @RequestMapping(
             value = "/delete/{id}",
             method = RequestMethod.POST,
+            roles = {
+                    PerfilEnum.ADMIN
+            },
             validators = {
                     @Validator(values = "id", constraints = {
                             @Constraints(min = 1, message = "ID must be greater than or equal to {0}")

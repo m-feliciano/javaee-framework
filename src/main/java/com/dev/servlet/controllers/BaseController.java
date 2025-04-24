@@ -1,5 +1,6 @@
 package com.dev.servlet.controllers;
 
+import com.dev.servlet.controllers.router.BaseRouterController;
 import com.dev.servlet.interfaces.Controller;
 import com.dev.servlet.interfaces.IHttpResponse;
 import com.dev.servlet.interfaces.IServletResponse;
@@ -26,7 +27,7 @@ import java.util.Set;
 @Slf4j
 @NoArgsConstructor
 @Getter(AccessLevel.PROTECTED)
-public abstract class BaseController<T extends Identifier<K>, K> {
+public abstract class BaseController<T extends Identifier<K>, K> extends BaseRouterController {
 
     // Common paths
     private static final String FORWARD_TO = "forward:pages/{webService}/{context}.jsp"; // forward:pages/product/formCreateProduct.jsp

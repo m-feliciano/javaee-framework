@@ -162,18 +162,18 @@ public class InventoryModel extends BaseModel<Inventory, Long> {
     public InventoryDTO update(Request request) throws ServiceException {
         log.trace("");
 
-        Inventory inventory = this.getEntity(request);
+        Inventory inventoryRequest = this.getEntity(request);
 
-        Product product = businessShared.getProductById(inventory.getProduct().getId());
-        if (product == null || !product.getUser().getId().equals(inventory.getUser().getId())) {
-            throw new ServiceException(404, "Can't find product ID: " + inventory.getProduct().getId());
+        Product product = businessShared.getProductById(inventoryRequest.getProduct().getId());
+        if (product == null || !product.getUser().getId().equals(inventoryRequest.getUser().getId())) {
+            throw new ServiceException(404, "Can't find product ID: " + inventoryRequest.getProduct().getId());
         }
 
-        Optional<Inventory> optional = this.findById(inventory);
-        inventory = optional.orElseThrow(() -> new404NotFoundException(request.id()));
+        Optional<Inventory> optional = this.findById(inventoryRequest);
+        Inventory inventory = optional.orElseThrow(() -> new404NotFoundException(request.id()));
 
-        inventory.setDescription(inventory.getDescription());
-        inventory.setQuantity(inventory.getQuantity());
+        inventory.setDescription(inventoryRequest.getDescription());
+        inventory.setQuantity(inventoryRequest.getQuantity());
         inventory.setStatus(StatusEnum.ACTIVE.getValue());
         inventory.setProduct(product);
 

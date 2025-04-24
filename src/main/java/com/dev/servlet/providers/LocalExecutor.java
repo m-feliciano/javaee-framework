@@ -1,19 +1,17 @@
 package com.dev.servlet.providers;
 
+import com.dev.servlet.controllers.router.BaseRouterController;
 import com.dev.servlet.dto.ServiceException;
 import com.dev.servlet.interfaces.IHttpExecutor;
 import com.dev.servlet.interfaces.IHttpResponse;
-import com.dev.servlet.interfaces.RequestMapping;
 import com.dev.servlet.pojo.records.HttpResponse;
 import com.dev.servlet.pojo.records.Request;
+import com.dev.servlet.utils.BeanUtil;
 import com.dev.servlet.utils.EndpointParser;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletResponse;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.Arrays;
 
 /**
  * This class is responsible for executing the HTTP request.
@@ -36,75 +34,30 @@ public class LocalExecutor<J> implements IHttpExecutor<J> {
      * @return {@linkplain IHttpResponse}
      */
     @Override
+    @SuppressWarnings("unchecked")
     public IHttpResponse<J> send(Request request) {
         try {
-            //Example: api/v1/<service>/<method>/<id|query>
             var parser = new EndpointParser(request);
 
-            Object instance = ServiceResolver.resolveServiceInstance(parser.getService());
-            Method method = ServiceResolver.resolveServiceMethod(
-                    parser.getServiceName(), parser.getApiVersion(), instance);
-
-            RequestValidator.validate(request, method.getAnnotation(RequestMapping.class));
-
-            Object[] args = prepareMethodArguments(method, request);
-            return invokeServiceMethod(instance, method, args);
-
+            BaseRouterController routerController = resolveController(parser);
+            return (IHttpResponse<J>) routerController.route(parser, request);
         } catch (Exception e) {
             return handleException(e);
         }
     }
 
     /**
-     * Prepares the method arguments based on the request parameters.
+     * Resolves the controller instance based on the request path.
      *
-     * @param method  The service method
-     * @param request The HTTP request
-     * @return Array of method arguments
+     * @param endpoint The HTTP request
+     * @return The controller instance
      */
-    private Object[] prepareMethodArguments(Method method, Request request) {
-        return Arrays.stream(method.getParameters())
-                .map(parameter -> resolveArgument(parameter, request))
-                .toArray();
-    }
-
-    /**
-     * Resolves the argument based on the parameter type.
-     *
-     * @param parameter The method parameter
-     * @param request   The HTTP request
-     * @return The resolved argument
-     */
-    private Object resolveArgument(Parameter parameter, Request request) {
-        if (parameter.getType().isAssignableFrom(Request.class)) {
-            return request;
+    private BaseRouterController resolveController(EndpointParser endpoint) throws ServiceException {
+        try {
+            return (BaseRouterController) BeanUtil.getResolver().getService(endpoint.getService());
+        } catch (Exception e) {
+            throw ServiceException.badRequest("Error resolving service method for path: " + endpoint.getService());
         }
-
-        if (request.body() != null) {
-            return request.body()
-                    .stream()
-                    .filter(body -> body.getClass().isAssignableFrom(parameter.getType()))
-                    .findFirst()
-                    .orElse(null);
-        }
-
-        // Add more argument resolution logic if needed
-        return null;
-    }
-
-    /**
-     * Invokes the service method with the provided arguments.
-     *
-     * @param instance The service instance
-     * @param method   The service method
-     * @param args     The method arguments
-     * @return The HTTP response
-     * @throws Exception if an error occurs during invocation
-     */
-    private <U> IHttpResponse<U> invokeServiceMethod(Object instance, Method method, Object[] args) throws Exception {
-        @SuppressWarnings("ALL")
-        var response = (IHttpResponse<U>) method.invoke(instance, args);
-        return response;
     }
 
     /**

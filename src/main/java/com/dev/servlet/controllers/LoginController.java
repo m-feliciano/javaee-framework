@@ -16,6 +16,7 @@ import com.dev.servlet.utils.CryptoUtils;
 import com.dev.servlet.utils.PropertiesUtil;
 import lombok.NoArgsConstructor;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 
@@ -23,13 +24,18 @@ import javax.inject.Inject;
 @Controller(path = "/login")
 public final class LoginController extends BaseController<User, Long> {
 
-    private static final String HOMEPAGE = PropertiesUtil.getProperty("homepage");
+    private String homepage;
     private static final String FORWARD_PAGES_FORM_LOGIN_JSP = "forward:pages/formLogin.jsp";
     private static final String FORWARD_PAGES_USER_FORM_CREATE_USER_JSP = "forward:pages/user/formCreateUser.jsp";
 
     @Inject
     public LoginController(LoginModel userModel) {
         super(userModel);
+    }
+
+    @PostConstruct
+    public void init() {
+        homepage = PropertiesUtil.getProperty("homepage");
     }
 
     private LoginModel getModel() {
@@ -56,7 +62,7 @@ public final class LoginController extends BaseController<User, Long> {
     public IHttpResponse<String> form(Request request) {
 
         if (CryptoUtils.verifyToken(request.token())) {
-            return HttpResponse.ofNext("redirect:/" + HOMEPAGE);
+            return HttpResponse.ofNext("redirect:/" + homepage);
         }
 
         return HttpResponse.ofNext(FORWARD_PAGES_FORM_LOGIN_JSP);
@@ -84,7 +90,7 @@ public final class LoginController extends BaseController<User, Long> {
     public IHttpResponse<UserDTO> login(Request request) throws ServiceException {
         UserDTO user = getModel().login(request);
         // OK
-        return super.okHttpResponse(user, "redirect:/" + HOMEPAGE);
+        return super.okHttpResponse(user, "redirect:/" + homepage);
     }
 
     /**
@@ -93,16 +99,7 @@ public final class LoginController extends BaseController<User, Long> {
      * @param request {@linkplain Request}
      * @return {@linkplain IHttpResponse} with the updated user
      */
-    @RequestMapping(
-            value = "/logout",
-            method = RequestMethod.POST
-//            requestAuth = true,
-//            requestParams = {
-//                    @Validator(value = "token", constraints = {
-//                            @Constraints(notNullOrEmpty = true, message = "Token must not be null or empty")
-//                    })
-//            }
-    )
+    @RequestMapping(value = "/logout", method = RequestMethod.POST)
     public IHttpResponse<String> logout(Request request) {
         getModel().logout(request);
 

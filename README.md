@@ -22,81 +22,146 @@ I've used the latest Java features and best practices to build this application.
 - **Criteria API**: Type-safe way to build database queries.
 
 ## URL Design
+### URL Components:
+- **`{context}`**: Application context path (e.g., `https://your-domain.com/api`).
+- **`{version}`**: API version (e.g., `v1`).
+- **`{path}`**: Controller path (e.g., `product`).
+- **`{service}`**: Specific service or action (e.g., `list`).
+- **`{query}`**: Optional query parameters (e.g., `?page=1&limit=5`).
 
-The URL structure is designed to be RESTful and easy to understand.
+### Examples:
 
-- `{context}/api/v{version}/{path}/{service}/?{query}`
+#### GET Requests:
+- `/api/v1/product/list` - List all products.
+- `/api/v1/product/list/{id}` - Get product by ID.
 
-The URL structure is as follows:
+#### POST Requests:
+- `/api/v1/product/update/{id}` - Update a product.
+- `/api/v1/product/delete/{id}` - Delete a product.
 
-- `{context}`: The application context path e.g., `https://your-domain.com/`.
-- `{version}`: The API version, e.g., `v1`.
-- `{path}`: The controller path.
-- `{service}`: The service to be performed.
-- `{query}`: The query parameters if needed.
+### Query Parameters:
+- **Sorting**: `sort=<field>&order=<asc|desc>` (e.g., `sort=id&order=asc`).
+- **Pagination**: `page=<page>&limit=<size>` (e.g., `page=1&limit=5`).
+- **Search**: `q=<query>&k=<field>` (e.g., `q=macbook&k=name`).
 
-Example GET:
+### Notes:
+- Default values for query parameters can be configured in the `app.properties` file.
+- API versioning is included in the URL but not mapped to controllers. The default version is `v1`.
 
-- `/api/{version}/product/list` - List all products
-- `/api/{version}/product/list/{id}` - Get product by ID
-
-Example POST:
-
-- `/api/{version}/product/update/{id}` - Update product
-
-Example of controller:
+#### Example of controller
 
 ```java
 
+// Example of a controller
 @Controller(path = "/product")
 public final class ProductController extends BaseController<Product, Long> {
 
-    // POST ap1/v2/user/registerUser
-    @RequestMapping(
-            value = "/registerUser",
-            method = RequestMethod.POST,
-            apiVersion = "v2",
-            requestAuth = false,
-            validators = {
-                    @Validator(values = "login", constraints = {
-                            @Constraints(isEmail = true, message = "Login must be a valid email")
-                    }),
-                    @Validator(values = {"password", "confirmPassword"},
-                            constraints = {
-//                                    @Constraints(minLength = 5, maxLength = 30, message = "Password must be between {0} and {1} characters")
-                                    @Constraints(minLength = 5, message = "Password must have at least {0} characters"),
-                                    @Constraints(maxLength = 30, message = "Password must have at most {0} characters"),
-                            }),
-            })
-    public IHttpResponse<Void> register(Request request) throws ServiceException {
-       this.getModel().register(request);
-       // Created
-       return super.newHttpResponse(201, null, "redirect:/api/v1/login/form");
-    }
-    
-    // GET /category/list/{id}
-    @RequestMapping(
-            value = "/list/{id}",
-            validators = {
-                    @Validator(values = "id", constraints = {
-                            @Constraints(min = 1, message = "ID must be greater than or equal to {0}")
-                    })
-            })
-    public IHttpResponse<CategoryDTO> listById(Request request) throws ServiceException {
-       CategoryDTO category = this.getModel().listById(request);
-       // OK
-       return super.okHttpResponse(category, super.forwardTo("formListCategory"));
-    }
+    @RequestMapping(value = "/list")
+    public IServletResponse list(Request request) {
+        ProductModel model = this.getModel();
 
-    // Superclass method
-    protected <U> IHttpResponse<U> newHttpResponse(int status, U response, String nextPath) {
+        Collection<Long> productsIds = model.findAll(request);
+        Pagination pagination = request.query().getPagination();
+        pagination.setTotalRecords(productsIds.size());
+
+        Set<KeyPair> response = new HashSet<>();
+        if (!CollectionUtils.isEmpty(productsIds)) {
+            Collection<Product> products = model.getAllPageable(productsIds, pagination);
+            Collection<ProductDTO> productDTOs = products.stream().map(ProductMapper::base).toList();
+
+            BigDecimal totalPrice = model.calculateTotalPrice(productsIds);
+
+            response.add(KeyPair.of("products", productDTOs));
+            response.add(KeyPair.of("totalPrice", totalPrice));
+        }
+
+        Collection<CategoryDTO> categories = getCategoryModel().getAllFromCache(request.token());
+        response.add(KeyPair.of("categories", categories));
+
+        return super.newServletResponse(response, super.forwardTo("listProducts"));
+    }
+}
+```
+
+#### Endpoint register user
+
+```java
+// POST ap1/v2/user/registerUser
+@RequestMapping(
+        value = "/registerUser",
+        method = RequestMethod.POST,
+        apiVersion = "v2",
+        requestAuth = false,
+        validators = {
+                @Validator(values = "login", constraints = {
+                        @Constraints(isEmail = true, message = "Login must be a valid email")
+                }),
+                @Validator(values = {"password", "confirmPassword"},
+                        constraints = {
+//                                @Constraints(minLength = 5, maxLength = 30, message = "Password must be between {0} and {1} characters")
+                                @Constraints(minLength = 5, message = "Password must have at least {0} characters"),
+                                @Constraints(maxLength = 30, message = "Password must have at most {0} characters"),
+                        }),
+        })
+public IHttpResponse<Void> register(Request request) throws ServiceException {
+    this.getModel().register(request);
+    // Created
+    return super.newHttpResponse(201, null, "redirect:/api/v1/login/form");
+}
+```
+
+#### Endpoint delete user (Only admin)
+
+```java
+   // POST /user/delete/{id}
+@RequestMapping(
+        value = "/delete/{id}",
+        method = RequestMethod.POST,
+        roles = { // Only admin can delete
+                PerfilEnum.ADMIN
+        },
+        validators = {
+                @Validator(values = "id", constraints = {
+                        @Constraints(min = 1, message = "ID must be greater than or equal to {0}")
+                })
+        })
+public IHttpResponse<Void> delete(Request request) throws ServiceException {
+    this.getModel().delete(request);
+
+    return HttpResponse.ofNext(super.forwardTo("formLogin"));
+}
+```
+
+#### Superclass methods
+
+```java Superclass methods
+   protected <U> IHttpResponse<U> newHttpResponse(int status, U response, String nextPath) {
         return HttpResponse.<U>newBuilder().statusCode(status).body(response).next(nextPath).build();
     }
 
-    protected <U> IHttpResponse<U> okHttpResponse(U response, String nextPath) {
-        // Use newHttpResponse
-    }
-}
+   protected <U> IHttpResponse<U> okHttpResponse(U response, String nextPath) {
+       // Uses newHttpResponse
+   }
+   
+   // Response container
+   protected IServletResponse newServletResponse(Set<KeyPair> response, String next) {
+       return new IServletResponse() {
+           @Override
+           public int statusCode() {
+               return 200;
+           }
+   
+           @Override
+           public Set<KeyPair> body() {
+               return response;
+           }
+   
+           @Override
+           public String next() {
+               return next;
+           }
+       };
+   }
 ```
 
 ## Some layouts
@@ -107,21 +172,11 @@ public final class ProductController extends BaseController<Product, Long> {
 
 ![App home page](./images/homepage.png)
 
-#### Tips:
-
-- *Sorting*: `sort=<field>&order=<asc|desc>&page=<page>&limit=<size>`
-- *Searching*: `q=<query>&k=<field>`
-
-Sample URLs:
-
-- `/product/?page=1&limit=5&sort=id&order=desc`
-- `/product/?q=macbook+pro&k=name`
-
 Default values can be changed in the `app.properties` file.
 
 ### Product
 
-#### `/product/{id}`
+#### `/product/list/{id}`
 
 ![App product list page](./images/product-list.png)
 
@@ -133,46 +188,47 @@ Default values can be changed in the `app.properties` file.
 ## Packages
 
 ```
-C:.
 ├───main
 │   ├───java
 │   │   └───com
 │   │       └───dev
 │   │           └───servlet
-│   │               ├───builders 
-│   │               ├───controllers    (REST controllers)
+│   │               ├───builders
+│   │               ├───controllers    (Controllers)
+│   │               │   └───router 
 │   │               ├───dao            (Data Access Object)
 │   │               ├───dto            (Data Transfer Object)
-│   │               ├───filter         (Servlet filters)
-│   │               │   └───wrappers   (Request wrappers)
+│   │               ├───filter         (Servlet Filter)
+│   │               │   └───wrappers   (Request and Response Wrappers)
 │   │               ├───interfaces     (Contracts)
-│   │               ├───listeners      (Servlet listeners)
-│   │               ├───mapper         (Object mapper)
-│   │               ├───model          (Service classes)
-│   │               │   └───shared
+│   │               ├───listeners 
+│   │               ├───mapper         (Object Mapper)
+│   │               ├───model          (Model)
+│   │               │   └───shared 
 │   │               ├───pojo           (Plain Old Java Object)
+│   │               │   ├───domain     (Domain Classes)
 │   │               │   ├───enums
-│   │               │   └───records    (Immutable classes)
-│   │               ├───providers      (Service providers)
-│   │               └───utils          (Utility classes)
+│   │               │   └───records    (Immutable Data Classes)
+│   │               ├───providers      (Services and Providers)
+│   │               └───utils          (Utility Classes)
 │   ├───resources
 │   │   └───META-INF
-│   │       └───sql                 (Database scripts)
+│   │       └───sql                    (SQL Scripts)
 │   └───webapp
 │       ├───assets
 │       │   └───images
-│       ├───css                    (CSS styles)
+│       ├───css
 │       ├───js
 │       ├───META-INF
 │       ├───web
 │       │   └───WEB-INF
 │       └───WEB-INF
-│           ├───fragments          (Reusable JSP fragments)
-│           ├───routes             (URL mappings)
-│           └───view               (JSP views)
-│               ├───components     (Reusable JSP components)
+│           ├───fragments              (JSP Fragments)
+│           ├───routes                 (JSP Routes)
+│           └───view
+│               ├───components         (Reusable Components)
 │               │   └───buttons
-│               └───pages          (JSP pages)
+│               └───pages              (JSP Pages)
 │                   ├───category
 │                   ├───inventory
 │                   ├───product
@@ -181,7 +237,6 @@ C:.
     └───java
         └───servlets
             └───auth
-
 ```
 
 ## Setup Instructions

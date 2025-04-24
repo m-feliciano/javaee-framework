@@ -1,5 +1,6 @@
 package com.dev.servlet.interfaces;
 
+import com.dev.servlet.pojo.enums.PerfilEnum;
 import com.dev.servlet.pojo.enums.RequestMethod;
 
 import java.lang.annotation.ElementType;
@@ -19,4 +20,6 @@ public @interface RequestMapping {
     Validator[] validators() default {};
 
     String apiVersion() default "v1";
+
+    PerfilEnum[] roles() default {};
 }

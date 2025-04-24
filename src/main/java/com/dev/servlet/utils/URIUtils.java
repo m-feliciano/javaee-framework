@@ -234,6 +234,6 @@ public final class URIUtils {
      * @author marcelo.feliciano
      */
     public static String getEndpoint(HttpServletRequest httpServletRequest) {
-        return httpServletRequest.getRequestURI().substring(1);
+        return httpServletRequest.getServletPath();
     }
 }

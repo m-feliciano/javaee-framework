@@ -29,8 +29,8 @@ public final class InventoryController extends BaseController<Inventory, Long> {
     CategoryController categoryController;
 
     @Inject
-    public InventoryController(InventoryModel model) {
-        super(model);
+    public InventoryController(InventoryModel inventoryModel) {
+        super(inventoryModel);
     }
 
     @Inject

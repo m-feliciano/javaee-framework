@@ -10,7 +10,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * This class implements the Leaky Bucket algorithm for rate limiting.
  */
-@Singleton
+@Singleton()
 public class LeakyBucket implements IRateLimiter {
 
     private static final int MAX_REQUESTS = 10; // 10 requests per second

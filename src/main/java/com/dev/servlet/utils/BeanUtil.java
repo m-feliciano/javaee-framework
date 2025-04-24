@@ -58,16 +58,16 @@ public final class BeanUtil {
         /**
          * Retrieves an instance of the specified service.
          *
-         * @param serviceName the key of the service
+         * @param service the key of the service
          * @return the service instance
          */
-        public Object getService(String serviceName) {
-            if (!services.containsKey(serviceName)) {
-                log.error("Service not found: {}", serviceName);
+        public Object getService(String service) {
+            if (!services.containsKey(service)) {
+                log.error("Service not found: {}", service);
                 return null;
             }
 
-            return resolve(services.get(serviceName));
+            return resolve(services.get(service));
         }
 
         /**
@@ -79,15 +79,9 @@ public final class BeanUtil {
                 List<Class<?>> clazzList = ClassUtil.scanPackage(BUSINESS_PACKAGE, new Class[]{Controller.class});
                 for (Class<?> clazz : clazzList) {
                     String path = clazz.getAnnotation(Controller.class).path();
-
-                    // Remove leading slash from path
-                    if (path.startsWith("/")) {
-                        path = path.substring(1);
-                    }
-
                     services.putIfAbsent(path, clazz);
 
-                    Object resolve = resolve(clazz);
+                    resolve(clazz);
                     log.info("Resolved service: {}", clazz.getName());
                 }
 

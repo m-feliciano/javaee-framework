@@ -102,8 +102,6 @@ public class ProductModel extends BaseModel<Product, Long> {
         product.setStatus(StatusEnum.ACTIVE.getValue());
 
         super.save(product);
-
-        // super.redirectTo(product.getId())
         return ProductMapper.full(product);
     }
 
@@ -146,15 +144,15 @@ public class ProductModel extends BaseModel<Product, Long> {
     public ProductDTO update(Request request) throws ServiceException {
         log.trace("");
 
-        Product filter = getEntity(request);
-        Optional<Product> optProduct = this.findById(filter);
-        var product = optProduct.orElseThrow(() -> new404NotFoundException(filter.getId()));
+        Product productRequest = getEntity(request);
+        Optional<Product> optProduct = this.findById(productRequest);
+        var product = optProduct.orElseThrow(() -> new404NotFoundException(productRequest.getId()));
 
-        product.setName(filter.getName());
-        product.setDescription(filter.getDescription());
-        product.setPrice(filter.getPrice());
-        product.setUrl(filter.getUrl());
-        product.setCategory(filter.getCategory());
+        product.setName(productRequest.getName());
+        product.setDescription(productRequest.getDescription());
+        product.setPrice(productRequest.getPrice());
+        product.setUrl(productRequest.getUrl());
+        product.setCategory(productRequest.getCategory());
 
         super.update(product);
         return ProductMapper.full(product);
@@ -169,13 +167,13 @@ public class ProductModel extends BaseModel<Product, Long> {
     public void delete(Request request) throws ServiceException {
         log.trace("");
 
-        Product filter = getEntity(request);
+        Product productRequest = getEntity(request);
 
-        Optional<Product> optProduct = this.findById(filter);
-        Product product = optProduct.orElseThrow(() -> new404NotFoundException(filter.getId()));
+        Optional<Product> optProduct = this.findById(productRequest);
+        Product product = optProduct.orElseThrow(() -> new404NotFoundException(productRequest.getId()));
 
         Inventory inventory = new Inventory();
-        inventory.setUser(filter.getUser());
+        inventory.setUser(productRequest.getUser());
         inventory.setProduct(product);
 
         if (businessShared.hasInventory(inventory)) {

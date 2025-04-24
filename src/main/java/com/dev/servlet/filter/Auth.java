@@ -5,6 +5,7 @@ import com.dev.servlet.interfaces.IServletDispatcher;
 import com.dev.servlet.utils.CryptoUtils;
 import com.dev.servlet.utils.PropertiesUtil;
 import com.dev.servlet.utils.URIUtils;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
@@ -24,16 +25,17 @@ import java.util.List;
  * @since 1.0
  */
 @Slf4j
+@NoArgsConstructor
 public class Auth implements Filter {
 
     private static final List<String> AUTHORIZED_PATH = PropertiesUtil.getProperty("auth.authorized", List.of("login,user"));
 
-    @Inject
-    @Named("ServletDispatch") // No need to specify the name if the class has only one implementation
     private IServletDispatcher dispatcher;
 
-    public Auth() {
-        // Empty constructor
+    @Inject
+    @Named("ServletDispatch") // No need to specify the name if the class has only one implementation
+    public void setDispatcher(IServletDispatcher dispatcher) {
+        this.dispatcher = dispatcher;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.dev.servlet.pojo.domain;
 
 import com.dev.servlet.interfaces.Identifier;
+import com.dev.servlet.pojo.enums.PerfilEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -80,5 +81,19 @@ public class User implements Identifier<Long> {
         }
 
         this.perfis.add(perfil);
+    }
+
+    public boolean hasRole(PerfilEnum role) {
+        if (this.perfis == null) {
+            return false;
+        }
+
+        for (Long perfil : this.perfis) {
+            if (PerfilEnum.toEnum(perfil).equals(role)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

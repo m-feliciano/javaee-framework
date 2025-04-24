@@ -31,20 +31,24 @@ import java.util.Set;
 @Controller(path = "/product")
 public final class ProductController extends BaseController<Product, Long> {
 
-    private CategoryModel categoryModel;
+    private CategoryController categoryController;
 
     @Inject
-    public ProductController(ProductModel model) {
-        super(model);
+    public ProductController(ProductModel productModel) {
+        super(productModel);
     }
 
     @Inject
-    public void setCategoryModel(CategoryModel categoryModel) {
-        this.categoryModel = categoryModel;
+    public void setCategoryController(CategoryController categoryController) {
+        this.categoryController = categoryController;
     }
 
     private ProductModel getModel() {
         return (ProductModel) super.getBaseModel();
+    }
+
+    private CategoryModel getCategoryModel() {
+        return (CategoryModel) categoryController.getBaseModel();
     }
 
     /**
@@ -81,7 +85,7 @@ public final class ProductController extends BaseController<Product, Long> {
      */
     @RequestMapping(value = "/new")
     public IHttpResponse<Collection<CategoryDTO>> forward(Request request) {
-        var categories = categoryModel.getAllFromCache(request.token());
+        var categories = getCategoryModel().getAllFromCache(request.token());
         // Found
         return super.newHttpResponse(302, categories, super.forwardTo("formCreateProduct"));
     }
@@ -102,7 +106,7 @@ public final class ProductController extends BaseController<Product, Long> {
             })
     public IServletResponse edit(Request request) throws ServiceException {
         ProductDTO product = this.getModel().getById(request);
-        Collection<CategoryDTO> categories = categoryModel.getAllFromCache(request.token());
+        Collection<CategoryDTO> categories = getCategoryModel().getAllFromCache(request.token());
 
         Set<KeyPair> data = Set.of(
                 KeyPair.of("product", product),
@@ -133,16 +137,14 @@ public final class ProductController extends BaseController<Product, Long> {
 
             BigDecimal totalPrice = model.calculateTotalPrice(productsIds);
 
-            response.add(new KeyPair("products", productDTOs));
-            response.add(new KeyPair("totalPrice", totalPrice));
+            response.add(KeyPair.of("products", productDTOs));
+            response.add(KeyPair.of("totalPrice", totalPrice));
         }
 
-        Collection<CategoryDTO> categories = categoryModel.getAllFromCache(request.token());
-        response.add(new KeyPair("categories", categories));
+        Collection<CategoryDTO> categories = getCategoryModel().getAllFromCache(request.token());
+        response.add(KeyPair.of("categories", categories));
 
         return super.newServletResponse(response, super.forwardTo("listProducts"));
-
-
     }
 
     /**

@@ -35,14 +35,19 @@ import java.util.Set;
  */
 @Slf4j
 @Singleton
-@Named("ServletDispatch")
 public class ServletDispatcher implements IServletDispatcher {
 
     public static final int WAIT_TIME = 600; // 600ms
 
-    @Inject
     private IRateLimiter rateLimiter;
+
     private boolean rateLimitEnabled;
+
+    @Inject
+    @Named("LeakyBucket")
+    public void setRateLimiter(IRateLimiter rateLimiter) {
+        this.rateLimiter = rateLimiter;
+    }
 
     public ServletDispatcher() {
         // Empty constructor
