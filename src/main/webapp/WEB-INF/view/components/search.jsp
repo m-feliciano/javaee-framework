@@ -4,7 +4,6 @@
     <div class="mb-3 form-row">
         <div class="form-row mr-4">
             <label for="inputCategory" hidden>Category</label>
-
             <select name="category" class="form-control text-center" id="inputCategory">
                 <option value="" selected>All</option>
                 <c:if test="${ not empty categories }">
@@ -35,6 +34,9 @@
                    placeholder="${param.placeholder}" value="${param.q}" aria-describedby="searchHelp"
                    pattern=".{3,}" title="3 character minimum"
                    style="width: 300px;" autocomplete="on" autofocus required/>
+
+            <label hidden for="limit">limit</label>
+            <input hidden name="limit" id="limit" value="${ param.limit }">
 
             <jsp:include page="/WEB-INF/view/components/buttons/customButton.jsp">
                 <jsp:param name="btnIcon" value="bi bi-search"/>

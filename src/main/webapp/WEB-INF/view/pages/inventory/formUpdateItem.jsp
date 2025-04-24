@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/routes/inventory-routes.jspf" %>
-<%@ page import="com.dev.servlet.interfaces.IHttpResponse" %>
+<%@ page import="com.dev.servlet.domain.transfer.response.IHttpResponse" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <%
@@ -7,16 +7,16 @@
 %>
 
 <div class="main">
-    <form action="${baseLink}/v1${ updateItem }/${inventory.id}" method="post">
+    <form action="${baseLink}${version}${ updateItem }/${inventory.id}" method="post">
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputItemId" class="form-label">ID</label>
-                <input type="number" name="id" class="form-control" id="inputItemId"
+                <input type="text" name="id" class="form-control" id="inputItemId"
                        placeholder="ID" value="${ inventory.id }" readonly="readonly" required minlength="1"/>
             </div>
             <div class="mb-3">
                 <label for="inputProductId" class="form-label">PRODUCT ID</label>
-                <input type="number" name="productId" class="form-control" id="inputProductId"
+                <input type="text" name="productId" class="form-control" id="inputProductId"
                        placeholder="ID" value="${ inventory.getProduct().getId() }" required minlength="1"/>
             </div>
             <div class="mb-3">

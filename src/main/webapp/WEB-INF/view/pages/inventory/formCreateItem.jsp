@@ -2,11 +2,11 @@
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <div class="main">
-    <form action="${baseLink}/v1${ createItem }" method="post">
+    <form action="${baseLink}${version}${ createItem }" method="post">
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputProductId" class="form-label">PRODUCT ID</label>
-                <input type="number" name="productId" class="form-control" id="inputProductId"
+                <input type="text" name="productId" class="form-control" id="inputProductId"
                        placeholder="ID" required minlength="1"/>
             </div>
             <div class="mb-3">

@@ -1,244 +1,138 @@
-# Full-Stack Java Web Application
+# Product Management System (Servlets)
 
-This project is a comprehensive Java/JSP web application.
-It follows the Model-View-Controller (MVC) architecture and uses the Java EE stack.
-I've used the latest Java features and best practices to build this application.
+>This project is a high-quality Java EE enterprise web application that implements Clean Architecture with a focus on separation of concerns, robust security, efficient caching, and testability. The application demonstrates Java development best practices for production systems.
 
-## Table of Contents
+[![Java](https://img.shields.io/badge/Java-17-007396)](#) [![Build](https://img.shields.io/badge/Build-Maven-blue)](#) [![Servlets](https://img.shields.io/badge/Servlets-4.0.1-orange)](#) [![Hibernate](https://img.shields.io/badge/Hibernate-6.x-59666C)](#) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-- [Technology Stack](#tech-stack)
-- [URL Design](#url-design)
-- [Layout](#Some-layouts)
-- [Packages](#packages)
-- [Setup Instructions](#setup-instructions)
-- [Notes](#notes)
+## Overview
+- Name: Product Management System
+- Version: 2.1 (api: v1)
+- Author: Marcelo Feliciano
+- Style: Clean-layered architecture (Adapter, Controller, Core, Domain, Infrastructure, Config)
+- Focus: Maintainability, security, performance (caching/rate‑limit), and testability
 
-## Tech Stack
+## Features
+- RESTful endpoints for Products, Categories, Users, Inventory, and Login
+- JWT authentication with security filters (XSS sanitization, password encryption)
+- Multi‑level caching (Ehcache) and service‑level cache decorator
+- Rate limiting (Leaky Bucket) with configurable switches
+- JPA/Hibernate ORM with PostgreSQL + pagination & sorting abstractions
+- DTO mapping and validation with custom annotations
+- External integration via OkHttp (web scraping client)
+- Extensive utilities for URI parsing, crypto, formatting, reflection, and more
 
-- **Java (JDK 17)**: Core programming language.
-- **Hibernate (ORM)**: Simplifies database interactions.
-- **Tomcat 9 (Server)**: Web server and servlet container.
-- **PostgreSQL (Database)**: Open-source relational database management system.
-- **Criteria API**: Type-safe way to build database queries.
+## 🛠️ Technology Stack
 
-## URL Design
+| Component   | Technology               | Version/Notes                                    |
+|-------------|--------------------------|--------------------------------------------------|
+| ☕ Language  | Java                     | 17                                               |
+| 🌐 Servlet  | Servlet API              | 4.0.1 (javax.*)                                  |
+| 🧩 CDI      | Weld / CDI API           | 2.4.8.Final / 1.2                                |
+| 🗄️ ORM     | Hibernate ORM            | 6.1.7.Final (+ hibernate-entitymanager 5.6.15)   |
+| 🐘 Database | PostgreSQL JDBC          | 42.4.4                                           |
+| 🔐 Security | Auth0 java-jwt           | 4.4.0                                            |
+| ⚡ Cache     | Ehcache                  | 2.6.11 and 3.9.11; hibernate-ehcache 5.6.15      |
+| 🧪 Testing  | JUnit Jupiter / Mockito  | JUnit dep: RELEASE (prop 5.10.2) / 5.14.2, 5.2.0 |
+| 📦 HTTP     | OkHttp                   | 4.12.0                                           |
+| 🔣 JSON     | Jackson (core/databind)  | 2.19.0                                           |
+| 🧱 Logging  | SLF4J / Logback          | 2.0.9 / 1.5.6                                    |
+| 🧾 JSP/JSTL | JSTL / Taglibs Standard  | 1.2 / 1.2.5                                      |
+| ♻️ Others   | Lombok / mchange-commons | 1.18.36 / 0.2.20                                 |
 
-The URL structure is designed to be RESTful and easy to understand.
+## Architecture
+- adapter/: Servlet dispatching, HTTP execution, execution‑time logging
+- controller/: REST controllers and base router/controller abstractions
+- core/: annotations, validators, mappers, cache decorators, utilities, listeners
+- domain/: entities, enums, repositories, services (interfaces and implementations), DTOs
+- infrastructure/: persistence (DAOs, pagination), security (filters/wrappers), external clients
+- config/: CDI producers (e.g., EntityManager)
 
-- `{context}/api/v{version}/{path}/{service}/?{query}`
-
-The URL structure is as follows:
-
-- `{context}`: The application context path e.g., `https://your-domain.com/`.
-- `{version}`: The API version, e.g., `v1`.
-- `{path}`: The controller path.
-- `{service}`: The service to be performed.
-- `{query}`: The query parameters if needed.
-
-Example GET:
-
-- `/api/{version}/product/list` - List all products
-- `/api/{version}/product/list/{id}` - Get product by ID
-
-Example POST:
-
-- `/api/{version}/product/update/{id}` - Update product
-
-Example of controller:
-
-```java
-
-@Controller(path = "/product")
-public final class ProductController extends BaseController<Product, Long> {
-
-    // POST ap1/v2/user/registerUser
-    @RequestMapping(
-            value = "/registerUser",
-            method = RequestMethod.POST,
-            apiVersion = "v2",
-            requestAuth = false,
-            validators = {
-                    @Validator(values = "login", constraints = {
-                            @Constraints(isEmail = true, message = "Login must be a valid email")
-                    }),
-                    @Validator(values = {"password", "confirmPassword"},
-                            constraints = {
-//                                    @Constraints(minLength = 5, maxLength = 30, message = "Password must be between {0} and {1} characters")
-                                    @Constraints(minLength = 5, message = "Password must have at least {0} characters"),
-                                    @Constraints(maxLength = 30, message = "Password must have at most {0} characters"),
-                            }),
-            })
-    public IHttpResponse<Void> register(Request request) throws ServiceException {
-       this.getModel().register(request);
-       // Created
-       return super.newHttpResponse(201, null, "redirect:/api/v1/login/form");
-    }
-    
-    // GET /category/list/{id}
-    @RequestMapping(
-            value = "/list/{id}",
-            validators = {
-                    @Validator(values = "id", constraints = {
-                            @Constraints(min = 1, message = "ID must be greater than or equal to {0}")
-                    })
-            })
-    public IHttpResponse<CategoryDTO> listById(Request request) throws ServiceException {
-       CategoryDTO category = this.getModel().listById(request);
-       // OK
-       return super.okHttpResponse(category, super.forwardTo("formListCategory"));
-    }
-
-    // Superclass method
-    protected <U> IHttpResponse<U> newHttpResponse(int status, U response, String nextPath) {
-        return HttpResponse.<U>newBuilder().statusCode(status).body(response).next(nextPath).build();
-    }
-
-    protected <U> IHttpResponse<U> okHttpResponse(U response, String nextPath) {
-        // Use newHttpResponse
-    }
-}
-```
-
-## Some layouts
-
-### Home Page
-
-#### `/product/?page=1&limit=3&sort=id&order=asc`
-
-![App home page](./images/homepage.png)
-
-#### Tips:
-
-- *Sorting*: `sort=<field>&order=<asc|desc>&page=<page>&limit=<size>`
-- *Searching*: `q=<query>&k=<field>`
-
-Sample URLs:
-
-- `/product/?page=1&limit=5&sort=id&order=desc`
-- `/product/?q=macbook+pro&k=name`
-
-Default values can be changed in the `app.properties` file.
-
-### Product
-
-#### `/product/{id}`
-
-![App product list page](./images/product-list.png)
-
-### Info Page
-
-[comment]: <> (Found on the web, author unknown)
-![Error](./images/cat_404.gif)
-
-## Packages
+## Request Flow
 
 ```
-C:.
-├───main
-│   ├───java
-│   │   └───com
-│   │       └───dev
-│   │           └───servlet
-│   │               ├───builders 
-│   │               ├───controllers    (REST controllers)
-│   │               ├───dao            (Data Access Object)
-│   │               ├───dto            (Data Transfer Object)
-│   │               ├───filter         (Servlet filters)
-│   │               │   └───wrappers   (Request wrappers)
-│   │               ├───interfaces     (Contracts)
-│   │               ├───listeners      (Servlet listeners)
-│   │               ├───mapper         (Object mapper)
-│   │               ├───model          (Service classes)
-│   │               │   └───shared
-│   │               ├───pojo           (Plain Old Java Object)
-│   │               │   ├───enums
-│   │               │   └───records    (Immutable classes)
-│   │               ├───providers      (Service providers)
-│   │               └───utils          (Utility classes)
-│   ├───resources
-│   │   └───META-INF
-│   │       └───sql                 (Database scripts)
-│   └───webapp
-│       ├───assets
-│       │   └───images
-│       ├───css                    (CSS styles)
-│       ├───js
-│       ├───META-INF
-│       ├───web
-│       │   └───WEB-INF
-│       └───WEB-INF
-│           ├───fragments          (Reusable JSP fragments)
-│           ├───routes             (URL mappings)
-│           └───view               (JSP views)
-│               ├───components     (Reusable JSP components)
-│               │   └───buttons
-│               └───pages          (JSP pages)
-│                   ├───category
-│                   ├───inventory
-│                   ├───product
-│                   └───user
-└───test
-    └───java
-        └───servlets
-            └───auth
+1. 🌐 Browser → AuthFilter (validates JWT)
+2. 🛡️ AuthFilter → XSSFilter (sanitizes input)
+3. 🔧 XSSFilter → ServletDispatcher (routes)
+4. 📋 Dispatcher → BaseController (validates)
+5. 🎯 BaseController → ProductController (executes)
+6. 🏭 Controller → ProductServiceProxy (processes)
+7. 🎭 Proxy → CachedDecorator (checks cache)
+8. 💾 Decorator → ProductDAO (if cache miss)
+9. 🗄️ DAO → PostgreSQL (queries)
+10. ↩️ Response travels reverse path
+```
+## 📖 Screenshots
+
+<div align="center">
+  <img src="images/homepage.png" alt="Application Homepage" width="80%">
+  <p><em>Homepage with product listing</em></p>
+
+  <img src="images/product-list.png" alt="Product Management" width="80%">
+  <p><em>Product management interface</em></p>
+</div>
+
+
+## Quickstart
+Prerequisites
+- Java 17+
+- Maven 3.6+
+- PostgreSQL running and reachable
+
+Build
+- mvn clean package
+
+Deploy
+- Deploy target/servlets-0.0.1-SNAPSHOT.war to your Servlet container (Tomcat, WildFly, etc.)
+
+Local defaults
+- Base URL: http://localhost:8080
+- API base: /api/v1
+- Default list: api/v1/product/list/?page=1&limit=4&sort=id&order=asc
+
+## Configuration
+Main file: src/main/resources/app-dev.properties
+- env: development or production
+- host, port, context: server base and API path
+- api.version: versioned routes (e.g., v1)
+- auth.authorized: whitelisted controllers for authentication
+- security.encrypt.key, security.encrypt.algorithm: password encryption
+- security.jwt.key: JWT signing key
+- rate.limit.enabled: toggle rate limiting
+- cache.timeout.minutes: cache TTL
+- pagination.*: default paging/sorting
+- homepage, loginpage: convenience routes
+- scrape.product.url: external product scraping endpoint
+
+Use app-prod.properties for production overrides.
+
+## Testing
+- Run tests: mvn test
+- Coverage spans adapters, controllers, services, security filters, rate limiter, and utilities.
+
+## Project Structure
 
 ```
+com.dev.servlet/
+├── domain/          # 🎯 Business rules (25 classes)
+│   ├── model/       # Entities: User, Product, Category, Inventory
+│   ├── service/     # Service interfaces and implementations
+│   └── repository/  # Repository interfaces
+├── controller/      # 🌐 Web layer (6 classes)
+│   └── base/        # Base controllers with routing
+├── infrastructure/  # 🔧 Infrastructure (30 classes)
+│   ├── persistence/ # DAOs and pagination
+│   ├── security/    # Security filters and wrappers
+│   └── external/    # External services (web scraping)
+├── adapter/         # 🔌 Adapters (6 classes)
+│   └── internal/    # HTTP executors and dispatchers
+├── core/           # ⚙️ Core utilities (38 classes)
+│   ├── cache/      # Decorated cache system
+│   ├── util/       # Various utilities
+│   ├── validator/  # Validation framework
+│   └── annotation/ # Custom annotations
+└── config/         # ⚙️ Configuration (1 class)
+```
 
-## Setup Instructions
+## 📄 License
 
-1. Clone the repository:
-    ```sh
-    git clone https://github.com/m-feliciano/servlets.git
-    ```
-2. Navigate to the project directory:
-    ```sh
-    cd servlets
-    ```
-3. Build the project using Maven:
-    ```sh
-    mvn clean install
-    ```
-4. Create a new database in PostgreSQL:
-    ```docker
-   ## create network
-    docker network create -d bridge <network-name>
-    
-    ## run container (example)
-    docker run --name <container-name> \
-    --network=<network-name> -p 5432:5432 \
-    -e "POSTGRES_USER=<user>" \
-    -e "POSTGRES_PASSWORD=<password>" \
-    -d postgres
-    
-    ## exec into container
-    docker exec -it <container-name> psql -U postgres
-    ## create table
-    
-    ## etc
-    # The scripts to create the database are in the `resources/META-INF/sql` folder.
-    # The database connection is set in the `resources/META-INF/persistence.xml` file.
-    ```
-
-5. Setting up the database:
-    - Run the scripts in the `resources/META-INF/sql` folder to create the tables and insert initial data.
-    - Update the `persistence.xml` file with your database credentials.
-    - Update the `app.properties` file as needed.
-      <br><br>
-6. Deploy the application to Tomcat:
-    - Install Tomcat 9 on your machine.
-    - Copy the generated WAR file to the Tomcat `webapps` directory.
-    - Start the Tomcat server.
-      <br><br>
-7. Usage Instructions
-    - Access the application at `<server>/<context-path>` (e.g., `http://localhost:8080/api/v1/login/form`).
-
-## Notes
-
-***Note***: This project was initially created years ago to learn Java EE, core Servlet/JSP, and JPA. It has been
-updated to incorporate the latest Java features and best practices.
-
-There is a lot of room for improvement,
-like refactoring the frontend joining the files into a single one using `JSP fragments`,
-and `JSTL` to render the content dynamically.
-
-[Back to top](#full-stack-java-web-application)
+MIT License - see [LICENSE](LICENSE) file for details.

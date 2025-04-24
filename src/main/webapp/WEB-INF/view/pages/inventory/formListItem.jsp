@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/routes/inventory-routes.jspf" %>
-<%@ page import="com.dev.servlet.interfaces.IHttpResponse" %>
+<%@ page import="com.dev.servlet.domain.transfer.response.IHttpResponse" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <%
@@ -10,12 +10,12 @@
     <div class="col-md-6">
         <div class="mb-3">
             <label for="inputItemId" class="form-label">ID</label>
-            <input type="number" name="id" class="form-control" id="inputItemId"
+            <input type="text" name="id" class="form-control" id="inputItemId"
                    placeholder="ID" value="${ inventory.id }" readonly="readonly" required minlength="1"/>
         </div>
         <div class="mb-3">
             <label for="inputProductId" class="form-label">PRODUCT ID</label>
-            <input type="number" name="productId" class="form-control" id="inputProductId"
+            <input type="text" name="productId" class="form-control" id="inputProductId"
                    placeholder="ID" value="${ inventory.getProduct().getId() }" readonly="readonly" required
                    minlength="1"/>
         </div>
@@ -37,13 +37,13 @@
                 <jsp:param name="btnType" value="button"/>
                 <jsp:param name="btnClass" value="btn btn-light"/>
                 <jsp:param name="btnIcon" value="bi bi-arrow-left"/>
-                <jsp:param name="btnOnclick" value="onclick='window.location.href=`${baseLink}/v1${ listInventory }`'"/>
+                <jsp:param name="btnOnclick" value="onclick='window.location.href=`${baseLink}${version}${ listInventory }`'"/>
                 <jsp:param name="btnId" value="id='backButton'"/>
             </jsp:include>
 
             <span class="mr-2"></span>
 
-            <a type="button" href="${baseLink}/v1${ editItem }/${ inventory.id }" class="btn btn-success">Edit
+            <a type="button" href="${baseLink}${version}${ editItem }/${ inventory.id }" class="btn btn-success">Edit
                 <i class="bi bi-pencil-square"></i>
             </a>
         </div>
