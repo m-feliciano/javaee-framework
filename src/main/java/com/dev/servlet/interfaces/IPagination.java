@@ -1,6 +1,6 @@
 package com.dev.servlet.interfaces;
 
-import com.dev.servlet.pojo.Pagination;
+import com.dev.servlet.pojo.Pageable;
 
 import java.util.Collection;
 
@@ -23,8 +23,8 @@ public interface IPagination<T, K> {
     /**
      * Get all results with pagination
      *
-     * @param ids a collection of {@linkplain K}
+     * @param pageable {@linkplain Pageable}
      * @return a collection of {@linkplain T}
      */
-    Collection<T> getAllPageable(Collection<K> ids, Pagination pagination);
+    Collection<T> getAllPageable(Pageable pageable);
 }

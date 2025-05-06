@@ -1,6 +1,6 @@
 package com.dev.servlet.utils;
 
-import com.dev.servlet.pojo.Pagination;
+import com.dev.servlet.pojo.Pageable;
 import com.dev.servlet.pojo.records.KeyPair;
 import com.dev.servlet.pojo.records.Query;
 import com.dev.servlet.pojo.records.Sort;
@@ -95,7 +95,7 @@ public final class URIUtils {
      */
     public static Query getQuery(HttpServletRequest request) {
         HashMap<String, String> queryParams = new HashMap<>();
-        Pagination pagination;
+        Pageable pageable;
 
         if (request.getQueryString() != null) {
             List<KeyPair> params = parseQueryParams(request.getQueryString());
@@ -124,17 +124,17 @@ public final class URIUtils {
                     ? URLDecoder.decode(queryParams.get("k"), StandardCharsets.UTF_8)
                     : null;
 
-            pagination = Pagination.builder()
+            pageable = Pageable.builder()
                     .currentPage(pageInitial)
                     .pageSize(pageSize)
                     .sort(Sort.of(sortField, direction))
                     .build();
 
-            return new Query(pagination, search, type);
+            return new Query(pageable, search, type);
         }
 
-        pagination = getDefaultPageValue();
-        return new Query(pagination, null, null);
+        pageable = getDefaultPageValue();
+        return new Query(pageable, null, null);
     }
 
     /**
@@ -160,13 +160,13 @@ public final class URIUtils {
      * If the value is not found in the cache, then it will be created and stored in the cache.
      * The default values are read from the properties file.
      *
-     * @return {@linkplain Pagination}
+     * @return {@linkplain Pageable}
      */
-    private static Pagination getDefaultPageValue() {
+    private static Pageable getDefaultPageValue() {
         List<Serializable> data = CacheUtil.get(URI_INTERNAL_CACHE_KEY, "default_pagination_internal");
         if (!CollectionUtils.isEmpty(data)) {
             Object object = data.get(0);
-            return (Pagination) object;
+            return (Pageable) object;
         }
 
         var pagination = buildPagination();
@@ -181,7 +181,7 @@ public final class URIUtils {
      *
      * @return
      */
-    private static Pagination buildPagination() {
+    private static Pageable buildPagination() {
         int page = PropertiesUtil.getProperty("pagination.page", DEFAULT_PAGE_INITIAL);
         int size = PropertiesUtil.getProperty("pagination.limit", DEFAULT_PAGE_LIMIT);
         String sortField = PropertiesUtil.getProperty("pagination.sort", DEFAULT_SORT_FIELD);
@@ -189,7 +189,7 @@ public final class URIUtils {
 
         Sort sort = Sort.of(sortField, Sort.Direction.from(order));
 
-        return Pagination.builder().currentPage(page).pageSize(size).sort(sort).build();
+        return Pageable.builder().currentPage(page).pageSize(size).sort(sort).build();
     }
 
     /**

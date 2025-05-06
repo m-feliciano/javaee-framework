@@ -12,7 +12,6 @@ import com.dev.servlet.interfaces.Validator;
 import com.dev.servlet.mapper.ProductMapper;
 import com.dev.servlet.model.CategoryModel;
 import com.dev.servlet.model.ProductModel;
-import com.dev.servlet.pojo.Pagination;
 import com.dev.servlet.pojo.domain.Product;
 import com.dev.servlet.pojo.enums.RequestMethod;
 import com.dev.servlet.pojo.records.HttpResponse;
@@ -126,18 +125,19 @@ public final class ProductController extends BaseController<Product, Long> {
     public IServletResponse list(Request request) {
         ProductModel model = this.getModel();
 
-        Collection<Long> productsIds = model.findAll(request);
-        Pagination pagination = request.query().getPagination();
-        pagination.setTotalRecords(productsIds.size());
+        request.query().getPageable().setRecords(model.findAll(request));
 
         Set<KeyPair> response = new HashSet<>();
-        if (!CollectionUtils.isEmpty(productsIds)) {
-            Collection<Product> products = model.getAllPageable(productsIds, pagination);
-            Collection<ProductDTO> productDTOs = products.stream().map(ProductMapper::base).toList();
+        if (!CollectionUtils.isEmpty(request.query().getPageable().getRecords())) {
 
-            BigDecimal totalPrice = model.calculateTotalPrice(productsIds);
+            Collection<ProductDTO> products = model.getAllPageable(request.query().getPageable())
+                    .stream()
+                    .map(ProductMapper::base)
+                    .toList();
 
-            response.add(KeyPair.of("products", productDTOs));
+            BigDecimal totalPrice = model.calculateTotalPrice(request.query().getPageable().getRecords());
+
+            response.add(KeyPair.of("products", products));
             response.add(KeyPair.of("totalPrice", totalPrice));
         }
 

@@ -1,6 +1,7 @@
 package com.dev.servlet.listeners;
 
 import com.dev.servlet.utils.BeanUtil;
+import com.dev.servlet.utils.PropertiesUtil;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -31,7 +32,8 @@ public class ContextListener implements ServletContextListener {
      */
     @Override
     public void contextInitialized(ServletContextEvent arg0) {
-        BeanUtil.DependencyResolver resolver = BeanUtil.getResolver();
-        resolver.resolveAll();
+        BeanUtil.getResolver().resolveAll();
+        arg0.getServletContext()
+                .setAttribute("systemVersion", PropertiesUtil.getProperty("system.version"));
     }
 }

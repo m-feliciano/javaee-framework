@@ -1,7 +1,7 @@
 package com.dev.servlet.dao;
 
+import com.dev.servlet.pojo.Pageable;
 import com.dev.servlet.pojo.records.Sort;
-import com.dev.servlet.pojo.Pagination;
 import com.dev.servlet.utils.ClassUtil;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -130,49 +130,30 @@ public abstract class BaseDAO<T, E> implements Serializable {
     /**
      * Get all results with pagination
      *
-     * @param identifiers {@linkplain Collection} of {@linkplain E} identifiers
-     * @param pagination  {@linkplain Pagination}
+     * @param pageable {@linkplain Pageable}
      * @return {@linkplain Collection} of {@linkplain T}
      */
-    public Collection<T> getAllPageable(Collection<E> identifiers, Pagination pagination) {
+    public Collection<T> getAllPageable(Pageable pageable) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<T> cq = cb.createQuery(specialization);
         Root<T> root = cq.from(specialization);
 
         String identifier = sanitize(getIdentifier());
-        cq.select(root).where(root.get(identifier).in(identifiers));
+        cq.select(root).where(root.get(identifier).in(pageable.getRecords()));
 
-        if (pagination.getSort() != null) {
-            Sort.Direction direction = ObjectUtils.defaultIfNull(pagination.getSort().direction(), Sort.Direction.ASC);
+        if (pageable.getSort() != null) {
+            Sort.Direction direction = ObjectUtils.defaultIfNull(pageable.getSort().direction(), Sort.Direction.ASC);
 
-            Path<Object> path = root.get(pagination.getSort().field());
+            Path<Object> path = root.get(pageable.getSort().field());
             cq.orderBy(Sort.Direction.DESC.equals(direction) ? cb.desc(path) : cb.asc(path));
         } else {
             cq.orderBy(cb.asc(root.get(identifier)));
         }
 
         TypedQuery<T> typedQuery = em.createQuery(cq)
-                .setFirstResult(pagination.getFirstResult())
-                .setMaxResults(pagination.getPageSize());
+                .setFirstResult(pageable.getFirstResult())
+                .setMaxResults(pageable.getPageSize());
 
-        return typedQuery.getResultList();
-    }
-
-    /**
-     * Get all results by ids
-     *
-     * @param ids {@linkplain Collection} of {@linkplain E} ids
-     * @return {@linkplain Collection} of {@linkplain T} products
-     */
-    public Collection<T> getAllByIds(Collection<E> ids) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<T> cq = cb.createQuery(specialization);
-        Root<T> root = cq.from(specialization);
-
-        String identifier = sanitize(getIdentifier());
-        cq.select(root).where(root.get(identifier).in(ids));
-
-        TypedQuery<T> typedQuery = em.createQuery(cq);
         return typedQuery.getResultList();
     }
 

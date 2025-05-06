@@ -34,13 +34,12 @@ public class LocalExecutor<J> implements IHttpExecutor<J> {
      * @return {@linkplain IHttpResponse}
      */
     @Override
-    @SuppressWarnings("unchecked")
     public IHttpResponse<J> send(Request request) {
         try {
             var parser = new EndpointParser(request);
 
             BaseRouterController routerController = resolveController(parser);
-            return (IHttpResponse<J>) routerController.route(parser, request);
+            return routerController.route(parser, request);
         } catch (Exception e) {
             return handleException(e);
         }

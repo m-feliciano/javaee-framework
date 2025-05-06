@@ -60,18 +60,19 @@ public final class ProductController extends BaseController<Product, Long> {
     public IServletResponse list(Request request) {
         ProductModel model = this.getModel();
 
-        Collection<Long> productsIds = model.findAll(request);
-        Pagination pagination = request.query().getPagination();
-        pagination.setTotalRecords(productsIds.size());
-
+        request.query().getPageable().setRecords(model.findAll(request));
+   
         Set<KeyPair> response = new HashSet<>();
-        if (!CollectionUtils.isEmpty(productsIds)) {
-            Collection<Product> products = model.getAllPageable(productsIds, pagination);
-            Collection<ProductDTO> productDTOs = products.stream().map(ProductMapper::base).toList();
-
-            BigDecimal totalPrice = model.calculateTotalPrice(productsIds);
-
-            response.add(KeyPair.of("products", productDTOs));
+        if (!CollectionUtils.isEmpty(request.query().getPageable().getRecords())) {
+   
+            Collection<ProductDTO> products = model.getAllPageable(request.query().getPageable())
+                        .stream()
+                        .map(ProductMapper::base)
+                        .toList();
+      
+            BigDecimal totalPrice = model.calculateTotalPrice(request.query().getPageable().getRecords());
+   
+            response.add(KeyPair.of("products", products));
             response.add(KeyPair.of("totalPrice", totalPrice));
         }
 

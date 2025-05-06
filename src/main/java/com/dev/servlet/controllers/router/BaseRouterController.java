@@ -37,7 +37,7 @@ public abstract class BaseRouterController {
      * @return
      * @throws Exception
      */
-    public IHttpResponse<?> route(EndpointParser endpoint, Request request) throws Exception {
+    public <U> IHttpResponse<U> route(EndpointParser endpoint, Request request) throws Exception {
         Method method = getEndpointMethod(endpoint);
 
         RequestMapping mapping = method.getAnnotation(RequestMapping.class);

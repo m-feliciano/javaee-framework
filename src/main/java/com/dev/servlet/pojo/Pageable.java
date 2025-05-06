@@ -8,21 +8,22 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 @Getter
 @Setter(AccessLevel.NONE)
 @Builder
 @AllArgsConstructor
-public class Pagination implements Serializable {
+public class Pageable implements Serializable {
     private final Integer currentPage;
     private final Integer pageSize;
     private final Sort sort;
 
     @Setter(AccessLevel.PUBLIC)
-    private Integer totalRecords;
+    private Collection<? extends Serializable> records;
 
     public int getTotalPages() {
-        double totalPerPage = Math.ceil(totalRecords * 1.0 / pageSize);
+        double totalPerPage = Math.ceil(records.size() * 1.0 / pageSize);
         return Math.max((int) totalPerPage, 1);
     }
 
@@ -30,4 +31,8 @@ public class Pagination implements Serializable {
         return (currentPage - 1) * pageSize;
     }
 
+    @SuppressWarnings("unchecked")
+    public <T extends Serializable> Collection<T> getRecords() {
+        return (Collection<T>) records;
+    }
 }

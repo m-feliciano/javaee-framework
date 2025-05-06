@@ -4,7 +4,7 @@ import com.dev.servlet.dao.BaseDAO;
 import com.dev.servlet.dto.ServiceException;
 import com.dev.servlet.interfaces.CrudRepository;
 import com.dev.servlet.interfaces.Identifier;
-import com.dev.servlet.pojo.Pagination;
+import com.dev.servlet.pojo.Pageable;
 import com.dev.servlet.pojo.domain.User;
 import com.dev.servlet.pojo.records.KeyPair;
 import com.dev.servlet.pojo.records.Request;
@@ -78,8 +78,8 @@ public abstract class BaseModel<T extends Identifier<K>, K> implements CrudRepos
     }
 
     @Override
-    public Collection<T> getAllPageable(Collection<K> ids, Pagination pagination) {
-        return baseDAO.getAllPageable(ids, pagination);
+    public Collection<T> getAllPageable(Pageable pageable) {
+        return baseDAO.getAllPageable(pageable);
     }
 
     /**

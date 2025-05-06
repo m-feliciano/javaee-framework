@@ -93,18 +93,18 @@
                             </tr>
                         </c:forEach>
                         </tbody>
-                        <caption class="pb-0 caption">${query.getPagination().getTotalRecords()} records |
+                        <caption class="pb-0 caption">${query.getPageable().getRecords().size()} records |
                             <fmt:formatNumber value="${totalPrice}" type="currency" minFractionDigits="2"/></caption>
                     </table>
                 </div>
             </div>
 
             <jsp:include page="/WEB-INF/view/components/pagination.jsp">
-                <jsp:param name="totalRecords" value="${query.getPagination().getTotalRecords()}"/>
-                <jsp:param name="currentPage" value="${query.getPagination().getCurrentPage()}"/>
-                <jsp:param name="totalPages" value="${query.getPagination().getTotalPages()}"/>
-                <jsp:param name="pageSize" value="${query.getPagination().getPageSize()}"/>
-                <jsp:param name="href" value="${listProduct}"/>
+                <jsp:param name="totalRecords" value="${query.getPageable().getRecords().size()}"/>
+                <jsp:param name="currentPage" value="${query.getPageable().getCurrentPage()}"/>
+                <jsp:param name="totalPages" value="${query.getPageable().getTotalPages()}"/>
+                <jsp:param name="pageSize" value="${query.getPageable().getPageSize()}"/>
+                <jsp:param name="href" value="${baseLink}/v1${listProduct}"/>
             </jsp:include>
         </div>
     </c:if>

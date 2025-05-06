@@ -318,3 +318,7 @@ caption {
 .mt20 {
     margin-top: 20px;
 }
+
+.float-right {
+    float: right !important;
+}
