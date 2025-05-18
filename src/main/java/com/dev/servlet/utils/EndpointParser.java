@@ -1,53 +1,47 @@
 package com.dev.servlet.utils;
 
-import com.dev.servlet.pojo.records.Request;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.Arrays;
 
+@Getter
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class EndpointParser {
 
     private static final int API_VERSION_INDEX = 2;
     private static final int SERVICE_NAME_START_INDEX = 4;
 
-    private final Request request;
-    private String[] parts;
+    private String service;
+    private String apiVersion;
+    private String serviceName;
 
-    public EndpointParser(Request request) {
-        if (request == null || request.endpoint() == null || request.endpoint().isEmpty()) {
+    private EndpointParser(String endpoint) {
+        if (endpoint == null || endpoint.isEmpty()) {
             throw new IllegalArgumentException("Request or endpoint cannot be null or empty");
         }
 
-        this.request = request;
-        parseEndpoint();
-    }
-
-    private void parseEndpoint() {
-        if (parts == null) {
-            String[] split = request.endpoint().split("/");
-            if (split.length < SERVICE_NAME_START_INDEX) {
-                throw new IllegalArgumentException("Invalid endpoint format: " + request.endpoint());
-            }
-
-            parts = new String[2];
-            parts[0] = String.join("/", Arrays.copyOfRange(split, 0, SERVICE_NAME_START_INDEX));
-            parts[1] = String.join("/", Arrays.copyOfRange(split, SERVICE_NAME_START_INDEX, split.length));
+        String[] parts = endpoint.split("/");
+        if (parts.length < SERVICE_NAME_START_INDEX) {
+            throw new IllegalArgumentException("Invalid endpoint format: " + endpoint);
         }
+
+        init(parts);
     }
 
-    public String getServiceName() {
-        return parts[1];
+    public static EndpointParser of(String path) {
+        return new EndpointParser(path);
     }
 
-    public String getService() {
-        String[] array = parts[0].split("/");
-        return "/" + array[array.length - 1];
-    }
+    private void init(String[] parts) {
+        // apiVersion is at index 2
+        this.apiVersion = parts[API_VERSION_INDEX];
 
-    public String getApiVersion() {
-        String[] array = parts[0].split("/");
-        if (array.length <= API_VERSION_INDEX) {
-            throw new IllegalArgumentException("API version not found in endpoint: " + request.endpoint());
-        }
-        return array[API_VERSION_INDEX];
+        // service is at index 3 (with leading slash)
+        this.service = "/" + parts[3];
+
+        // serviceName is everything after SERVICE_NAME_START_INDEX joined by "/"
+        this.serviceName = String.join("/",
+                Arrays.copyOfRange(parts, SERVICE_NAME_START_INDEX, parts.length));
     }
 }

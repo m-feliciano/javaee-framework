@@ -7,7 +7,7 @@
 %>
 
 <div class="main">
-    <form action="${baseLink}/v1${ createProduct }" method="post">
+    <form action="${baseLink}${version}${ createProduct }" method="post">
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputName" class="form-label">NAME</label>

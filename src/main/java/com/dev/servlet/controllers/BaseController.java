@@ -34,7 +34,8 @@ public abstract class BaseController<T extends Identifier<K>, K> extends BaseRou
     private static final String REDIRECT_TO = "redirect:/api/v1/{webService}/{context}";
     protected static final String LIST = "list";
 
-    private BaseModel<T, K> baseModel;
+    @Getter
+    protected BaseModel<T, K> baseModel;
 
     @Setter(AccessLevel.PROTECTED)
     private String webService;

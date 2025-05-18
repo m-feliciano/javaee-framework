@@ -88,7 +88,8 @@ public final class LoginController extends BaseController<User, Long> {
                     })
             })
     public IHttpResponse<UserDTO> login(Request request) throws ServiceException {
-        UserDTO user = getModel().login(request);
+        LoginModel model = getModel();
+        UserDTO user = model.login(request);
         // OK
         return super.okHttpResponse(user, "redirect:/" + homepage);
     }
@@ -101,7 +102,8 @@ public final class LoginController extends BaseController<User, Long> {
      */
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
     public IHttpResponse<String> logout(Request request) {
-        getModel().logout(request);
+        LoginModel model = getModel();
+        model.logout(request);
 
         return HttpResponse.ofNext(FORWARD_PAGES_FORM_LOGIN_JSP);
     }

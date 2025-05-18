@@ -53,7 +53,8 @@ public final class UserController extends BaseController<User, Long> {
                     })
             })
     public IHttpResponse<Void> update(Request request) throws ServiceException {
-        UserDTO user = this.getModel().update(request);
+        UserModel model = this.getModel();
+        UserDTO user = model.update(request);
         // OK
         return super.newHttpResponse(204, null, super.redirectTo(user.getId()));
     }
@@ -76,7 +77,8 @@ public final class UserController extends BaseController<User, Long> {
                     })
             })
     public IHttpResponse<Void> delete(Request request) throws ServiceException {
-        this.getModel().delete(request);
+        UserModel model = this.getModel();
+        model.delete(request);
 
         return HttpResponse.ofNext(super.forwardTo("formLogin"));
     }
@@ -102,7 +104,8 @@ public final class UserController extends BaseController<User, Long> {
                             }),
             })
     public IHttpResponse<Void> register(Request request) throws ServiceException {
-        this.getModel().register(request);
+        UserModel model = this.getModel();
+        model.register(request);
         // Created
         return super.newHttpResponse(201, null, "redirect:/api/v1/login/form");
     }
@@ -121,7 +124,8 @@ public final class UserController extends BaseController<User, Long> {
                     })
             })
     public IHttpResponse<UserDTO> listById(Request request) throws ServiceException {
-        UserDTO user = this.getModel().findById(request);
+        UserModel model = this.getModel();
+        UserDTO user = model.findById(request);
         // OK
         return super.okHttpResponse(user, super.forwardTo("formListUser"));
     }

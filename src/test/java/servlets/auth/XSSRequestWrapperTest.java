@@ -1,16 +1,17 @@
 package servlets.auth;
 
 import com.dev.servlet.filter.wrappers.XSSRequestWrapper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,8 +28,8 @@ public class XSSRequestWrapperTest {
     private HttpServletRequest request;
     private XSSRequestWrapper wrapper;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         request = mock(HttpServletRequest.class);
         Map<String, String[]> parameterMap = new HashMap<>();
         parameterMap.put("input", new String[]{SCRIPT_ALERT_XSS_SCRIPT});
@@ -40,39 +41,45 @@ public class XSSRequestWrapperTest {
     }
 
     @Test
-    public void testGetParameter() {
+    @DisplayName("Sanitize single parameter containing script tag")
+    void testGetParameter() {
         assertEquals("&lt;script&gt;alert('xss')&lt;/script&gt;", wrapper.getParameter("input"));
     }
 
     @Test
-    public void testGetParameterValues() {
+    @DisplayName("Sanitize multiple parameter values with XSS content")
+    void testGetParameterValues() {
         String[] values = wrapper.getParameterValues("input");
         assertEquals(2, values.length);
         assertEquals("&lt;img src=x onerror=alert('xss')&gt;", values[0]);
     }
 
     @Test
-    public void testGetParameterHacker() {
+    @DisplayName("Sanitize hacker email script in parameter values")
+    void testGetParameterHacker() {
         String[] values = wrapper.getParameterValues("input");
         assertEquals(2, values.length);
         assertFalse(values[1].contains("<script>"));
     }
 
     @Test
-    public void testGetParameterMap() {
+    @DisplayName("Sanitize parameter map with XSS content")
+    void testGetParameterMap() {
         Map<String, String[]> parameterMap = wrapper.getParameterMap();
         assertEquals(1, parameterMap.size());
         assertEquals("&lt;script&gt;alert('xss')&lt;/script&gt;", parameterMap.get("input")[0]);
     }
 
     @Test
-    public void testGetParameterWithNoXSS() {
+    @DisplayName("Return safe input unchanged")
+    void testGetParameterWithNoXSS() {
         when(request.getParameter("input")).thenReturn("safeInput");
         assertEquals("safeInput", wrapper.getParameter("input"));
     }
 
     @Test
-    public void testGetParameterValuesWithNoXSS() {
+    @DisplayName("Return safe parameter values unchanged")
+    void testGetParameterValuesWithNoXSS() {
         when(request.getParameterValues("input")).thenReturn(new String[]{"safeInput"});
         String[] values = wrapper.getParameterValues("input");
         assertEquals(1, values.length);
@@ -80,7 +87,8 @@ public class XSSRequestWrapperTest {
     }
 
     @Test
-    public void testGetParameterMapWithNoXSS() {
+    @DisplayName("Return safe parameter map unchanged")
+    void testGetParameterMapWithNoXSS() {
         Map<String, String[]> safeParameterMap = new HashMap<>();
         safeParameterMap.put("input", new String[]{"safe@Input.com"});
         when(request.getParameterMap()).thenReturn(safeParameterMap);
@@ -91,7 +99,8 @@ public class XSSRequestWrapperTest {
     }
 
     @Test
-    public void testMultipleParameters() {
+    @DisplayName("Sanitize multiple parameters in map")
+    void testMultipleParameters() {
         Map<String, String[]> parameterMap = new HashMap<>();
         parameterMap.put("param1", new String[]{SCRIPT_ALERT_XSS_SCRIPT});
         parameterMap.put("param2", new String[]{COMPLEX_XSS_SCRIPT});
@@ -109,7 +118,8 @@ public class XSSRequestWrapperTest {
     }
 
     @Test
-    public void testNestedXSS() {
+    @DisplayName("Sanitize nested XSS in parameter value")
+    void testNestedXSS() {
         String nestedXSS = "<img src=\"x\" onerror=\"alert('<script>alert(1)</script>')\">";
         when(request.getParameter("input")).thenReturn(nestedXSS);
         wrapper = new XSSRequestWrapper(request);
@@ -119,7 +129,8 @@ public class XSSRequestWrapperTest {
     }
 
     @Test
-    public void testEmptyAndNullValues() {
+    @DisplayName("Handle empty and null parameter values gracefully")
+    void testEmptyAndNullValues() {
         when(request.getParameter("input")).thenReturn(null);
         wrapper = new XSSRequestWrapper(request);
 
@@ -130,5 +141,4 @@ public class XSSRequestWrapperTest {
         sanitizedValue = wrapper.getParameter("input");
         assertEquals("", sanitizedValue);
     }
-
 }

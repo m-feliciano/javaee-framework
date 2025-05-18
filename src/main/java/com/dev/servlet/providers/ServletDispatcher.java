@@ -13,6 +13,8 @@ import com.dev.servlet.pojo.records.Query;
 import com.dev.servlet.pojo.records.Request;
 import com.dev.servlet.utils.PropertiesUtil;
 import com.dev.servlet.utils.URIUtils;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.PostConstruct;
@@ -41,6 +43,7 @@ public class ServletDispatcher implements IServletDispatcher {
 
     private IRateLimiter rateLimiter;
 
+    @Setter
     private boolean rateLimitEnabled;
 
     @Inject
@@ -137,7 +140,7 @@ public class ServletDispatcher implements IServletDispatcher {
      * @param request      {@linkplain Request} Internal request
      * @return {@linkplain IHttpResponse} Internal response
      */
-    private <U> IHttpResponse<U> sendWithRetry(IHttpExecutor<U> httpExecutor, Request request) {
+    public  <U> IHttpResponse<U> sendWithRetry(IHttpExecutor<U> httpExecutor, Request request) {
         int attempt = -1;
         IHttpResponse<U> response;
 
@@ -146,7 +149,7 @@ public class ServletDispatcher implements IServletDispatcher {
 
             response = httpExecutor.send(request);
 
-            if (response.errors() == null) {
+            if (response.errors() == null || response.errors().isEmpty()) {
                 break;
             } else {
                 logErrors(response.errors());
@@ -250,7 +253,7 @@ public class ServletDispatcher implements IServletDispatcher {
 
         this.handleResponseErrors(httpRequest, httpResponse, response);
 
-        if (request.endpoint().contains("logout")) {
+        if (request.endpoint() != null && request.endpoint().contains("logout")) {
             httpRequest.getSession().invalidate();
         }
     }

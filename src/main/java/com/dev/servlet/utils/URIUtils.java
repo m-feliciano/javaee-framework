@@ -76,7 +76,6 @@ public final class URIUtils {
      * The resource id can be passed as a parameter or as part of the URI.
      *
      * @param httpServletRequest {@linkplain HttpServletRequest}
-     * @return
      */
     public static String getResourceId(HttpServletRequest httpServletRequest) {
         String parameter = httpServletRequest.getParameter("id");
@@ -97,38 +96,29 @@ public final class URIUtils {
         HashMap<String, String> queryParams = new HashMap<>();
         Pageable pageable;
 
-        if (request.getQueryString() != null) {
+        if (request.getQueryString() != null && !request.getQueryString().isEmpty()) {
             List<KeyPair> params = parseQueryParams(request.getQueryString());
             for (var param : params) {
                 queryParams.put(param.getKey(), ((String) param.value()).trim());
             }
 
-            int pageInitial = Math.max(
-                    Math.abs(Integer.parseInt(queryParams.getOrDefault("page", String.valueOf(DEFAULT_PAGE_INITIAL)))),
-                    DEFAULT_PAGE_INITIAL
-            );
+            int page = Math.abs(Integer.parseInt(queryParams.getOrDefault("page", String.valueOf(DEFAULT_PAGE_INITIAL))));
+            int pageInitial = Math.max(page, DEFAULT_PAGE_INITIAL);
 
-            int pageSize = Math.max(
-                    Math.abs(Integer.parseInt(queryParams.getOrDefault("limit", String.valueOf(DEFAULT_PAGE_LIMIT)))),
-                    DEFAULT_PAGE_LIMIT
-            );
+            int limit = Math.abs(Integer.parseInt(queryParams.getOrDefault("limit", String.valueOf(DEFAULT_PAGE_LIMIT))));
+            int pageSize = Math.max(limit, DEFAULT_PAGE_LIMIT);
 
             String sortField = queryParams.getOrDefault("sort", DEFAULT_SORT_FIELD);
             Sort.Direction direction = Sort.Direction.from(queryParams.getOrDefault("order", DEFAULT_SORT_ORDER));
-
-            String search = queryParams.get("q") != null
-                    ? URLDecoder.decode(queryParams.get("q"), StandardCharsets.UTF_8)
-                    : null;
-
-            String type = queryParams.get("k") != null
-                    ? URLDecoder.decode(queryParams.get("k"), StandardCharsets.UTF_8)
-                    : null;
 
             pageable = Pageable.builder()
                     .currentPage(pageInitial)
                     .pageSize(pageSize)
                     .sort(Sort.of(sortField, direction))
                     .build();
+
+            String search = getParam(queryParams, "q");
+            String type = getParam(queryParams, "k");
 
             return new Query(pageable, search, type);
         }
@@ -162,7 +152,7 @@ public final class URIUtils {
      *
      * @return {@linkplain Pageable}
      */
-    private static Pageable getDefaultPageValue() {
+    public static Pageable getDefaultPageValue() {
         List<Serializable> data = CacheUtil.get(URI_INTERNAL_CACHE_KEY, "default_pagination_internal");
         if (!CollectionUtils.isEmpty(data)) {
             Object object = data.get(0);
@@ -178,8 +168,6 @@ public final class URIUtils {
 
     /**
      * Build the pagination object.
-     *
-     * @return
      */
     private static Pageable buildPagination() {
         int page = PropertiesUtil.getProperty("pagination.page", DEFAULT_PAGE_INITIAL);
@@ -199,7 +187,8 @@ public final class URIUtils {
      * @return {@linkplain List} of {@linkplain KeyPair}
      */
     public static List<KeyPair> getParameters(HttpServletRequest httpServletRequest) {
-        return httpServletRequest.getParameterMap().entrySet().stream()
+        return httpServletRequest.getParameterMap()
+                .entrySet().stream()
                 .map(e -> new KeyPair(e.getKey(), e.getValue()[0]))
                 .toList();
     }
@@ -208,7 +197,6 @@ public final class URIUtils {
      * Get the error message based on the status code.
      *
      * @param status
-     * @return
      * @see HttpServletResponse for the status codes
      */
     public static String getErrorMessage(int status) {
@@ -230,10 +218,14 @@ public final class URIUtils {
      * Get the endpoint from the request.
      *
      * @param httpServletRequest {@linkplain HttpServletRequest}
-     * @return
      * @author marcelo.feliciano
      */
     public static String getEndpoint(HttpServletRequest httpServletRequest) {
         return httpServletRequest.getServletPath();
+    }
+
+    private static String getParam(HashMap<String, String> queryParams, String q) {
+        String paramValue = queryParams.get(q);
+        return paramValue != null ? URLDecoder.decode(paramValue, StandardCharsets.UTF_8) : null;
     }
 }

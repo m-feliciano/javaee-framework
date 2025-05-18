@@ -36,7 +36,7 @@ public class LocalExecutor<J> implements IHttpExecutor<J> {
     @Override
     public IHttpResponse<J> send(Request request) {
         try {
-            var parser = new EndpointParser(request);
+            var parser = EndpointParser.of(request.endpoint());
 
             BaseRouterController routerController = resolveController(parser);
             return routerController.route(parser, request);

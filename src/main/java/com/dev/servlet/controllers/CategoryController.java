@@ -58,7 +58,8 @@ public final class CategoryController extends BaseController<Category, Long> {
                     })
             })
     public IHttpResponse<Void> delete(Request request) throws ServiceException {
-        this.getModel().delete(request);
+        CategoryModel model = this.getModel();
+        model.delete(request);
 
         return HttpResponse.ofNext(super.redirectTo(LIST));
     }
@@ -78,7 +79,8 @@ public final class CategoryController extends BaseController<Category, Long> {
                     })
             })
     public IHttpResponse<CategoryDTO> edit(Request request) throws ServiceException {
-        CategoryDTO category = this.getModel().listById(request);
+        CategoryModel model = this.getModel();
+        CategoryDTO category = model.listById(request);
         // OK
         return super.okHttpResponse(category, super.forwardTo("formUpdateCategory"));
     }
@@ -99,7 +101,8 @@ public final class CategoryController extends BaseController<Category, Long> {
                     })
             })
     public IHttpResponse<Void> register(Request request) throws ServiceException {
-        CategoryDTO category = this.getModel().register(request);
+        CategoryModel model = this.getModel();
+        CategoryDTO category = model.register(request);
         // Created
         return super.newHttpResponse(201, null, super.redirectTo(category.getId()));
     }
@@ -125,7 +128,8 @@ public final class CategoryController extends BaseController<Category, Long> {
                     })
             })
     public IHttpResponse<Void> update(Request request) throws ServiceException {
-        CategoryDTO category = this.getModel().update(request);
+        CategoryModel model = this.getModel();
+        CategoryDTO category = model.update(request);
         // No Content
         return super.newHttpResponse(204, null, super.redirectTo(category.getId()));
     }
@@ -138,7 +142,8 @@ public final class CategoryController extends BaseController<Category, Long> {
      */
     @RequestMapping(value = "/list")
     public IHttpResponse<Collection<CategoryDTO>> list(Request request) {
-        Collection<CategoryDTO> categories = this.getModel().list(request);
+        CategoryModel model = this.getModel();
+        Collection<CategoryDTO> categories = model.list(request);
         // OK
         return super.okHttpResponse(categories, super.forwardTo("listCategories"));
     }
@@ -157,7 +162,8 @@ public final class CategoryController extends BaseController<Category, Long> {
                     })
             })
     public IHttpResponse<CategoryDTO> listById(Request request) throws ServiceException {
-        CategoryDTO category = this.getModel().listById(request);
+        CategoryModel model = this.getModel();
+        CategoryDTO category = model.listById(request);
         // OK
         return super.okHttpResponse(category, super.forwardTo("formListCategory"));
     }

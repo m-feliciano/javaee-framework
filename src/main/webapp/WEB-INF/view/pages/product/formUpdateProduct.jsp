@@ -14,7 +14,7 @@
 <fmt:formatDate value="${parsedDate}" type="date" pattern="dd/MM/yyyy" var="stdDate"/>
 
 <div class="main">
-    <form action="${baseLink}/v1${ updateProduct }/${product.id}" method="post">
+    <form action="${baseLink}${version}${ updateProduct }/${product.id}" method="post">
         <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">

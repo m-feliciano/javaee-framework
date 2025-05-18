@@ -22,12 +22,12 @@ public class RequestValidator {
     public static void validate(EndpointParser endpoint, RequestMapping mapping, Request request) throws ServiceException {
         validateMethod(request.method(), mapping);
         validateAuth(request.token(), mapping);
-        validadeRoles(mapping.roles(), request);
+        validateRoles(mapping.roles(), request);
         validateApiVersion(endpoint.getApiVersion(), mapping);
         validateConstraints(mapping.validators(), request);
     }
 
-    private static void validadeRoles(PerfilEnum[] roles, Request request) throws ServiceException {
+    private static void validateRoles(PerfilEnum[] roles, Request request) throws ServiceException {
         if (CollectionUtils.isEmpty(roles)) {
             return;
         }

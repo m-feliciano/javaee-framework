@@ -4,9 +4,11 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.FileInputStream;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
@@ -20,7 +22,11 @@ public final class PropertiesUtil {
      */
     public static String getProperty(String key) {
         try {
-            String rootPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            URL resourceUrl = loader.getResource("");
+            Objects.requireNonNull(resourceUrl, "Resource URL is null");
+
+            String rootPath = resourceUrl.getPath();
             String appConfigPath = rootPath + "app.properties";
 //            String catalogConfigPath = rootPath + "catalog";
 

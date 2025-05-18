@@ -74,7 +74,8 @@ public final class InventoryController extends BaseController<Inventory, Long> {
                     })
             })
     public IHttpResponse<Void> create(Request request) throws ServiceException {
-        InventoryDTO inventory = this.getModel().create(request);
+        InventoryModel model = this.getModel();
+        InventoryDTO inventory = model.create(request);
         // Created
         return super.newHttpResponse(201, null, super.redirectTo(inventory.getId()));
     }
@@ -94,7 +95,8 @@ public final class InventoryController extends BaseController<Inventory, Long> {
                     })
             })
     public IHttpResponse<Void> delete(Request request) {
-        this.getModel().delete(request);
+        InventoryModel model = this.getModel();
+        model.delete(request);
 
         return HttpResponse.ofNext(super.redirectTo(LIST));
     }
@@ -133,7 +135,8 @@ public final class InventoryController extends BaseController<Inventory, Long> {
                     })
             })
     public IHttpResponse<InventoryDTO> listById(Request request) throws ServiceException {
-        InventoryDTO inventory = this.getModel().listById(request);
+        InventoryModel model = this.getModel();
+        InventoryDTO inventory = model.listById(request);
         // OK
         return super.okHttpResponse(inventory, super.forwardTo("formListItem"));
     }
@@ -153,7 +156,8 @@ public final class InventoryController extends BaseController<Inventory, Long> {
                     })
             })
     public IHttpResponse<InventoryDTO> edit(Request request) throws ServiceException {
-        InventoryDTO inventory = this.getModel().listById(request);
+        InventoryModel model = this.getModel();
+        InventoryDTO inventory = model.listById(request);
         // OK
         return super.okHttpResponse(inventory, super.forwardTo("formUpdateItem"));
     }
@@ -183,7 +187,8 @@ public final class InventoryController extends BaseController<Inventory, Long> {
                     })
             })
     public IHttpResponse<Void> update(Request request) throws ServiceException {
-        InventoryDTO inventory = this.getModel().update(request);
+        InventoryModel model = this.getModel();
+        InventoryDTO inventory = model.update(request);
         // No content
         return super.newHttpResponse(204, null, super.redirectTo(inventory.getId()));
     }

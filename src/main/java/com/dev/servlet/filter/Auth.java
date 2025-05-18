@@ -8,6 +8,7 @@ import com.dev.servlet.utils.URIUtils;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.Filter;
@@ -28,14 +29,19 @@ import java.util.List;
 @NoArgsConstructor
 public class Auth implements Filter {
 
-    private static final List<String> AUTHORIZED_PATH = PropertiesUtil.getProperty("auth.authorized", List.of("login,user"));
-
+    private List<String> preAuthorizedPath;
     private IServletDispatcher dispatcher;
 
     @Inject
     @Named("ServletDispatch") // No need to specify the name if the class has only one implementation
     public void setDispatcher(IServletDispatcher dispatcher) {
         this.dispatcher = dispatcher;
+    }
+
+    @PostConstruct
+    public void init() {
+        preAuthorizedPath = PropertiesUtil.getProperty("auth.authorized", List.of("login,user"));
+        log.info("Auth filter initialized with pre-authorized paths: {}", preAuthorizedPath);
     }
 
     @Override
@@ -47,6 +53,7 @@ public class Auth implements Filter {
         String token = user != null ? user.getToken() : null;
 
         if (isAuthorizedRequest(request, token)) {
+            log.debug("Access to the service: {}, authorized", request.getRequestURI());
             dispatcher.dispatch(request, response);
         } else {
             log.warn("Unauthorized access to the service: {}, redirecting to login page", request.getRequestURI());
@@ -83,6 +90,6 @@ public class Auth implements Filter {
             return false;
         }
 
-        return service != null && AUTHORIZED_PATH.contains(service);
+        return service != null && preAuthorizedPath.contains(service);
     }
 }

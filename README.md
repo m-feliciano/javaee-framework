@@ -20,6 +20,7 @@ I've used the latest Java features and best practices to build this application.
 - **Tomcat 9 (Server)**: Web server and servlet container.
 - **PostgreSQL (Database)**: Open-source relational database management system.
 - **Criteria API**: Type-safe way to build database queries.
+- **Mockito**: For unit testing.
 
 ## URL Design
 ### URL Components:
@@ -56,31 +57,32 @@ I've used the latest Java features and best practices to build this application.
 @Controller(path = "/product")
 public final class ProductController extends BaseController<Product, Long> {
 
-    @RequestMapping(value = "/list")
-    public IServletResponse list(Request request) {
-        ProductModel model = this.getModel();
+   @RequestMapping(value = "/list")
+   public IServletResponse list(Request request) {
+      ProductModel model = this.getModel();
 
-        request.query().getPageable().setRecords(model.findAll(request));
-   
-        Set<KeyPair> response = new HashSet<>();
-        if (!CollectionUtils.isEmpty(request.query().getPageable().getRecords())) {
-   
-            Collection<ProductDTO> products = model.getAllPageable(request.query().getPageable())
-                        .stream()
-                        .map(ProductMapper::base)
-                        .toList();
-      
-            BigDecimal totalPrice = model.calculateTotalPrice(request.query().getPageable().getRecords());
-   
-            response.add(KeyPair.of("products", products));
-            response.add(KeyPair.of("totalPrice", totalPrice));
-        }
+      Collection<Long> productIds = model.findAll(request);
+      request.query().getPageable().setRecords(productIds);
 
-        Collection<CategoryDTO> categories = getCategoryModel().getAllFromCache(request.token());
-        response.add(KeyPair.of("categories", categories));
+      Set<KeyPair> response = new HashSet<>();
+      if (!CollectionUtils.isEmpty(productIds)) {
 
-        return super.newServletResponse(response, super.forwardTo("listProducts"));
-    }
+         Collection<ProductDTO> products = model.getAllPageable(request.query().getPageable())
+                 .stream()
+                 .map(ProductMapper::base)
+                 .toList();
+
+         BigDecimal totalPrice = model.calculateTotalPrice(productIds);
+
+         response.add(KeyPair.of("products", products));
+         response.add(KeyPair.of("totalPrice", totalPrice));
+      }
+
+      Collection<CategoryDTO> categories = getCategoryModel().getAllFromCache(request.token());
+      response.add(KeyPair.of("categories", categories));
+
+      return super.newServletResponse(response, super.forwardTo("listProducts"));
+   }
 }
 ```
 
@@ -105,9 +107,10 @@ public final class ProductController extends BaseController<Product, Long> {
                         }),
         })
 public IHttpResponse<Void> register(Request request) throws ServiceException {
-    this.getModel().register(request);
-    // Created
-    return super.newHttpResponse(201, null, "redirect:/api/v1/login/form");
+   UserModel model = this.getModel();
+   model.register(request);
+   // Created
+   return super.newHttpResponse(201, null, "redirect:/api/v1/login/form");
 }
 ```
 
@@ -127,9 +130,10 @@ public IHttpResponse<Void> register(Request request) throws ServiceException {
                 })
         })
 public IHttpResponse<Void> delete(Request request) throws ServiceException {
-    this.getModel().delete(request);
+   UserModel model = this.getModel();
+   model.delete(request);
 
-    return HttpResponse.ofNext(super.forwardTo("formLogin"));
+   return HttpResponse.ofNext(super.forwardTo("formLogin"));
 }
 ```
 
@@ -162,6 +166,51 @@ public IHttpResponse<Void> delete(Request request) throws ServiceException {
                return next;
            }
        };
+   }
+```
+
+
+#### Testing 
+
+```java 
+
+    // ServletDispatcherTest.java
+   @Test
+   @DisplayName(
+           "Test dispatch method with a redirect response and a valid rate limit. " +
+           "It should send a redirect to the specified URL.")
+   void testDispatch_SendRedirect() throws Exception {
+      // Arrange
+      when(httpResponseMock.next()).thenReturn("redirect:/somewhere");
+   
+      try (MockedStatic<LocalExecutor> executorMockStatic = mockStatic(LocalExecutor.class);
+           MockedStatic<URIUtils> uriUtilsMockedStatic = mockStatic(URIUtils.class)) {
+   
+         when(httpExecutor.send(any(Request.class))).thenReturn(httpResponseMock);
+         executorMockStatic.when(LocalExecutor::newInstance).thenReturn(httpExecutor);
+         // Act
+         servletDispatcher.dispatch(httpRequest, httpResponse);
+         // Assert
+         verify(httpResponse).sendRedirect("/somewhere");
+      }
+   }
+
+   // ProductControllerTest.java
+   @Test
+   @DisplayName(
+           "Test listById method to retrieve a product by ID. " +
+           "It should return a 200 status code and the expected response.")
+   void testListById() throws ServiceException {
+      ProductDTO productDTO = new ProductDTO();
+      productDTO.setId(1L);
+   
+      when(productModel.getById(request)).thenReturn(productDTO);
+   
+      IHttpResponse<ProductDTO> response = productController.listById(request);
+      assertNotNull(response);
+      assertEquals(200, response.statusCode());
+      assertEquals(productDTO, response.body());
+      verify(productModel, times(1)).getById(request);
    }
 ```
 

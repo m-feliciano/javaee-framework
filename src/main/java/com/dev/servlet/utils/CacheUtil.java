@@ -80,7 +80,7 @@ public final class CacheUtil {
             return Collections.unmodifiableList(data);
         }
 
-        return null;
+        return Collections.emptyList();
     }
 
     /**

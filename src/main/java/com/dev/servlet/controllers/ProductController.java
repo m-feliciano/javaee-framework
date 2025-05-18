@@ -71,7 +71,8 @@ public final class ProductController extends BaseController<Product, Long> {
                     })
             })
     public IHttpResponse<Void> create(Request request) {
-        ProductDTO product = this.getModel().create(request);
+        ProductModel model = this.getModel();
+        ProductDTO product = model.create(request);
         // Created
         return super.newHttpResponse(201, null, super.redirectTo(product.getId()));
     }
@@ -104,7 +105,8 @@ public final class ProductController extends BaseController<Product, Long> {
                     })
             })
     public IServletResponse edit(Request request) throws ServiceException {
-        ProductDTO product = this.getModel().getById(request);
+        ProductModel model = this.getModel();
+        ProductDTO product = model.getById(request);
         Collection<CategoryDTO> categories = getCategoryModel().getAllFromCache(request.token());
 
         Set<KeyPair> data = Set.of(
@@ -125,17 +127,19 @@ public final class ProductController extends BaseController<Product, Long> {
     public IServletResponse list(Request request) {
         ProductModel model = this.getModel();
 
-        request.query().getPageable().setRecords(model.findAll(request));
+        Collection<Long> productIds = model.findAll(request);
+
+        request.query().getPageable().setRecords(productIds);
 
         Set<KeyPair> response = new HashSet<>();
-        if (!CollectionUtils.isEmpty(request.query().getPageable().getRecords())) {
+        if (!CollectionUtils.isEmpty(productIds)) {
 
             Collection<ProductDTO> products = model.getAllPageable(request.query().getPageable())
                     .stream()
                     .map(ProductMapper::base)
                     .toList();
 
-            BigDecimal totalPrice = model.calculateTotalPrice(request.query().getPageable().getRecords());
+            BigDecimal totalPrice = model.calculateTotalPrice(productIds);
 
             response.add(KeyPair.of("products", products));
             response.add(KeyPair.of("totalPrice", totalPrice));
@@ -162,7 +166,8 @@ public final class ProductController extends BaseController<Product, Long> {
                     })
             })
     public IHttpResponse<ProductDTO> listById(Request request) throws ServiceException {
-        ProductDTO product = this.getModel().getById(request);
+        ProductModel model = this.getModel();
+        ProductDTO product = model.getById(request);
         // OK
         return super.okHttpResponse(product, super.forwardTo("formListProduct"));
     }
@@ -192,7 +197,8 @@ public final class ProductController extends BaseController<Product, Long> {
                     })
             })
     public IHttpResponse<Void> update(Request request) throws ServiceException {
-        ProductDTO product = this.getModel().update(request);
+        ProductModel model = this.getModel();
+        ProductDTO product = model.update(request);
         // No Content
         String nextPath = super.redirectTo(product.getId());
         return super.newHttpResponse(204, null, nextPath);
@@ -217,7 +223,8 @@ public final class ProductController extends BaseController<Product, Long> {
                     })
             })
     public IHttpResponse<Void> delete(Request request) throws ServiceException {
-        this.getModel().delete(request);
+        ProductModel model = this.getModel();
+        model.delete(request);
 
         return HttpResponse.ofNext(super.redirectTo(LIST));
     }
