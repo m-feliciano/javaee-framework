@@ -1,4 +1,10 @@
+<%@ page import="com.dev.servlet.domain.transfer.response.IHttpResponse" %>
 <!DOCTYPE html>
+
+<%
+    request.setAttribute("error", ((IHttpResponse<?>) request.getAttribute("response")).error());
+%>
+
 <html lang="en">
 <%@ include file="/WEB-INF/fragments/head-loginform.jspf" %>
 <body>
