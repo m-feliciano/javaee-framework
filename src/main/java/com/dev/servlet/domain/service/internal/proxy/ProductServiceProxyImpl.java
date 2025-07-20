@@ -71,9 +71,9 @@ public class ProductServiceProxyImpl implements IProductService {
     }
     @Override
     public ProductDTO findById(Request request) throws ServiceException {
-        CachedServiceDecorator<Product, Long> decorator = createCachedService(request.getToken());
         Product filter = delegateService.getEntity(request);
         if (filter != null && filter.getId() != null) {
+            var decorator = createCachedService(request.getToken());
             Product product = decorator.findById(filter.getId());
             if (product != null) {
                 return ProductMapper.full(product);
