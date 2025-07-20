@@ -1,0 +1,6 @@
+2025-07-20 01:41:36 DEBUG c.d.s.i.security.AuthFilter - Access to the endpoint: null, authorized
+2025-07-20 01:41:36 INFO  c.d.s.i.security.AuthFilter - Auth filter initialized with pre-authorized paths: [ProductController, UserController]
+2025-07-20 01:41:36 DEBUG c.d.s.i.security.AuthFilter - Access to the endpoint: null, authorized
+2025-07-20 01:41:36 INFO  c.d.s.i.security.AuthFilter - Auth filter initialized with pre-authorized paths: [UserController]
+2025-07-20 01:41:36 WARN  c.d.s.i.security.AuthFilter - Unauthorized access to the service: null, redirecting to login page
+2025-07-20 01:41:36 WARN  c.d.s.i.security.AuthFilter - Unauthorized access to the service: null, redirecting to login page
