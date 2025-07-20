@@ -16,6 +16,7 @@
 - [Guia de Desenvolvimento](#guia-de-desenvolvimento)
 - [Documentação da API](#documentação-da-api)
 - [Arquitetura de Cache](#arquitetura-de-cache)
+- [📚 Documentação Detalhada do Fluxo](#-documentação-detalhada-do-fluxo)
 
 ## Visão Geral
 
@@ -227,3 +228,35 @@ ICrudRepository <|.. ConcreteRepository
 ICrudRepository <|.. CachedServiceDecorator
 CachedServiceDecorator o-- ICrudRepository
 ```
+
+## 📚 Documentação Detalhada do Fluxo
+
+Para uma compreensão aprofundada do funcionamento interno da aplicação, consulte a documentação especializada:
+
+### [📋 Fluxo Completo de Requisição - Listagem de Produtos](./docs/FLUXO_REQUISICAO_LISTAGEM_PRODUTOS.md)
+Documentação detalhada e passo-a-passo do fluxo completo de uma requisição de listagem de produtos, explicando:
+- **Cadeia de filtros**: PasswordEncryptFilter → XSSFilter → AuthFilter
+- **Processamento de autenticação**: Validação de tokens e autorização
+- **Roteamento**: ServletDispatcher → HttpExecutor → Controllers
+- **Camadas de serviço**: Proxy com cache → Implementação → DAO
+- **Processamento de resposta**: Preparação e renderização JSP
+
+### [📊 Diagramas de Sequência e Performance](./docs/DIAGRAMA_SEQUENCIA_LISTAGEM_PRODUTOS.md)
+Diagramas visuais e análise de performance, incluindo:
+- **Diagrama de sequência UML** completo do fluxo
+- **Cronologia detalhada** com tempos típicos de execução
+- **Pontos de otimização** e estratégias de performance
+- **Fluxo simplificado** por camadas arquiteturais
+
+### [📖 Visão Geral da Documentação](./docs/README.md)
+Índice centralizado de toda a documentação técnica disponível, com:
+- **Guias de uso** para cada tipo de documentação
+- **Arquitetura da aplicação** em detalhes
+- **Configurações de segurança** e considerações importantes
+- **Métricas de performance** e monitoramento
+
+Esta documentação é especialmente útil para:
+- **Novos desenvolvedores** entendendo a arquitetura
+- **Debug e troubleshooting** de problemas de performance
+- **Otimização** de componentes específicos
+- **Manutenção** e evolução do código

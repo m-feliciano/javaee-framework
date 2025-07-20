@@ -16,6 +16,7 @@
 - [Development Guide](#development-guide)
 - [API Documentation](#api-documentation)
 - [Caching Architecture](#caching-architecture)
+- [📚 Detailed Flow Documentation](#-detailed-flow-documentation)
 
 ## Overview
 
@@ -272,3 +273,35 @@ ICrudRepository <|.. ConcreteRepository
 ICrudRepository <|.. CachedServiceDecorator
 CachedServiceDecorator o-- ICrudRepository
 ```
+
+## 📚 Detailed Flow Documentation
+
+For in-depth understanding of the application's internal workings, consult the specialized documentation:
+
+### [📋 Complete Request Flow - Product Listing](./docs/FLUXO_REQUISICAO_LISTAGEM_PRODUTOS.md) *(Portuguese)*
+Detailed step-by-step documentation of the complete product listing request flow, explaining:
+- **Filter chain**: PasswordEncryptFilter → XSSFilter → AuthFilter
+- **Authentication processing**: Token validation and authorization
+- **Routing**: ServletDispatcher → HttpExecutor → Controllers
+- **Service layers**: Proxy with cache → Implementation → DAO
+- **Response processing**: JSP preparation and rendering
+
+### [📊 Sequence Diagrams and Performance](./docs/DIAGRAMA_SEQUENCIA_LISTAGEM_PRODUTOS.md) *(Portuguese)*
+Visual diagrams and performance analysis, including:
+- **Complete UML sequence diagram** of the flow
+- **Detailed timeline** with typical execution times
+- **Optimization points** and performance strategies
+- **Simplified flow** by architectural layers
+
+### [📖 Documentation Overview](./docs/README.md) *(Portuguese)*
+Centralized index of all available technical documentation, with:
+- **Usage guides** for each type of documentation
+- **Application architecture** in detail
+- **Security configurations** and important considerations
+- **Performance metrics** and monitoring
+
+This documentation is especially useful for:
+- **New developers** understanding the architecture
+- **Debugging and troubleshooting** performance issues
+- **Optimization** of specific components
+- **Maintenance** and code evolution
