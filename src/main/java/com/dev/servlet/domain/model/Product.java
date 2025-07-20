@@ -1,4 +1,7 @@
 package com.dev.servlet.domain.model;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,25 +36,34 @@ public class Product implements Entity<Long> {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
+
     @Column(name = "name", length = 100, nullable = false)
     private String name;
+
     @Column(name = "description")
     private String description;
+
     @Column(name = "url_img")
     private String url;
+
     @Column(name = "register_date")
     @Temporal(TemporalType.DATE)
     private Date registerDate;
+
     @Column(name = "price", nullable = false)
     private BigDecimal price;
+
     @Column(name = "status", nullable = false)
     @ColumnTransformer(write = "UPPER(?)")
     private String status;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+
     private User user;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
+
     private Category category;
     public Product(Long id) {
         this.id = id;
