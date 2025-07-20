@@ -43,8 +43,10 @@
                         </thead>
                         <tbody>
                         <c:forEach items="${ pageable.getContent() }" var="product">
-                            <fmt:formatNumber value="${product.price}" type="currency" minFractionDigits="2"
-                                              var="parsedPrice"/>
+                            <fmt:formatNumber value="${product.price}" type="currency" minFractionDigits="2" var="parsedPrice"/>
+                            <fmt:parseDate value="${product.registerDate}" pattern="yyyy-MM-dd" var="parsedRegisterDate"/>
+                            <fmt:formatDate value="${parsedRegisterDate}" pattern="dd/MM/yyyy" var="registerDate"/>
+
                             <tr>
                                 <th class="w-8" scope="row">${ product.id }</th>
                                 <td class="text-center w-9">
@@ -65,7 +67,7 @@
                                 <td class="w-20">${ product.name }</td>
                                 <td class="w-25">${ product.description }</td>
                                 <td class="w-10">${ parsedPrice }</td>
-                                <td class="w-14">${ product.registerDate }</td>
+                                <td class="w-14">${ registerDate }</td>
                                 <td class="w-14">
                                     <a href="${baseLink}${version}${ listProduct }/${ product.id }" class="btn btn-auto btn-primary">
                                         <i class="bi bi-eye"></i>
