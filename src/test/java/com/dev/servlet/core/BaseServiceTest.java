@@ -12,7 +12,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mockStatic;
 
 public abstract class BaseServiceTest {
-    protected static final String TEST_TOKEN = "test-token-with-sufficient-length-for-cache";
+    protected static final String TEST_TOKEN = "test-bearerToken-with-sufficient-length-for-cache";
 
     protected static MockedStatic<PropertiesUtil> propertiesUtilMock;
     protected static MockedStatic<CacheUtils> cacheUtilsMock;

@@ -14,6 +14,10 @@ public final class ThrowableUtils {
         return ServiceException.builder().code(statusCode).message(message).build();
     }
 
+    public static ServiceException internalServerError(String message) {
+        return ServiceException.builder().code(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).message(message).build();
+    }
+
     public static ServiceException notFound(String message) {
         return ServiceException.builder().code(HttpServletResponse.SC_NOT_FOUND).message(message).build();
     }

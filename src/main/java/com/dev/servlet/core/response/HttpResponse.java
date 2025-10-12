@@ -1,4 +1,4 @@
-package com.dev.servlet.domain.transfer.response;
+package com.dev.servlet.core.response;
 
 import lombok.Builder;
 

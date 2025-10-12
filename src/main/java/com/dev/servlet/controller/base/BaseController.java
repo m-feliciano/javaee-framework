@@ -1,9 +1,9 @@
 package com.dev.servlet.controller.base;
 
 import com.dev.servlet.domain.transfer.records.KeyPair;
-import com.dev.servlet.domain.transfer.response.HttpResponse;
-import com.dev.servlet.domain.transfer.response.IHttpResponse;
-import com.dev.servlet.domain.transfer.response.IServletResponse;
+import com.dev.servlet.core.response.HttpResponse;
+import com.dev.servlet.core.response.IHttpResponse;
+import com.dev.servlet.core.response.IServletResponse;
 import com.dev.servlet.core.annotation.Controller;
 import lombok.AccessLevel;
 import lombok.Getter;

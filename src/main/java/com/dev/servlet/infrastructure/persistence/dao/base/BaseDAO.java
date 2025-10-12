@@ -31,6 +31,10 @@ public abstract class BaseDAO<T, ID> implements Serializable {
     protected EntityManager em;
     private Class<T> specialization;
 
+    public abstract Collection<T> findAll(T object);
+
+    protected abstract Predicate buildDefaultPredicateFor(T filter, CriteriaBuilder cb, Root<?> root);
+
     @Inject
     public void setEm(EntityManager em) {
         this.em = em;
@@ -42,11 +46,13 @@ public abstract class BaseDAO<T, ID> implements Serializable {
     }
 
     public Optional<T> findById(ID id) {
-        return Optional.ofNullable(em.find(specialization, id));
+        T value = em.find(specialization, id);
+        return Optional.ofNullable(value);
     }
 
     public Optional<T> find(T object) {
-        return Optional.ofNullable(em.find(specialization, object));
+        T value = em.find(specialization, object);
+        return Optional.ofNullable(value);
     }
 
     public T save(T object) {
@@ -122,9 +128,8 @@ public abstract class BaseDAO<T, ID> implements Serializable {
         return session;
     }
 
-    public abstract Collection<T> findAll(T object);
-    protected abstract Predicate buildDefaultPredicateFor(T filter, CriteriaBuilder cb, Root<?> root);
-    public List<T> getAllPageable(IPageRequest<T> pageRequest) {
+    @SuppressWarnings("unchecked")
+    public List<T> getAllPageable(IPageRequest pageRequest) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<T> query = cb.createQuery(specialization);
         Root<T> root = query.from(specialization);
@@ -132,7 +137,7 @@ public abstract class BaseDAO<T, ID> implements Serializable {
             Path<Object> path = root.get(pageRequest.getSort().getField());
             query.orderBy(pageRequest.getSort().getDirection() == Sort.Direction.DESC ? cb.desc(path) : cb.asc(path));
         }
-        Predicate predicate = buildDefaultPredicateFor(pageRequest.getFilter(), cb, root);
+        Predicate predicate = buildDefaultPredicateFor((T) pageRequest.getFilter(), cb, root);
         query.where(predicate).select(root).distinct(true);
         TypedQuery<T> typedQuery = em.createQuery(query)
                 .setFirstResult(pageRequest.getFirstResult())
@@ -140,11 +145,12 @@ public abstract class BaseDAO<T, ID> implements Serializable {
         return typedQuery.getResultList();
     }
 
-    public long count(IPageRequest<T> pageRequest) {
+    @SuppressWarnings("unchecked")
+    public long count(IPageRequest pageRequest) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<T> root = query.from(specialization);
-        Predicate predicate = buildDefaultPredicateFor(pageRequest.getFilter(), cb, root);
+        Predicate predicate = buildDefaultPredicateFor((T) pageRequest.getFilter(), cb, root);
         query.where(predicate).select(cb.count(root));
         TypedQuery<Long> typedQuery = em.createQuery(query);
         Long count = typedQuery.getSingleResult();

@@ -1,4 +1,4 @@
-<%@ page import="com.dev.servlet.domain.transfer.response.IHttpResponse" %>
+<%@ page import="com.dev.servlet.core.response.IHttpResponse" %>
 <!DOCTYPE html>
 
 <%

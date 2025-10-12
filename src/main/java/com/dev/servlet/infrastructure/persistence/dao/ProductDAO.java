@@ -60,7 +60,7 @@ public class ProductDAO extends BaseDAO<Product, String> {
                 } else {
                     if (product.getCategory().getName() != null) {
                         Expression<String> upper = criteriaBuilder.upper(join.get("name"));
-                        Predicate like = criteriaBuilder.like(upper, MatchMode.START.toMatchString(product.getCategory().getName().toUpperCase()));
+                        Predicate like = criteriaBuilder.like(upper, MatchMode.ANYWHERE.toMatchString(product.getCategory().getName().toUpperCase()));
                         predicate = criteriaBuilder.and(predicate, like);
                     }
                 }

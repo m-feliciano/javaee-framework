@@ -1,7 +1,8 @@
 package com.dev.servlet.domain.service;
-import com.dev.servlet.domain.transfer.dto.UserDTO;
-import com.dev.servlet.domain.transfer.request.Request;
+
 import com.dev.servlet.core.exception.ServiceException;
+import com.dev.servlet.domain.transfer.response.UserResponse;
+import com.dev.servlet.domain.transfer.request.LoginRequest;
 
 /**
  * Service interface for managing user authentication and session operations.
@@ -15,24 +16,8 @@ import com.dev.servlet.core.exception.ServiceException;
  * @since 1.0
  */
 public interface ILoginService {
-    
-    /**
-     * Authenticates a user and establishes a session based on the provided credentials.
-     * This method coordinates with the user service to validate credentials and
-     * create appropriate session data.
-     *
-     * @param request the request containing login credentials
-     * @param userService the user service for credential validation
-     * @return UserDTO representing the authenticated user with session information
-     * @throws ServiceException if authentication fails due to invalid credentials or system errors
-     */
-    UserDTO login(Request request, IUserService userService) throws ServiceException;
-    
-    /**
-     * Terminates the user session and performs cleanup operations.
-     * This method handles session invalidation and any necessary logout procedures.
-     *
-     * @param request the request containing session information to be terminated
-     */
-    void logout(Request request);
+
+    UserResponse login(LoginRequest request, IUserService userService) throws ServiceException;
+
+    void logout(String auth);
 }

@@ -1,4 +1,4 @@
-package com.dev.servlet.domain.transfer.response;
+package com.dev.servlet.core.response;
 
 import com.dev.servlet.domain.transfer.records.KeyPair;
 

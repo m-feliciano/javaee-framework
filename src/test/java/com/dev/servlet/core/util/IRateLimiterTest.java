@@ -24,7 +24,7 @@ class IRateLimiterTest {
     @Test
     @DisplayName(
             "Test acquire method with a valid request. " +
-            "It should return true if the token can be acquired.")
+            "It should return true if the bearerToken can be acquired.")
     void testAcquire_Success() {
         for (int i = 0; i < 10; i++) {
             assertTrue(leakyBucket.acquire(), "Token should be acquired");
@@ -61,7 +61,7 @@ class IRateLimiterTest {
     @Test
     @DisplayName(
             "Test acquireOrWait method with a successful acquisition. " +
-            "It should return true if the token can be acquired immediately.")
+            "It should return true if the bearerToken can be acquired immediately.")
     void testAcquireOrWait_Success() {
         for (int i = 0; i < 10; i++) {
             assertTrue(leakyBucket.acquire(), "Token should be acquired");
@@ -74,7 +74,7 @@ class IRateLimiterTest {
     @Test
     @DisplayName(
             "Test acquireOrWait method with a timeout. " +
-            "It should return false if the token cannot be acquired within the specified timeout.")
+            "It should return false if the bearerToken cannot be acquired within the specified timeout.")
     void testAcquireOrWait_FailureWhenTimeout() {
         for (int i = 0; i < 10; i++) {
             assertTrue(leakyBucket.acquire(), "Token should be acquired");

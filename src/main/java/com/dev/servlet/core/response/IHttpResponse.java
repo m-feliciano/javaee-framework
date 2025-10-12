@@ -1,4 +1,4 @@
-package com.dev.servlet.domain.transfer.response;
+package com.dev.servlet.core.response;
 
 /**
  * Generic HTTP response interface providing standard HTTP response structure.

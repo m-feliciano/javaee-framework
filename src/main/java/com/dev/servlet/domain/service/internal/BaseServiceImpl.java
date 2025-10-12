@@ -1,10 +1,8 @@
 package com.dev.servlet.domain.service.internal;
 
-import com.dev.servlet.domain.transfer.dto.DataTransferObject;
-import com.dev.servlet.domain.transfer.records.KeyPair;
 import com.dev.servlet.core.mapper.Mapper;
-import com.dev.servlet.core.util.ClassUtil;
-import com.dev.servlet.domain.service.IBaseService;
+import com.dev.servlet.domain.repository.ICrudRepository;
+import com.dev.servlet.domain.repository.IPagination;
 import com.dev.servlet.infrastructure.persistence.IPageRequest;
 import com.dev.servlet.infrastructure.persistence.IPageable;
 import com.dev.servlet.infrastructure.persistence.dao.base.BaseDAO;
@@ -24,7 +22,8 @@ import java.util.Optional;
 @Getter(AccessLevel.PROTECTED)
 @Setter(AccessLevel.PROTECTED)
 @NoArgsConstructor
-public abstract class BaseServiceImpl<T, ID> implements IBaseService<T, ID> {
+public abstract class BaseServiceImpl<T, ID> implements ICrudRepository<T, ID>, IPagination<T> {
+
     protected BaseDAO<T, ID> baseDAO;
     protected BaseServiceImpl(BaseDAO<T, ID> baseDAO) {
         this.baseDAO = baseDAO;
@@ -61,7 +60,7 @@ public abstract class BaseServiceImpl<T, ID> implements IBaseService<T, ID> {
     }
 
     @Override
-    public IPageable<T> getAllPageable(IPageRequest<T> pageRequest) {
+    public IPageable<T> getAllPageable(IPageRequest pageRequest) {
         long totalCount = baseDAO.count(pageRequest);
         List<T> resultSet = Collections.emptyList();
         if (totalCount > pageRequest.getFirstResult()) {
@@ -77,7 +76,7 @@ public abstract class BaseServiceImpl<T, ID> implements IBaseService<T, ID> {
     }
 
     @Override
-    public <U> IPageable<U> getAllPageable(IPageRequest<T> pageRequest, Mapper<T, U> mapper) {
+    public <U> IPageable<U> getAllPageable(IPageRequest pageRequest, Mapper<T, U> mapper) {
         IPageable<T> page = getAllPageable(pageRequest);
         var content = page.getContent().stream().map(mapper::map).toList();
         return PageResponse.<U>builder()
@@ -87,17 +86,5 @@ public abstract class BaseServiceImpl<T, ID> implements IBaseService<T, ID> {
                 .pageSize(page.getPageSize())
                 .sort(page.getSort())
                 .build();
-    }
-
-    protected Optional<T> requestBody(List<KeyPair> keyPairs) {
-        var optional = ClassUtil.createInstance(getDataMapper());
-        if (optional.isEmpty()) {
-            return Optional.empty();
-        }
-
-        DataTransferObject<ID> object = optional.get();
-        ClassUtil.fillObject(object, keyPairs);
-
-        return Optional.of(object).map(this::toEntity);
     }
 }

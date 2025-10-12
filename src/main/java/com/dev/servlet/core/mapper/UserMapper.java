@@ -1,44 +1,14 @@
 package com.dev.servlet.core.mapper;
-import com.dev.servlet.domain.transfer.dto.UserDTO;
+
 import com.dev.servlet.domain.model.User;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import com.dev.servlet.domain.transfer.response.UserResponse;
+import com.dev.servlet.domain.transfer.request.UserRequest;
+import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class UserMapper {
-    public static UserDTO full(User user) {
-        if (user == null) return null;
-        return UserDTO.builder()
-                .id(user.getId())
-                .login(user.getLogin())
-                .imgUrl(user.getImgUrl())
-                .perfis(user.getPerfis())
-                .config(user.getConfig())
-                .token(user.getToken())
-                .build();
-    }
+@Mapper(unmappedTargetPolicy = ReportingPolicy.WARN)
+public interface UserMapper {
+    UserResponse toResponse(User user);
 
-    public static UserDTO onlyId(User user) {
-        if (user == null) return null;
-        return UserDTO.builder().id(user.getId()).token(user.getToken()).build();
-    }
-
-    public static User onlyId(UserDTO userDTO) {
-        if (userDTO == null) return null;
-        User user = User.builder().id(userDTO.getId()).build();
-        user.setToken(userDTO.getToken());
-        return user;
-    }
-
-    public static User full(UserDTO dto) {
-        if (dto == null) return null;
-        User user = User.builder().id(dto.getId()).build();
-        user.setLogin(dto.getLogin());
-        user.setImgUrl(dto.getImgUrl());
-        user.setPerfis(dto.getPerfis());
-        user.setConfig(dto.getConfig());
-        user.setPassword(dto.getPassword());
-        user.setToken(dto.getToken());
-        return user;
-    }
+    User toUser(UserRequest userRequest);
 }

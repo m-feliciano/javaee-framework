@@ -54,7 +54,7 @@ class AuthFilterTest {
     @Test
     void doFilter_WithValidToken_ShouldDispatchRequest() throws IOException {
         // Arrange
-        String validToken = "valid-token";
+        String validToken = "valid-bearerToken";
         when(session.getAttribute("token")).thenReturn(validToken);
 
         try (MockedStatic<CryptoUtils> cryptoUtils = mockStatic(CryptoUtils.class)) {
@@ -72,7 +72,7 @@ class AuthFilterTest {
     @Test
     void doFilter_WithInvalidTokenAndAuthorizedPath_ShouldDispatchRequest() throws IOException {
         // Arrange
-        String invalidToken = "invalid-token";
+        String invalidToken = "invalid-bearerToken";
         when(session.getAttribute("token")).thenReturn(invalidToken);
 
         try (MockedStatic<CryptoUtils> cryptoUtils = mockStatic(CryptoUtils.class);
@@ -101,7 +101,7 @@ class AuthFilterTest {
     @Test
     void doFilter_WithInvalidTokenAndUnauthorizedPath_ShouldRedirectToLogin() throws IOException {
         // Arrange
-        String invalidToken = "invalid-token";
+        String invalidToken = "invalid-bearerToken";
         when(session.getAttribute("token")).thenReturn(invalidToken);
 
         try (MockedStatic<CryptoUtils> cryptoUtils = mockStatic(CryptoUtils.class);
@@ -134,7 +134,7 @@ class AuthFilterTest {
     @Test
     void doFilter_WithNullEndpoint_ShouldRedirectToLogin() throws IOException {
         // Arrange
-        String invalidToken = "invalid-token";
+        String invalidToken = "invalid-bearerToken";
         when(session.getAttribute("token")).thenReturn(invalidToken);
         when(request.getServletPath()).thenReturn(null);
 

@@ -1,4 +1,4 @@
-<%@ page import="com.dev.servlet.domain.transfer.response.IServletResponse" %>
+<%@ page import="com.dev.servlet.core.response.IServletResponse" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -17,7 +17,7 @@
 <div class="main">
     <jsp:include page="/WEB-INF/view/components/search.jsp">
         <jsp:param name="placeholder" value="Search inventory"/>
-        <jsp:param name="action" value="${baseLink}${version}${ listInventory }"/>
+        <jsp:param name="action" value="${baseLink}${version}${ searchInventory }"/>
         <jsp:param name="onclear" value="${baseLink}${version}${ listInventory }"/>
         <jsp:param name="limit" value="20"/>
     </jsp:include>

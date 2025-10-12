@@ -1,11 +1,13 @@
 package com.dev.servlet.core.util;
+
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.dev.servlet.domain.transfer.dto.UserDTO;
 import com.dev.servlet.domain.model.User;
+import com.dev.servlet.domain.transfer.response.UserResponse;
 import lombok.NoArgsConstructor;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
@@ -14,20 +16,20 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Comprehensive cryptographic utility class providing JWT token management and symmetric encryption.
- * This class handles secure authentication token generation, validation, and data encryption/decryption
+ * Comprehensive cryptographic utility class providing JWT bearerToken management and symmetric encryption.
+ * This class handles secure authentication bearerToken generation, validation, and data encryption/decryption
  * using industry-standard algorithms and best practices.
  * 
  * <p>Key security features:
  * <ul>
- *   <li><strong>JWT Authentication:</strong> Secure token generation with HMAC-256 signing</li>
- *   <li><strong>Token Validation:</strong> Comprehensive token verification with expiration checks</li>
+ *   <li><strong>JWT Authentication:</strong> Secure bearerToken generation with HMAC-256 signing</li>
+ *   <li><strong>Token Validation:</strong> Comprehensive bearerToken verification with expiration checks</li>
  *   <li><strong>Symmetric Encryption:</strong> Configurable cipher algorithms for data protection</li>
  *   <li><strong>User Context:</strong> Token-based user information extraction</li>
  *   <li><strong>Configuration-driven:</strong> Security keys and algorithms from properties</li>
  * </ul>
- * 
- * <p>JWT token structure includes:
+ *
+ * <p>JWT bearerToken structure includes:
  * <ul>
  *   <li>User ID and role information</li>
  *   <li>Issuer identification ("Servlet")</li>
@@ -48,12 +50,12 @@ import java.util.UUID;
  * {@code
  * // JWT Token Operations
  * UserDTO user = new UserDTO(123L, Arrays.asList(1L, 2L)); // user with roles
- * String token = CryptoUtils.generateJwtToken(user);
+ * String bearerToken = CryptoUtils.generateJwtToken(user);
  * 
  * // Token validation
- * boolean valid = CryptoUtils.isValidToken(token);
+ * boolean valid = CryptoUtils.isValidToken(bearerToken);
  * if (valid) {
- *     User authenticatedUser = CryptoUtils.getUser(token);
+ *     User authenticatedUser = CryptoUtils.getUser(bearerToken);
  *     // Process authenticated request
  * }
  * 
@@ -75,13 +77,15 @@ import java.util.UUID;
  * 
  * @since 1.0
  * @see PropertiesUtil
- * @see UserDTO
+ * @see UserResponse
  * @see User
  */
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class CryptoUtils {
-    
-    /** JWT token expiration period: 7 days in milliseconds */
+
+    /**
+     * JWT bearerToken expiration period: 7 days in milliseconds
+     */
     public static final int SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
     
     /**
@@ -166,8 +170,8 @@ public final class CryptoUtils {
     }
 
     /**
-     * Generates a JWT authentication token for a user with embedded role information.
-     * The token includes user ID, roles, expiration, and unique identifier.
+     * Generates a JWT authentication bearerToken for a user with embedded role information.
+     * The bearerToken includes user ID, roles, expiration, and unique identifier.
      * 
      * <p>Token claims:
      * <ul>
@@ -181,10 +185,10 @@ public final class CryptoUtils {
      * </ul>
      * 
      * @param user the user DTO containing ID and roles
-     * @return signed JWT token string
-     * @throws RuntimeException if token generation fails or JWT key is invalid
+     * @return signed JWT bearerToken string
+     * @throws RuntimeException if bearerToken generation fails or JWT key is invalid
      */
-    public static String generateJwtToken(UserDTO user) {
+    public static String generateJwtToken(User user) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(getJwtSecretKey());
             long currentTimeMillis = System.currentTimeMillis();
@@ -203,17 +207,17 @@ public final class CryptoUtils {
     }
 
     /**
-     * Validates a JWT token's signature, issuer, and expiration.
+     * Validates a JWT bearerToken's signature, issuer, and expiration.
      * Performs comprehensive verification including:
      * <ul>
-     *   <li>Null and empty token checks</li>
+     *   <li>Null and empty bearerToken checks</li>
      *   <li>Signature verification with HMAC-256</li>
      *   <li>Issuer validation</li>
      *   <li>Expiration time validation</li>
      * </ul>
-     * 
-     * @param token the JWT token to validate
-     * @return true if the token is valid and not expired, false otherwise
+     *
+     * @param token the JWT bearerToken to validate
+     * @return true if the bearerToken is valid and not expired, false otherwise
      */
     public static boolean isValidToken(String token) {
         if (token == null || token.isEmpty()) {
@@ -230,17 +234,17 @@ public final class CryptoUtils {
     }
 
     /**
-     * Extracts user information from a JWT token without verification.
-     * This method decodes the token payload to reconstruct the user context
-     * including ID, roles, and the original token.
-     * 
-     * <p><strong>Security Warning:</strong> This method does not verify the token.
+     * Extracts user information from a JWT bearerToken without verification.
+     * This method decodes the bearerToken payload to reconstruct the user context
+     * including ID, roles, and the original bearerToken.
+     *
+     * <p><strong>Security Warning:</strong> This method does not verify the bearerToken.
      * Always call {@link #isValidToken(String)} before using this method
-     * to ensure the token is authentic and not expired.
-     * 
-     * @param token the JWT token to decode
-     * @return User object with ID, roles, and token information
-     * @throws RuntimeException if token decoding fails
+     * to ensure the bearerToken is authentic and not expired.
+     *
+     * @param token the JWT bearerToken to decode
+     * @return User object with ID, roles, and bearerToken information
+     * @throws RuntimeException if bearerToken decoding fails
      */
     public static User getUser(String token) {
         DecodedJWT decodedJWT = JWT.decode(token);
@@ -248,7 +252,6 @@ public final class CryptoUtils {
         List<Long> roles = decodedJWT.getClaim("roles").asList(Long.class);
         User user = User.builder().id(userId).build();
         user.setPerfis(roles);
-        user.setToken(token);
         return user;
     }
 }

@@ -1,8 +1,8 @@
 package com.dev.servlet.domain.model;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,7 +15,6 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -29,13 +28,14 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @javax.persistence.Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name = "tb_product")
 @ToString(exclude = {"user", "category"})
-public class Product implements Entity<String> {
+public class Product {
     @Id
-    @Column(name = "id")
+    @Column(name = "id", updatable = false)
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private String id;
@@ -50,7 +50,7 @@ public class Product implements Entity<String> {
     private String url;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Column(name = "register_date")
+    @Column(name = "register_date", updatable = false)
     @Temporal(TemporalType.DATE)
     private Date registerDate;
 
@@ -65,23 +65,13 @@ public class Product implements Entity<String> {
     @JoinColumn(name = "user_id", nullable = false)
 
     private User user;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
-
     private Category category;
+
     public Product(String id) {
         this.id = id;
-    }
-
-    public Product(String id, User user) {
-        this.id = id;
-        this.user = user;
-    }
-
-    public Product(String name, String description, BigDecimal price) {
-        this.name = name;
-        this.description = description;
-        this.price = price;
     }
 
     public void setCategory(Category category) {

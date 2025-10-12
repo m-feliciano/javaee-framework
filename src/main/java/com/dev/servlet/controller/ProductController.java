@@ -1,23 +1,24 @@
 package com.dev.servlet.controller;
 
 import com.dev.servlet.controller.base.BaseController;
-import com.dev.servlet.core.annotation.Constraints;
+import com.dev.servlet.core.annotation.Authorization;
 import com.dev.servlet.core.annotation.Controller;
 import com.dev.servlet.core.annotation.Property;
 import com.dev.servlet.core.annotation.RequestMapping;
-import com.dev.servlet.core.annotation.Validator;
+import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.mapper.ProductMapper;
+import com.dev.servlet.core.response.HttpResponse;
+import com.dev.servlet.core.response.IHttpResponse;
+import com.dev.servlet.core.response.IServletResponse;
 import com.dev.servlet.domain.model.Product;
 import com.dev.servlet.domain.model.enums.RequestMethod;
 import com.dev.servlet.domain.service.ICategoryService;
 import com.dev.servlet.domain.service.IProductService;
-import com.dev.servlet.domain.transfer.dto.CategoryDTO;
-import com.dev.servlet.domain.transfer.dto.ProductDTO;
 import com.dev.servlet.domain.transfer.records.KeyPair;
-import com.dev.servlet.domain.transfer.request.Request;
-import com.dev.servlet.domain.transfer.response.HttpResponse;
-import com.dev.servlet.domain.transfer.response.IHttpResponse;
-import com.dev.servlet.domain.transfer.response.IServletResponse;
+import com.dev.servlet.domain.transfer.records.Query;
+import com.dev.servlet.domain.transfer.request.ProductRequest;
+import com.dev.servlet.domain.transfer.response.CategoryResponse;
+import com.dev.servlet.domain.transfer.response.ProductResponse;
 import com.dev.servlet.infrastructure.persistence.IPageRequest;
 import com.dev.servlet.infrastructure.persistence.IPageable;
 import lombok.NoArgsConstructor;
@@ -38,57 +39,103 @@ import java.util.Set;
 @Singleton
 @Controller("product")
 public class ProductController extends BaseController {
+
     @Inject
     private IProductService productService;
     @Inject
     private ICategoryService categoryService;
+    @Inject
+    private ProductMapper productMapper;
 
-    @RequestMapping(
-            value = "/create",
-            method = RequestMethod.POST,
-            validators = {
-                    @Validator(values = "name", constraints = {
-                            @Constraints(minLength = 3, maxLength = 50, message = "Name must be between {0} and {1} characters")
-                    }),
-                    @Validator(values = "description", constraints = {
-                            @Constraints(minLength = 5, maxLength = 255, message = "Description must be between {0} and {1} characters")
-                    }),
-                    @Validator(values = "price", constraints = {
-                            @Constraints(min = 0, message = "Price must be greater than or equal to {0}")
-                    })
-            })
-    public IHttpResponse<Void> create(Request request) {
-        ProductDTO product = productService.create(request);
+    @RequestMapping(value = "/create", method = RequestMethod.POST, jsonType = ProductRequest.class)
+    public IHttpResponse<Void> create(ProductRequest request, @Authorization String auth) throws ServiceException {
+        ProductResponse product = productService.create(request, auth);
         return newHttpResponse(201, redirectTo(product.getId()));
     }
 
-    @RequestMapping(value = "/new")
-    public IHttpResponse<Collection<CategoryDTO>> forward(Request request) {
-        var categories = categoryService.list(request.withToken());
+    @RequestMapping("/new")
+    @SneakyThrows
+    public IHttpResponse<Collection<CategoryResponse>> forward(@Authorization String auth) {
+        var categories = categoryService.list(null, auth);
         return newHttpResponse(302, categories, forwardTo("formCreateProduct"));
     }
 
-    @RequestMapping(
-            value = "/edit/{id}",
-            validators = @Validator(values = "id", constraints = @Constraints(notNullOrEmpty = true, message = "ID is required"))
-    )
+    @RequestMapping(value = "/edit/{id}", jsonType = ProductRequest.class)
     @SneakyThrows
-    public IServletResponse edit(Request request) {
-        ProductDTO product = this.getById(request).body();
-        Collection<CategoryDTO> categories = categoryService.list(request.withToken());
-        Set<KeyPair> response = Set.of(
-                new KeyPair("product", product),
+    public IServletResponse edit(ProductRequest request, @Authorization String auth) {
+        ProductResponse response = this.getById(request, auth).body();
+
+        Collection<CategoryResponse> categories = categoryService.list(null, auth);
+        Set<KeyPair> body = Set.of(
+                new KeyPair("product", response),
                 new KeyPair("categories", categories)
         );
-        return newServletResponse(response, forwardTo("formUpdateProduct"));
+        return newServletResponse(body, forwardTo("formUpdateProduct"));
     }
 
-    @RequestMapping(value = "/list")
-    public IServletResponse list(Request request) {
-        Product filter = productService.getBody(request);
-        IPageable<ProductDTO> page = getAllPageable(request.getQuery().getPageRequest(), filter);
-        BigDecimal price = calculateTotalPrice(page, filter);
-        Collection<CategoryDTO> categories = categoryService.list(request.withToken());
+    @RequestMapping(value = "/search")
+    @SneakyThrows
+    public IServletResponse search(Query query, IPageRequest pageRequest, @Authorization String auth) {
+        log.trace("");
+
+        Product product = productMapper.queryToProduct(query, auth);
+        return getServletResponse(pageRequest, auth, product);
+    }
+
+    @RequestMapping(value = "/list", jsonType = ProductRequest.class)
+    @SneakyThrows
+    public IServletResponse list(IPageRequest pageRequest, @Authorization String auth) {
+        log.trace("");
+        Product product = productMapper.toProduct(null, auth);
+        return getServletResponse(pageRequest, auth, product);
+    }
+
+    @SneakyThrows
+    @RequestMapping(value = "/list/{id}", jsonType = ProductRequest.class)
+    public IHttpResponse<ProductResponse> getById(ProductRequest request, @Authorization String auth) {
+        ProductResponse product = productService.findById(request, auth);
+        return okHttpResponse(product, forwardTo("formListProduct"));
+    }
+
+    @SneakyThrows
+    @RequestMapping(value = "/update/{id}", method = RequestMethod.POST, jsonType = ProductRequest.class)
+    public IHttpResponse<Void> update(ProductRequest request, @Authorization String auth) {
+        ProductResponse response = productService.update(request, auth);
+        return newHttpResponse(204, redirectTo(response.getId()));
+    }
+
+    @RequestMapping(value = "/delete/{id}", method = RequestMethod.POST, jsonType = ProductRequest.class)
+    @SneakyThrows
+    public IHttpResponse<Void> delete(ProductRequest filter, @Authorization String auth) {
+        productService.delete(filter, auth);
+        return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
+    }
+
+    @SneakyThrows
+    @RequestMapping("/scrape")
+    public IHttpResponse<Void> scrape(@Authorization String auth,
+                                      @Property("env") String environment,
+                                      @Property("scrape.product.url") String url) {
+        Optional<List<ProductResponse>> response = productService.scrape(url, environment, auth);
+        return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
+    }
+
+    /**
+     * Builds and returns an {@code IServletResponse} object by aggregating product information,
+     * total price, and available categories based on the given request parameters.
+     *
+     * @param pageRequest the pageable request that provides pagination and filtering information
+     * @param auth the authentication token used to access category service
+     * @param product the product entity used as a filter for obtaining paginated product data
+     * @return an {@code IServletResponse} containing the paginated product data, total price,
+     *         and available categories as key-value pairs
+     * @throws ServiceException if an error occurs during the process of retrieving the data or
+     *         building the response
+     */
+    private IServletResponse getServletResponse(IPageRequest pageRequest, String auth, Product product) throws ServiceException {
+        IPageable<ProductResponse> page = getAllPageable(pageRequest, product);
+        BigDecimal price = calculateTotalPrice(page, product);
+        Collection<CategoryResponse> categories = categoryService.list(null, auth);
 
         Set<KeyPair> container = new HashSet<>();
         container.add(new KeyPair("pageable", page));
@@ -98,68 +145,32 @@ public class ProductController extends BaseController {
         return newServletResponse(container, forwardTo("listProducts"));
     }
 
-    @RequestMapping(
-            value = "/list/{id}",
-            validators = @Validator(values = "id", constraints = @Constraints(notNullOrEmpty = true, message = "ID is required")))
-    @SneakyThrows
-    public IHttpResponse<ProductDTO> getById(Request request) {
-        ProductDTO product = productService.findById(request);
-        return okHttpResponse(product, forwardTo("formListProduct"));
-    }
-
-    @RequestMapping(
-            value = "/update/{id}",
-            method = RequestMethod.POST,
-            validators = {
-                    @Validator(values = "id", constraints = @Constraints(notNullOrEmpty = true, message = "ID is required")),
-                    @Validator(values = "name", constraints = {
-                            @Constraints(minLength = 3, maxLength = 50, message = "Name must be between {0} and {1} characters")
-                    }),
-                    @Validator(values = "description", constraints = {
-                            @Constraints(minLength = 5, maxLength = 1024, message = "Description must be between {0} and {1} characters")
-                    }),
-                    @Validator(values = "price", constraints = {
-                            @Constraints(min = 0, message = "Price must be greater than or equal to {0}")
-                    })
-            })
-    @SneakyThrows
-    public IHttpResponse<Void> update(Request request) {
-        ProductDTO product = productService.update(request);
-        return newHttpResponse(204, redirectTo(product.getId()));
-    }
-
-    @RequestMapping(
-            value = "/delete/{id}",
-            method = RequestMethod.POST,
-            validators = @Validator(values = "id", constraints = @Constraints(notNullOrEmpty = true, message = "ID is required")))
-    @SneakyThrows
-    public IHttpResponse<Void> delete(Request request) {
-        productService.delete(request);
-        return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
-    }
-
-    private IPageable<ProductDTO> getAllPageable(IPageRequest<Product> pageRequest, Product filter) {
+    /**
+     * Retrieves a pageable list of product responses based on the given page request and filter criteria.
+     *
+     * @param pageRequest the pagination and sorting parameters, including page number and size
+     * @param filter      the product entity used as a filtering criterion for the query
+     * @return a pageable object containing the paginated product responses
+     */
+    private IPageable<ProductResponse> getAllPageable(IPageRequest pageRequest, Product filter) {
         pageRequest.setFilter(filter);
-        return productService.getAllPageable(pageRequest, ProductMapper::base);
+        return productService.getAllPageable(pageRequest, productMapper::toResponse);
     }
 
+    /**
+     * Calculates the total price of products based on the specified pageable data and product filter.
+     * If the page contains data, the total price is calculated using the provided product filter;
+     * otherwise, returns a value of zero.
+     *
+     * @param page a pageable object containing the data to be processed; if it is null or empty,
+     *             the calculation will return zero
+     * @param filter the product filter used for calculating the total price
+     * @return the total price as a BigDecimal; returns BigDecimal.ZERO if the page is null or empty
+     */
     private BigDecimal calculateTotalPrice(IPageable<?> page, Product filter) {
         if (page != null && page.getContent().iterator().hasNext()) {
             return productService.calculateTotalPriceFor(filter);
         }
         return BigDecimal.ZERO;
-    }
-
-    @SneakyThrows
-    @RequestMapping(value = "/scrape", method = RequestMethod.GET)
-    public IHttpResponse<Void> scrape(Request request,
-                                      @Property("env") String environment,
-                                      @Property("scrape.product.url") String url) {
-        if (!"development".equals(environment)) {
-            log.warn("Web scraping is only allowed in development environment");
-            return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
-        }
-        Optional<List<ProductDTO>> response = productService.scrape(request, url);
-        return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
     }
 }

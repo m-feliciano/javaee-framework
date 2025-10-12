@@ -1,4 +1,5 @@
 package com.dev.servlet.infrastructure.persistence.dao;
+
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.util.CollectionUtils;
 import com.dev.servlet.domain.model.Inventory;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.criterion.MatchMode;
+
 import javax.enterprise.context.RequestScoped;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -57,19 +59,22 @@ public class InventoryDAO extends BaseDAO<Inventory, String> {
             predicate = cb.and(predicate, like);
         }
         if (inventory.getProduct() != null) {
+            Predicate pProduct = cb.conjunction();
             if (inventory.getProduct().getId() != null) {
-                Predicate pProduct = cb.equal(root.get(PRODUCT).get(ID), inventory.getProduct().getId());
-                predicate = cb.and(predicate, pProduct);
+                pProduct = cb.equal(root.get(PRODUCT).get(ID), inventory.getProduct().getId());
             } else {
-                Expression<String> upper = cb.upper(root.get(PRODUCT).get("name"));
-                Predicate pProduct = cb.like(upper, MatchMode.START.toMatchString(inventory.getProduct().getName().toUpperCase()));
+                if (inventory.getProduct().getName() != null) {
+                    Expression<String> upper = cb.upper(root.get(PRODUCT).get("name"));
+                    pProduct = cb.and(pProduct, cb.like(upper, MatchMode.ANYWHERE.toMatchString(inventory.getProduct().getName().toUpperCase())));
+                }
                 if (inventory.getProduct().getCategory() != null) {
                     Predicate pCategory = cb.equal(root.get(PRODUCT).get("category").get(ID), inventory.getProduct().getCategory().getId());
                     pProduct = cb.and(pProduct, pCategory);
                 }
-                predicate = cb.and(predicate, pProduct);
             }
+            predicate = cb.and(predicate, pProduct);
         }
+
         Order desc = cb.asc(root.get(ID));
         cq.select(root).where(predicate).orderBy(desc);
         TypedQuery<Inventory> typedQuery = em.createQuery(cq);

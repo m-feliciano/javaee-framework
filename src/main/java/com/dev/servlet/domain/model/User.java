@@ -35,35 +35,37 @@ import java.util.List;
 @Table(name = "tb_user")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @ToString(exclude = "credentials")
-public class User implements Entity<String> {
+public class User {
     @Id
-    @Column(name = "id")
+    @Column(name = "id", updatable = false)
     @GeneratedValue(generator = "short-uuid")
     @GenericGenerator(name = "short-uuid", strategy = "com.dev.servlet.core.util.ShortUuidGenerator")
     private String id;
+
     @Embedded
     private Credentials credentials;
-    @Column(name = "status", nullable = false)
+
+    @Column(name = "status")
     @ColumnTransformer(write = "UPPER(?)")
     private String status;
+
     @Column(name = "image_url")
     private String imgUrl;
+
     @Column(name = "config")
     private String config;
+
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "user_perfis", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "perfil_id")
     private List<Long> perfis;
+
     @Transient
     @JsonIgnore
     private String token;
 
-    public User(String login) {
-        setLogin(login);
-    }
-
     public User(String login, String password) {
-        this(login);
+        this.setLogin(login);
         this.setPassword(password);
     }
 

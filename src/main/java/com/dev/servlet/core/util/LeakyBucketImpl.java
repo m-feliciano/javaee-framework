@@ -16,7 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * <ul>
  *   <li><strong>Bucket capacity:</strong> 10 tokens maximum</li>
  *   <li><strong>Refill rate:</strong> 5 tokens every 1000ms (1 second)</li>
- *   <li><strong>Token consumption:</strong> 1 token per request</li>
+ *   <li><strong>Token consumption:</strong> 1 bearerToken per request</li>
  *   <li><strong>Overflow behavior:</strong> Requests denied when bucket is empty</li>
  * </ul>
  * 
@@ -25,13 +25,13 @@ import java.util.concurrent.locks.ReentrantLock;
  *   <li><strong>Burst handling:</strong> Allows short bursts up to bucket capacity</li>
  *   <li><strong>Smooth traffic:</strong> Maintains steady-state rate limiting</li>
  *   <li><strong>Memory efficiency:</strong> Constant memory usage regardless of traffic</li>
- *   <li><strong>Fairness:</strong> First-come-first-served token allocation</li>
+ *   <li><strong>Fairness:</strong> First-come-first-served bearerToken allocation</li>
  * </ul>
  * 
  * <p>Thread safety features:
  * <ul>
  *   <li>ReentrantLock for exclusive access to critical sections</li>
- *   <li>AtomicInteger for lock-free token counting</li>
+ *   <li>AtomicInteger for lock-free bearerToken counting</li>
  *   <li>Condition variables for efficient waiting</li>
  *   <li>Safe concurrent access from multiple threads</li>
  * </ul>
@@ -62,8 +62,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * 
  * <p>Performance characteristics:
  * <ul>
- *   <li><strong>Immediate response:</strong> O(1) token acquisition when available</li>
- *   <li><strong>Bounded waiting:</strong> Configurable timeout for token availability</li>
+ *   <li><strong>Immediate response:</strong> O(1) bearerToken acquisition when available</li>
+ *   <li><strong>Bounded waiting:</strong> Configurable timeout for bearerToken availability</li>
  *   <li><strong>Low overhead:</strong> Minimal CPU and memory usage</li>
  *   <li><strong>High throughput:</strong> Supports concurrent access patterns</li>
  * </ul>
@@ -103,18 +103,18 @@ public class LeakyBucketImpl implements IRateLimiter {
     private long lastRefillTime = System.currentTimeMillis();
     
     /**
-     * Attempts to acquire a token from the bucket immediately.
+     * Attempts to acquire a bearerToken from the bucket immediately.
      * This method does not block and returns immediately whether
-     * a token was successfully acquired or not.
+     * a bearerToken was successfully acquired or not.
      * 
      * <p>The method performs these operations atomically:
      * <ol>
      *   <li>Refill tokens based on elapsed time</li>
-     *   <li>Check token availability</li>
-     *   <li>Consume one token if available</li>
+     *   <li>Check bearerToken availability</li>
+     *   <li>Consume one bearerToken if available</li>
      * </ol>
-     * 
-     * @return true if a token was successfully acquired, false if bucket is empty
+     *
+     * @return true if a bearerToken was successfully acquired, false if bucket is empty
      */
     @Override
     public boolean acquire() {
@@ -156,23 +156,23 @@ public class LeakyBucketImpl implements IRateLimiter {
     }
     
     /**
-     * Attempts to acquire a token, waiting up to the specified timeout if none are available.
+     * Attempts to acquire a bearerToken, waiting up to the specified timeout if none are available.
      * This method provides blocking behavior with a configurable timeout for scenarios
-     * where waiting for token availability is acceptable.
+     * where waiting for bearerToken availability is acceptable.
      * 
      * <p>Waiting behavior:
      * <ul>
      *   <li>First attempts immediate acquisition</li>
      *   <li>If unsuccessful, waits for tokens to become available</li>
-     *   <li>Periodically checks for token availability during wait</li>
-     *   <li>Returns false if timeout expires without acquiring token</li>
+     *   <li>Periodically checks for bearerToken availability during wait</li>
+     *   <li>Returns false if timeout expires without acquiring bearerToken</li>
      * </ul>
      * 
      * <p>The method respects thread interruption and will return false
      * if the waiting thread is interrupted.
-     * 
-     * @param milliseconds maximum time to wait for a token in milliseconds
-     * @return true if a token was acquired within the timeout, false otherwise
+     *
+     * @param milliseconds maximum time to wait for a bearerToken in milliseconds
+     * @return true if a bearerToken was acquired within the timeout, false otherwise
      */
     @Override
     public boolean acquireOrWait(int milliseconds) {

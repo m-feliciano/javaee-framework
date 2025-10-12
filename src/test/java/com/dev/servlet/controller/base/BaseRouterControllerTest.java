@@ -1,8 +1,5 @@
 package com.dev.servlet.controller.base;
 
-import com.dev.servlet.domain.transfer.request.Request;
-import com.dev.servlet.domain.transfer.response.HttpResponse;
-import com.dev.servlet.domain.transfer.response.IHttpResponse;
 import com.dev.servlet.core.annotation.Property;
 import com.dev.servlet.core.annotation.RequestMapping;
 import com.dev.servlet.core.exception.ServiceException;
@@ -10,6 +7,9 @@ import com.dev.servlet.core.util.CryptoUtils;
 import com.dev.servlet.core.util.EndpointParser;
 import com.dev.servlet.core.util.PropertiesUtil;
 import com.dev.servlet.core.validator.RequestValidator;
+import com.dev.servlet.domain.transfer.Request;
+import com.dev.servlet.core.response.HttpResponse;
+import com.dev.servlet.core.response.IHttpResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -41,14 +41,14 @@ class BaseRouterControllerTest {
         when(endpoint.getController()).thenReturn("TestController");
         when(endpoint.getApiVersion()).thenReturn("v1");
         when(request.getMethod()).thenReturn("GET");
-        when(request.getToken()).thenReturn("valid-token");
+        when(request.getToken()).thenReturn("valid-bearerToken");
     }
 
     @Test
     void route_WithValidEndpoint_ShouldCallCorrectMethod() throws Exception {
         // Arrange
         try (MockedStatic<CryptoUtils> cryptoUtils = mockStatic(CryptoUtils.class)) {
-            cryptoUtils.when(() -> CryptoUtils.isValidToken("valid-token")).thenReturn(true);
+            cryptoUtils.when(() -> CryptoUtils.isValidToken("valid-bearerToken")).thenReturn(true);
 
             // Act
             IHttpResponse<?> response = controller.route(endpoint, request);
@@ -68,7 +68,7 @@ class BaseRouterControllerTest {
         try (MockedStatic<CryptoUtils> cryptoUtils = mockStatic(CryptoUtils.class);
              MockedStatic<PropertiesUtil> propertiesUtil = mockStatic(PropertiesUtil.class)) {
 
-            cryptoUtils.when(() -> CryptoUtils.isValidToken("valid-token"))
+            cryptoUtils.when(() -> CryptoUtils.isValidToken("valid-bearerToken"))
                     .thenReturn(true);
 
             propertiesUtil.when(() -> PropertiesUtil.getProperty(eq("test.property"), anyString()))

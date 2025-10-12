@@ -1,6 +1,6 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page import="com.dev.servlet.domain.transfer.response.IServletResponse" %>
+<%@ page import="com.dev.servlet.core.response.IServletResponse" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 <%@ include file="/WEB-INF/routes/product-routes.jspf" %>
 
@@ -46,7 +46,7 @@
                     <div class="row justify-content-end">
                         <div class="col-md-6">
                             <label for="inputCategory" class="form-label">CATEGORY</label>
-                            <select name="category" class="form-control text-center" id="inputCategory" required>
+                            <select name="category.id" class="form-control text-center" id="inputCategory" required>
                                 <option value="${null}" selected>${"< SELECT >"}</option>
                                 <c:forEach items="${ categories }" var="category">
                                     <c:choose>

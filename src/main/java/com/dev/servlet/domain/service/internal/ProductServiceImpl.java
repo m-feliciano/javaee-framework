@@ -2,6 +2,7 @@ package com.dev.servlet.domain.service.internal;
 
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.mapper.ProductMapper;
+import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.domain.model.Category;
 import com.dev.servlet.domain.model.Inventory;
 import com.dev.servlet.domain.model.Product;
@@ -9,10 +10,8 @@ import com.dev.servlet.domain.model.User;
 import com.dev.servlet.domain.model.enums.Status;
 import com.dev.servlet.domain.service.IBusinessService;
 import com.dev.servlet.domain.service.IProductService;
-import com.dev.servlet.domain.transfer.dto.DataTransferObject;
-import com.dev.servlet.domain.transfer.dto.ProductDTO;
-import com.dev.servlet.domain.transfer.records.Query;
-import com.dev.servlet.domain.transfer.request.Request;
+import com.dev.servlet.domain.transfer.request.ProductRequest;
+import com.dev.servlet.domain.transfer.response.ProductResponse;
 import com.dev.servlet.infrastructure.external.webscrape.WebScrapeServiceRegistry;
 import com.dev.servlet.infrastructure.external.webscrape.builder.WebScrapeBuilder;
 import com.dev.servlet.infrastructure.external.webscrape.transfer.ProductWebScrapeDTO;
@@ -38,8 +37,13 @@ import static com.dev.servlet.core.util.ThrowableUtils.notFound;
 @Model
 @Named("productService")
 public class ProductServiceImpl extends BaseServiceImpl<Product, String> implements IProductService {
+
     @Inject
     private IBusinessService businessService;
+
+    @Inject
+    private ProductMapper productMapper;
+
     @Inject
     private WebScrapeServiceRegistry webScrapeServiceRegistry;
 
@@ -53,90 +57,67 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
     }
 
     @Override
-    public Class<? extends DataTransferObject<String>> getDataMapper() {
-        return ProductDTO.class;
-    }
-
-    @Override
-    public Product toEntity(Object object) {
-        return ProductMapper.full((ProductDTO) object);
-    }
-
-    @Override
-    public Product getBody(Request request) {
-        Product product = requestBody(request.getBody()).orElse(new Product());
-
-        String categoryId = request.getParameter("category");
-        if (categoryId != null && !categoryId.isBlank()) {
-            product.setCategory(new Category(categoryId));
-        }
-
-        Query query = request.getQuery();
-        if (query.getSearch() != null && query.getType() != null) {
-            if (query.getType().equals("name")) {
-                product.setName(query.getSearch());
-            } else if (query.getType().equals("description")) {
-                product.setDescription(query.getSearch());
-            }
-        }
-        product.setUser(getUser(request.getToken()));
-        return product;
-    }
-
-    @Override
-    public ProductDTO create(Request request) {
+    public ProductResponse create(ProductRequest request, String auth) {
         log.trace("");
-        Product product = this.getBody(request);
+
+        Product product = productMapper.toProduct(request, auth);
         product.setRegisterDate(new Date());
         product.setStatus(Status.ACTIVE.getValue());
         product = super.save(product);
-        return ProductMapper.full(product);
+        return productMapper.toResponse(product);
     }
 
     @Override
-    public ProductDTO findById(Request request) throws ServiceException {
+    public ProductResponse findById(ProductRequest request, String auth) throws ServiceException {
         log.trace("");
-        Product product = require(request.id());
-        return ProductMapper.full(product);
+
+        Product product = findProduct(productMapper.toProduct(request, auth));
+        return productMapper.toResponse(product);
     }
 
     @Override
-    public ProductDTO update(Request request) throws ServiceException {
+    public ProductResponse update(ProductRequest request, String auth) throws ServiceException {
         log.trace("");
-        Product product = require(request.id());
 
-        Product body = getBody(request);
-        product.setName(body.getName());
-        product.setDescription(body.getDescription());
-        product.setPrice(body.getPrice());
-        product.setUrl(body.getUrl());
-        product.setCategory(body.getCategory());
+        Product product = findProduct(productMapper.toProduct(request, auth));
+        product.setName(request.name());
+        product.setDescription(request.description());
+        product.setPrice(request.price());
+        product.setUrl(request.url());
+        product.setCategory(Category.builder().id(request.category().id()).build());
         super.update(product);
-        return ProductMapper.full(product);
+        return productMapper.toResponse(product);
     }
 
     @Override
-    public boolean delete(Request request) throws ServiceException {
+    public void delete(ProductRequest request, String auth) throws ServiceException {
         log.trace("");
-        Product product = require(request.id());
+
+        Product product = findProduct(productMapper.toProduct(request, auth));
         Inventory inventory = Inventory.builder().user(product.getUser()).product(product).build();
-        if (businessService.hasInventory(inventory)) {
+        if (businessService.hasInventory(inventory, auth)) {
             throw new ServiceException(HttpServletResponse.SC_CONFLICT, "Product has inventory.");
         }
         super.delete(product);
-        return true;
     }
 
     @Override
-    public BigDecimal calculateTotalPriceFor(Product product) {
-        return this.getDAO().calculateTotalPriceFor(product);
+    public BigDecimal calculateTotalPriceFor(Product request) {
+        ProductDAO DAO = this.getDAO();
+        return DAO.calculateTotalPriceFor(request);
     }
 
     @Override
     @SneakyThrows
-    public Optional<List<ProductDTO>> scrape(Request request, String url) {
+    public Optional<List<ProductResponse>> scrape(String url, String environment, String auth) {
         log.trace("");
-        final User user = getUser(request.getToken());
+
+        if (!"development".equals(environment)) {
+            log.warn("Web scraping is only allowed in development environment");
+            return Optional.empty();
+        }
+
+        final User user = getUser(auth);
 
         Optional<List<ProductWebScrapeDTO>> scrapeResponse = WebScrapeBuilder.<List<ProductWebScrapeDTO>>create()
                 .withServiceType("product")
@@ -152,12 +133,12 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
         log.info("Web scrape returned {} products", response.size());
 
         List<Product> products = response.stream()
-                .map(ProductMapper::fromWebScrapeDTO)
+                .map(productMapper::scrapeToProduct)
                 .map(product -> prepareProductToSave(product, user))
                 .toList();
         try {
             products = baseDAO.save(products);
-            return Optional.of(products.stream().map(ProductMapper::base).toList());
+            return Optional.of(products.stream().map(productMapper::toResponse).toList());
 
         } catch (Exception e) {
             log.error("Error saving scraped products: {}", e.getMessage(), e);
@@ -173,7 +154,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
         return product;
     }
 
-    private Product require(String id) throws ServiceException {
-        return this.findById(id).orElseThrow(() -> notFound("Product not found"));
+    private Product findProduct(Product product) throws ServiceException {
+        return this.find(product).orElseThrow(() -> notFound("Product not found"));
     }
 }
