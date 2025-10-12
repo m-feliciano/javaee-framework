@@ -1,9 +1,12 @@
 package com.dev.servlet.domain.service;
 
 import com.dev.servlet.core.exception.ServiceException;
+import com.dev.servlet.core.mapper.Mapper;
 import com.dev.servlet.domain.model.Product;
-import com.dev.servlet.domain.transfer.dto.ProductDTO;
-import com.dev.servlet.domain.transfer.request.Request;
+import com.dev.servlet.domain.transfer.response.ProductResponse;
+import com.dev.servlet.domain.transfer.request.ProductRequest;
+import com.dev.servlet.infrastructure.persistence.IPageRequest;
+import com.dev.servlet.infrastructure.persistence.IPageable;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -20,59 +23,18 @@ import java.util.Optional;
  * @author servlets-team
  * @since 1.0
  */
-public interface IProductService extends IBaseService<Product, String> {
-    
-    /**
-     * Creates a new product based on the provided request data.
-     *
-     * @param request the request containing product creation data
-     * @return ProductDTO representing the created product
-     */
-    ProductDTO create(Request request);
-    
-    /**
-     * Finds a product by its identifier from the request.
-     *
-     * @param request the request containing the product ID
-     * @return ProductDTO representing the found product
-     * @throws ServiceException if product is not found or request is invalid
-     */
-    ProductDTO findById(Request request) throws ServiceException;
-    
-    /**
-     * Updates an existing product with new data from the request.
-     *
-     * @param request the request containing updated product data
-     * @return ProductDTO representing the updated product
-     * @throws ServiceException if update fails due to validation or business rule violations
-     */
-    ProductDTO update(Request request) throws ServiceException;
-    
-    /**
-     * Deletes a product identified by the request data.
-     *
-     * @param request the request containing product deletion criteria
-     * @return true if deletion was successful, false otherwise
-     * @throws ServiceException if deletion fails due to business constraints
-     */
-    boolean delete(Request request) throws ServiceException;
-    
-    /**
-     * Calculates the total price for a given product including any applicable discounts,
-     * taxes, or special pricing rules.
-     *
-     * @param product the product for which to calculate the total price
-     * @return BigDecimal representing the calculated total price
-     */
+public interface IProductService {
+    ProductResponse create(ProductRequest product, String auth) throws ServiceException;
+
+    ProductResponse findById(ProductRequest product, String auth) throws ServiceException;
+
+    ProductResponse update(ProductRequest product, String auth) throws ServiceException;
+
+    void delete(ProductRequest product, String auth) throws ServiceException;
+
     BigDecimal calculateTotalPriceFor(Product product);
-    
-    /**
-     * Scrapes product data from an external URL and converts it to ProductDTO objects.
-     * This method is used for data integration from external sources.
-     *
-     * @param request the request containing scraping parameters
-     * @param url the URL to scrape product data from
-     * @return Optional containing list of scraped ProductDTOs, empty if scraping fails
-     */
-    Optional<List<ProductDTO>> scrape(Request request, String url);
+
+    Optional<List<ProductResponse>> scrape(String url, String environment, String auth);
+
+    <U> IPageable<U> getAllPageable(IPageRequest pageRequest, Mapper<Product, U> mapper);
 }

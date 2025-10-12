@@ -1,17 +1,17 @@
 package com.dev.servlet.adapter.internal;
 
-import com.dev.servlet.domain.transfer.dto.UserDTO;
-import com.dev.servlet.domain.transfer.request.Request;
-import com.dev.servlet.domain.transfer.response.IHttpResponse;
+import com.dev.servlet.adapter.IHttpExecutor;
+import com.dev.servlet.adapter.IServletDispatcher;
 import com.dev.servlet.core.builder.HtmlTemplate;
 import com.dev.servlet.core.builder.RequestBuilder;
 import com.dev.servlet.core.exception.ServiceException;
-import com.dev.servlet.adapter.IHttpExecutor;
 import com.dev.servlet.core.interfaces.IRateLimiter;
-import com.dev.servlet.adapter.IServletDispatcher;
 import com.dev.servlet.core.util.PropertiesUtil;
 import com.dev.servlet.core.util.URIUtils;
 import com.dev.servlet.domain.model.enums.RequestMethod;
+import com.dev.servlet.domain.transfer.Request;
+import com.dev.servlet.domain.transfer.response.UserResponse;
+import com.dev.servlet.core.response.IHttpResponse;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -79,7 +79,7 @@ public class ServletDispatcherImpl implements IServletDispatcher {
         }
     }
 
-    private void setSessionAttributes(HttpSession session, UserDTO user) {
+    private void setSessionAttributes(HttpSession session, UserResponse user) {
         session.setAttribute("token", user.getToken());
         session.setAttribute("user", user);
     }
@@ -102,11 +102,14 @@ public class ServletDispatcherImpl implements IServletDispatcher {
 
     private void processResponseData(HttpServletRequest httpRequest, HttpServletResponse httpResponse,
                                      Request request, IHttpResponse<?> response) {
-        if (RequestMethod.POST.getMethod().equals(request.getMethod()) && response.body() instanceof UserDTO userDTO) {
-            setSessionAttributes(httpRequest.getSession(), userDTO);
+
+        if (RequestMethod.POST.getMethod().equals(request.getMethod()) && response.body() instanceof UserResponse userResponse) {
+            setSessionAttributes(httpRequest.getSession(), userResponse);
         }
+
         setRequestAttributes(httpRequest, response);
         handleResponseErrors(httpRequest, httpResponse, response);
+
         if (request.getEndpoint() != null && request.getEndpoint().contains("logout")) {
             httpRequest.getSession().invalidate();
         }

@@ -9,3 +9,4 @@
 <c:url value="/${inventoryLink}/update" var="updateItem"/>
 <c:url value="/${inventoryLink}/delete" var="deleteItem"/>
 <c:url value="/${inventoryLink}/list" var="listInventory"/>
+<c:url value="/${inventoryLink}/search" var="searchInventory"/>

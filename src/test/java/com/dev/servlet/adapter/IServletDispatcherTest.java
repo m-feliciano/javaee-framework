@@ -3,12 +3,10 @@ package com.dev.servlet.adapter;
 
 import com.dev.servlet.adapter.internal.HttpExecutor;
 import com.dev.servlet.adapter.internal.ServletDispatcherImpl;
-import com.dev.servlet.domain.transfer.request.Request;
-import com.dev.servlet.domain.transfer.response.IHttpResponse;
+import com.dev.servlet.domain.transfer.Request;
+import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.builder.RequestBuilder;
-import com.dev.servlet.adapter.IHttpExecutor;
 import com.dev.servlet.core.interfaces.IRateLimiter;
-import com.dev.servlet.adapter.IServletDispatcher;
 import com.dev.servlet.core.util.URIUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

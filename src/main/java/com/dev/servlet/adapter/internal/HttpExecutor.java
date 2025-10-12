@@ -1,13 +1,13 @@
 package com.dev.servlet.adapter.internal;
 
-import com.dev.servlet.domain.transfer.request.Request;
-import com.dev.servlet.domain.transfer.response.HttpResponse;
-import com.dev.servlet.domain.transfer.response.IHttpResponse;
-import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.adapter.IHttpExecutor;
+import com.dev.servlet.controller.base.BaseRouterController;
+import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.util.BeanUtil;
 import com.dev.servlet.core.util.EndpointParser;
-import com.dev.servlet.controller.base.BaseRouterController;
+import com.dev.servlet.domain.transfer.Request;
+import com.dev.servlet.core.response.HttpResponse;
+import com.dev.servlet.core.response.IHttpResponse;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,46 +18,48 @@ import java.util.Objects;
 @NoArgsConstructor
 public class HttpExecutor<TResponse> implements IHttpExecutor<TResponse> {
 
+    private static EndpointParser resolveEndpoint(String endpoint) throws ServiceException {
+        try {
+            return EndpointParser.of(endpoint);
+        } catch (Exception e) {
+            log.error("Error parsing endpoint: {}", endpoint, e);
+            throw new ServiceException(HttpServletResponse.SC_BAD_REQUEST, "Invalid endpoint: " + endpoint);
+        }
+    }
+
     @Override
     public IHttpResponse<TResponse> call(Request request) {
-        EndpointParser parser;
-        BaseRouterController router;
-        IHttpResponse<TResponse> response;
+        final String endpoint = request.getEndpoint();
+        int maxRetries = request.getRetry();
+
         try {
-            parser = resolveEndpoint(request);
-            router = resolveController(parser);
-            int maxRetries = request.getRetry();
+            IHttpResponse<TResponse> response;
+            EndpointParser parser = resolveEndpoint(endpoint);
+            BaseRouterController router = resolveController(parser);
+
             do {
-                log.debug("Executing request to {} (attempt {}/{})", request.getEndpoint(), 1, maxRetries + 1);
+                log.debug("Executing request to {} (attempt {}/{})", endpoint, 1, maxRetries + 1);
                 response = router.route(parser, request);
                 if (response.statusCode() >= 200 && response.statusCode() < 400) {
                     return response;
                 }
                 if (response.statusCode() >= 400 && response.statusCode() < 500) {
-                    log.warn("Client error for request to {}: {}", request.getEndpoint(), response.error());
+                    log.warn("Client error for request to {}: {}", endpoint, response.error());
                     return response;
                 }
-                log.error("Request to {} returned errors: {}", request.getEndpoint(), response.error());
+                log.error("Request to {} returned errors: {}", endpoint, response.error());
                 if (maxRetries <= 0) {
-                    log.info("Maximum retries exhausted for endpoint {}", request.getEndpoint());
+                    log.info("Maximum retries exhausted for endpoint {}", endpoint);
                     return response;
                 }
                 waitBeforeRetry(maxRetries);
-                log.info("Retrying request to {} (attempt {}/{})", request.getEndpoint(), 1, maxRetries + 1);
+                log.info("Retrying request to {} (attempt {}/{})", endpoint, 1, maxRetries + 1);
             } while (--maxRetries > 0);
-        } catch (Exception e) {
-            log.error("Error processing request to {}: {}", request.getEndpoint(), e.getMessage(), e);
-            response = handleException(e);
-        }
-        return response;
-    }
 
-    private static EndpointParser resolveEndpoint(Request request) throws ServiceException {
-        try {
-            return EndpointParser.of(request.getEndpoint());
+            return response;
         } catch (Exception e) {
-            log.error("Error parsing endpoint: {}", request.getEndpoint(), e);
-            throw new ServiceException(HttpServletResponse.SC_BAD_REQUEST, "Invalid endpoint: " + request.getEndpoint());
+            log.error("Error processing request to {}: {}", endpoint, e.getMessage(), e);
+            return handleException(e);
         }
     }
 

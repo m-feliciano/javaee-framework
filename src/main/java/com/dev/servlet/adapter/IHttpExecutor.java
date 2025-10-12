@@ -1,6 +1,7 @@
 package com.dev.servlet.adapter;
-import com.dev.servlet.domain.transfer.request.Request;
-import com.dev.servlet.domain.transfer.response.IHttpResponse;
+
+import com.dev.servlet.domain.transfer.Request;
+import com.dev.servlet.core.response.IHttpResponse;
 
 /**
  * Functional interface for executing HTTP operations and returning structured responses.

@@ -1,6 +1,6 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ page import="com.dev.servlet.domain.transfer.response.IServletResponse" %>
+<%@ page import="com.dev.servlet.core.response.IServletResponse" %>
 <%@ include file="/WEB-INF/routes/product-routes.jspf" %>
 <%@ include file="/WEB-INF/routes/inventory-routes.jspf" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
@@ -17,7 +17,7 @@
 <div class="main">
     <jsp:include page="/WEB-INF/view/components/search.jsp">
         <jsp:param name="placeholder" value="Search product"/>
-        <jsp:param name="action" value="${baseLink}${version}${ listProduct }"/>
+        <jsp:param name="action" value="${baseLink}${version}${ searchProduct }"/>
         <jsp:param name="onclear" value="${baseLink}${version}${ listProduct }"/>
         <jsp:param name="limit" value="20"/>
         <jsp:param name="categories" value="${ categories }"/>
@@ -73,7 +73,7 @@
                                     <a href="${baseLink}${version}${ listProduct }/${ product.id }" class="btn btn-auto btn-primary">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <form action="${baseLink}${version}${ listInventory }" method="get" class="d-inline">
+                                    <form action="${baseLink}${version}${ searchInventory }" method="get" class="d-inline">
                                         <input type="hidden" name="k" value="product"/>
                                         <input type="hidden" name="q" value="${ product.id }"/>
 

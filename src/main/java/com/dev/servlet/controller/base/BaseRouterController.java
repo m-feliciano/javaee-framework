@@ -1,30 +1,26 @@
 package com.dev.servlet.controller.base;
 
-import com.dev.servlet.domain.transfer.request.Request;
-import com.dev.servlet.domain.transfer.response.IHttpResponse;
+import com.dev.servlet.core.annotation.Authorization;
 import com.dev.servlet.core.annotation.Property;
 import com.dev.servlet.core.annotation.RequestMapping;
 import com.dev.servlet.core.exception.ServiceException;
+import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.util.EndpointParser;
 import com.dev.servlet.core.util.PropertiesUtil;
 import com.dev.servlet.core.validator.RequestValidator;
+import com.dev.servlet.domain.transfer.Request;
+import com.dev.servlet.domain.transfer.records.Query;
+import com.dev.servlet.infrastructure.persistence.IPageRequest;
 
-import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
-import static com.dev.servlet.core.util.ThrowableUtils.serviceError;
+import static com.dev.servlet.core.util.ThrowableUtils.internalServerError;
 
 public abstract class BaseRouterController {
-    private final Map<String, RouteMapping> routeMappings = new HashMap<>();
-
-    public record RouteMapping(Method method, Class<?>[] parameterTypes) {
-        public RouteMapping(Method method) {
-            this(method, method.getParameterTypes());
-        }
-    }
+    private final Set<Method> reflections = new HashSet<>();
 
     protected BaseRouterController() {
         initRouteMapping();
@@ -32,60 +28,56 @@ public abstract class BaseRouterController {
 
     private void initRouteMapping() {
         for (Method method : this.getClass().getDeclaredMethods()) {
-            if (!method.isAnnotationPresent(RequestMapping.class)) {
-                continue;
+            if (method.isAnnotationPresent(RequestMapping.class)) {
+                reflections.add(method);
             }
-            var requestMapping = method.getAnnotation(RequestMapping.class);
-            String serviceController = requestMapping.value().substring(1);
-            routeMappings.put(serviceController, new RouteMapping(method));
         }
     }
 
-    public <U> IHttpResponse<U> route(EndpointParser endpoint, Request request) throws Exception {
-        var routeMapping = routeMappingFromEndpoint(endpoint);
-        var requestMapping = routeMapping.method().getAnnotation(RequestMapping.class);
-        RequestValidator.validate(endpoint, requestMapping, request);
-        Object[] args = prepareMethodArguments(routeMapping, request);
-        return invokeServiceMethod(this, routeMapping.method(), args);
-    }
-
-    private RouteMapping routeMappingFromEndpoint(EndpointParser endpoint) throws ServiceException {
-        var routeMapping = routeMappings.get(endpoint.getEndpoint());
-        if (routeMapping == null) {
-            throw serviceError(HttpServletResponse.SC_NOT_IMPLEMENTED, "Endpoint not implemented: " + endpoint.getEndpoint());
-        }
-        return routeMapping;
-    }
-
-    private Object[] prepareMethodArguments(RouteMapping mapping, Request request) throws ServiceException {
-        Method method = mapping.method();
+    private Object[] prepareMethodArguments(Method method, Request request) {
         Parameter[] parameters = method.getParameters();
-        Object[] args = new Object[mapping.parameterTypes().length];
-        for (int i = 0; i < mapping.parameterTypes().length; i++) {
-            Parameter parameter = parameters[i];
-            if (parameter.isAnnotationPresent(Property.class)) {
-                String propertyKey = parameter.getAnnotation(Property.class).value();
-                args[i] = PropertiesUtil.getProperty(propertyKey, "");
-            } else {
-                Class<?> parameterType = mapping.parameterTypes()[i];
-                args[i] = resolveArgument(parameterType, request);
-            }
+        Object[] args = new Object[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            args[i] = resolveArgument(parameters[i], request);
         }
         return args;
     }
 
-    private Object resolveArgument(Class<?> parameter, Request request) throws ServiceException {
-        if (Request.class.isAssignableFrom(parameter)) {
+    public <U> IHttpResponse<U> route(EndpointParser endpoint, Request request) throws Exception {
+        var method = routeMappingFromEndpoint("/" + endpoint.getEndpoint());
+        var requestMapping = method.getAnnotation(RequestMapping.class);
+        RequestValidator.validate(endpoint, requestMapping, request);
+        Object[] args = prepareMethodArguments(method, request);
+        return invokeServiceMethod(this, method, args);
+    }
+
+    private Method routeMappingFromEndpoint(String endpoint) throws ServiceException {
+        return reflections.stream()
+                .filter(m -> m.getAnnotation(RequestMapping.class).value().equals(endpoint))
+                .findFirst()
+                .orElseThrow(() -> internalServerError("Resource not found: " + endpoint));
+    }
+
+    private Object resolveArgument(Parameter parameter, Request request) {
+        if (Request.class.isAssignableFrom(parameter.getType())) {
             return request;
         }
-        if (request.getBody() != null) {
-            return request.getBody()
-                    .stream()
-                    .filter(body -> parameter.isAssignableFrom(body.getClass()))
-                    .findFirst()
-                    .orElse(null);
+        if (Query.class.isAssignableFrom(parameter.getType())) {
+            return request.getQuery();
         }
-        return null;
+        if (IPageRequest.class.isAssignableFrom(parameter.getType())) {
+            return request.getPageRequest();
+        }
+
+        if (parameter.isAnnotationPresent(Authorization.class)) {
+            return request.getToken();
+        }
+        if (parameter.isAnnotationPresent(Property.class)) {
+            String propertyKey = parameter.getAnnotation(Property.class).value();
+            return PropertiesUtil.getProperty(propertyKey, "");
+        }
+
+        return request.getPayload(parameter.getType());
     }
 
     private <U> IHttpResponse<U> invokeServiceMethod(Object instance, Method method, Object[] args) throws Exception {

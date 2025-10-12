@@ -8,8 +8,9 @@ import com.dev.servlet.domain.model.User;
 import com.dev.servlet.domain.model.enums.RoleType;
 import com.dev.servlet.domain.model.enums.Status;
 import com.dev.servlet.domain.service.IUserService;
-import com.dev.servlet.domain.transfer.dto.UserDTO;
-import com.dev.servlet.domain.transfer.request.Request;
+import com.dev.servlet.domain.transfer.response.UserResponse;
+import com.dev.servlet.domain.transfer.request.UserCreateRequest;
+import com.dev.servlet.domain.transfer.request.UserRequest;
 import com.dev.servlet.infrastructure.persistence.dao.UserDAO;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Optional;
 
-import static com.dev.servlet.core.util.CryptoUtils.getUser;
 import static com.dev.servlet.core.util.ThrowableUtils.notFound;
 import static com.dev.servlet.core.util.ThrowableUtils.serviceError;
 
@@ -29,9 +29,8 @@ import static com.dev.servlet.core.util.ThrowableUtils.serviceError;
 @Model
 public class UserServiceImpl extends BaseServiceImpl<User, String> implements IUserService {
 
-    private static final String LOGIN = "login";
-    private static final String PASSWORD = "password";
-    private static final String CONFIRM_PASSWORD = "confirmPassword";
+    @Inject
+    private UserMapper userMapper;
 
     @Inject
     public UserServiceImpl(UserDAO userDAO) {
@@ -39,39 +38,22 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
     }
 
     @Override
-    public Class<UserDTO> getDataMapper() {
-        return UserDTO.class;
-    }
-
-    @Override
-    public User toEntity(Object object) {
-        return UserMapper.full((UserDTO) object);
-    }
-
-    @Override
-    public User getBody(Request request) {
-        return getUser(request.getToken());
-    }
-
-    @Override
     public boolean isEmailAvailable(String email, User candidate) {
-        return this.find(new User(email))
-                .map(user -> !user.getId().equals(candidate.getId()))
+        return this.find(new User(email, null))
+                .map(user -> user.getId().equals(candidate.getId()))
                 .orElse(true);
     }
 
     @Override
-    public UserDTO register(Request request) throws ServiceException {
+    public UserResponse register(UserCreateRequest user) throws ServiceException {
         log.trace("");
-        String login = request.getParameter(LOGIN).toLowerCase();
-        String password = request.getParameter(PASSWORD);
-        String confirmPassword = request.getParameter(CONFIRM_PASSWORD);
-        boolean passwordError = password == null || !password.equals(confirmPassword);
+
+        boolean passwordError = user.password() == null || !user.password().equals(user.confirmPassword());
         if (passwordError) {
             throw serviceError(HttpServletResponse.SC_FORBIDDEN, "Passwords do not match.");
         }
 
-        User userExists = this.find(new User(login)).orElse(null);
+        User userExists = this.find(new User(user.login(), null)).orElse(null);
         if (userExists != null) {
             log.warn("User already exists: {}", userExists.getCredentials().getLogin());
             throw serviceError(HttpServletResponse.SC_FORBIDDEN, "User already exists.");
@@ -79,57 +61,55 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
 
         User newUser = User.builder()
                 .credentials(Credentials.builder()
-                        .login(login)
-                        .password(password)
+                        .login(user.login().toLowerCase())
+                        .password(user.password())
                         .build())
-                .imgUrl(request.getParameter("imgUrl"))
                 .status(Status.ACTIVE.getValue())
                 .perfis(List.of(RoleType.DEFAULT.getCode()))
                 .build();
         newUser = super.save(newUser);
-        return UserMapper.full(newUser);
+        return userMapper.toResponse(newUser);
     }
 
     @Override
-    public UserDTO update(Request request) throws ServiceException {
+    public UserResponse update(UserRequest userRequest, String auth) throws ServiceException {
         log.trace("");
-        final User entity = getBody(request);
-        String email = request.getParameter(LOGIN).toLowerCase();
 
-        boolean emailUnavailable = !this.isEmailAvailable(email, entity);
+        final String email = userRequest.login().toLowerCase();
+
+        boolean emailUnavailable = !this.isEmailAvailable(email, userMapper.toUser(userRequest));
         if (emailUnavailable) {
             throw serviceError(HttpServletResponse.SC_FORBIDDEN, "Email already in use.");
         }
 
+        UserResponse userExists = this.getById(userRequest, auth);
         User user = User.builder()
-                .id(entity.getId())
-                .imgUrl(request.getParameter("imgUrl"))
+                .id(userRequest.id())
+                .imgUrl(userRequest.imgUrl())
                 .credentials(Credentials.builder()
                         .login(email)
-                        .password(request.getParameter(PASSWORD))
+                        .password(userRequest.password())
                         .build())
                 .status(Status.ACTIVE.getValue())
-                .perfis(entity.getPerfis())
+                .perfis(userExists.getPerfis())
                 .build();
         user = super.update(user);
-        UserDTO dto = UserMapper.full(user);
-        dto.setToken(CryptoUtils.generateJwtToken(dto));
-        return dto;
+        user.setToken(CryptoUtils.generateJwtToken(user));
+        return userMapper.toResponse(user);
     }
 
     @Override
-    public UserDTO getById(Request request) throws ServiceException {
+    public UserResponse getById(UserRequest request, String auth) throws ServiceException {
         log.trace("");
         User user = require(request.id());
-        return UserMapper.full(user);
+        return userMapper.toResponse(user);
     }
 
     @Override
-    public boolean delete(Request request) throws ServiceException {
+    public void delete(UserRequest request, String auth) throws ServiceException {
         log.trace("");
-        final User entity = getBody(request);
-        super.delete(entity);
-        return true;
+        User user = userMapper.toUser(request);
+        super.delete(user);
     }
 
     @Override

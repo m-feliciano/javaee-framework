@@ -6,7 +6,7 @@
 
 ## Overview
 - Name: Product Management System
-- Version: 2.1 (api: v1)
+- Version: 3.0.0 (api: v1)
 - Author: Marcelo Feliciano
 - Style: Clean-layered architecture (Adapter, Controller, Core, Domain, Infrastructure, Config)
 - Focus: Maintainability, security, performance (caching/rate‑limit), and testability
@@ -55,9 +55,8 @@
 3. 🔧 XSSFilter → ServletDispatcher (routes)
 4. 📋 Dispatcher → BaseController (validates)
 5. 🎯 BaseController → ProductController (executes)
-6. 🏭 Controller → ProductServiceProxy (processes)
-7. 🎭 Proxy → CachedDecorator (checks cache)
-8. 💾 Decorator → ProductDAO (if cache miss)
+6. 🏭 Controller → ProductService (processes)
+8. 💾 Service → ProductDAO (data access)
 9. 🗄️ DAO → PostgreSQL (queries)
 10. ↩️ Response travels reverse path
 ```

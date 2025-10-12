@@ -23,12 +23,12 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Comprehensive caching utility using Ehcache for high-performance data caching.
- * This class provides token-based cache isolation, automatic cache management,
+ * This class provides bearerToken-based cache isolation, automatic cache management,
  * and deep cloning to prevent cache pollution.
  * 
  * <p>Key features:
  * <ul>
- *   <li><strong>Token-based isolation:</strong> Each token gets its own cache instance</li>
+ *   <li><strong>Token-based isolation:</strong> Each bearerToken gets its own cache instance</li>
  *   <li><strong>Automatic cleanup:</strong> Unused caches are automatically evicted</li>
  *   <li><strong>Deep cloning:</strong> Objects are cloned to prevent reference sharing</li>
  *   <li><strong>Type safety:</strong> Generic methods for compile-time type checking</li>
@@ -62,8 +62,8 @@ import java.util.concurrent.TimeUnit;
  * 
  * // Clear specific entries
  * CacheUtils.clear("user:123", userToken);
- * 
- * // Clear all entries for a token
+ *
+ * // Clear all entries for a bearerToken
  * CacheUtils.clearAll(userToken);
  * 
  * // Clear entries by prefix
@@ -110,12 +110,12 @@ public final class CacheUtils {
     }
 
     /**
-     * Gets or creates a cache for the specified token.
-     * Each token gets its own isolated cache instance to prevent data leakage
+     * Gets or creates a cache for the specified bearerToken.
+     * Each bearerToken gets its own isolated cache instance to prevent data leakage
      * between different users or sessions.
-     * 
-     * @param token the user/session token (truncated to 25 characters)
-     * @return the cache instance for the token
+     *
+     * @param token the user/session bearerToken (truncated to 25 characters)
+     * @return the cache instance for the bearerToken
      */
     private static Cache<String, Container> getOrCreateCache(String token) {
         if (tokenCaches.containsKey(token)) {
@@ -125,7 +125,7 @@ public final class CacheUtils {
         cacheManager.removeCache(cacheName);
         CacheConfigurationBuilder<String, Container> config = cacheConfigurationBuilder();
         cacheManager.createCache(cacheName, config);
-        log.info("Created new cache for token: {}", shortTokenForKey(token));
+        log.info("Created new cache for bearerToken: {}", shortTokenForKey(token));
         Cache<String, Container> cache = cacheManager.getCache(cacheName, String.class, Container.class);
         tokenCaches.put(token, cache);
         lastAccessMap.put(token, System.currentTimeMillis());
@@ -154,7 +154,7 @@ public final class CacheUtils {
      * 
      * @param <T> the type of collection elements
      * @param key the cache key
-     * @param token the user/session token
+     * @param token the user/session bearerToken
      * @param collection the collection to cache
      */
     public static <T> void set(String key, String token, Collection<T> collection) {
@@ -162,7 +162,7 @@ public final class CacheUtils {
         List<T> data = CloneUtil.cloneList(collection);
         Cache<String, Container> cache = getOrCreateCache(shortToken);
         cache.put(key, new Container(data));
-        log.debug("Cached data for key='{}', token='{}'", key, shortTokenForKey(token));
+        log.debug("Cached data for key='{}', bearerToken='{}'", key, shortTokenForKey(token));
     }
 
     /**
@@ -172,7 +172,7 @@ public final class CacheUtils {
      * 
      * @param <T> the type of object
      * @param key the cache key
-     * @param token the user/session token
+     * @param token the user/session bearerToken
      * @param object the object to cache
      */
     public static <T> void setObject(String key, String token, T object) {
@@ -181,7 +181,7 @@ public final class CacheUtils {
         T clone = CloneUtil.forceClone(object);
         Container container = new Container(clone);
         cache.put(key, container);
-        log.debug("Cached object for key='{}', token='{}'", key, shortToken);
+        log.debug("Cached object for key='{}', bearerToken='{}'", key, shortToken);
     }
 
     /**
@@ -191,7 +191,7 @@ public final class CacheUtils {
      * 
      * @param <T> the type of collection elements
      * @param key the cache key
-     * @param token the user/session token
+     * @param token the user/session bearerToken
      * @return cloned collection from cache, or empty list if not found
      */
     @SuppressWarnings("unchecked")
@@ -199,7 +199,7 @@ public final class CacheUtils {
         String shortToken = shortTokenForKey(token);
         Cache<String, Container> cache = getOrCreateCache(shortToken);
         Container value = cache.get(key);
-        log.debug("Retrieved data for key='{}', token='{}': {}", key, shortToken, value != null ? "HIT" : "MISS");
+        log.debug("Retrieved data for key='{}', bearerToken='{}': {}", key, shortToken, value != null ? "HIT" : "MISS");
         if (value != null) {
             Object data = value.data();
             if (data instanceof Collection<?> valueCollection) {
@@ -216,7 +216,7 @@ public final class CacheUtils {
      * 
      * @param <T> the type of object
      * @param key the cache key
-     * @param token the user/session token
+     * @param token the user/session bearerToken
      * @return cloned object from cache, or null if not found
      */
     @SuppressWarnings("unchecked")
@@ -224,7 +224,7 @@ public final class CacheUtils {
         String shortToken = shortTokenForKey(token);
         Cache<String, Container> cache = getOrCreateCache(shortToken);
         Container value = cache.get(key);
-        log.debug("Retrieved data for key='{}', token='{}': {}", key, shortToken, value != null ? "HIT" : "MISS");
+        log.debug("Retrieved data for key='{}', bearerToken='{}': {}", key, shortToken, value != null ? "HIT" : "MISS");
         if (value == null) {
             return null;
         }
@@ -235,35 +235,35 @@ public final class CacheUtils {
      * Removes a specific cache entry.
      * 
      * @param key the cache key to remove
-     * @param token the user/session token
+     * @param token the user/session bearerToken
      */
     public static void clear(String key, String token) {
         String shortToken = shortTokenForKey(token);
         Cache<String, Container> cache = getOrCreateCache(shortToken);
         cache.remove(key);
-        log.info("Cleared cache entry for key='{}', token='{}'", key, shortToken);
+        log.info("Cleared cache entry for key='{}', bearerToken='{}'", key, shortToken);
     }
 
     /**
-     * Removes all cache entries for a specific token.
-     * This completely destroys the cache instance for the token.
-     * 
-     * @param token the user/session token
+     * Removes all cache entries for a specific bearerToken.
+     * This completely destroys the cache instance for the bearerToken.
+     *
+     * @param token the user/session bearerToken
      */
     public static void clearAll(String token) {
         String shortToken = shortTokenForKey(token);
         String cacheName = "cache_" + shortToken;
         cacheManager.removeCache(cacheName);
         tokenCaches.remove(shortToken);
-        log.info("Cleared all cache entries for token='{}'", shortToken);
+        log.info("Cleared all cache entries for bearerToken='{}'", shortToken);
     }
 
     /**
-     * Truncates token to 25 characters for use as cache key.
+     * Truncates bearerToken to 25 characters for use as cache key.
      * This prevents excessively long cache names while maintaining uniqueness.
-     * 
-     * @param token the full token
-     * @return truncated token (first 25 characters)
+     *
+     * @param token the full bearerToken
+     * @return truncated bearerToken (first 25 characters)
      */
     private static String shortTokenForKey(String token) {
         return token.substring(0, 25);
@@ -283,7 +283,7 @@ public final class CacheUtils {
                 cacheManager.removeCache(cacheName);
                 tokenCaches.remove(token);
                 lastAccessMap.remove(token);
-                log.info("Evicted unused cache for token='{}'", token);
+                log.info("Evicted unused cache for bearerToken='{}'", token);
             }
         }
     }
@@ -305,7 +305,7 @@ public final class CacheUtils {
      * Useful for clearing related cache entries without clearing the entire cache.
      * 
      * @param cacheKeyPrefix the prefix to match
-     * @param cacheToken the user/session token
+     * @param cacheToken the user/session bearerToken
      */
     public static void clearCacheKeyPrefix(String cacheKeyPrefix, String cacheToken) {
         String shortToken = shortTokenForKey(cacheToken);
@@ -314,11 +314,11 @@ public final class CacheUtils {
             cache.forEach(entry -> {
                 if (entry.getKey().startsWith(cacheKeyPrefix)) {
                     cache.remove(entry.getKey());
-                    log.info("Cleared cache entry with prefix '{}' for token='{}'", cacheKeyPrefix, shortToken);
+                    log.info("Cleared cache entry with prefix '{}' for bearerToken='{}'", cacheKeyPrefix, shortToken);
                 }
             });
         } else {
-            log.warn("No cache found for token='{}' to clear entries with prefix '{}'", shortToken, cacheKeyPrefix);
+            log.warn("No cache found for bearerToken='{}' to clear entries with prefix '{}'", shortToken, cacheKeyPrefix);
         }
     }
 

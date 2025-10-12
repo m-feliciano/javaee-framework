@@ -21,30 +21,30 @@ import javax.persistence.ManyToOne;
 @AllArgsConstructor
 @javax.persistence.Entity
 @javax.persistence.Table(name = "tb_inventory")
-public class Inventory implements Entity<String> {
+public class Inventory {
     @Id
-    @Column(name = "id")
+    @Column(name = "id", updatable = false)
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private String id;
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
+
     @Column(name = "description")
     private String description;
+
     @Column(name = "status", nullable = false)
     @ColumnTransformer(write = "UPPER(?)")
     private String status;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    public Inventory(String id) {
-        this.id = id;
-    }
 
     public Inventory(Product product, Integer quantity, String description) {
         this.product = product;

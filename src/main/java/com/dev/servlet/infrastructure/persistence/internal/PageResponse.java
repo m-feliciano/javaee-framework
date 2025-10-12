@@ -23,6 +23,7 @@ public final class PageResponse<T> implements IPageable<T> {
     private int pageSize;
     private long totalElements;
     private Sort sort;
+
     public int getTotalPages() {
         double totalPerPage = Math.ceil(totalElements * 1.0 / pageSize);
         return Math.max((int) totalPerPage, 1);

@@ -9,3 +9,4 @@
 <c:url value="/${productLink}/update" var="updateProduct"/>
 <c:url value="/${productLink}/delete" var="deleteProduct"/>
 <c:url value="/${productLink}/list" var="listProduct"/>
+<c:url value="/${productLink}/search" var="searchProduct"/>

@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  *   <li>Register the class as a servlet endpoint</li>
  *   <li>Apply automatic dependency injection</li>
  *   <li>Enable request mapping discovery</li>
- *   <li>Apply security and validation filters</li>
+ *   <li>Apply security and validation queries</li>
  * </ul>
  * 
  * <p>Example usage:</p>

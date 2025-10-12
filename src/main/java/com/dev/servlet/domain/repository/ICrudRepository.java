@@ -16,7 +16,7 @@ import java.util.Optional;
  * @author servlets-team
  * @since 1.0
  */
-public interface ICrudRepository<T, ID> extends IPagination<T> {
+public interface ICrudRepository<T, ID> {
     
     /**
      * Finds an entity by its unique identifier.

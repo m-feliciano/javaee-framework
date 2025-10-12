@@ -1,22 +1,24 @@
 package com.dev.servlet.domain.service.internal;
-import com.dev.servlet.domain.service.IBusinessService;
-import com.dev.servlet.domain.transfer.dto.InventoryDTO;
-import com.dev.servlet.domain.transfer.request.Request;
+
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.mapper.InventoryMapper;
-import com.dev.servlet.domain.model.Category;
 import com.dev.servlet.domain.model.Inventory;
 import com.dev.servlet.domain.model.Product;
 import com.dev.servlet.domain.model.enums.Status;
+import com.dev.servlet.domain.service.IBusinessService;
 import com.dev.servlet.domain.service.IStockService;
+import com.dev.servlet.domain.transfer.request.InventoryCreateRequest;
+import com.dev.servlet.domain.transfer.request.InventoryRequest;
+import com.dev.servlet.domain.transfer.response.InventoryResponse;
+import com.dev.servlet.domain.transfer.response.ProductResponse;
 import com.dev.servlet.infrastructure.persistence.dao.InventoryDAO;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import javax.enterprise.inject.Model;
 import javax.inject.Inject;
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
+
 import static com.dev.servlet.core.util.CryptoUtils.getUser;
 import static com.dev.servlet.core.util.ThrowableUtils.notFound;
 
@@ -27,103 +29,79 @@ public class StockServiceImpl extends BaseServiceImpl<Inventory, String> impleme
 
     @Inject
     private IBusinessService businessService;
+
+    @Inject
+    private InventoryMapper inventoryMapper;
+
     @Inject
     public StockServiceImpl(InventoryDAO dao) {
         super(dao);
-    }
-
-    @Override
-    public Class<InventoryDTO> getDataMapper() {
-        return InventoryDTO.class;
-    }
-    @Override
-    public Inventory toEntity(Object object) {
-        return InventoryMapper.full((InventoryDTO) object);
     }
 
     private InventoryDAO getDAO() {
         return (InventoryDAO) super.getBaseDAO();
     }
 
-    public Inventory getBody(Request request) {
-        log.trace("");
-        Inventory inventory = requestBody(request.getBody()).orElse(new Inventory());
-        String parameter = request.getParameter("productId");
-        if (parameter != null && !parameter.isEmpty()) {
-            inventory.setProduct(new Product(parameter));
-        }
-
-        if (request.getQuery().getType() != null && request.getQuery().getSearch() != null) {
-            Product product = new Product();
-            if ("product".equals(request.getQuery().getType())) {
-                product.setId(request.getQuery().getSearch().trim());
-                inventory.setProduct(product);
-
-            } else if ("name".equals(request.getQuery().getType())) {
-                product.setName(request.getQuery().getSearch().trim());
-                inventory.setProduct(product);
-
-            } else {
-                inventory.setDescription(request.getQuery().getSearch().trim());
-            }
-            String categoryId = request.getParameter("category");
-            if (categoryId != null && !categoryId.isEmpty()) {
-                product.setCategory(new Category(categoryId));
-            }
-        }
-        inventory.setUser(getUser(request.getToken()));
-        return inventory;
-    }
     @Override
-    public InventoryDTO create(Request request) throws ServiceException {
+    public InventoryResponse create(InventoryCreateRequest request, String auth) throws ServiceException {
         log.trace("");
-        Inventory inventory = this.getBody(request);
-        inventory.setProduct(businessService.getProductById(inventory.getProduct().getId()));
+
+        Inventory inventory = inventoryMapper.createToInventory(request);
+        ProductResponse product = businessService.getProductById(inventory.getProduct().getId(), auth);
+        inventory.setProduct(new Product(product.getId()));
         inventory.setStatus(Status.ACTIVE.getValue());
+        inventory.setUser(getUser(auth));
         inventory = super.save(inventory);
-        return InventoryMapper.full(inventory);
+        return inventoryMapper.toResponse(inventory);
     }
-    @Override
-    public List<InventoryDTO> list(Request request) {
-        log.trace("");
-        return this.findAll(request);
-    }
-    @Override
-    public InventoryDTO findById(Request request) throws ServiceException {
-        log.trace("");
-        Inventory inventory = require(request.id());
-        return InventoryMapper.full(inventory);
-    }
-    @Override
-    public InventoryDTO update(Request request) throws ServiceException {
-        log.trace("");
-        Inventory inventory = require(request.id());
 
-        Inventory body = this.getBody(request);
-        inventory.setProduct(businessService.getProductById(body.getProduct().getId()));
-        inventory.setDescription(body.getDescription());
-        inventory.setQuantity(body.getQuantity());
+    @Override
+    public List<InventoryResponse> list(InventoryRequest request, String auth) throws ServiceException {
+        log.trace("");
+        Inventory inventory = inventoryMapper.toInventory(request);
+        inventory.setUser(getUser(auth));
+
+        return findAll(inventory)
+                .stream()
+                .map(inventoryMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public InventoryResponse findById(InventoryRequest request, String auth) throws ServiceException {
+        log.trace("");
+        Inventory inventory = require(request.id());
+        return inventoryMapper.toResponse(inventory);
+    }
+
+    @Override
+    public InventoryResponse update(InventoryRequest request, String auth) throws ServiceException {
+        log.trace("");
+
+        Inventory inventory = require(request.id());
+        ProductResponse product = businessService.getProductById(request.product().id(), auth);
+
+        inventory.setProduct(new Product(product.getId()));
+        inventory.setDescription(request.description());
+        inventory.setQuantity(request.quantity());
         inventory.setStatus(Status.ACTIVE.getValue());
         super.update(inventory);
-        return InventoryMapper.full(inventory);
+        return inventoryMapper.toResponse(inventory);
     }
 
     @Override
-    public boolean delete(Request request) throws ServiceException {
+    public void delete(InventoryRequest request, String auth) throws ServiceException {
         log.trace("");
         Inventory inventory = require(request.id());
-        return super.delete(inventory);
+        super.delete(inventory);
     }
 
-    public boolean hasInventory(Inventory inventory) {
-        return this.getDAO().has(inventory);
-    }
-
-    private List<InventoryDTO> findAll(Request request) {
+    @Override
+    public boolean hasInventory(Inventory inventory, String auth) {
         log.trace("");
-        Inventory inventory = this.getBody(request);
-        Collection<Inventory> inventories = super.findAll(inventory);
-        return inventories.stream().map(InventoryMapper::full).toList();
+        inventory.setUser(getUser(auth));
+        InventoryDAO DAO = this.getDAO();
+        return DAO.has(inventory);
     }
 
     private Inventory require(String id) throws ServiceException {

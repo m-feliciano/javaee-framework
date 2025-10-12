@@ -1,14 +1,13 @@
 package com.dev.servlet.adapter;
 
 import com.dev.servlet.adapter.internal.HttpExecutor;
-import com.dev.servlet.domain.transfer.request.Request;
-import com.dev.servlet.domain.transfer.response.HttpResponse;
-import com.dev.servlet.domain.transfer.response.IHttpResponse;
-import com.dev.servlet.adapter.IHttpExecutor;
+import com.dev.servlet.controller.base.BaseRouterController;
 import com.dev.servlet.core.util.BeanUtil;
 import com.dev.servlet.core.util.EndpointParser;
 import com.dev.servlet.core.util.HttpExecutorTestLogSuppressor;
-import com.dev.servlet.controller.base.BaseRouterController;
+import com.dev.servlet.domain.transfer.Request;
+import com.dev.servlet.core.response.HttpResponse;
+import com.dev.servlet.core.response.IHttpResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

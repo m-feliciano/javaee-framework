@@ -1,8 +1,10 @@
 package com.dev.servlet.core.util;
+
 import com.dev.servlet.domain.transfer.records.KeyPair;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
+
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -15,7 +17,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Comprehensive utility class for advanced Java reflection and class manipulation operations.
@@ -90,7 +91,7 @@ public final class ClassUtil {
 
     /**
      * Scans a package for classes with optional annotation filtering.
-     * This method recursively scans the package hierarchy and optionally filters
+     * This method recursively scans the package hierarchy and optionally queries
      * classes based on the presence of specific annotations.
      * 
      * @param packageName the package name to scan
@@ -255,22 +256,6 @@ public final class ClassUtil {
             return (Class<U>) actualTypeArguments[position - 1];
         }
         throw new IllegalArgumentException("Class does not have parameterized types");
-    }
-
-    /**
-     * Creates a new instance of the specified class using the default constructor.
-     * Handles exceptions gracefully by returning an Optional.
-     * 
-     * @param <V> the type to instantiate
-     * @param clazz the class to instantiate
-     * @return Optional containing the new instance, or empty if instantiation fails
-     */
-    public static <V> Optional<V> createInstance(Class<V> clazz) {
-        try {
-            return Optional.of(clazz.getDeclaredConstructor().newInstance());
-        } catch (Exception e) {
-            return Optional.empty();
-        }
     }
 
     /**

@@ -1,6 +1,6 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ include file="/WEB-INF/routes/product-routes.jspf" %>
-<%@ page import="com.dev.servlet.domain.transfer.response.IHttpResponse" %>
+<%@ page import="com.dev.servlet.core.response.IHttpResponse" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <%
@@ -39,7 +39,7 @@
                 <div class="row justify-content-end">
                     <div class="col-md-6">
                         <label for="inputCategory" class="form-label">CATEGORY</label>
-                        <input type="text" name="category" class="form-control text-center" id="inputCategory"
+                        <input type="text" name="category.id" class="form-control text-center" id="inputCategory"
                                value="${ product.category.name }" autocomplete="name" readonly/>
                     </div>
                     <div class="col-md-6">
