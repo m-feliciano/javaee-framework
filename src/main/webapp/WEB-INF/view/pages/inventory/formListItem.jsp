@@ -22,13 +22,13 @@
         <div class="mb-3">
             <label for="inputQuantity" class="form-label">QUANTITY</label>
             <input type="number" name="quantity" class="form-control" id="inputQuantity"
-                   placeholder="quantity" value="${ inventory.quantity }" readonly="readonly" required minlength="1"/>
+                   placeholder="quantity" value="${inventory.quantity}" readonly="readonly" required minlength="1"/>
         </div>
         <div class="mb-3">
             <label for="inputDescription" class="form-label">DESCRIPTION</label>
             <textarea name="description" class="form-control" id="inputDescription"
                       placeholder="descripton" required readonly
-                      rows="6" minlength="4">${ inventory.description }</textarea>
+                      rows="6" minlength="4">${inventory.description}</textarea>
         </div>
 
         <div class="align-end">
@@ -37,7 +37,8 @@
                 <jsp:param name="btnType" value="button"/>
                 <jsp:param name="btnClass" value="btn btn-light"/>
                 <jsp:param name="btnIcon" value="bi bi-arrow-left"/>
-                <jsp:param name="btnOnclick" value="onclick='window.location.href=`${baseLink}${version}${ listInventory }`'"/>
+                <jsp:param name="btnOnclick"
+                           value="onclick='window.location.href=`${baseLink}${version}${ listInventory }`'"/>
                 <jsp:param name="btnId" value="id='backButton'"/>
             </jsp:include>
 

@@ -26,7 +26,7 @@ public class UserController extends BaseController {
     @Inject
     private IUserService userService;
 
-    @RequestMapping(value = "/update/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/update/{id}", method = RequestMethod.POST, jsonType = UserRequest.class)
     @SneakyThrows
     public IHttpResponse<UserResponse> update(UserRequest user, @Authorization String auth) {
         UserResponse response = userService.update(user, auth);

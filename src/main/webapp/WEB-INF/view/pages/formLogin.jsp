@@ -29,7 +29,9 @@
             <button type="submit" class="btn btn-primary">Login</button>
         </div>
         <div class="mt-3 text-center">
-            <button type="button" class="btn btn-link" onclick="window.location.href='${baseLink}${version}${registerPage}'">Sign up</button>
+            <button type="button" class="btn btn-link"
+                    onclick="window.location.href='${baseLink}${version}${registerPage}'">Sign up
+            </button>
         </div>
     </form>
 </div>

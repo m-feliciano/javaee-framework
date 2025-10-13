@@ -28,16 +28,19 @@
         <div class="d-flex">
             <div class="avatar mt-1 mx30">
                 <a href="${baseLink}${version}${listUser}/${user.id}">
-                    <c:if test="${not empty user.imgUrl and user.imgUrl ne ''}">
-                        <img src="${user.imgUrl}" alt="user" class="avatar-img rounded-circle">
-                    </c:if>
-                    <c:if test="${empty user.imgUrl or user.imgUrl eq ''}">
-                        <img src="<c:url value='/resources/assets/avatar2.png'/>" alt="user"
-                             class="avatar-img rounded-circle">
-                    </c:if>
+                    <c:choose>
+                        <c:when test="${not empty user.imgUrl and user.imgUrl ne ''}">
+                            <img src="<c:out value='${user.imgUrl}' escapeXml='true'/>" alt="user"
+                                 class="avatar-img rounded-circle" loading="lazy"
+                                 onerror="this.src='<c:url value='/resources/assets/avatar2.png'/>'">
+                        </c:when>
+                        <c:otherwise>
+                            <img src="<c:url value='/resources/assets/avatar2.png'/>" alt="user" class="avatar-img rounded-circle">
+                        </c:otherwise>
+                    </c:choose>
                 </a>
             </div>
-            <a class="nav-link btn-logout mr-2" href="${baseLink}${version}${listUser}/${user.id}">Perfil</a>
+            <a class="nav-link btn-logout mr-2" href="<c:url value='${baseLink}${version}${listUser}/${user.id}'/>">Perfil</a>
         </div>
         <form class="form-inline" action="${baseLink}${version}${logout}" METHOD="post">
             <button class="btn btn-outline-secondary my-2 my-sm-0" type="submit">

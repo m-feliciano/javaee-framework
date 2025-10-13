@@ -40,7 +40,7 @@
                     <label for="inputDescription" class="form-label">DESCRIPTION</label>
                     <textarea name="description" class="form-control" id="inputDescription"
                               placeholder="Simple Description" rows="6" cols="auto"
-                              required>${ product.description }</textarea>
+                              required>${product.description}</textarea>
                 </div>
                 <div class="mb-3">
                     <div class="row justify-content-end">

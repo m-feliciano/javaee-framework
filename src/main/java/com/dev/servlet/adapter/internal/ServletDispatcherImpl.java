@@ -6,12 +6,12 @@ import com.dev.servlet.core.builder.HtmlTemplate;
 import com.dev.servlet.core.builder.RequestBuilder;
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.interfaces.IRateLimiter;
+import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.util.PropertiesUtil;
 import com.dev.servlet.core.util.URIUtils;
 import com.dev.servlet.domain.model.enums.RequestMethod;
 import com.dev.servlet.domain.transfer.Request;
 import com.dev.servlet.domain.transfer.response.UserResponse;
-import com.dev.servlet.core.response.IHttpResponse;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -64,16 +64,30 @@ public class ServletDispatcherImpl implements IServletDispatcher {
     }
 
     private void execute(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+        String requestURI = httpServletRequest.getRequestURI();
+        String method = httpServletRequest.getMethod();
+        log.info("Processing request: {} {}", method, requestURI);
+
         try {
             if (rateLimitEnabled && !rateLimiter.acquireOrWait(WAIT_TIME)) {
+                log.warn("Rate limit exceeded for request: {} {}", method, requestURI);
                 throw new ServiceException(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Please try again later.");
             }
+
             Request request = newRequest(httpServletRequest);
+            log.debug("Request object created: endpoint={}, method={}", request.getEndpoint(), request.getMethod());
+
             IHttpResponse<?> httpResponse = httpExecutor.call(request);
+            log.debug("Response received: status={}, next={}", httpResponse.statusCode(), httpResponse.next());
+
             processResponse(httpServletRequest, httpServletResponse, request, httpResponse);
+            log.info("Request completed successfully: {} {}", method, requestURI);
+
         } catch (ServiceException e) {
+            log.error("Service exception for {} {}: {} - {}", method, requestURI, e.getCode(), e.getMessage());
             writeResponseError(httpServletRequest, httpServletResponse, e.getCode(), e.getMessage());
         } catch (Exception e) {
+            log.error("Unexpected exception for {} {}: {}", method, requestURI, e.getMessage(), e);
             String message = "An error occurred while processing the request. Contact the support team.";
             writeResponseError(httpServletRequest, httpServletResponse, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message);
         }
