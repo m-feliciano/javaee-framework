@@ -192,7 +192,7 @@ public final class CryptoUtils {
         try {
             Algorithm algorithm = Algorithm.HMAC256(getJwtSecretKey());
             long currentTimeMillis = System.currentTimeMillis();
-            return JWT.create()
+            String jwtToken = JWT.create()
                     .withIssuer("Servlet")
                     .withSubject("Authentication")
                     .withClaim("userId", user.getId())
@@ -201,6 +201,7 @@ public final class CryptoUtils {
                     .withExpiresAt(new Date(currentTimeMillis + SEVEN_DAYS))
                     .withJWTId(UUID.randomUUID().toString())
                     .sign(algorithm);
+            return "Bearer " + jwtToken;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -216,16 +217,16 @@ public final class CryptoUtils {
      *   <li>Expiration time validation</li>
      * </ul>
      *
-     * @param token the JWT bearerToken to validate
+     * @param bearerToken the JWT bearerToken to validate
      * @return true if the bearerToken is valid and not expired, false otherwise
      */
-    public static boolean isValidToken(String token) {
-        if (token == null || token.isEmpty()) {
-            return false;
-        }
+    public static boolean isValidToken(String bearerToken) {
+        if (bearerToken == null) return false;
+
         try {
             Algorithm algorithm = Algorithm.HMAC256(getJwtSecretKey());
             JWTVerifier verifier = JWT.require(algorithm).withIssuer("Servlet").build();
+            String token = bearerToken.split(" ")[1];
             DecodedJWT verified = verifier.verify(token);
             return verified.getExpiresAt() != null && !verified.getExpiresAt().before(new Date());
         } catch (Exception ignored) {
@@ -242,11 +243,12 @@ public final class CryptoUtils {
      * Always call {@link #isValidToken(String)} before using this method
      * to ensure the bearerToken is authentic and not expired.
      *
-     * @param token the JWT bearerToken to decode
+     * @param bearerToken the JWT bearerToken to decode
      * @return User object with ID, roles, and bearerToken information
      * @throws RuntimeException if bearerToken decoding fails
      */
-    public static User getUser(String token) {
+    public static User getUser(String bearerToken) {
+        String token = bearerToken.split(" ")[1];
         DecodedJWT decodedJWT = JWT.decode(token);
         String userId = decodedJWT.getClaim("userId").asString();
         List<Long> roles = decodedJWT.getClaim("roles").asList(Long.class);

@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Optional;
 
-import static com.dev.servlet.core.util.ThrowableUtils.notFound;
+import static com.dev.servlet.core.util.CryptoUtils.getUser;
 import static com.dev.servlet.core.util.ThrowableUtils.serviceError;
 
 @Slf4j
@@ -56,7 +56,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
         User userExists = this.find(new User(user.login(), null)).orElse(null);
         if (userExists != null) {
             log.warn("User already exists: {}", userExists.getCredentials().getLogin());
-            throw serviceError(HttpServletResponse.SC_FORBIDDEN, "User already exists.");
+            throw serviceError(HttpServletResponse.SC_FORBIDDEN, "Cannot register this user.");
         }
 
         User newUser = User.builder()
@@ -82,16 +82,16 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
             throw serviceError(HttpServletResponse.SC_FORBIDDEN, "Email already in use.");
         }
 
-        UserResponse userExists = this.getById(userRequest, auth);
+        UserResponse response = this.getById(userRequest, auth);
         User user = User.builder()
-                .id(userRequest.id())
+                .id(response.getId())
                 .imgUrl(userRequest.imgUrl())
                 .credentials(Credentials.builder()
                         .login(email)
                         .password(userRequest.password())
                         .build())
                 .status(Status.ACTIVE.getValue())
-                .perfis(userExists.getPerfis())
+                .perfis(response.getPerfis())
                 .build();
         user = super.update(user);
         user.setToken(CryptoUtils.generateJwtToken(user));
@@ -101,14 +101,15 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
     @Override
     public UserResponse getById(UserRequest request, String auth) throws ServiceException {
         log.trace("");
-        User user = require(request.id());
+        User user = loadUser(request.id(), auth);
         return userMapper.toResponse(user);
     }
 
     @Override
     public void delete(UserRequest request, String auth) throws ServiceException {
         log.trace("");
-        User user = userMapper.toUser(request);
+        UserResponse response = getById(request, auth);
+        User user = User.builder().id(response.getId()).build();
         super.delete(user);
     }
 
@@ -117,7 +118,11 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
         return super.find(new User(login, password));
     }
 
-    private User require(String id) throws ServiceException {
-        return findById(id).orElseThrow(() -> notFound("User not found"));
+    private User loadUser(String id, String auth) throws ServiceException {
+        if (!id.equals(getUser(auth).getId())) {
+            throw serviceError(HttpServletResponse.SC_FORBIDDEN, "User not authorized.");
+        }
+
+        return findById(id).orElse(null);
     }
 }

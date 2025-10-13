@@ -8,18 +8,17 @@
 
 
 <div class="main">
-    <form action="${baseLink}${version}${ updateCategory }/${category.id}" method="post">
+    <form action="${baseLink}${version}${updateCategory}/${category.id}" method="post">
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputId" class="form-label">ID</label>
-                <input type="text" name="id" class="form-control col-md-3" id="inputId"
-                       value="${ category.id }" readonly="readonly"/>
+                <input type="text" name="id" class="form-control col-md-3" id="inputId" value="${category.id}" readonly="readonly"/>
             </div>
 
             <div class="mb-3">
                 <label for="inputName" class="form-label">NAME</label>
                 <input type="text" name="name" class="form-control" id="inputName"
-                       placeholder="name" value="${ category.name }" autocomplete="name" required minlength="4"/>
+                       placeholder="name" value="${category.name}" autocomplete="name" required minlength="4"/>
             </div>
 
             <div class="align-end">

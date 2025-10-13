@@ -49,20 +49,21 @@
                                value="${total + inventory.getProduct().getPrice() * inventory.getQuantity()}"/>
 
                         <tr>
-                            <th class="w-7" scope="row">${ fn:substring(inventory.id, 0, 8) }</th>
+                            <th class="w-8" scope="row"><c:out value="${fn:substring(inventory.id, 0, 8)}" escapeXml="true"/></th>
                             <td class="w-20">
                                 <a style="text-decoration: none; color: inherit;  padding: 2rem 0;"
                                    href="${baseLink}${version}${ listProduct }/${ inventory.getProduct().getId() }"
-                                   target="_blank">${ inventory.getProduct().getName() }</a>
+                                   target="_blank"><c:out value="${inventory.getProduct().getName()}" escapeXml="true"/></a>
                             </td>
                             <td class="w-10">${ inventory.quantity }</td>
-                            <td class="w-25">${ inventory.description }</td>
+                            <td class="w-25"><c:out value="${inventory.description}" escapeXml="true"/></td>
                             <td class="w-10">${ parsedPrice }</td>
                             <td class="w-10">
-                                <a href="${baseLink}${version}${ listInventory }/${ inventory.id }" class="btn btn-auto btn-primary">
+                                <a href="${baseLink}${version}${listInventory}/${inventory.id}"
+                                   class="btn btn-auto btn-primary">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <form action="${baseLink}${version}${ deleteItem }/${ inventory.id }" method="post" class="d-inline">
+                                <form action="<c:url value='${baseLink}${version}${deleteItem}/${inventory.id}'/>" method="post" class="d-inline">
                                     <button type="submit" class="btn btn-auto btn-danger"
                                             onclick="return confirm('Are you sure?')">
                                         <i class="bi bi-trash3"></i>

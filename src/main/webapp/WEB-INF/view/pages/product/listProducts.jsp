@@ -45,37 +45,43 @@
                         </thead>
                         <tbody>
                         <c:forEach items="${ pageable.getContent() }" var="product">
-                            <fmt:formatNumber value="${product.price}" type="currency" minFractionDigits="2" var="parsedPrice"/>
+                            <fmt:formatNumber value="${product.price}" type="currency" minFractionDigits="2"
+                                              var="parsedPrice"/>
                             <fmt:formatDate value="${product.registerDate}" pattern="dd/MM/yyyy" var="registerDate"/>
 
                             <tr>
-                                <th class="w-8" scope="row">${fn:substring(product.id, 0, 8)}</th>
+                                <th class="w-8" scope="row"><c:out value="${fn:substring(product.id, 0, 8)}" escapeXml="true"/></th>
                                 <td class="text-center w-9">
-                                    <a href="${baseLink}${version}${ listProduct }/${ product.id }" target="_blank">
+                                    <a href="<c:url value='${baseLink}${version}${ listProduct }/${ product.id }'/>" target="_blank">
                                         <c:choose>
-                                            <c:when test="${empty product.url }">
+                                            <c:when test="${not empty product.url and product.url ne ''}">
                                                 <img class="img-thumbnail img-square-min"
-                                                     src="<c:url value='/resources/assets/no_image_available.png'/>"
-                                                     alt="no available">
+                                                     src="<c:out value='${product.url}' escapeXml='true'/>"
+                                                     alt="<c:out value='Product ${product.name}' escapeXml='true'/>"
+                                                     loading="lazy"
+                                                     onerror="this.src='<c:url value='/resources/assets/no_image_available.png'/>'">
                                             </c:when>
                                             <c:otherwise>
-                                                <img class="img-thumbnail img-square-min" src="${ product.url }"
-                                                     alt="Product ${ product.name }">
+                                                <img class="img-thumbnail img-square-min"
+                                                     src="<c:url value='/resources/assets/no_image_available.png'/>"
+                                                     alt="No image available">
                                             </c:otherwise>
                                         </c:choose>
                                     </a>
                                 </td>
-                                <td class="w-20">${ product.name }</td>
-                                <td class="w-25">${ product.description }</td>
+                                <td class="w-20"><c:out value="${product.name}" escapeXml="true"/></td>
+                                <td class="w-25"><c:out value="${product.description}" escapeXml="true"/></td>
                                 <td class="w-10">${ parsedPrice }</td>
                                 <td class="w-14">${ registerDate }</td>
                                 <td class="w-14">
-                                    <a href="${baseLink}${version}${ listProduct }/${ product.id }" class="btn btn-auto btn-primary">
+                                    <a href="${baseLink}${version}${ listProduct }/${ product.id }"
+                                       class="btn btn-auto btn-primary">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <form action="${baseLink}${version}${ searchInventory }" method="get" class="d-inline">
+                                    <form action="${baseLink}${version}${ searchInventory }" method="get"
+                                          class="d-inline">
                                         <input type="hidden" name="k" value="product"/>
-                                        <input type="hidden" name="q" value="${ product.id }"/>
+                                        <input type="hidden" name="q" value="<c:out value='${product.id}' escapeXml='true'/>"/>
 
                                         <button type="submit" class="btn btn-auto btn-info">
                                             <i class="bi bi-search"></i>
@@ -86,7 +92,7 @@
                                             <i class="bi bi-box"></i>
                                         </button>
                                     </form>
-                                    <form action="${baseLink}${version}${ deleteProduct }/${ product.id }" method="post" class="d-inline">
+                                    <form action="<c:url value='${baseLink}${version}${deleteProduct}/${product.id}'/>" method="post" class="d-inline">
                                         <button type="submit" class="btn btn-auto btn-danger"
                                                 onclick="return confirm('Are you sure?')">
                                             <i class="bi bi-trash3"></i>
