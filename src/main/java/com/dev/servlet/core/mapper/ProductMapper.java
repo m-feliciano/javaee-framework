@@ -15,6 +15,9 @@ import org.mapstruct.ReportingPolicy;
 public interface ProductMapper {
     ProductResponse toResponse(Product product);
 
+    @Mapping(target = "category", ignore = true)
+    ProductResponse toResponseWithoutCategory(Product product);
+
     Product scrapeToProduct(ProductWebScrapeDTO productWebScrapeDTO);
 
     @Mapping(target = "user", expression = "java(com.dev.servlet.core.util.CryptoUtils.getUser(auth))")

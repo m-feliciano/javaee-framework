@@ -8,5 +8,5 @@ import static java.lang.annotation.ElementType.PARAMETER;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(PARAMETER)
-public @interface Authorization {
+public @interface Authentication {
 }

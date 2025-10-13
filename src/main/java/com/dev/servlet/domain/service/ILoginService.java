@@ -1,8 +1,8 @@
 package com.dev.servlet.domain.service;
 
 import com.dev.servlet.core.exception.ServiceException;
-import com.dev.servlet.domain.transfer.response.UserResponse;
 import com.dev.servlet.domain.transfer.request.LoginRequest;
+import com.dev.servlet.domain.transfer.response.UserResponse;
 
 /**
  * Service interface for managing user authentication and session operations.
@@ -20,4 +20,6 @@ public interface ILoginService {
     UserResponse login(LoginRequest request, IUserService userService) throws ServiceException;
 
     void logout(String auth);
+
+    String form(String auth, String onSuccess);
 }

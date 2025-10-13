@@ -1,7 +1,7 @@
 package com.dev.servlet.controller;
 
 import com.dev.servlet.controller.base.BaseController;
-import com.dev.servlet.core.annotation.Authorization;
+import com.dev.servlet.core.annotation.Authentication;
 import com.dev.servlet.core.annotation.Controller;
 import com.dev.servlet.core.annotation.RequestMapping;
 import com.dev.servlet.core.exception.ServiceException;
@@ -45,48 +45,48 @@ public class InventoryController extends BaseController {
 
     @RequestMapping(value = "/create", method = RequestMethod.POST, jsonType = InventoryCreateRequest.class)
     @SneakyThrows
-    public IHttpResponse<Void> create(InventoryCreateRequest request, @Authorization String auth) {
+    public IHttpResponse<Void> create(InventoryCreateRequest request, @Authentication String auth) {
         InventoryResponse inventory = stockService.create(request, auth);
         return newHttpResponse(201, redirectTo(inventory.getId()));
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.POST, jsonType = InventoryRequest.class)
     @SneakyThrows
-    public IHttpResponse<Void> delete(InventoryRequest request, @Authorization String auth) {
+    public IHttpResponse<Void> delete(InventoryRequest request, @Authentication String auth) {
         stockService.delete(request, auth);
         return HttpResponse.<Void>next(redirectToCtx("list")).build();
     }
 
     @RequestMapping(value = "/list", jsonType = InventoryRequest.class)
     @SneakyThrows
-    public IServletResponse list(InventoryRequest request, @Authorization String auth) {
+    public IServletResponse list(InventoryRequest request, @Authentication String auth) {
         return getServletResponse(request, auth);
     }
 
     @RequestMapping(value = "/search")
     @SneakyThrows
-    public IServletResponse list(Query query, @Authorization String auth) {
+    public IServletResponse list(Query query, @Authentication String auth) {
         InventoryRequest request = inventoryMapper.queryToInventory(query);
         return getServletResponse(request, auth);
     }
 
     @RequestMapping(value = "/list/{id}", jsonType = InventoryRequest.class)
     @SneakyThrows
-    public IHttpResponse<InventoryResponse> findById(InventoryRequest request, @Authorization String auth) {
+    public IHttpResponse<InventoryResponse> findById(InventoryRequest request, @Authentication String auth) {
         InventoryResponse inventory = stockService.findById(request, auth);
         return okHttpResponse(inventory, forwardTo("formListItem"));
     }
 
     @RequestMapping(value = "/edit/{id}", jsonType = InventoryRequest.class)
     @SneakyThrows
-    public IHttpResponse<InventoryResponse> edit(InventoryRequest request, @Authorization String auth) {
+    public IHttpResponse<InventoryResponse> edit(InventoryRequest request, @Authentication String auth) {
         InventoryResponse inventory = stockService.findById(request, auth);
         return okHttpResponse(inventory, forwardTo("formUpdateItem"));
     }
 
     @RequestMapping(value = "/update/{id}", method = RequestMethod.POST, jsonType = InventoryRequest.class)
     @SneakyThrows
-    public IHttpResponse<Void> update(InventoryRequest request, @Authorization String auth) {
+    public IHttpResponse<Void> update(InventoryRequest request, @Authentication String auth) {
         InventoryResponse inventory = stockService.update(request, auth);
         return newHttpResponse(204, redirectTo(inventory.getId()));
     }

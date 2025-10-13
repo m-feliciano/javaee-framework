@@ -1,13 +1,14 @@
 package com.dev.servlet.domain.service.internal;
 
 import com.dev.servlet.core.exception.ServiceException;
+import com.dev.servlet.core.mapper.Mapper;
 import com.dev.servlet.core.mapper.ProductMapper;
-import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.domain.model.Category;
 import com.dev.servlet.domain.model.Inventory;
 import com.dev.servlet.domain.model.Product;
 import com.dev.servlet.domain.model.User;
 import com.dev.servlet.domain.model.enums.Status;
+import com.dev.servlet.domain.service.AuditService;
 import com.dev.servlet.domain.service.IBusinessService;
 import com.dev.servlet.domain.service.IProductService;
 import com.dev.servlet.domain.transfer.request.ProductRequest;
@@ -15,6 +16,8 @@ import com.dev.servlet.domain.transfer.response.ProductResponse;
 import com.dev.servlet.infrastructure.external.webscrape.WebScrapeServiceRegistry;
 import com.dev.servlet.infrastructure.external.webscrape.builder.WebScrapeBuilder;
 import com.dev.servlet.infrastructure.external.webscrape.transfer.ProductWebScrapeDTO;
+import com.dev.servlet.infrastructure.persistence.IPageRequest;
+import com.dev.servlet.infrastructure.persistence.IPageable;
 import com.dev.servlet.infrastructure.persistence.dao.ProductDAO;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
@@ -31,12 +34,14 @@ import java.util.Optional;
 
 import static com.dev.servlet.core.util.CryptoUtils.getUser;
 import static com.dev.servlet.core.util.ThrowableUtils.notFound;
+import static com.dev.servlet.core.util.ThrowableUtils.serviceError;
 
 @Slf4j
 @NoArgsConstructor
 @Model
 @Named("productService")
 public class ProductServiceImpl extends BaseServiceImpl<Product, String> implements IProductService {
+    public static final String CONFLIT_ERROR = "Product has inventory";
 
     @Inject
     private IBusinessService businessService;
@@ -48,6 +53,9 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
     private WebScrapeServiceRegistry webScrapeServiceRegistry;
 
     @Inject
+    private AuditService auditService;
+
+    @Inject
     public ProductServiceImpl(ProductDAO dao) {
         super(dao);
     }
@@ -57,48 +65,93 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
     }
 
     @Override
+    public <U> IPageable<U> getAllPageable(IPageRequest payload, Mapper<Product, U> mapper) {
+        try {
+            IPageable<U> pageable = super.getAllPageable(payload, mapper);
+            auditService.auditSuccess("product:list", null, new AuditPayload<>(payload, pageable));
+            return pageable;
+
+        } catch (Exception e) {
+            auditService.auditFailure("product:list", null, new AuditPayload<>(payload, null));
+            throw e;
+        }
+    }
+
+    @Override
     public ProductResponse create(ProductRequest request, String auth) {
         log.trace("");
 
-        Product product = productMapper.toProduct(request, auth);
-        product.setRegisterDate(new Date());
-        product.setStatus(Status.ACTIVE.getValue());
-        product = super.save(product);
-        return productMapper.toResponse(product);
+        try {
+            Product product = productMapper.toProduct(request, auth);
+            product.setRegisterDate(new Date());
+            product.setStatus(Status.ACTIVE.getValue());
+            product = super.save(product);
+            ProductResponse response = productMapper.toResponse(product);
+            auditService.auditSuccess("product:create", auth, new AuditPayload<>(request, response));
+            return response;
+        } catch (Exception e) {
+            auditService.auditFailure("product:create", auth, new AuditPayload<>(request, null));
+            throw e;
+        }
     }
 
     @Override
     public ProductResponse findById(ProductRequest request, String auth) throws ServiceException {
         log.trace("");
 
-        Product product = findProduct(productMapper.toProduct(request, auth));
-        return productMapper.toResponse(product);
+        try {
+            Product product = productMapper.toProduct(request, auth);
+            product = findProduct(product);
+            ProductResponse response = productMapper.toResponse(product);
+            auditService.auditSuccess("product:find_by_id", auth, new AuditPayload<>(request, response));
+            return response;
+
+        } catch (Exception e) {
+            auditService.auditFailure("product:find_by_id", auth, new AuditPayload<>(request, null));
+            throw e;
+        }
     }
 
     @Override
     public ProductResponse update(ProductRequest request, String auth) throws ServiceException {
         log.trace("");
 
-        Product product = findProduct(productMapper.toProduct(request, auth));
-        product.setName(request.name());
-        product.setDescription(request.description());
-        product.setPrice(request.price());
-        product.setUrl(request.url());
-        product.setCategory(Category.builder().id(request.category().id()).build());
-        super.update(product);
-        return productMapper.toResponse(product);
+        try {
+            Product product = productMapper.toProduct(request, auth);
+            product = findProduct(product);
+            product.setName(request.name());
+            product.setDescription(request.description());
+            product.setPrice(request.price());
+            product.setUrl(request.url());
+            product.setCategory(Category.builder().id(request.category().id()).build());
+
+            super.update(product);
+            ProductResponse response = productMapper.toResponse(product);
+            auditService.auditSuccess("product:update", auth, new AuditPayload<>(request, response));
+            return response;
+        } catch (Exception e) {
+            auditService.auditFailure("product:update", auth, new AuditPayload<>(request, null));
+            throw e;
+        }
     }
 
     @Override
     public void delete(ProductRequest request, String auth) throws ServiceException {
         log.trace("");
 
-        Product product = findProduct(productMapper.toProduct(request, auth));
-        Inventory inventory = Inventory.builder().user(product.getUser()).product(product).build();
-        if (businessService.hasInventory(inventory, auth)) {
-            throw new ServiceException(HttpServletResponse.SC_CONFLICT, "Product has inventory.");
+        try {
+            Product product = findProduct(productMapper.toProduct(request, auth));
+            Inventory inventory = Inventory.builder().user(product.getUser()).product(product).build();
+            if (businessService.hasInventory(inventory, auth)) {
+                throw serviceError(HttpServletResponse.SC_CONFLICT, CONFLIT_ERROR);
+            }
+
+            super.delete(product);
+            auditService.auditSuccess("product:delete", auth, new AuditPayload<>(request, null));
+        } catch (Exception e) {
+            auditService.auditFailure("product:delete", auth, new AuditPayload<>(request, null));
+            throw e;
         }
-        super.delete(product);
     }
 
     @Override
@@ -114,6 +167,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
 
         if (!"development".equals(environment)) {
             log.warn("Web scraping is only allowed in development environment");
+            auditService.auditWarning("product:scrape", auth, new AuditPayload<>(url, null));
             return Optional.empty();
         }
 
@@ -126,6 +180,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
                 .execute();
         if (scrapeResponse.isEmpty()) {
             log.warn("No products found in the web scrape response");
+            auditService.auditWarning("product:scrape", auth, new AuditPayload<>(url, null));
             return Optional.empty();
         }
 
@@ -138,10 +193,13 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
                 .toList();
         try {
             products = baseDAO.save(products);
-            return Optional.of(products.stream().map(productMapper::toResponse).toList());
+            List<ProductResponse> productResponses = products.stream().map(productMapper::toResponse).toList();
+            auditService.auditSuccess("product:scrape", auth, new AuditPayload<>(url, productResponses));
+            return Optional.of(productResponses);
 
         } catch (Exception e) {
             log.error("Error saving scraped products: {}", e.getMessage(), e);
+            auditService.auditFailure("product:scrape", auth, new AuditPayload<>(url, null));
             return Optional.empty();
         }
     }

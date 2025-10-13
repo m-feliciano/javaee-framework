@@ -6,12 +6,12 @@ import com.dev.servlet.core.builder.HtmlTemplate;
 import com.dev.servlet.core.builder.RequestBuilder;
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.interfaces.IRateLimiter;
+import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.util.PropertiesUtil;
 import com.dev.servlet.core.util.URIUtils;
 import com.dev.servlet.domain.model.enums.RequestMethod;
 import com.dev.servlet.domain.transfer.Request;
 import com.dev.servlet.domain.transfer.response.UserResponse;
-import com.dev.servlet.core.response.IHttpResponse;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -68,9 +68,11 @@ public class ServletDispatcherImpl implements IServletDispatcher {
             if (rateLimitEnabled && !rateLimiter.acquireOrWait(WAIT_TIME)) {
                 throw new ServiceException(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Please try again later.");
             }
+
             Request request = newRequest(httpServletRequest);
             IHttpResponse<?> httpResponse = httpExecutor.call(request);
             processResponse(httpServletRequest, httpServletResponse, request, httpResponse);
+
         } catch (ServiceException e) {
             writeResponseError(httpServletRequest, httpServletResponse, e.getCode(), e.getMessage());
         } catch (Exception e) {

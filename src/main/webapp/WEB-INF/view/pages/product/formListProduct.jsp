@@ -10,7 +10,7 @@
 <fmt:formatNumber value="${product.price}" type="currency" minFractionDigits="2" var="parsedNumber"/>
 <fmt:formatDate value="${product.registerDate}" pattern="dd/MM/yyyy" var="stdDate"/>
 
-<title>Product: ${ product.name }</title>
+<title>Product: <c:out value='${ product.name }' escapeXml='true'/></title>
 
 <div class="main">
     <div class="row">
@@ -19,21 +19,21 @@
                 <div class="row">
                     <div class="col-md-6">
                         <label for="inputId" class="form-label">ID</label>
-                        <input type="text" name="id" class="form-control text-right" id="inputId"
-                               value="${ product.id }" readonly="readonly"/>
+                        <input type="text" class="form-control text-right" id="productId" name="id"
+                               value="<c:out value='${ product.id }' escapeXml='true'/>" readonly="readonly"/>
                     </div>
                     <div class="col-md-6">
                         <label for="inputRegisterDate" class="form-label">REGISTER</label>
-                        <input type="text" name="register" class="form-control text-right" id="inputRegisterDate"
-                               value="${ stdDate }" readonly/>
+                        <input type="text" class="form-control text-right" id="registerDate" name="registerDate"
+                               value="<c:out value='${ stdDate }' escapeXml='true'/>" readonly/>
                     </div>
                 </div>
             </div>
             <div class="mb-3">
                 <label for="inputName" class="form-label">NAME</label>
-                <input type="text" name="name" class="form-control" id="inputName"
-                       placeholder="Product name" value="${ product.name }" autocomplete="name"
-                       minlength="4" readonly/>
+                <input type="text" class="form-control" id="productName" name="name"
+                       placeholder="Product name" value="<c:out value='${ product.name }' escapeXml='true'/>"
+                       autocomplete="name" minlength="4" readonly/>
             </div>
             <div class="mb-4">
                 <div class="row justify-content-end">
@@ -52,14 +52,14 @@
             <div class="mb-3">
                 <label for="inputDescription" class="form-label">DESCRIPTION</label>
                 <textarea name="description" class="form-control" id="inputDescription"
-                          placeholder="Simple Description" readonly rows="10" cols="auto">
-                    ${ product.description }</textarea>
+                          placeholder="Simple Description" readonly rows="10"
+                          cols="auto">${product.description}</textarea>
             </div>
             <c:if test="${ not empty product.url and not product.url eq '' }">
                 <div class="mb-3">
                     <label for="inputUrl" class="form-label">URL</label>
                     <input type="text" name="url" class="form-control" id="inputUrl"
-                           placeholder="URL" value="${ product.url }" readonly/>
+                           placeholder="URL" value="${product.url}" readonly/>
                 </div>
             </c:if>
 
@@ -69,13 +69,13 @@
                     <jsp:param name="btnType" value="button"/>
                     <jsp:param name="btnClass" value="btn btn-light"/>
                     <jsp:param name="btnIcon" value="bi bi-arrow-left"/>
-                    <jsp:param name="btnOnclick" value="onclick='window.location.href=`${baseLink}${version}${ listProduct }`'"/>
+                    <jsp:param name="btnOnclick" value="onclick='window.location.href=`${baseLink}${version}${listProduct}`'"/>
                     <jsp:param name="btnId" value="id='backButton'"/>
                 </jsp:include>
 
                 <span class="mr-2"></span>
 
-                <a type="button" href="${baseLink}${version}${ editProduct }/${ product.id }" class="btn btn-success">
+                <a type="button" href="${baseLink}${version}${editProduct}/${product.id}" class="btn btn-success">
                     Edit <i class="bi bi-pencil-square"></i>
                 </a>
             </div>
@@ -89,7 +89,10 @@
                              class="img-thumbnail" alt="No available" width="60%" height="60%"/>
                     </c:when>
                     <c:otherwise>
-                        <img src="${ product.url }" class="img-thumbnail" alt="Product" width="60%" height="60%"/>
+                        <img class="img-thumbnail" width="60%" height="60%"
+                             src="<c:out value='${product.url}' escapeXml='true'/>"
+                             alt="<c:out value='Product ${product.name}' escapeXml='true'/>"
+                             loading="lazy">
                     </c:otherwise>
                 </c:choose>
             </div>

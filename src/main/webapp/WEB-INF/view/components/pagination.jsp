@@ -16,7 +16,7 @@
                     <ul class="pagination justify-content-center">
                         <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
                             <a class="page-link" style="color: #343a40;" aria-label="Previous"
-                                href="${linkhref}?page=${currentPage - 1}&limit=${pageSize}&sort=${sort}&order=${direction}">
+                               href="${linkhref}?page=${currentPage - 1}&limit=${pageSize}&sort=${sort}&order=${direction}">
                                 <i class="bi bi-arrow-left"></i>
                                 <span>Previous</span>
                             </a>

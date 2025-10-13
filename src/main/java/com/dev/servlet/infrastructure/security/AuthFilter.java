@@ -44,11 +44,12 @@ public class AuthFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         String token = (String) request.getSession().getAttribute("token");
         if (!isValidToken(token) && !isAuthorizedRequest(request)) {
-            log.warn("Unauthorized access to the service: {}, redirecting to login page", request.getRequestURI());
+            log.warn("❌ Unauthorized access to the service: {}, redirecting to login page", request.getRequestURI());
             redirectToLogin(response);
             return;
         }
-        log.debug("Access to the endpoint: {}, authorized", request.getRequestURI());
+
+        log.debug("✅ Access authorized [endpoint={}]", request.getRequestURI());
         dispatcher.dispatch(request, response);
     }
 

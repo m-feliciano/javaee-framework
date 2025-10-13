@@ -14,7 +14,7 @@ public class AuthValidationHandler implements ValidationHandler {
 
     @Override
     public void validate(RequestMapping mapping, Request request) throws ServiceException {
-        if (mapping.requestAuth() && !isValidToken(request.getToken())) {
+        if (mapping.requestAuth() && request.getToken() == null) {
             throw serviceError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication required.");
         }
     }

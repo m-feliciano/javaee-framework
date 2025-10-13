@@ -32,19 +32,14 @@
                     <c:forEach items="${ categories }" var="category">
                         <input type="hidden" name="id" id="id${ category.id }" value="${ category.id }">
                         <tr>
-                            <th width="10%" scope="row">${ fn:substring(category.id, 0, 8) }</th>
-                            <td width=50%>${ category.name }</td>
+                            <th class="w-8" scope="row"><c:out value="${fn:substring(category.id, 0, 8)}" escapeXml="true"/></th>
+                            <td class="w-20"><c:out value="${category.name}" escapeXml="true"/></td>
                             <td width=25%>
-<%--                                <form action="${ listCategory }" method="get" class="d-inline">--%>
-<%--                                    <input type="hidden" name="id" value="${ category.id }">--%>
-<%--                                    <button type="submit" class="btn btn-auto btn-primary">--%>
-<%--                                        <i class="bi bi-eye"></i>--%>
-<%--                                    </button>--%>
-<%--                                </form>--%>
-                                <a type="button" href="${baseLink}${version}${ listCategory }/${ category.id }" class="btn btn-auto btn-primary">
+                                <a type="button" href="${baseLink}${version}${listCategory}/${category.id}"
+                                   class="btn btn-auto btn-primary">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <form action="${baseLink}${version}${ deleteCategory }/${ category.id }" method="post" class="d-inline">
+                                <form action="<c:url value='${baseLink}${version}${deleteCategory}/${category.id}'/>" method="post" class="d-inline">
                                     <button type="submit" class="btn btn-auto btn-danger"
                                             onclick="return confirm('Are you sure?')">
                                         <i class="bi bi-trash3"></i>
