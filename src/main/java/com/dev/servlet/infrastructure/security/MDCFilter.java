@@ -17,7 +17,10 @@ public class MDCFilter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
         MDC.put("correlationId", UUID.randomUUID().toString());
-        chain.doFilter(servletRequest, servletResponse);
-        MDC.clear();
+        try {
+            chain.doFilter(servletRequest, servletResponse);
+        } finally {
+            MDC.clear();
+        }
     }
 }
