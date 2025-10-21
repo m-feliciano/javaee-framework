@@ -44,7 +44,7 @@ public abstract class BaseRouterController {
     }
 
     public <U> IHttpResponse<U> route(EndpointParser endpoint, Request request) throws Exception {
-        var method = routeMappingFromEndpoint("/" + endpoint.getEndpoint());
+        var method = routeMappingFromEndpoint("/" + endpoint.path());
         var requestMapping = method.getAnnotation(RequestMapping.class);
         RequestValidator.validate(endpoint, requestMapping, request);
         Object[] args = prepareMethodArguments(method, request);
@@ -55,7 +55,7 @@ public abstract class BaseRouterController {
         return reflections.stream()
                 .filter(m -> m.getAnnotation(RequestMapping.class).value().equals(endpoint))
                 .findFirst()
-                .orElseThrow(() -> internalServerError("Resource not found: " + endpoint));
+                .orElseThrow(() -> internalServerError("Endpoint not implemented: " + endpoint));
     }
 
     private Object resolveArgument(Parameter parameter, Request request) {

@@ -1,6 +1,6 @@
 package com.dev.servlet.domain.service.internal;
 
-import com.dev.servlet.core.util.CryptoUtils;
+import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.domain.service.AuditService;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -8,7 +8,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Instant;
 import java.util.HashMap;
@@ -25,16 +27,23 @@ public class AuditServiceImpl implements AuditService {
             .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
             .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
+    private final JwtUtil jwtUtil;
+
+    @Inject
+    public AuditServiceImpl(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
+    }
+
     private void audit(String event, String token, String outcome, Object payload) {
         try {
             Map<String, Object> record = new HashMap<>();
             record.put("event", event);
             record.put("schemaVersion", "1.0");
             record.put("timestamp", Instant.now().toString());
-            record.put("correlationId", UUID.randomUUID().toString());
+            record.put("correlationId", MDC.get("correlationId"));
             record.put("outcome", outcome);
             if (token != null && !token.isBlank())
-                record.put("userId", CryptoUtils.getUser(token).getId());
+                record.put("userId", jwtUtil.getUserIdFromToken(token));
 
             try {
                 record.put("payload", payload);

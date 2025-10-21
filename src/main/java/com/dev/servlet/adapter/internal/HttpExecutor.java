@@ -3,11 +3,11 @@ package com.dev.servlet.adapter.internal;
 import com.dev.servlet.adapter.IHttpExecutor;
 import com.dev.servlet.controller.base.BaseRouterController;
 import com.dev.servlet.core.exception.ServiceException;
+import com.dev.servlet.core.response.HttpResponse;
+import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.util.BeanUtil;
 import com.dev.servlet.core.util.EndpointParser;
 import com.dev.servlet.domain.transfer.Request;
-import com.dev.servlet.core.response.HttpResponse;
-import com.dev.servlet.core.response.IHttpResponse;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -82,13 +82,13 @@ public class HttpExecutor<TResponse> implements IHttpExecutor<TResponse> {
 
     private static BaseRouterController resolveController(EndpointParser parser) throws ServiceException {
         try {
-            BaseRouterController controller = (BaseRouterController) BeanUtil.getResolver().getService(parser.getController());
+            BaseRouterController controller = (BaseRouterController) BeanUtil.getResolver().getBean(parser.controller() + "Controller");
             Objects.requireNonNull(controller);
             return controller;
         } catch (Exception e) {
             log.error("🔌 Controller not found [endpoint={}, controller={}] - {}",
-                    parser.getEndpoint(), parser.getController(), e.getMessage());
-            throw new ServiceException(HttpServletResponse.SC_BAD_REQUEST, "Error resolving service endpoint: " + parser.getEndpoint());
+                    parser.path(), parser.controller(), e.getMessage());
+            throw new ServiceException(HttpServletResponse.SC_BAD_REQUEST, "Error resolving service endpoint: " + parser.path());
         }
     }
 

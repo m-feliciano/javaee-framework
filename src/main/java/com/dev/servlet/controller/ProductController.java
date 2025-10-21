@@ -10,6 +10,7 @@ import com.dev.servlet.core.mapper.ProductMapper;
 import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.response.IServletResponse;
+import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.domain.model.Product;
 import com.dev.servlet.domain.model.enums.RequestMethod;
 import com.dev.servlet.domain.service.ICategoryService;
@@ -46,6 +47,8 @@ public class ProductController extends BaseController {
     private ICategoryService categoryService;
     @Inject
     private ProductMapper productMapper;
+    @Inject
+    private JwtUtil jwtUtil;
 
     @RequestMapping(value = "/create", method = RequestMethod.POST, jsonType = ProductRequest.class)
     public IHttpResponse<Void> create(ProductRequest request, @Authentication String auth) throws ServiceException {
@@ -77,8 +80,7 @@ public class ProductController extends BaseController {
     @SneakyThrows
     public IServletResponse search(Query query, IPageRequest pageRequest, @Authentication String auth) {
         log.trace("");
-
-        Product product = productMapper.queryToProduct(query, auth);
+        Product product = productMapper.queryToProduct(query, jwtUtil.getUserFromToken(auth));
         return getServletResponse(pageRequest, auth, product);
     }
 
@@ -86,7 +88,7 @@ public class ProductController extends BaseController {
     @SneakyThrows
     public IServletResponse list(IPageRequest pageRequest, @Authentication String auth) {
         log.trace("");
-        Product product = productMapper.toProduct(null, auth);
+        Product product = productMapper.toProduct(null, jwtUtil.getUserIdFromToken(auth));
         return getServletResponse(pageRequest, auth, product);
     }
 

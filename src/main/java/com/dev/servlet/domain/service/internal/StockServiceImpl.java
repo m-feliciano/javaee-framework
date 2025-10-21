@@ -2,6 +2,7 @@ package com.dev.servlet.domain.service.internal;
 
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.mapper.InventoryMapper;
+import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.domain.model.Inventory;
 import com.dev.servlet.domain.model.Product;
 import com.dev.servlet.domain.model.enums.Status;
@@ -20,7 +21,6 @@ import javax.enterprise.inject.Model;
 import javax.inject.Inject;
 import java.util.List;
 
-import static com.dev.servlet.core.util.CryptoUtils.getUser;
 import static com.dev.servlet.core.util.ThrowableUtils.notFound;
 
 @Slf4j
@@ -36,6 +36,9 @@ public class StockServiceImpl extends BaseServiceImpl<Inventory, String> impleme
 
     @Inject
     private AuditService auditService;
+
+    @Inject
+    private JwtUtil jwtUtil;
 
     @Inject
     public StockServiceImpl(InventoryDAO dao) {
@@ -55,7 +58,7 @@ public class StockServiceImpl extends BaseServiceImpl<Inventory, String> impleme
             ProductResponse product = businessService.getProductById(inventory.getProduct().getId(), auth);
             inventory.setProduct(new Product(product.getId()));
             inventory.setStatus(Status.ACTIVE.getValue());
-            inventory.setUser(getUser(auth));
+            inventory.setUser(jwtUtil.getUserFromToken(auth));
             inventory = super.save(inventory);
 
             InventoryResponse response = inventoryMapper.toResponse(inventory);
@@ -73,7 +76,7 @@ public class StockServiceImpl extends BaseServiceImpl<Inventory, String> impleme
 
         try {
             Inventory inventory = inventoryMapper.toInventory(request);
-            inventory.setUser(getUser(auth));
+            inventory.setUser(jwtUtil.getUserFromToken(auth));
 
             List<InventoryResponse> responses = findAll(inventory)
                     .stream()
@@ -143,7 +146,7 @@ public class StockServiceImpl extends BaseServiceImpl<Inventory, String> impleme
         log.trace("");
 
         try {
-            inventory.setUser(getUser(auth));
+            inventory.setUser(jwtUtil.getUserFromToken(auth));
             InventoryDAO DAO = this.getDAO();
             boolean result = DAO.has(inventory);
             auditService.auditSuccess("inventory:has_inventory", auth, new AuditPayload<>(inventory, result));

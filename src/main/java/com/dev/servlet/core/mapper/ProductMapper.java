@@ -1,7 +1,7 @@
 package com.dev.servlet.core.mapper;
 
 import com.dev.servlet.domain.model.Product;
-import com.dev.servlet.domain.transfer.records.KeyPair;
+import com.dev.servlet.domain.model.User;
 import com.dev.servlet.domain.transfer.records.Query;
 import com.dev.servlet.domain.transfer.request.CategoryRequest;
 import com.dev.servlet.domain.transfer.request.ProductRequest;
@@ -20,10 +20,10 @@ public interface ProductMapper {
 
     Product scrapeToProduct(ProductWebScrapeDTO productWebScrapeDTO);
 
-    @Mapping(target = "user", expression = "java(com.dev.servlet.core.util.CryptoUtils.getUser(auth))")
-    Product toProduct(ProductRequest product, String auth);
+    @Mapping(target = "user", expression = "java(new com.dev.servlet.domain.model.User(userId))")
+    Product toProduct(ProductRequest product, String userId);
 
-    default Product queryToProduct(Query query, String auth) {
+    default Product queryToProduct(Query query, User user) {
         ProductRequest.ProductRequestBuilder builder = ProductRequest.builder();
 
         query.queries().forEach((k, v) -> {
@@ -36,6 +36,6 @@ public interface ProductMapper {
             }
         });
 
-        return toProduct(builder.build(), auth);
+        return toProduct(builder.build(), user.getId());
     }
 }

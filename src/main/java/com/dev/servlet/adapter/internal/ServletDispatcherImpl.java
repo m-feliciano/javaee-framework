@@ -92,11 +92,6 @@ public class ServletDispatcherImpl implements IServletDispatcher {
         }
     }
 
-    private void setSessionAttributes(HttpSession session, UserResponse user) {
-        session.setAttribute("token", user.getToken());
-        session.setAttribute("user", user);
-    }
-
     private void setRequestAttributes(HttpServletRequest httpRequest, IHttpResponse<?> response) {
         httpRequest.setAttribute("response", response);
         for (var key : httpRequest.getParameterMap().keySet()) {
@@ -117,7 +112,10 @@ public class ServletDispatcherImpl implements IServletDispatcher {
                                      Request request, IHttpResponse<?> response) {
 
         if (RequestMethod.POST.getMethod().equals(request.getMethod()) && response.body() instanceof UserResponse userResponse) {
-            setSessionAttributes(httpRequest.getSession(), userResponse);
+            HttpSession httpSession = httpRequest.getSession();
+            httpSession.setAttribute("token", userResponse.getToken());
+            httpSession.setAttribute("refreshToken", userResponse.getRefreshToken());
+            httpSession.setAttribute("user", userResponse.withoutToken());
         }
 
         setRequestAttributes(httpRequest, response);

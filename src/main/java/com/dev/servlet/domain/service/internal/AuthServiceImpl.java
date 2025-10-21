@@ -3,12 +3,14 @@ package com.dev.servlet.domain.service.internal;
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.mapper.UserMapper;
 import com.dev.servlet.core.util.CacheUtils;
-import com.dev.servlet.core.util.CryptoUtils;
+import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.domain.model.User;
 import com.dev.servlet.domain.service.AuditService;
-import com.dev.servlet.domain.service.ILoginService;
+import com.dev.servlet.domain.service.AuthService;
 import com.dev.servlet.domain.service.IUserService;
 import com.dev.servlet.domain.transfer.request.LoginRequest;
+import com.dev.servlet.domain.transfer.request.UserRequest;
+import com.dev.servlet.domain.transfer.response.RefreshTokenResponse;
 import com.dev.servlet.domain.transfer.response.UserResponse;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,21 +18,22 @@ import lombok.extern.slf4j.Slf4j;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import static com.dev.servlet.core.util.CryptoUtils.isValidToken;
-
 @Slf4j
 @NoArgsConstructor
 @Singleton
-public class LoginServiceImpl implements ILoginService {
+public class AuthServiceImpl implements AuthService {
 
     @Inject
     private UserMapper userMapper;
-
     @Inject
     private AuditService auditService;
+    @Inject
+    private IUserService userService;
+    @Inject
+    private JwtUtil jwtUtil;
 
     @Override
-    public UserResponse login(LoginRequest request, IUserService userService) throws ServiceException {
+    public UserResponse login(LoginRequest request) throws ServiceException {
         log.trace("");
         String login = request.login();
         String password = request.password();
@@ -42,7 +45,8 @@ public class LoginServiceImpl implements ILoginService {
         }
 
         UserResponse response = userMapper.toResponse(user);
-        response.setToken(CryptoUtils.generateJwtToken(user));
+        response.setToken(jwtUtil.generateAccessToken(user));
+        response.setRefreshToken(jwtUtil.generateRefreshToken(user));
         auditService.auditSuccess("user:login", response.getToken(), null);
         return response;
     }
@@ -50,18 +54,38 @@ public class LoginServiceImpl implements ILoginService {
     @Override
     public void logout(String auth) {
         log.trace("");
-        CacheUtils.clearAll(auth);
+        CacheUtils.clearAll(jwtUtil.getUserIdFromToken(auth));
         auditService.auditSuccess("user:logout", auth, null);
     }
 
     @Override
     public String form(String auth, String onSuccess) {
-        if (isValidToken(auth)) {
+        log.trace("");
+
+        if (jwtUtil.validateToken(auth)) {
             auditService.auditSuccess("auth:form", auth, null);
             return "redirect:/" + onSuccess;
         }
 
         auditService.auditFailure("auth:form", auth, null);
         return "forward:pages/formLogin.jsp";
+    }
+
+    @Override
+    public RefreshTokenResponse refreshToken(String refreshToken) throws ServiceException {
+        log.trace("");
+        if (!jwtUtil.validateToken(refreshToken)) {
+            auditService.auditFailure("auth:refresh_token", refreshToken, null);
+            throw new ServiceException("Invalid refresh token");
+        }
+
+        User user = jwtUtil.getUserFromToken(refreshToken);
+        UserResponse userResponse = userService.getById(new UserRequest(user.getId()), refreshToken);
+        user.setPerfis(userResponse.getPerfis());
+        String newToken = jwtUtil.generateAccessToken(user);
+        CacheUtils.clearAll(user.getId());
+        RefreshTokenResponse response = new RefreshTokenResponse(user.getId(), newToken);
+        auditService.auditSuccess("auth:refresh_token", refreshToken, new AuditPayload<>(null, response));
+        return response;
     }
 }

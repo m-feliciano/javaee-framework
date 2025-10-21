@@ -8,8 +8,7 @@ import com.dev.servlet.core.annotation.RequestMapping;
 import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.domain.model.enums.RequestMethod;
-import com.dev.servlet.domain.service.ILoginService;
-import com.dev.servlet.domain.service.IUserService;
+import com.dev.servlet.domain.service.AuthService;
 import com.dev.servlet.domain.transfer.request.LoginRequest;
 import com.dev.servlet.domain.transfer.response.UserResponse;
 import lombok.NoArgsConstructor;
@@ -23,13 +22,13 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 @NoArgsConstructor
 @Singleton
-@Controller("login")
-public class LoginController extends BaseController {
+@Controller("auth")
+public class AuthController extends BaseController {
+
+    public static final String FORWARD_PAGES_FORM_LOGIN_JSP = "forward:pages/formLogin.jsp";
 
     @Inject
-    private ILoginService loginService;
-    @Inject
-    private IUserService userService;
+    private AuthService authService;
 
     @RequestMapping(value = "/registerPage", requestAuth = false)
     public IHttpResponse<String> forwardRegister() {
@@ -38,17 +37,15 @@ public class LoginController extends BaseController {
 
     @RequestMapping(value = "/form", requestAuth = false)
     public IHttpResponse<String> form(@Authentication String auth, @Property("homepage") String homepage) {
-        String next = loginService.form(auth, homepage);
+        String next = authService.form(auth, homepage);
         return HttpResponse.<String>next(next).build();
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST, requestAuth = false, jsonType = LoginRequest.class)
     @SneakyThrows
-    public IHttpResponse<UserResponse> login(LoginRequest request,
-                                             @Property("homepage") String homepage,
-                                             @Property("loginpage") String loginPage) {
+    public IHttpResponse<UserResponse> login(LoginRequest request, @Property("homepage") String homepage) {
         try {
-            UserResponse user = loginService.login(request, userService);
+            UserResponse user = authService.login(request);
             return okHttpResponse(user, "redirect:/" + homepage);
 
         } catch (Exception e) {
@@ -56,14 +53,14 @@ public class LoginController extends BaseController {
                     .statusCode(HttpServletResponse.SC_UNAUTHORIZED)
                     .error("Invalid login or password")
                     .reasonText("Unauthorized")
-                    .next("forward:pages/formLogin.jsp")
+                    .next(FORWARD_PAGES_FORM_LOGIN_JSP)
                     .build();
         }
     }
 
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
-    public IHttpResponse<String> logout(@Authentication String auth, @Property("loginpage") String loginPage) {
-        loginService.logout(auth);
-        return HttpResponse.<String>next(loginPage).build();
+    public IHttpResponse<String> logout(@Authentication String auth) {
+        authService.logout(auth);
+        return HttpResponse.<String>next(FORWARD_PAGES_FORM_LOGIN_JSP).build();
     }
 }

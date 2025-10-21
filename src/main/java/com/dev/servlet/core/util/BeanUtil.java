@@ -174,9 +174,9 @@ public final class BeanUtil {
          * @param service the service name (typically matches class name)
          * @return the resolved service instance, or null if not found
          */
-        public Object getService(String service) {
+        public Object getBean(String service) {
             if (services.containsKey(service)) {
-                return getBean(services.get(service));
+                return BeanUtil.getBean(services.get(service));
             }
             try {
                 Class<?> serviceClass;

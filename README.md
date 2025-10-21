@@ -99,7 +99,7 @@ Main file: src/main/resources/app-dev.properties
 - rate.limit.enabled: toggle rate limiting
 - cache.timeout.minutes: cache TTL
 - pagination.*: default paging/sorting
-- homepage, loginpage: convenience routes
+- homepage, loginPage: convenience routes
 - scrape.product.url: external product scraping endpoint
 
 Use app-prod.properties for production overrides.

@@ -3,13 +3,13 @@ package com.dev.servlet.controller.base;
 import com.dev.servlet.core.annotation.Property;
 import com.dev.servlet.core.annotation.RequestMapping;
 import com.dev.servlet.core.exception.ServiceException;
-import com.dev.servlet.core.util.CryptoUtils;
+import com.dev.servlet.core.response.HttpResponse;
+import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.util.EndpointParser;
+import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.core.util.PropertiesUtil;
 import com.dev.servlet.core.validator.RequestValidator;
 import com.dev.servlet.domain.transfer.Request;
-import com.dev.servlet.core.response.HttpResponse;
-import com.dev.servlet.core.response.IHttpResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -30,16 +30,18 @@ class BaseRouterControllerTest {
     private TestController controller;
     private Request request;
     private EndpointParser endpoint;
+    private JwtUtil jwtUtil;
 
     @BeforeEach
     void setUp() {
         controller = new TestController();
         request = mock(Request.class);
         endpoint = mock(EndpointParser.class);
+        jwtUtil = mock(JwtUtil.class);
 
-        when(endpoint.getEndpoint()).thenReturn("test");
-        when(endpoint.getController()).thenReturn("TestController");
-        when(endpoint.getApiVersion()).thenReturn("v1");
+        when(endpoint.path()).thenReturn("test");
+        when(endpoint.controller()).thenReturn("TestController");
+        when(endpoint.apiVersion()).thenReturn("v1");
         when(request.getMethod()).thenReturn("GET");
         when(request.getToken()).thenReturn("valid-bearerToken");
     }
@@ -47,35 +49,36 @@ class BaseRouterControllerTest {
     @Test
     void route_WithValidEndpoint_ShouldCallCorrectMethod() throws Exception {
         // Arrange
-        try (MockedStatic<CryptoUtils> cryptoUtils = mockStatic(CryptoUtils.class)) {
-            cryptoUtils.when(() -> CryptoUtils.isValidToken("valid-bearerToken")).thenReturn(true);
-
-            // Act
-            IHttpResponse<?> response = controller.route(endpoint, request);
-
-            // Assert
-            assertNotNull(response);
-            assertEquals(200, response.statusCode());
-            assertEquals("Test response", response.body());
+        when(jwtUtil.validateToken("valid-bearerToken")).thenReturn(true);
+        // Act
+        IHttpResponse<?> response;
+        try (MockedStatic<PropertiesUtil> propertiesUtil = mockStatic(PropertiesUtil.class)) {
+            propertiesUtil.when(() -> PropertiesUtil.getProperty(eq("security.jwt.key")))
+                    .thenReturn("test-key-832dcrf5t6yhbjijim0987y");
+            response = controller.route(endpoint, request);
         }
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(200, response.statusCode());
+        assertEquals("Test response", response.body());
     }
 
     @Test
     void route_WithValidEndpointAndPropertyParam_ShouldPassPropertyValue() throws Exception {
         // Arrange
-        when(endpoint.getEndpoint()).thenReturn("testWithProperty");
+        when(endpoint.path()).thenReturn("testWithProperty");
+        when(jwtUtil.validateToken("valid-bearerToken")).thenReturn(true);
 
-        try (MockedStatic<CryptoUtils> cryptoUtils = mockStatic(CryptoUtils.class);
-             MockedStatic<PropertiesUtil> propertiesUtil = mockStatic(PropertiesUtil.class)) {
-
-            cryptoUtils.when(() -> CryptoUtils.isValidToken("valid-bearerToken"))
-                    .thenReturn(true);
-
+        try (MockedStatic<PropertiesUtil> propertiesUtil = mockStatic(PropertiesUtil.class)) {
             propertiesUtil.when(() -> PropertiesUtil.getProperty(eq("test.property"), anyString()))
                     .thenReturn("property-value");
 
             propertiesUtil.when(() -> PropertiesUtil.getProperty(eq("env"), anyString()))
                     .thenReturn("development");
+
+            propertiesUtil.when(() -> PropertiesUtil.getProperty(eq("security.jwt.key")))
+                    .thenReturn("test-key-832dcrf5t6yhbjijim0987y");
 
             // Act
             IHttpResponse<?> response = controller.route(endpoint, request);
@@ -90,12 +93,12 @@ class BaseRouterControllerTest {
     @Test
     void route_WithInvalidEndpoint_ShouldThrowException() {
         // Arrange
-        when(endpoint.getEndpoint()).thenReturn("nonexistent");
+        when(endpoint.path()).thenReturn("nonexistent");
 
         // Act & Assert
         ServiceException exception = assertThrows(ServiceException.class, () -> controller.route(endpoint, request));
-        assertEquals(501, exception.getCode());
-        assertEquals("Endpoint not implemented: nonexistent", exception.getMessage());
+        assertEquals(500, exception.getCode());
+        assertEquals("Endpoint not implemented: /nonexistent", exception.getMessage());
     }
 
     @Test

@@ -31,7 +31,7 @@
         </div>
         <div>
             <input type="text" name="q" class="form-control" id="inputSearchItem"
-                   placeholder="${param.placeholder}" value="${empty param.k or param.k eq null ? '' : param.q}"
+                   placeholder="${param.placeholder}" value="${empty param.k ? '' : param.q}"
                    aria-label="Search" aria-describedby="searchHelp"
                    pattern=".{3,}" title="3 character minimum"
                    style="width: 300px;" autocomplete="on" autofocus required/>

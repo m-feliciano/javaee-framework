@@ -2,12 +2,12 @@ package com.dev.servlet.adapter;
 
 import com.dev.servlet.adapter.internal.HttpExecutor;
 import com.dev.servlet.controller.base.BaseRouterController;
+import com.dev.servlet.core.response.HttpResponse;
+import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.util.BeanUtil;
 import com.dev.servlet.core.util.EndpointParser;
 import com.dev.servlet.core.util.HttpExecutorTestLogSuppressor;
 import com.dev.servlet.domain.transfer.Request;
-import com.dev.servlet.core.response.HttpResponse;
-import com.dev.servlet.core.response.IHttpResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,9 +35,9 @@ class HttpExecutorTest {
         request = mock(Request.class);
         parser = mock(EndpointParser.class);
 
-        when(parser.getApiVersion()).thenReturn("v1");
-        when(parser.getController()).thenReturn("testService");
-        when(parser.getEndpoint()).thenReturn("/test");
+        when(parser.apiVersion()).thenReturn("v1");
+        when(parser.controller()).thenReturn("test");
+        when(parser.path()).thenReturn("/test");
         when(request.getEndpoint()).thenReturn("/api/v1/testService/test");
     }
 
@@ -54,11 +54,10 @@ class HttpExecutorTest {
 
         try (MockedStatic<EndpointParser> parserMock = mockStatic(EndpointParser.class);
              MockedStatic<BeanUtil> beanUtilMock = mockStatic(BeanUtil.class)) {
-            when(BeanUtil.getResolver()).thenReturn(mock(BeanUtil.DependencyResolver.class));
-
             // Mock the static method to return the mocked parser
             parserMock.when(() -> EndpointParser.of(anyString())).thenReturn(parser);
-            beanUtilMock.when(() -> BeanUtil.getResolver().getService("testService")).thenReturn(controller);
+            beanUtilMock.when(BeanUtil::getResolver).thenReturn(mock(BeanUtil.DependencyResolver.class));
+            beanUtilMock.when(() -> BeanUtil.getResolver().getBean("testController")).thenReturn(controller);
 
             IHttpResponse<?> response = httpExecutor.call(request);
 
@@ -76,8 +75,9 @@ class HttpExecutorTest {
     void testCall_ServiceException() {
         try (MockedStatic<EndpointParser> parserMock = mockStatic(EndpointParser.class);
              MockedStatic<BeanUtil> beanUtilMock = mockStatic(BeanUtil.class)) {
-            when(BeanUtil.getResolver()).thenReturn(mock(BeanUtil.DependencyResolver.class));
 
+            BeanUtil.DependencyResolver resolver = mock(BeanUtil.DependencyResolver.class);
+            beanUtilMock.when(BeanUtil::getResolver).thenReturn(resolver);
             parserMock.when(() -> EndpointParser.of(anyString())).thenReturn(parser);
 
             IHttpResponse<?> response = httpExecutor.call(request);

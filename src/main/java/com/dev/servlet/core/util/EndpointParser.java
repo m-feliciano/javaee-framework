@@ -1,6 +1,5 @@
 package com.dev.servlet.core.util;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import java.util.Arrays;
@@ -38,8 +37,8 @@ import java.util.Arrays;
  * EndpointParser parser = EndpointParser.of(requestPath);
  * 
  * // Extract routing information
- * String controller = parser.getController();  // "UserController"
- * String version = parser.getApiVersion();     // "v1"
+ * String controller = parser.controller();  // "UserController"
+ * String version = parser.apiVersion();     // "v1"
  * String endpoint = parser.getEndpoint();      // "profile/settings"
  * 
  * // Use for request dispatching
@@ -59,40 +58,34 @@ import java.util.Arrays;
  * @since 1.0
  * @see BeanUtil
  */
-@Getter
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 @AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class EndpointParser {
     
     /** Index position of API version in URL path segments */
     private static final int API_VERSION_INDEX = 2;
-    
+
     /** Starting index for service/endpoint name segments */
     private static final int SERVICE_NAME_START_INDEX = 4;
-    
-    /** The resolved controller name with "Controller" suffix */
+
     private String controller;
-    
-    /** The API version extracted from the URL (e.g., "v1", "v2") */
     private String apiVersion;
-    
-    /** The endpoint path after the controller name */
-    private String endpoint;
+    private String path;
 
     /**
      * Private constructor for parsing an endpoint URL.
      * Validates the URL format and extracts routing components.
      * 
-     * @param endpoint the URL path to parse
+     * @param path the URL path to parse
      * @throws IllegalArgumentException if URL is null, empty, or has invalid format
      */
-    private EndpointParser(String endpoint) {
-        if (endpoint == null || endpoint.isEmpty()) {
+    private EndpointParser(String path) {
+        if (path == null || path.isEmpty()) {
             throw new IllegalArgumentException("Request or endpoint cannot be null or empty");
         }
-        String[] parts = endpoint.split("/");
+        String[] parts = path.split("/");
         if (parts.length < SERVICE_NAME_START_INDEX) {
-            throw new IllegalArgumentException("Invalid endpoint format: " + endpoint);
+            throw new IllegalArgumentException("Invalid endpoint format: " + path);
         }
         init(parts);
     }
@@ -111,14 +104,25 @@ public class EndpointParser {
 
     /**
      * Initializes the parser fields from the split URL path segments.
-     * Extracts and formats the controller name, API version, and endpoint path.
      * 
      * @param parts the URL path split by "/" delimiter
      */
     private void init(String[] parts) {
         this.apiVersion = parts[API_VERSION_INDEX];
-        this.controller = StringUtils.capitalize(parts[3]).concat("Controller");
-        this.endpoint = String.join("/",
+        this.controller = StringUtils.capitalize(parts[3]);
+        this.path = String.join("/",
                 Arrays.copyOfRange(parts, SERVICE_NAME_START_INDEX, parts.length));
+    }
+
+    public String controller() {
+        return controller;
+    }
+
+    public String apiVersion() {
+        return apiVersion;
+    }
+
+    public String path() {
+        return path;
     }
 }

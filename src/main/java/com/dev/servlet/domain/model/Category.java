@@ -13,6 +13,7 @@ import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -28,7 +29,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@javax.persistence.Entity
+@Entity
 @Table(name = "tb_category")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @ToString(of = {"id", "name"})
@@ -54,6 +55,14 @@ public class Category {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public Category(String id) {
+        this.id = id;
+    }
+
+    public Category(User user) {
+        this.user = user;
+    }
 
     public void addProduct(Product product) {
         if (products == null)

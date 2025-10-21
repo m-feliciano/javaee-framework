@@ -16,22 +16,22 @@ class EndpointParserTest {
         String endpoint = "/api/v1/serviceName/action";
         EndpointParser parser = EndpointParser.of(endpoint);
 
-        assertEquals("v1", parser.getApiVersion());
-        assertEquals("ServiceNameController", parser.getController());
-        assertEquals("action", parser.getEndpoint());
+        assertEquals("v1", parser.apiVersion());
+        assertEquals("ServiceName", parser.controller());
+        assertEquals("action", parser.path());
     }
 
     @Test
     @DisplayName(
             "Test EndpointParser with a valid endpoint containing multiple service names. " +
             "It should parse and concatenate the service names correctly.")
-    void testValidEndpointWithMultipleServiceNames() {
+    void testValidEndpointWithMultipleControllerNames() {
         String endpoint = "/api/v1/serviceName/action/subAction";
         EndpointParser parser = EndpointParser.of(endpoint);
 
-        assertEquals("v1", parser.getApiVersion());
-        assertEquals("ServiceNameController", parser.getController());
-        assertEquals("action/subAction", parser.getEndpoint());
+        assertEquals("v1", parser.apiVersion());
+        assertEquals("ServiceName", parser.controller());
+        assertEquals("action/subAction", parser.path());
     }
 
     @Test
