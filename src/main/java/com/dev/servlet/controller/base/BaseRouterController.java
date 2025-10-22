@@ -6,6 +6,7 @@ import com.dev.servlet.core.annotation.RequestMapping;
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.util.EndpointParser;
+import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.core.util.PropertiesUtil;
 import com.dev.servlet.core.validator.RequestValidator;
 import com.dev.servlet.domain.transfer.Request;
@@ -21,6 +22,7 @@ import static com.dev.servlet.core.util.ThrowableUtils.internalServerError;
 
 public abstract class BaseRouterController {
     private final Set<Method> reflections = new HashSet<>();
+    protected JwtUtil jwts;
 
     protected BaseRouterController() {
         initRouteMapping();
@@ -46,7 +48,10 @@ public abstract class BaseRouterController {
     public <U> IHttpResponse<U> route(EndpointParser endpoint, Request request) throws Exception {
         var method = routeMappingFromEndpoint("/" + endpoint.path());
         var requestMapping = method.getAnnotation(RequestMapping.class);
-        RequestValidator.validate(endpoint, requestMapping, request);
+        // Validate request parameters
+        RequestValidator validator = new RequestValidator(endpoint, jwts);
+        validator.validate(requestMapping, request);
+        // Invoke service method
         Object[] args = prepareMethodArguments(method, request);
         return invokeServiceMethod(this, method, args);
     }

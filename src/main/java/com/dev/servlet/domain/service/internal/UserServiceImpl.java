@@ -2,7 +2,6 @@ package com.dev.servlet.domain.service.internal;
 
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.mapper.UserMapper;
-import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.domain.model.Credentials;
 import com.dev.servlet.domain.model.User;
 import com.dev.servlet.domain.model.enums.RoleType;
@@ -34,9 +33,6 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
 
     @Inject
     private AuditService auditService;
-
-    @Inject
-    private JwtUtil jwtUtil;
 
     @Inject
     public UserServiceImpl(UserDAO userDAO) {
@@ -107,8 +103,8 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
 
         try {
             user = super.update(user);
-            user.setToken(jwtUtil.generateAccessToken(user));
-            user.setRefreshToken(jwtUtil.generateRefreshToken(user));
+            user.setToken(jwts.generateAccessToken(user));
+            user.setRefreshToken(jwts.generateRefreshToken(user));
         } catch (Exception e) {
             auditService.auditFailure("user:update", auth, new AuditPayload<>(userRequest, null));
             throw e;
@@ -155,7 +151,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
     }
 
     private User loadUser(String id, String auth) throws ServiceException {
-        String userId = jwtUtil.getUserIdFromToken(auth);
+        String userId = jwts.getUserIdFromToken(auth);
         if (!id.equals(userId)) {
             throw serviceError(HttpServletResponse.SC_FORBIDDEN, "User not authorized.");
         }

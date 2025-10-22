@@ -39,8 +39,12 @@ public class InventoryController extends BaseController {
     private InventoryMapper inventoryMapper;
 
     @RequestMapping(value = "/new")
-    public IHttpResponse<Void> forwardRegister() {
-        return HttpResponse.<Void>next(forwardTo("formCreateItem")).build();
+    public IHttpResponse<String> forwardRegister(Query query) {
+        String response = null;
+        if (query != null) {
+            response = query.queries().get("productId");
+        }
+        return newHttpResponse(200, response, forwardTo("formCreateItem"));
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST, jsonType = InventoryCreateRequest.class)

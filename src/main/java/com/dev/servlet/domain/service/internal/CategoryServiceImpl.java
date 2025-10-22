@@ -41,9 +41,6 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
     private AuditService auditService;
 
     @Inject
-    private JwtUtil jwtUtil;
-
-    @Inject
     public CategoryServiceImpl(CategoryDAO categoryDAO) {
         super(categoryDAO);
     }
@@ -53,7 +50,7 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
         log.trace("");
 
         try {
-            User user = jwtUtil.getUserFromToken(auth);
+            User user = jwts.getUserFromToken(auth);
 
             Category category = categoryMapper.toCategory(request);
             category.setUser(user);
@@ -75,7 +72,7 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
         log.trace("");
 
         try {
-            User user = jwtUtil.getUserFromToken(auth);
+            User user = jwts.getUserFromToken(auth);
 
             Category category = loadUser(request.id(), user);
             category.setName(request.name().toUpperCase());
@@ -96,7 +93,7 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
         log.trace("");
 
         try {
-            User user = jwtUtil.getUserFromToken(auth);
+            User user = jwts.getUserFromToken(auth);
             Category category = loadUser(request.id(), user);
             CategoryResponse response = categoryMapper.toResponse(category);
             auditService.auditSuccess("category:get_by_id", auth, new AuditPayload<>(request, response));
@@ -112,7 +109,7 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
         log.trace("");
 
         try {
-            User user = jwtUtil.getUserFromToken(token);
+            User user = jwts.getUserFromToken(token);
 
             Collection<CategoryResponse> categories = getAll(user);
             if (request != null && request.name() != null) {
@@ -135,7 +132,7 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
         log.trace("");
 
         try {
-            User user = jwtUtil.getUserFromToken(auth);
+            User user = jwts.getUserFromToken(auth);
             Category category = loadUser(request.id(), user);
             super.delete(category);
 

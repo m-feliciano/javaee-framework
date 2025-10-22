@@ -36,8 +36,9 @@ class HttpExecutorTest {
         parser = mock(EndpointParser.class);
 
         when(parser.apiVersion()).thenReturn("v1");
-        when(parser.controller()).thenReturn("test");
+        when(parser.controller()).thenReturn("list");
         when(parser.path()).thenReturn("/test");
+
         when(request.getEndpoint()).thenReturn("/api/v1/testService/test");
     }
 
@@ -45,19 +46,27 @@ class HttpExecutorTest {
     @DisplayName(
             "Test send method with a valid request and a successful response. " +
             "It should return the expected IHttpResponse object.")
-    void testCall_Success() throws Exception {
-        BaseRouterController controller = mock(BaseRouterController.class);
+    void testCall_Success() {
         IHttpResponse<Object> expectedResponse = HttpResponse.next("Next").build();
 
-        when(request.getEndpoint()).thenReturn("/test");
-        when(controller.route(parser, request)).thenReturn(expectedResponse);
-
+        // Mock the static method to return the mocked parser
         try (MockedStatic<EndpointParser> parserMock = mockStatic(EndpointParser.class);
              MockedStatic<BeanUtil> beanUtilMock = mockStatic(BeanUtil.class)) {
-            // Mock the static method to return the mocked parser
-            parserMock.when(() -> EndpointParser.of(anyString())).thenReturn(parser);
-            beanUtilMock.when(BeanUtil::getResolver).thenReturn(mock(BeanUtil.DependencyResolver.class));
-            beanUtilMock.when(() -> BeanUtil.getResolver().getBean("testController")).thenReturn(controller);
+
+            parserMock.when(() -> EndpointParser.of(anyString()))
+                    .thenReturn(parser);
+
+
+            beanUtilMock.when(BeanUtil::getResolver)
+                    .thenReturn(mock(BeanUtil.DependencyResolver.class));
+
+            beanUtilMock.when(() -> BeanUtil.getResolver().getBean(anyString()))
+                    .thenReturn(new BaseRouterController() {
+                        @Override
+                        public IHttpResponse<?> route(EndpointParser endpoint, Request request) {
+                            return expectedResponse;
+                        }
+                    });
 
             IHttpResponse<?> response = httpExecutor.call(request);
 
@@ -93,16 +102,14 @@ class HttpExecutorTest {
             "Test send method with a valid request and an unexpected exception. " +
             "It should return an IHttpResponse object with a 500 status code.")
     void testCall_UnexpectedException() {
-        when(request.getEndpoint()).thenReturn("/test");
-
         try (MockedStatic<EndpointParser> parserMock = mockStatic(EndpointParser.class)) {
-            parserMock.when(() -> EndpointParser.of("/test")).thenThrow(new RuntimeException("Unexpected error"));
+            parserMock.when(() -> EndpointParser.of(anyString())).thenThrow(new RuntimeException("Unexpected error"));
 
             IHttpResponse<?> response = httpExecutor.call(request);
 
             assertNotNull(response);
             assertEquals(400, response.statusCode());
-            assertEquals("Invalid endpoint: /test", response.error());
+            assertEquals("Invalid endpoint: /api/v1/testService/test", response.error());
         }
     }
 }

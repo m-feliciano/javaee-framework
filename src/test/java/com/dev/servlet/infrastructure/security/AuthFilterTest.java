@@ -81,7 +81,7 @@ class AuthFilterTest {
         when(session.getAttribute("refreshToken")).thenReturn("refresh-token");
         when(jwtUtil.validateToken(anyString())).thenReturn(false);
         when(loginService.refreshToken(anyString()))
-                .thenReturn(new RefreshTokenResponse("id", "new-refresh-token"));
+                .thenReturn(new RefreshTokenResponse("new-refresh-token"));
 
         try (MockedStatic<EndpointParser> endpointParser = mockStatic(EndpointParser.class);
              MockedStatic<PropertiesUtil> propertiesUtil = mockStatic(PropertiesUtil.class)) {

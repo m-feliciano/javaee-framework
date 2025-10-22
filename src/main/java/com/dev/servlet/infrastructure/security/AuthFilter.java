@@ -94,9 +94,9 @@ public class AuthFilter implements Filter {
         if (token != null && !jwtUtil.validateToken(token)) {
             try {
                 String refreshToken = (String) httpRequest.getSession().getAttribute("refreshToken");
-                var refreshTokenResponse = loginService.refreshToken(refreshToken);
+                RefreshTokenResponse refreshTokenResponse = loginService.refreshToken(refreshToken);
                 httpRequest.getSession().setAttribute("token", refreshTokenResponse.token());
-                log.info("✅ Token refreshed successfully for user {}", refreshTokenResponse.id());
+                log.info("✅ Token refreshed successfully for user {}", jwtUtil.getUserIdFromToken(refreshTokenResponse.token()));
 
             } catch (ServiceException e) {
                 log.error("❌ Failed to refresh token: {}, redirecting to login page", e.getMessage());

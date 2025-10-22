@@ -15,16 +15,20 @@ import static com.dev.servlet.core.util.ThrowableUtils.serviceError;
 
 public class RoleValidationHandler implements ValidationHandler {
 
-    private final static JwtUtil jwtUtil = new JwtUtil();
+    private final JwtUtil jwts;
+
+    public RoleValidationHandler(JwtUtil jwts) {
+        this.jwts = jwts;
+    }
 
     @Override
     public void validate(RequestMapping mapping, Request request) throws ServiceException {
         if (CollectionUtils.isEmpty(mapping.roles())) return;
 
-        List<Long> roles = jwtUtil.getUserPerfisFromToken(request.getToken());
+        List<Long> roles = jwts.getUserPerfisFromToken(request.getToken());
         for (RoleType role : mapping.roles()) {
             if (!roles.contains(role.getCode())) {
-                throw serviceError(HttpServletResponse.SC_FORBIDDEN, "User does not have permission to access this endpoint");
+                throw serviceError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
             }
         }
     }

@@ -4,6 +4,7 @@ package com.dev.servlet.core.validator;
 import com.dev.servlet.core.annotation.RequestMapping;
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.util.EndpointParser;
+import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.core.validator.internal.ApiVersionValidationHandler;
 import com.dev.servlet.core.validator.internal.AuthValidationHandler;
 import com.dev.servlet.core.validator.internal.ConstraintValidationHandler;
@@ -18,17 +19,12 @@ public final class RequestValidator {
 
     private final List<ValidationHandler> handlers = new ArrayList<>();
 
-    public RequestValidator(EndpointParser endpoint) {
+    public RequestValidator(EndpointParser endpoint, JwtUtil jwtUtil) {
         handlers.add(new MethodValidationHandler());
         handlers.add(new AuthValidationHandler());
-        handlers.add(new RoleValidationHandler());
+        handlers.add(new RoleValidationHandler(jwtUtil));
         handlers.add(new ApiVersionValidationHandler(endpoint));
         handlers.add(new ConstraintValidationHandler());
-    }
-
-    public static void validate(EndpointParser endpoint, RequestMapping mapping, Request request) throws ServiceException {
-        RequestValidator validator = new RequestValidator(endpoint);
-        validator.validate(mapping, request);
     }
 
     public void validate(RequestMapping mapping, Request request) throws ServiceException {

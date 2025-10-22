@@ -87,9 +87,11 @@
                                             <i class="bi bi-search"></i>
                                         </button>
                                     </form>
-                                    <form class="d-inline">
-                                        <button type="submit" class="btn btn-auto btn-secondary" disabled>
+                                    <form class="d-inline" action="${baseLink}${version}${ newItem }" method="get">
+                                        <button type="submit" class="btn btn-auto btn-secondary">
                                             <i class="bi bi-box"></i>
+                                            <input type="hidden" name="productId" hidden
+                                                   value="<c:out value='${product.id}' escapeXml='true'/>"/>
                                         </button>
                                     </form>
                                     <form action="<c:url value='${baseLink}${version}${deleteProduct}/${product.id}'/>" method="post" class="d-inline">

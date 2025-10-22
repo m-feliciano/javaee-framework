@@ -84,8 +84,8 @@ public class AuthServiceImpl implements AuthService {
         user.setPerfis(userResponse.getPerfis());
         String newToken = jwtUtil.generateAccessToken(user);
         CacheUtils.clearAll(user.getId());
-        RefreshTokenResponse response = new RefreshTokenResponse(user.getId(), newToken);
-        auditService.auditSuccess("auth:refresh_token", refreshToken, new AuditPayload<>(null, response));
-        return response;
+        var refreshTokenResponse = new RefreshTokenResponse(newToken);
+        auditService.auditSuccess("auth:refresh_token", refreshToken, new AuditPayload<>(null, refreshTokenResponse));
+        return refreshTokenResponse;
     }
 }

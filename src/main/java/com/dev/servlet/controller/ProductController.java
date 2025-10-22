@@ -47,8 +47,6 @@ public class ProductController extends BaseController {
     private ICategoryService categoryService;
     @Inject
     private ProductMapper productMapper;
-    @Inject
-    private JwtUtil jwtUtil;
 
     @RequestMapping(value = "/create", method = RequestMethod.POST, jsonType = ProductRequest.class)
     public IHttpResponse<Void> create(ProductRequest request, @Authentication String auth) throws ServiceException {
@@ -80,7 +78,7 @@ public class ProductController extends BaseController {
     @SneakyThrows
     public IServletResponse search(Query query, IPageRequest pageRequest, @Authentication String auth) {
         log.trace("");
-        Product product = productMapper.queryToProduct(query, jwtUtil.getUserFromToken(auth));
+        Product product = productMapper.queryToProduct(query, jwts.getUserFromToken(auth));
         return getServletResponse(pageRequest, auth, product);
     }
 
@@ -88,7 +86,7 @@ public class ProductController extends BaseController {
     @SneakyThrows
     public IServletResponse list(IPageRequest pageRequest, @Authentication String auth) {
         log.trace("");
-        Product product = productMapper.toProduct(null, jwtUtil.getUserIdFromToken(auth));
+        Product product = productMapper.toProduct(null, jwts.getUserIdFromToken(auth));
         return getServletResponse(pageRequest, auth, product);
     }
 

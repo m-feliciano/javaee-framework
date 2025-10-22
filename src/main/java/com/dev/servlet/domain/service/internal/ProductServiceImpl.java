@@ -3,7 +3,6 @@ package com.dev.servlet.domain.service.internal;
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.mapper.Mapper;
 import com.dev.servlet.core.mapper.ProductMapper;
-import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.domain.model.Category;
 import com.dev.servlet.domain.model.Inventory;
 import com.dev.servlet.domain.model.Product;
@@ -56,9 +55,6 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
     private AuditService auditService;
 
     @Inject
-    private JwtUtil jwtUtil;
-
-    @Inject
     public ProductServiceImpl(ProductDAO dao) {
         super(dao);
     }
@@ -85,7 +81,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
         log.trace("");
 
         try {
-            Product product = productMapper.toProduct(request, jwtUtil.getUserIdFromToken(auth));
+            Product product = productMapper.toProduct(request, jwts.getUserIdFromToken(auth));
             product.setRegisterDate(new Date());
             product.setStatus(Status.ACTIVE.getValue());
             product = super.save(product);
@@ -103,7 +99,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
         log.trace("");
 
         try {
-            Product product = productMapper.toProduct(request, jwtUtil.getUserIdFromToken(auth));
+            Product product = productMapper.toProduct(request, jwts.getUserIdFromToken(auth));
             product = findProduct(product);
             ProductResponse response = productMapper.toResponse(product);
             auditService.auditSuccess("product:find_by_id", auth, new AuditPayload<>(request, response));
@@ -120,7 +116,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
         log.trace("");
 
         try {
-            Product product = productMapper.toProduct(request, jwtUtil.getUserIdFromToken(auth));
+            Product product = productMapper.toProduct(request, jwts.getUserIdFromToken(auth));
             product = findProduct(product);
             product.setName(request.name());
             product.setDescription(request.description());
@@ -142,7 +138,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
     public void delete(ProductRequest request, String auth) throws ServiceException {
         log.trace("");
         try {
-            Product product = productMapper.toProduct(request, jwtUtil.getUserIdFromToken(auth));
+            Product product = productMapper.toProduct(request, jwts.getUserIdFromToken(auth));
             product = findProduct(product);
 
             Inventory inventory = Inventory.builder().user(product.getUser()).product(product).build();
@@ -175,7 +171,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
             return Optional.empty();
         }
 
-        final User user = jwtUtil.getUserFromToken(auth);
+        final User user = jwts.getUserFromToken(auth);
 
         Optional<List<ProductWebScrapeDTO>> scrapeResponse = WebScrapeBuilder.<List<ProductWebScrapeDTO>>create()
                 .withServiceType("product")
