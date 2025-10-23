@@ -129,7 +129,7 @@ public final class PropertiesUtil {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         URL resourceUrl = loader.getResource("");
         Objects.requireNonNull(resourceUrl, "Resource URL is null");
-        String propFileName = ObjectUtils.defaultIfNull(
+        String propFileName = ObjectUtils.getIfNull(
                 System.getProperty("app.config.file"), "app-prod.properties");
         String rootPath = resourceUrl.getPath();
         Properties appProps = new Properties();
@@ -152,7 +152,7 @@ public final class PropertiesUtil {
     public static <T> T getProperty(String key, T defaultValue) {
         String property = getProperty(key);
         T value = parseProperty(property, defaultValue);
-        return ObjectUtils.defaultIfNull(value, defaultValue);
+        return ObjectUtils.getIfNull(value, defaultValue);
     }
     
     /**

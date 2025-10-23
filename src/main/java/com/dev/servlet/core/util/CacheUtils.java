@@ -11,9 +11,12 @@ import org.ehcache.config.builders.ResourcePoolsBuilder;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -114,21 +117,21 @@ public final class CacheUtils {
      * Each token gets its own isolated cache instance to prevent data leakage
      * between different users or sessions.
      *
-     * @param token the user/session token (truncated to 25 characters)
+     * @param cacheKey the user/session token (truncated to 25 characters)
      * @return the cache instance for the token
      */
-    private static Cache<String, Container> getOrCreateCache(String token) {
-        if (tokenCaches.containsKey(token)) {
-            return tokenCaches.get(token);
+    private static Cache<String, Container> getOrCreateCache(String cacheKey) {
+        if (tokenCaches.containsKey(cacheKey)) {
+            return tokenCaches.get(cacheKey);
         }
-        String cacheName = "cache_" + token;
+        String cacheName = "cache_" + cacheKey;
         cacheManager.removeCache(cacheName);
         CacheConfigurationBuilder<String, Container> config = cacheConfigurationBuilder();
         cacheManager.createCache(cacheName, config);
-        log.info("Created new cache for token: {}", shortTokenForKey(token));
+        log.info("Created new cache for token: {}", shortCacheKey(cacheKey));
         Cache<String, Container> cache = cacheManager.getCache(cacheName, String.class, Container.class);
-        tokenCaches.put(token, cache);
-        lastAccessMap.put(token, System.currentTimeMillis());
+        tokenCaches.put(cacheKey, cache);
+        lastAccessMap.put(cacheKey, System.currentTimeMillis());
         return cache;
     }
 
@@ -154,15 +157,15 @@ public final class CacheUtils {
      * 
      * @param <T> the type of collection elements
      * @param key the cache key
-     * @param token the user/session token
+     * @param cacheKey the user/session token
      * @param collection the collection to cache
      */
-    public static <T> void set(String key, String token, Collection<T> collection) {
-        String shortToken = shortTokenForKey(token);
+    public static <T> void set(String key, String cacheKey, Collection<T> collection) {
+        String shortCacheKey = shortCacheKey(cacheKey);
         List<T> data = CloneUtil.cloneList(collection);
-        Cache<String, Container> cache = getOrCreateCache(shortToken);
+        Cache<String, Container> cache = getOrCreateCache(shortCacheKey);
         cache.put(key, new Container(data));
-        log.debug("Cached data for key='{}', token='{}'", key, shortTokenForKey(token));
+        log.debug("Cached data for key='{}', token='{}'", key, shortCacheKey(cacheKey));
     }
 
     /**
@@ -172,16 +175,16 @@ public final class CacheUtils {
      * 
      * @param <T> the type of object
      * @param key the cache key
-     * @param token the user/session token
+     * @param cacheKey the user/session token
      * @param object the object to cache
      */
-    public static <T> void setObject(String key, String token, T object) {
-        String shortToken = shortTokenForKey(token);
-        Cache<String, Container> cache = getOrCreateCache(shortToken);
+    public static <T> void setObject(String key, String cacheKey, T object) {
+        String shortCacheKey = shortCacheKey(cacheKey);
+        Cache<String, Container> cache = getOrCreateCache(shortCacheKey);
         T clone = CloneUtil.forceClone(object);
         Container container = new Container(clone);
         cache.put(key, container);
-        log.debug("Cached object for key='{}', token='{}'", key, shortToken);
+        log.debug("Cached object for key='{}', token='{}'", key, shortCacheKey);
     }
 
     /**
@@ -191,13 +194,13 @@ public final class CacheUtils {
      * 
      * @param <T> the type of collection elements
      * @param key the cache key
-     * @param token the user/session token
+     * @param cacheKey the user/session token
      * @return cloned collection from cache, or empty list if not found
      */
     @SuppressWarnings("unchecked")
-    public static <T> List<T> get(String key, String token) {
-        String shortToken = shortTokenForKey(token);
-        Cache<String, Container> cache = getOrCreateCache(shortToken);
+    public static <T> List<T> get(String key, String cacheKey) {
+        String shortCacheKey = shortCacheKey(cacheKey);
+        Cache<String, Container> cache = getOrCreateCache(shortCacheKey);
         Container value = cache.get(key);
         log.debug("Retrieved data for key='{}': {}", key, value != null ? "HIT" : "MISS");
         if (value != null) {
@@ -216,13 +219,13 @@ public final class CacheUtils {
      * 
      * @param <T> the type of object
      * @param key the cache key
-     * @param token the user/session token
+     * @param cacheKey the user/session token
      * @return cloned object from cache, or null if not found
      */
     @SuppressWarnings("unchecked")
-    public static <T> T getObject(String key, String token) {
-        String shortToken = shortTokenForKey(token);
-        Cache<String, Container> cache = getOrCreateCache(shortToken);
+    public static <T> T getObject(String key, String cacheKey) {
+        String shortCacheKey = shortCacheKey(cacheKey);
+        Cache<String, Container> cache = getOrCreateCache(shortCacheKey);
         Container value = cache.get(key);
         log.debug("Retrieved data for key='{}': {}", key, value != null ? "HIT" : "MISS");
         if (value == null) {
@@ -235,10 +238,10 @@ public final class CacheUtils {
      * Removes a specific cache entry.
      * 
      * @param key the cache key to remove
-     * @param token the user/session token
+     * @param cacheKey the user/session token
      */
-    public static void clear(String key, String token) {
-        String shortToken = shortTokenForKey(token);
+    public static void clear(String key, String cacheKey) {
+        String shortToken = shortCacheKey(cacheKey);
         Cache<String, Container> cache = getOrCreateCache(shortToken);
         cache.remove(key);
         log.info("Cleared cache entry for key='{}', token='{}'", key, shortToken);
@@ -248,25 +251,24 @@ public final class CacheUtils {
      * Removes all cache entries for a specific token.
      * This completely destroys the cache instance for the token.
      *
-     * @param token the user/session token
+     * @param cacheKey the user/session token
      */
-    public static void clearAll(String token) {
-        String shortToken = shortTokenForKey(token);
+    public static void clearAll(String cacheKey) {
+        String shortToken = shortCacheKey(cacheKey);
         String cacheName = "cache_" + shortToken;
         cacheManager.removeCache(cacheName);
         tokenCaches.remove(shortToken);
-        log.info("Cleared all cache entries for token='{}'", token);
+        log.info("Cleared all cache entries for token='{}'", cacheKey);
     }
-
     /**
-     * Truncates token to 25 characters for use as cache key.
-     * This prevents excessively long cache names while maintaining uniqueness.
+     * Generates a short cache key from the user/session token.
+     * Uses UUID name-based generation for consistent and compact keys.
      *
-     * @param token the full token
-     * @return truncated token (first 25 characters)
+     * @param cacheKey
+     * @return shortened cache key
      */
-    private static String shortTokenForKey(String token) {
-        return token.substring(0, 25);
+    private static String shortCacheKey(String cacheKey) {
+        return UUID.nameUUIDFromBytes(cacheKey.getBytes(StandardCharsets.UTF_8)).toString();
     }
 
     /**
@@ -278,12 +280,12 @@ public final class CacheUtils {
         long now = System.currentTimeMillis();
         for (var entry : lastAccessMap.entrySet()) {
             if (now - entry.getValue() > TimeUnit.MINUTES.toMillis(CACHE_IDLE_TIMEOUT_MINUTES)) {
-                String token = entry.getKey();
-                String cacheName = "cache_" + token;
+                String cacheKey = entry.getKey();
+                String cacheName = "cache_" + cacheKey;
                 cacheManager.removeCache(cacheName);
-                tokenCaches.remove(token);
-                lastAccessMap.remove(token);
-                log.info("Evicted unused cache for token='{}'", token);
+                tokenCaches.remove(cacheKey);
+                lastAccessMap.remove(cacheKey);
+                log.info("Evicted unused cache for token='{}'", cacheKey);
             }
         }
     }
@@ -308,7 +310,7 @@ public final class CacheUtils {
      * @param cacheToken the user/session token
      */
     public static void clearCacheKeyPrefix(String cacheKeyPrefix, String cacheToken) {
-        String shortToken = shortTokenForKey(cacheToken);
+        String shortToken = shortCacheKey(cacheToken);
         Cache<String, Container> cache = tokenCaches.get(shortToken);
         if (cache != null) {
             cache.forEach(entry -> {

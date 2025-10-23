@@ -1,9 +1,14 @@
 package com.dev.servlet.domain.transfer.request;
 
+import org.hibernate.validator.constraints.Length;
+
 import javax.validation.constraints.Email;
-import javax.validation.constraints.Min;
 
 public record UserCreateRequest(@Email String login,
-                                @Min(6) String password,
-                                @Min(6) String confirmPassword) {
+                                @Length(min = 6,
+                                        max = 12,
+                                        message = "Password must be between {min} and {max} characters") String password,
+                                @Length(min = 6,
+                                        max = 12,
+                                        message = "Password must be between {min} and {max} characters") String confirmPassword) {
 }

@@ -16,6 +16,14 @@
 
     <!-- filter chain order -->
     <filter>
+        <filter-name>MDCFilter</filter-name>
+        <filter-class>com.dev.servlet.infrastructure.security.MDCFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>MDCFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
+    </filter-mapping>
+    <filter>
         <filter-name>SecurityPasswordEncryptionFilter</filter-name>
         <filter-class>com.dev.servlet.infrastructure.security.PasswordEncryptFilter</filter-class>
     </filter>

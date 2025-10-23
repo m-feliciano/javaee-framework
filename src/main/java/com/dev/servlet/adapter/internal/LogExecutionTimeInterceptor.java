@@ -12,20 +12,28 @@ import javax.interceptor.InvocationContext;
 @Interceptor
 @LogExecutionTime
 public class LogExecutionTimeInterceptor {
+
     @AroundInvoke
     public Object logMethodExecutionTime(InvocationContext context) throws Exception {
         StopWatch stopWatch = new StopWatch();
+        String methodName = context.getMethod().getName();
+        String className = context.getTarget().getClass().getSuperclass().getName();
+
         stopWatch.start();
         try {
+            log.debug("⬆️ Entering {}.{}", className, methodName);
             return context.proceed();
+
+        } catch (Exception e) {
+            stopWatch.stop();
+            long time = stopWatch.getTime();
+            log.error("❌ {}.{} failed [duration={}ms]", className, methodName, time, e);
+            throw e;
+
         } finally {
             stopWatch.stop();
             long time = stopWatch.getTime();
-            String message = "The method {method} from {class} took {time} ms.";
-            message = message.replace("{method}", context.getMethod().getName())
-                    .replace("{class}", context.getTarget().getClass().getSuperclass().getName())
-                    .replace("{time}", String.valueOf(time));
-            log.info(message);
+            log.info("⬇️ {}.{} completed [duration={}ms]", className, methodName, time);
         }
     }
 }

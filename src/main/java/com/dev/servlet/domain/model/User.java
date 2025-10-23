@@ -64,6 +64,14 @@ public class User {
     @JsonIgnore
     private String token;
 
+    @Transient
+    @JsonIgnore
+    private String refreshToken;
+
+    public User(String id) {
+        this.id = id;
+    }
+
     public User(String login, String password) {
         this.setLogin(login);
         this.setPassword(password);
@@ -99,6 +107,7 @@ public class User {
         if (credentials == null) credentials = new Credentials();
         this.credentials.setPassword(password);
     }
+
     @JsonIgnore
     public String getLogin() {
         return credentials != null ? credentials.getLogin() : null;

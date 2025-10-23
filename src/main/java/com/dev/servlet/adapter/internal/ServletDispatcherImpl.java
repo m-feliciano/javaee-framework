@@ -81,7 +81,6 @@ public class ServletDispatcherImpl implements IServletDispatcher {
             log.debug("Response received: status={}, next={}", httpResponse.statusCode(), httpResponse.next());
 
             processResponse(httpServletRequest, httpServletResponse, request, httpResponse);
-            log.info("Request completed successfully: {} {}", method, requestURI);
 
         } catch (ServiceException e) {
             log.error("Service exception for {} {}: {} - {}", method, requestURI, e.getCode(), e.getMessage());
@@ -91,11 +90,6 @@ public class ServletDispatcherImpl implements IServletDispatcher {
             String message = "An error occurred while processing the request. Contact the support team.";
             writeResponseError(httpServletRequest, httpServletResponse, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message);
         }
-    }
-
-    private void setSessionAttributes(HttpSession session, UserResponse user) {
-        session.setAttribute("token", user.getToken());
-        session.setAttribute("user", user);
     }
 
     private void setRequestAttributes(HttpServletRequest httpRequest, IHttpResponse<?> response) {
@@ -118,7 +112,10 @@ public class ServletDispatcherImpl implements IServletDispatcher {
                                      Request request, IHttpResponse<?> response) {
 
         if (RequestMethod.POST.getMethod().equals(request.getMethod()) && response.body() instanceof UserResponse userResponse) {
-            setSessionAttributes(httpRequest.getSession(), userResponse);
+            HttpSession httpSession = httpRequest.getSession();
+            httpSession.setAttribute("token", userResponse.getToken());
+            httpSession.setAttribute("refreshToken", userResponse.getRefreshToken());
+            httpSession.setAttribute("user", userResponse.withoutToken());
         }
 
         setRequestAttributes(httpRequest, response);

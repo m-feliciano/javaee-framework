@@ -1,15 +1,17 @@
 package com.dev.servlet.controller.base;
 
-import com.dev.servlet.domain.transfer.records.KeyPair;
+import com.dev.servlet.core.annotation.Controller;
 import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.response.IServletResponse;
-import com.dev.servlet.core.annotation.Controller;
+import com.dev.servlet.core.util.JwtUtil;
+import com.dev.servlet.domain.transfer.records.KeyPair;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.inject.Inject;
 import java.util.Set;
 @Slf4j
 @Getter(AccessLevel.PROTECTED)
@@ -19,6 +21,11 @@ public abstract class BaseController extends BaseRouterController {
 
     @Setter(AccessLevel.PROTECTED)
     private String webService;
+
+    @Inject
+    public void setJwtUtils(JwtUtil jwts) {
+        this.jwts = jwts;
+    }
 
     protected BaseController() {
         this.webService = webServiceFromClass(this.getClass());

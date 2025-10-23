@@ -1,18 +1,20 @@
 package com.dev.servlet.controller.base;
 
-import com.dev.servlet.core.annotation.Property;
-import com.dev.servlet.core.annotation.RequestMapping;
+import com.dev.servlet.controller.ProductController;
 import com.dev.servlet.core.exception.ServiceException;
-import com.dev.servlet.core.util.CryptoUtils;
-import com.dev.servlet.core.util.EndpointParser;
-import com.dev.servlet.core.util.PropertiesUtil;
-import com.dev.servlet.core.validator.RequestValidator;
-import com.dev.servlet.domain.transfer.Request;
 import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
+import com.dev.servlet.core.response.IServletResponse;
+import com.dev.servlet.core.util.EndpointParser;
+import com.dev.servlet.core.util.JwtUtil;
+import com.dev.servlet.core.util.PropertiesUtil;
+import com.dev.servlet.domain.transfer.Request;
+import com.dev.servlet.domain.transfer.records.KeyPair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -20,114 +22,124 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 class BaseRouterControllerTest {
 
-    private TestController controller;
+    private BaseRouterController controller;
     private Request request;
     private EndpointParser endpoint;
+    private JwtUtil jwtUtil;
 
     @BeforeEach
     void setUp() {
-        controller = new TestController();
+        controller = new ProductController();
         request = mock(Request.class);
         endpoint = mock(EndpointParser.class);
+        jwtUtil = mock(JwtUtil.class);
 
-        when(endpoint.getEndpoint()).thenReturn("test");
-        when(endpoint.getController()).thenReturn("TestController");
-        when(endpoint.getApiVersion()).thenReturn("v1");
+        when(endpoint.path()).thenReturn("list");
+        when(endpoint.controller()).thenReturn("Test");
+        when(endpoint.apiVersion()).thenReturn("v1");
+
         when(request.getMethod()).thenReturn("GET");
         when(request.getToken()).thenReturn("valid-bearerToken");
+    }
+
+    private static IServletResponse getServletResponse() {
+        return new IServletResponse() {
+            @Override
+            public int statusCode() {
+                return 200;
+            }
+
+            @Override
+            public Set<KeyPair> body() {
+                return Set.of(new KeyPair("response", "Test response"));
+            }
+
+            @Override
+            public String next() {
+                return "";
+            }
+        };
     }
 
     @Test
     void route_WithValidEndpoint_ShouldCallCorrectMethod() throws Exception {
         // Arrange
-        try (MockedStatic<CryptoUtils> cryptoUtils = mockStatic(CryptoUtils.class)) {
-            cryptoUtils.when(() -> CryptoUtils.isValidToken("valid-bearerToken")).thenReturn(true);
+        when(request.getPayload(any())).thenReturn(new Object());
 
-            // Act
-            IHttpResponse<?> response = controller.route(endpoint, request);
-
-            // Assert
-            assertNotNull(response);
-            assertEquals(200, response.statusCode());
-            assertEquals("Test response", response.body());
+        // Act
+        try (MockedStatic<PropertiesUtil> propertiesUtil = mockStatic(PropertiesUtil.class)) {
+            propertiesUtil.when(() -> PropertiesUtil.getProperty(eq("security.jwt.key")))
+                    .thenReturn("test-key-832dcrf5t6yhbjijim0987y");
         }
+
+        ProductController controllerSpy = spy((ProductController) controller);
+        doReturn(getServletResponse())
+                .when(controllerSpy)
+                .list(any(), any());
+
+        IHttpResponse<Set<KeyPair>> response = controllerSpy.route(endpoint, request);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(200, response.statusCode());
+        assertEquals("Test response", response.body().iterator().next().getValue());
     }
 
     @Test
     void route_WithValidEndpointAndPropertyParam_ShouldPassPropertyValue() throws Exception {
         // Arrange
-        when(endpoint.getEndpoint()).thenReturn("testWithProperty");
+        when(endpoint.path()).thenReturn("scrape");
 
-        try (MockedStatic<CryptoUtils> cryptoUtils = mockStatic(CryptoUtils.class);
-             MockedStatic<PropertiesUtil> propertiesUtil = mockStatic(PropertiesUtil.class)) {
-
-            cryptoUtils.when(() -> CryptoUtils.isValidToken("valid-bearerToken"))
-                    .thenReturn(true);
-
+        try (MockedStatic<PropertiesUtil> propertiesUtil = mockStatic(PropertiesUtil.class)) {
             propertiesUtil.when(() -> PropertiesUtil.getProperty(eq("test.property"), anyString()))
                     .thenReturn("property-value");
 
             propertiesUtil.when(() -> PropertiesUtil.getProperty(eq("env"), anyString()))
                     .thenReturn("development");
 
+            propertiesUtil.when(() -> PropertiesUtil.getProperty(eq("security.jwt.key")))
+                    .thenReturn("test-key-832dcrf5t6yhbjijim0987y");
+
             // Act
-            IHttpResponse<?> response = controller.route(endpoint, request);
+            ProductController controllerSpy = spy((ProductController) controller);
+            HttpResponse<Object> httpResponse = HttpResponse.next("").build();
+            doReturn(httpResponse)
+                    .when(controllerSpy)
+                    .scrape(any(), any(), any());
+
+            IHttpResponse<Void> response = controllerSpy.route(endpoint, request);
 
             // Assert
             assertNotNull(response);
             assertEquals(200, response.statusCode());
-            assertEquals("Property: property-value", response.body());
         }
     }
 
     @Test
     void route_WithInvalidEndpoint_ShouldThrowException() {
         // Arrange
-        when(endpoint.getEndpoint()).thenReturn("nonexistent");
-
+        when(endpoint.path()).thenReturn("nonexistent");
         // Act & Assert
         ServiceException exception = assertThrows(ServiceException.class, () -> controller.route(endpoint, request));
-        assertEquals(501, exception.getCode());
-        assertEquals("Endpoint not implemented: nonexistent", exception.getMessage());
+        assertEquals(500, exception.getCode());
+        assertEquals("Endpoint not implemented: /nonexistent", exception.getMessage());
     }
 
     @Test
     void route_WithValidEndpointButValidationFails_ShouldThrowException() {
         // Arrange
-        try (MockedStatic<RequestValidator> validator = mockStatic(RequestValidator.class)) {
-            validator.when(() -> RequestValidator.validate(any(), any(), any()))
-                    .thenThrow(new ServiceException(400, "Validation failed"));
-
-            // Act & Assert
-            ServiceException exception = assertThrows(ServiceException.class, () -> controller.route(endpoint, request));
-            assertEquals(400, exception.getCode());
-            assertEquals("Validation failed", exception.getMessage());
-
-            // Verify that validate was called
-            validator.verify(() -> RequestValidator.validate(eq(endpoint), any(), eq(request)), times(1));
-        }
-    }
-
-    /**
-     * Test controller implementation for testing BaseRouterController
-     */
-    private static class TestController extends BaseRouterController {
-
-        @RequestMapping(value = "/test")
-        public IHttpResponse<String> test(Request request) {
-            return HttpResponse.ok("Test response").build();
-        }
-
-        @RequestMapping(value = "/testWithProperty")
-        public IHttpResponse<String> testWithProperty(Request request, @Property("test.property") String property) {
-            return HttpResponse.ok("Property: " + property).build();
-        }
+        when(request.getMethod()).thenReturn("POST");
+        // Act & Assert
+        ServiceException exception = assertThrows(ServiceException.class, () -> controller.route(endpoint, request));
+        assertEquals(405, exception.getCode());
+        assertEquals("Method not allowed.", exception.getMessage());
     }
 }

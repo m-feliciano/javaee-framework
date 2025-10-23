@@ -12,7 +12,7 @@ public record ApiVersionValidationHandler(EndpointParser endpoint) implements Va
 
     @Override
     public void validate(RequestMapping mapping, Request request) throws ServiceException {
-        if (!mapping.apiVersion().equals(endpoint.getApiVersion())) {
+        if (!mapping.apiVersion().equals(endpoint.apiVersion())) {
             throw new ServiceException(HttpServletResponse.SC_BAD_REQUEST, "API Not implemented");
         }
     }

@@ -24,6 +24,7 @@ public class Credentials {
     @Column(name = "login", unique = true)
     private String login;
 
+    // Already encrypted
     @Column(name = "password")
     private String password;
 

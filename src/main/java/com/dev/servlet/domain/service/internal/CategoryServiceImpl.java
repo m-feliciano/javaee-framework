@@ -4,12 +4,14 @@ import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.mapper.CategoryMapper;
 import com.dev.servlet.core.util.CacheUtils;
 import com.dev.servlet.core.util.CollectionUtils;
+import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.domain.model.Category;
 import com.dev.servlet.domain.model.User;
 import com.dev.servlet.domain.model.enums.Status;
+import com.dev.servlet.domain.service.AuditService;
 import com.dev.servlet.domain.service.ICategoryService;
-import com.dev.servlet.domain.transfer.response.CategoryResponse;
 import com.dev.servlet.domain.transfer.request.CategoryRequest;
+import com.dev.servlet.domain.transfer.response.CategoryResponse;
 import com.dev.servlet.infrastructure.persistence.dao.CategoryDAO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,7 +23,6 @@ import javax.inject.Inject;
 import java.util.Collection;
 import java.util.List;
 
-import static com.dev.servlet.core.util.CryptoUtils.getUser;
 import static com.dev.servlet.core.util.ThrowableUtils.notFound;
 
 @Slf4j
@@ -37,6 +38,9 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
     private CategoryMapper categoryMapper;
 
     @Inject
+    private AuditService auditService;
+
+    @Inject
     public CategoryServiceImpl(CategoryDAO categoryDAO) {
         super(categoryDAO);
     }
@@ -45,75 +49,117 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
     public CategoryResponse register(CategoryRequest request, String auth) throws ServiceException {
         log.trace("");
 
-        User user = getUser(auth);
-        Category category = categoryMapper.toCategory(request);
-        category.setUser(user);
-        category.setStatus(Status.ACTIVE.getValue());
-        category = super.save(category);
+        try {
+            User user = jwts.getUserFromToken(auth);
 
-        CacheUtils.clear(CACHE_KEY, auth);
-        return categoryMapper.toResponse(category);
+            Category category = categoryMapper.toCategory(request);
+            category.setUser(user);
+            category.setStatus(Status.ACTIVE.getValue());
+            category = super.save(category);
+
+            CacheUtils.clear(CACHE_KEY, user.getId());
+            CategoryResponse response = categoryMapper.toResponse(category);
+            auditService.auditSuccess("category:register", auth, new AuditPayload<>(request, response));
+            return response;
+        } catch (Exception e) {
+            auditService.auditFailure("category:register", auth, new AuditPayload<>(request, null));
+            throw e;
+        }
     }
 
     @Override
     public CategoryResponse update(CategoryRequest request, String auth) throws ServiceException {
         log.trace("");
 
-        Category category = require(request.id(), getUser(auth));
-        category.setName(request.name().toUpperCase());
-        super.update(category);
+        try {
+            User user = jwts.getUserFromToken(auth);
 
-        CacheUtils.clear(CACHE_KEY, auth);
-        return categoryMapper.toResponse(category);
+            Category category = loadUser(request.id(), user);
+            category.setName(request.name().toUpperCase());
+            super.update(category);
+
+            CacheUtils.clear(CACHE_KEY, user.getId());
+            CategoryResponse response = categoryMapper.toResponse(category);
+            auditService.auditSuccess("category:update", auth, new AuditPayload<>(request, response));
+            return response;
+        } catch (Exception e) {
+            auditService.auditFailure("category:update", auth, new AuditPayload<>(request, null));
+            throw e;
+        }
     }
 
     @Override
     public CategoryResponse getById(CategoryRequest request, String auth) throws ServiceException {
         log.trace("");
-        Category category = require(request.id(), getUser(auth));
-        return categoryMapper.toResponse(category);
+
+        try {
+            User user = jwts.getUserFromToken(auth);
+            Category category = loadUser(request.id(), user);
+            CategoryResponse response = categoryMapper.toResponse(category);
+            auditService.auditSuccess("category:get_by_id", auth, new AuditPayload<>(request, response));
+            return response;
+        } catch (Exception e) {
+            auditService.auditFailure("category:get_by_id", auth, new AuditPayload<>(request, null));
+            throw e;
+        }
     }
 
     @Override
-    public Collection<CategoryResponse> list(CategoryRequest category, String token) {
+    public Collection<CategoryResponse> list(CategoryRequest request, String token) {
         log.trace("");
-        Collection<CategoryResponse> categories = getAll(token);
 
-        if (category != null && category.name() != null) {
-            String lowerCase = category.name().toLowerCase();
-            categories = categories.stream()
-                    .filter(c -> c.getName().toLowerCase().contains(lowerCase))
-                    .toList();
+        try {
+            User user = jwts.getUserFromToken(token);
+
+            Collection<CategoryResponse> categories = getAll(user);
+            if (request != null && request.name() != null) {
+                String lowerCase = request.name().toLowerCase();
+                categories = categories.stream()
+                        .filter(c -> c.getName().toLowerCase().contains(lowerCase))
+                        .toList();
+            }
+            auditService.auditSuccess("category:list", token, new AuditPayload<>(request, categories));
+            return categories;
+
+        } catch (Exception e) {
+            auditService.auditFailure("category:list", token, new AuditPayload<>(request, null));
+            throw e;
         }
-        return categories;
     }
 
     @Override
     public void delete(CategoryRequest request, String auth) throws ServiceException {
         log.trace("");
-        final User user = getUser(auth);
-        Category category = require(request.id(), user);
-        super.delete(category);
-        CacheUtils.clear(CACHE_KEY, auth);
+
+        try {
+            User user = jwts.getUserFromToken(auth);
+            Category category = loadUser(request.id(), user);
+            super.delete(category);
+
+            CacheUtils.clear(CACHE_KEY, user.getId());
+            auditService.auditSuccess("category:delete", auth, new AuditPayload<>(request, null));
+        } catch (Exception e) {
+            auditService.auditFailure("category:delete", auth, new AuditPayload<>(request, null));
+            throw e;
+        }
     }
 
-    private Collection<CategoryResponse> getAll(String token) {
-        List<CategoryResponse> dtoList = CacheUtils.get(CACHE_KEY, token);
-        if (CollectionUtils.isEmpty(dtoList)) {
+    private Collection<CategoryResponse> getAll(User user) {
+        final String cacheKey = user.getId();
 
-            Category category = Category.builder().user(getUser(token)).build();
-            var categories = super.findAll(category);
+        List<CategoryResponse> dtoList = CacheUtils.get(CACHE_KEY, cacheKey);
+        if (CollectionUtils.isEmpty(dtoList)) {
+            var categories = super.findAll(new Category(user));
             if (!CollectionUtils.isEmpty(categories)) {
-                dtoList = categories.stream()
-                        .map(c -> categoryMapper.toResponse(c))
-                        .toList();
-                CacheUtils.set(CACHE_KEY, token, dtoList);
+                dtoList = categories.stream().map(categoryMapper::toResponse).toList();
+                CacheUtils.set(CACHE_KEY, cacheKey, dtoList);
             }
         }
+
         return dtoList;
     }
 
-    private Category require(String request, User user) throws ServiceException {
+    private Category loadUser(String request, User user) throws ServiceException {
         log.trace("");
 
         Category category = Category.builder().id(request).user(user).build();

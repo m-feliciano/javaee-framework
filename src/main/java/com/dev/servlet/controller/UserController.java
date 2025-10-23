@@ -1,7 +1,7 @@
 package com.dev.servlet.controller;
 
 import com.dev.servlet.controller.base.BaseController;
-import com.dev.servlet.core.annotation.Authorization;
+import com.dev.servlet.core.annotation.Authentication;
 import com.dev.servlet.core.annotation.Controller;
 import com.dev.servlet.core.annotation.RequestMapping;
 import com.dev.servlet.domain.model.enums.RequestMethod;
@@ -28,7 +28,7 @@ public class UserController extends BaseController {
 
     @RequestMapping(value = "/update/{id}", method = RequestMethod.POST, jsonType = UserRequest.class)
     @SneakyThrows
-    public IHttpResponse<UserResponse> update(UserRequest user, @Authorization String auth) {
+    public IHttpResponse<UserResponse> update(UserRequest user, @Authentication String auth) {
         UserResponse response = userService.update(user, auth);
         return newHttpResponse(204, response, redirectTo(response.getId()));
     }
@@ -39,7 +39,7 @@ public class UserController extends BaseController {
             method = RequestMethod.POST,
             jsonType = UserRequest.class)
     @SneakyThrows
-    public IHttpResponse<Void> delete(UserRequest user, @Authorization String auth) {
+    public IHttpResponse<Void> delete(UserRequest user, @Authentication String auth) {
         userService.delete(user, auth);
         return HttpResponse.<Void>next(forwardTo("formLogin")).build();
     }
@@ -57,7 +57,7 @@ public class UserController extends BaseController {
 
     @RequestMapping(value = "/list/{id}", jsonType = UserRequest.class)
     @SneakyThrows
-    public IHttpResponse<UserResponse> list(UserRequest user, @Authorization String auth) {
+    public IHttpResponse<UserResponse> list(UserRequest user, @Authentication String auth) {
         UserResponse response = userService.getById(user, auth);
         return okHttpResponse(response, forwardTo("formListUser"));
     }

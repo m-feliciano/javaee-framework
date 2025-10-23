@@ -2,6 +2,7 @@ package com.dev.servlet.core.util;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -18,7 +19,7 @@ public class HttpExecutorTestLogSuppressor implements BeforeAllCallback, AfterAl
     };
 
     @Override
-    public void beforeAll(ExtensionContext context) {
+    public void beforeAll(@NotNull ExtensionContext context) {
         for (String loggerName : LOGGERS_TO_SUPPRESS) {
             Logger logger = (Logger) LoggerFactory.getLogger(loggerName);
             originalLevels.put(loggerName, logger.getLevel());
@@ -27,7 +28,7 @@ public class HttpExecutorTestLogSuppressor implements BeforeAllCallback, AfterAl
     }
 
     @Override
-    public void afterAll(ExtensionContext context) {
+    public void afterAll(@NotNull ExtensionContext context) {
         for (String loggerName : LOGGERS_TO_SUPPRESS) {
             Logger logger = (Logger) LoggerFactory.getLogger(loggerName);
             logger.setLevel(originalLevels.getOrDefault(loggerName, Level.INFO));

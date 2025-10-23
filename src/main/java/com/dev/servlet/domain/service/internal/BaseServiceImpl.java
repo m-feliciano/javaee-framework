@@ -1,6 +1,7 @@
 package com.dev.servlet.domain.service.internal;
 
 import com.dev.servlet.core.mapper.Mapper;
+import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.domain.repository.ICrudRepository;
 import com.dev.servlet.domain.repository.IPagination;
 import com.dev.servlet.infrastructure.persistence.IPageRequest;
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.inject.Inject;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -27,6 +29,13 @@ public abstract class BaseServiceImpl<T, ID> implements ICrudRepository<T, ID>, 
     protected BaseDAO<T, ID> baseDAO;
     protected BaseServiceImpl(BaseDAO<T, ID> baseDAO) {
         this.baseDAO = baseDAO;
+    }
+
+    protected JwtUtil jwts;
+
+    @Inject
+    public void setJwts(JwtUtil jwts) {
+        this.jwts = jwts;
     }
 
     @Override

@@ -1,9 +1,5 @@
 package com.dev.servlet.core.util;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.dev.servlet.domain.model.User;
 import com.dev.servlet.domain.transfer.response.UserResponse;
 import lombok.NoArgsConstructor;
@@ -11,9 +7,6 @@ import lombok.NoArgsConstructor;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
 
 /**
  * Comprehensive cryptographic utility class providing JWT bearerToken management and symmetric encryption.
@@ -53,9 +46,9 @@ import java.util.UUID;
  * String bearerToken = CryptoUtils.generateJwtToken(user);
  * 
  * // Token validation
- * boolean valid = CryptoUtils.isValidToken(bearerToken);
+ * boolean valid = CryptoUtils.validateToken(bearerToken);
  * if (valid) {
- *     User authenticatedUser = CryptoUtils.getUser(bearerToken);
+ *     User authenticatedUser = JwtUtil.getUserFromToken(bearerToken);
  *     // Process authenticated request
  * }
  * 
@@ -82,11 +75,6 @@ import java.util.UUID;
  */
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class CryptoUtils {
-
-    /**
-     * JWT bearerToken expiration period: 7 days in milliseconds
-     */
-    public static final int SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
     
     /**
      * Retrieves the symmetric encryption key from configuration.
@@ -110,18 +98,6 @@ public final class CryptoUtils {
         String key = PropertiesUtil.getProperty("security.encrypt.algorithm");
         if (key == null) throw new Exception("Cypher algorithm is not set");
         return key;
-    }
-
-    /**
-     * Retrieves the JWT signing secret key from configuration.
-     * 
-     * @return the JWT secret key as byte array
-     * @throws Exception if the JWT key is not configured
-     */
-    private static byte[] getJwtSecretKey() throws Exception {
-        String key = PropertiesUtil.getProperty("security.jwt.key");
-        if (key == null) throw new Exception("Security key is not set");
-        return key.getBytes();
     }
 
     /**
@@ -167,93 +143,5 @@ public final class CryptoUtils {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    /**
-     * Generates a JWT authentication bearerToken for a user with embedded role information.
-     * The bearerToken includes user ID, roles, expiration, and unique identifier.
-     * 
-     * <p>Token claims:
-     * <ul>
-     *   <li><code>userId</code> - User's unique identifier</li>
-     *   <li><code>roles</code> - Array of user role IDs</li>
-     *   <li><code>iss</code> - Issuer ("Servlet")</li>
-     *   <li><code>sub</code> - Subject ("Authentication")</li>
-     *   <li><code>iat</code> - Issued at timestamp</li>
-     *   <li><code>exp</code> - Expiration timestamp (7 days)</li>
-     *   <li><code>jti</code> - Unique JWT ID</li>
-     * </ul>
-     * 
-     * @param user the user DTO containing ID and roles
-     * @return signed JWT bearerToken string
-     * @throws RuntimeException if bearerToken generation fails or JWT key is invalid
-     */
-    public static String generateJwtToken(User user) {
-        try {
-            Algorithm algorithm = Algorithm.HMAC256(getJwtSecretKey());
-            long currentTimeMillis = System.currentTimeMillis();
-            String jwtToken = JWT.create()
-                    .withIssuer("Servlet")
-                    .withSubject("Authentication")
-                    .withClaim("userId", user.getId())
-                    .withArrayClaim("roles", user.getPerfis().toArray(new Long[0]))
-                    .withIssuedAt(new Date())
-                    .withExpiresAt(new Date(currentTimeMillis + SEVEN_DAYS))
-                    .withJWTId(UUID.randomUUID().toString())
-                    .sign(algorithm);
-            return "Bearer " + jwtToken;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Validates a JWT bearerToken's signature, issuer, and expiration.
-     * Performs comprehensive verification including:
-     * <ul>
-     *   <li>Null and empty bearerToken checks</li>
-     *   <li>Signature verification with HMAC-256</li>
-     *   <li>Issuer validation</li>
-     *   <li>Expiration time validation</li>
-     * </ul>
-     *
-     * @param bearerToken the JWT bearerToken to validate
-     * @return true if the bearerToken is valid and not expired, false otherwise
-     */
-    public static boolean isValidToken(String bearerToken) {
-        if (bearerToken == null) return false;
-
-        try {
-            Algorithm algorithm = Algorithm.HMAC256(getJwtSecretKey());
-            JWTVerifier verifier = JWT.require(algorithm).withIssuer("Servlet").build();
-            String token = bearerToken.split(" ")[1];
-            DecodedJWT verified = verifier.verify(token);
-            return verified.getExpiresAt() != null && !verified.getExpiresAt().before(new Date());
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    /**
-     * Extracts user information from a JWT bearerToken without verification.
-     * This method decodes the bearerToken payload to reconstruct the user context
-     * including ID, roles, and the original bearerToken.
-     *
-     * <p><strong>Security Warning:</strong> This method does not verify the bearerToken.
-     * Always call {@link #isValidToken(String)} before using this method
-     * to ensure the bearerToken is authentic and not expired.
-     *
-     * @param bearerToken the JWT bearerToken to decode
-     * @return User object with ID, roles, and bearerToken information
-     * @throws RuntimeException if bearerToken decoding fails
-     */
-    public static User getUser(String bearerToken) {
-        String token = bearerToken.split(" ")[1];
-        DecodedJWT decodedJWT = JWT.decode(token);
-        String userId = decodedJWT.getClaim("userId").asString();
-        List<Long> roles = decodedJWT.getClaim("roles").asList(Long.class);
-        User user = User.builder().id(userId).build();
-        user.setPerfis(roles);
-        return user;
     }
 }

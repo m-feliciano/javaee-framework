@@ -1,5 +1,10 @@
+<%@ page import="com.dev.servlet.core.response.IHttpResponse" %>
 <%@ include file="/WEB-INF/routes/inventory-routes.jspf" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
+
+<%
+    request.setAttribute("productId", ((IHttpResponse<?>) request.getAttribute("response")).body());
+%>
 
 <div class="main">
     <form action="${baseLink}${version}${ createItem }" method="post">
@@ -7,6 +12,7 @@
             <div class="mb-3">
                 <label for="inputProductId" class="form-label">PRODUCT ID</label>
                 <input type="text" name="productId" class="form-control" id="inputProductId"
+                       value="<c:out value='${productId}' escapeXml='true'/>"
                        placeholder="ID" required minlength="1"/>
             </div>
             <div class="mb-3">

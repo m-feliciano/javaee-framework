@@ -1,9 +1,15 @@
 <configuration>
 
+    <!-- Pattern com correlationId -->
+    <property name="PATTERN" value="%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} [%X{correlationId:-NO_CID}] - %msg%n"/>
+
     <!-- Console Appender -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="ch.qos.logback.classic.PatternLayout">
+                <pattern>${PATTERN}</pattern>
+            </layout>
+            <charset>UTF-8</charset>
         </encoder>
     </appender>
 
@@ -11,29 +17,59 @@
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${user.dir}/logs/app.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- daily rollover -->
             <fileNamePattern>logs/app.%d{yyyy-MM-dd}.log</fileNamePattern>
-            <!-- keep 30 days' worth of history -->
             <maxHistory>30</maxHistory>
         </rollingPolicy>
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="ch.qos.logback.classic.PatternLayout">
+                <pattern>${PATTERN}</pattern>
+            </layout>
+            <charset>UTF-8</charset>
         </encoder>
     </appender>
 
-    <!-- Root Logger = INFO -->
+    <!-- Audit Log (separado) -->
+    <appender name="AUDIT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${user.dir}/logs/audit.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/audit.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>90</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%msg%n</pattern> <!-- JSON direto, sem metadata -->
+        </encoder>
+    </appender>
+
+    <!-- Logger específico para Auditoria -->
+    <logger name="com.dev.servlet.domain.service.internal.AuditServiceImpl" level="INFO" additivity="true">
+        <appender-ref ref="AUDIT"/>
+    </logger>
+
+    <!-- Logger para LogExecutionTimeInterceptor (DEBUG em dev, INFO em prod) -->
+    <logger name="com.dev.servlet.adapter.internal.LogExecutionTimeInterceptor" level="DEBUG"/>
+
+    <!-- Logger para ServletDispatcherImpl -->
+    <logger name="com.dev.servlet.adapter.internal.ServletDispatcherImpl" level="INFO"/>
+
+    <!-- Logger para Hibernate (reduzir verbosidade) -->
+    <logger name="org.hibernate" level="WARN"/>
+    <logger name="org.hibernate.SQL" level="OFF"/> <!-- Opcional: ver queries -->
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="OFF"/> <!-- Opcional: ver parâmetros -->
+    <logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="WARN"/> <!-- Session Metrics -->
+
+    <!-- Logger para Weld -->
+    <logger name="org.jboss.weld" level="WARN"/>
+
+    <!-- Logger para ehcache -->
+    <logger name="net.sf.ehcache" level="WARN"/>
+
+    <!-- Logger para com.mchange (connection pool) -->
+    <logger name="com.mchange" level="WARN"/>
+
+    <!-- Root Logger -->
     <root level="DEBUG">
         <appender-ref ref="FILE"/>
         <appender-ref ref="CONSOLE"/>
     </root>
-
-    <!-- Logger for Hibernate -->
-    <logger name="org.hibernate" level="INFO"/>
-    <!-- Logger for Weld -->
-    <logger name="org.jboss.weld" level="WARN"/>
-    <!-- Logger for ehcache -->
-    <logger name="net.sf.ehcache" level="WARN"/>
-    <!-- Logger for com.mchange -->
-    <logger name="com.mchange" level="WARN"/>
 
 </configuration>

@@ -7,14 +7,13 @@ import com.dev.servlet.domain.transfer.Request;
 
 import javax.servlet.http.HttpServletResponse;
 
-import static com.dev.servlet.core.util.CryptoUtils.isValidToken;
 import static com.dev.servlet.core.util.ThrowableUtils.serviceError;
 
 public class AuthValidationHandler implements ValidationHandler {
 
     @Override
     public void validate(RequestMapping mapping, Request request) throws ServiceException {
-        if (mapping.requestAuth() && !isValidToken(request.getToken())) {
+        if (mapping.requestAuth() && request.getToken() == null) {
             throw serviceError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication required.");
         }
     }
