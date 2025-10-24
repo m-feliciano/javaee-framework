@@ -64,7 +64,7 @@ public class RequestBuilder {
         }
 
         public RequestCreator complete() {
-            return this.endpoint().method().body().token().query().pageRequest().query();
+            return this.endpoint().method().body().token().query().pageRequest();
         }
 
         public Request build() {
