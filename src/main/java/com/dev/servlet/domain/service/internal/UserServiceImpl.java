@@ -103,8 +103,6 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
 
         try {
             user = super.update(user);
-            user.setToken(jwts.generateAccessToken(user));
-            user.setRefreshToken(jwts.generateRefreshToken(user));
         } catch (Exception e) {
             auditService.auditFailure("user:update", auth, new AuditPayload<>(userRequest, null));
             throw e;
@@ -151,7 +149,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
     }
 
     private User loadUser(String id, String auth) throws ServiceException {
-        String userId = jwts.getUserIdFromToken(auth);
+        String userId = jwts.getUserId(auth);
         if (!id.equals(userId)) {
             throw serviceError(HttpServletResponse.SC_FORBIDDEN, "User not authorized.");
         }

@@ -58,7 +58,7 @@ public class StockServiceImpl extends BaseServiceImpl<Inventory, String> impleme
             ProductResponse product = businessService.getProductById(inventory.getProduct().getId(), auth);
             inventory.setProduct(new Product(product.getId()));
             inventory.setStatus(Status.ACTIVE.getValue());
-            inventory.setUser(jwtUtil.getUserFromToken(auth));
+            inventory.setUser(jwtUtil.getUser(auth));
             inventory = super.save(inventory);
 
             InventoryResponse response = inventoryMapper.toResponse(inventory);
@@ -76,7 +76,7 @@ public class StockServiceImpl extends BaseServiceImpl<Inventory, String> impleme
 
         try {
             Inventory inventory = inventoryMapper.toInventory(request);
-            inventory.setUser(jwtUtil.getUserFromToken(auth));
+            inventory.setUser(jwtUtil.getUser(auth));
 
             List<InventoryResponse> responses = findAll(inventory)
                     .stream()
@@ -146,7 +146,7 @@ public class StockServiceImpl extends BaseServiceImpl<Inventory, String> impleme
         log.trace("");
 
         try {
-            inventory.setUser(jwtUtil.getUserFromToken(auth));
+            inventory.setUser(jwtUtil.getUser(auth));
             InventoryDAO DAO = this.getDAO();
             boolean result = DAO.has(inventory);
             auditService.auditSuccess("inventory:has_inventory", auth, new AuditPayload<>(inventory, result));

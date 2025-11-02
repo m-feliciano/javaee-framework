@@ -79,7 +79,7 @@ public abstract class BaseRouterController {
         }
         if (parameter.isAnnotationPresent(Property.class)) {
             String propertyKey = parameter.getAnnotation(Property.class).value();
-            return PropertiesUtil.getProperty(propertyKey, "");
+            return PropertiesUtil.getProperty(propertyKey);
         }
 
         return request.getPayload(parameter.getType());

@@ -81,7 +81,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
         log.trace("");
 
         try {
-            Product product = productMapper.toProduct(request, jwts.getUserIdFromToken(auth));
+            Product product = productMapper.toProduct(request, jwts.getUserId(auth));
             product.setRegisterDate(new Date());
             product.setStatus(Status.ACTIVE.getValue());
             product = super.save(product);
@@ -99,7 +99,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
         log.trace("");
 
         try {
-            Product product = productMapper.toProduct(request, jwts.getUserIdFromToken(auth));
+            Product product = productMapper.toProduct(request, jwts.getUserId(auth));
             product = findProduct(product);
             ProductResponse response = productMapper.toResponse(product);
             auditService.auditSuccess("product:find_by_id", auth, new AuditPayload<>(request, response));
@@ -116,7 +116,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
         log.trace("");
 
         try {
-            Product product = productMapper.toProduct(request, jwts.getUserIdFromToken(auth));
+            Product product = productMapper.toProduct(request, jwts.getUserId(auth));
             product = findProduct(product);
             product.setName(request.name());
             product.setDescription(request.description());
@@ -138,7 +138,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
     public void delete(ProductRequest request, String auth) throws ServiceException {
         log.trace("");
         try {
-            Product product = productMapper.toProduct(request, jwts.getUserIdFromToken(auth));
+            Product product = productMapper.toProduct(request, jwts.getUserId(auth));
             product = findProduct(product);
 
             Inventory inventory = Inventory.builder().user(product.getUser()).product(product).build();
@@ -171,7 +171,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
             return Optional.empty();
         }
 
-        final User user = jwts.getUserFromToken(auth);
+        final User user = jwts.getUser(auth);
 
         Optional<List<ProductWebScrapeDTO>> scrapeResponse = WebScrapeBuilder.<List<ProductWebScrapeDTO>>create()
                 .withServiceType("product")

@@ -7,14 +7,19 @@ import java.util.List;
 public class WebScrapingResponse<T> {
     @JsonProperty("next_url")
     private String nextUrl;
+
     @JsonProperty("page_number")
     private int pageNumber;
+
     @JsonProperty("page_size")
     private int pageSize;
+
     @JsonProperty("page_total")
     private int pageTotal;
+
     @JsonProperty("total_results")
     private int totalResults;
+
     @JsonProperty("results")
     private List<T> content;
 }

@@ -4,7 +4,6 @@ import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.mapper.CategoryMapper;
 import com.dev.servlet.core.util.CacheUtils;
 import com.dev.servlet.core.util.CollectionUtils;
-import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.domain.model.Category;
 import com.dev.servlet.domain.model.User;
 import com.dev.servlet.domain.model.enums.Status;
@@ -50,8 +49,7 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
         log.trace("");
 
         try {
-            User user = jwts.getUserFromToken(auth);
-
+            User user = jwts.getUser(auth);
             Category category = categoryMapper.toCategory(request);
             category.setUser(user);
             category.setStatus(Status.ACTIVE.getValue());
@@ -72,13 +70,12 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
         log.trace("");
 
         try {
-            User user = jwts.getUserFromToken(auth);
-
-            Category category = loadUser(request.id(), user);
+            String userId = jwts.getUserId(auth);
+            Category category = loadCategory(request.id(), userId);
             category.setName(request.name().toUpperCase());
             super.update(category);
 
-            CacheUtils.clear(CACHE_KEY, user.getId());
+            CacheUtils.clear(CACHE_KEY, userId);
             CategoryResponse response = categoryMapper.toResponse(category);
             auditService.auditSuccess("category:update", auth, new AuditPayload<>(request, response));
             return response;
@@ -93,8 +90,8 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
         log.trace("");
 
         try {
-            User user = jwts.getUserFromToken(auth);
-            Category category = loadUser(request.id(), user);
+            String userId = jwts.getUserId(auth);
+            Category category = loadCategory(request.id(), userId);
             CategoryResponse response = categoryMapper.toResponse(category);
             auditService.auditSuccess("category:get_by_id", auth, new AuditPayload<>(request, response));
             return response;
@@ -109,7 +106,7 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
         log.trace("");
 
         try {
-            User user = jwts.getUserFromToken(token);
+            User user = jwts.getUser(token);
 
             Collection<CategoryResponse> categories = getAll(user);
             if (request != null && request.name() != null) {
@@ -132,11 +129,11 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
         log.trace("");
 
         try {
-            User user = jwts.getUserFromToken(auth);
-            Category category = loadUser(request.id(), user);
+            String userId = jwts.getUserId(auth);
+            Category category = loadCategory(request.id(), userId);
             super.delete(category);
 
-            CacheUtils.clear(CACHE_KEY, user.getId());
+            CacheUtils.clear(CACHE_KEY, userId);
             auditService.auditSuccess("category:delete", auth, new AuditPayload<>(request, null));
         } catch (Exception e) {
             auditService.auditFailure("category:delete", auth, new AuditPayload<>(request, null));
@@ -147,22 +144,22 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
     private Collection<CategoryResponse> getAll(User user) {
         final String cacheKey = user.getId();
 
-        List<CategoryResponse> dtoList = CacheUtils.get(CACHE_KEY, cacheKey);
-        if (CollectionUtils.isEmpty(dtoList)) {
+        List<CategoryResponse> response = CacheUtils.get(CACHE_KEY, cacheKey);
+        if (CollectionUtils.isEmpty(response)) {
             var categories = super.findAll(new Category(user));
             if (!CollectionUtils.isEmpty(categories)) {
-                dtoList = categories.stream().map(categoryMapper::toResponse).toList();
-                CacheUtils.set(CACHE_KEY, cacheKey, dtoList);
+                response = categories.stream().map(categoryMapper::toResponse).toList();
+                CacheUtils.set(CACHE_KEY, cacheKey, response);
             }
         }
 
-        return dtoList;
+        return response;
     }
 
-    private Category loadUser(String request, User user) throws ServiceException {
+    private Category loadCategory(String request, String userId) throws ServiceException {
         log.trace("");
 
-        Category category = Category.builder().id(request).user(user).build();
+        Category category = Category.builder().id(request).user(new User(userId)).build();
         return this.find(category).orElseThrow(() -> notFound("Category not found"));
     }
 }

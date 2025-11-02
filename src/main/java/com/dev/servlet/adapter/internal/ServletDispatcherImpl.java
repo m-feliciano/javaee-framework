@@ -32,6 +32,9 @@ import java.text.MessageFormat;
 @ApplicationScoped
 public class ServletDispatcherImpl implements IServletDispatcher {
     public static final int WAIT_TIME = 600;
+    public static final String BEARER_PREFIX = "Bearer ";
+    public static final String LOGOUT = "logout";
+
     @Setter
     private boolean rateLimitEnabled;
     private IHttpExecutor<?> httpExecutor;
@@ -108,20 +111,27 @@ public class ServletDispatcherImpl implements IServletDispatcher {
         }
     }
 
-    private void processResponseData(HttpServletRequest httpRequest, HttpServletResponse httpResponse,
-                                     Request request, IHttpResponse<?> response) {
+    private void processResponseData(HttpServletRequest httpRequest,
+                                     HttpServletResponse httpResponse,
+                                     Request request,
+                                     IHttpResponse<?> response) {
 
         if (RequestMethod.POST.getMethod().equals(request.getMethod()) && response.body() instanceof UserResponse userResponse) {
             HttpSession httpSession = httpRequest.getSession();
-            httpSession.setAttribute("token", userResponse.getToken());
-            httpSession.setAttribute("refreshToken", userResponse.getRefreshToken());
             httpSession.setAttribute("user", userResponse.withoutToken());
+
+            if (userResponse.getToken() != null) {
+                httpSession.setAttribute("token", BEARER_PREFIX + userResponse.getToken());
+            }
+            if (userResponse.getRefreshToken() != null) {
+                httpSession.setAttribute("refreshToken", BEARER_PREFIX + userResponse.getRefreshToken());
+            }
         }
 
         setRequestAttributes(httpRequest, response);
         handleResponseErrors(httpRequest, httpResponse, response);
 
-        if (request.getEndpoint() != null && request.getEndpoint().contains("logout")) {
+        if (request.getEndpoint() != null && request.getEndpoint().contains(LOGOUT)) {
             httpRequest.getSession().invalidate();
         }
     }

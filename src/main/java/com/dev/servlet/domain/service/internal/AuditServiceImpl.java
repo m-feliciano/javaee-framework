@@ -15,7 +15,6 @@ import javax.inject.Singleton;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @Singleton
 public class AuditServiceImpl implements AuditService {
@@ -43,7 +42,7 @@ public class AuditServiceImpl implements AuditService {
             record.put("correlationId", MDC.get("correlationId"));
             record.put("outcome", outcome);
             if (token != null && !token.isBlank())
-                record.put("userId", jwtUtil.getUserIdFromToken(token));
+                record.put("userId", jwtUtil.getUserId(token));
 
             try {
                 record.put("payload", payload);

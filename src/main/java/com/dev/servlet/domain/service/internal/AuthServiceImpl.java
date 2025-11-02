@@ -54,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void logout(String auth) {
         log.trace("");
-        CacheUtils.clearAll(jwtUtil.getUserIdFromToken(auth));
+        CacheUtils.clearAll(jwtUtil.getUserId(auth));
         auditService.auditSuccess("user:logout", auth, null);
     }
 
@@ -79,7 +79,7 @@ public class AuthServiceImpl implements AuthService {
             throw new ServiceException("Invalid refresh token");
         }
 
-        User user = jwtUtil.getUserFromToken(refreshToken);
+        User user = jwtUtil.getUser(refreshToken);
         UserResponse userResponse = userService.getById(new UserRequest(user.getId()), refreshToken);
         user.setPerfis(userResponse.getPerfis());
         String newToken = jwtUtil.generateAccessToken(user);

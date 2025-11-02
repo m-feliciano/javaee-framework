@@ -13,23 +13,17 @@ import java.util.List;
 
 import static com.dev.servlet.core.util.ThrowableUtils.serviceError;
 
-public class RoleValidationHandler implements ValidationHandler {
-
-    private final JwtUtil jwts;
-
-    public RoleValidationHandler(JwtUtil jwts) {
-        this.jwts = jwts;
-    }
+public record RoleValidationHandler(JwtUtil jwts) implements ValidationHandler {
 
     @Override
     public void validate(RequestMapping mapping, Request request) throws ServiceException {
         if (CollectionUtils.isEmpty(mapping.roles())) return;
 
-        List<Long> roles = jwts.getUserPerfisFromToken(request.getToken());
+        List<Long> roles = jwts.getRoles(request.getToken());
         for (RoleType role : mapping.roles()) {
-            if (!roles.contains(role.getCode())) {
-                throw serviceError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
-            }
+            if (roles.contains(role.getCode())) return;
         }
+
+        throw serviceError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
     }
 }

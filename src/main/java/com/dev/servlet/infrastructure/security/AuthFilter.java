@@ -20,9 +20,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -96,7 +94,7 @@ public class AuthFilter implements Filter {
                 String refreshToken = (String) httpRequest.getSession().getAttribute("refreshToken");
                 RefreshTokenResponse refreshTokenResponse = loginService.refreshToken(refreshToken);
                 httpRequest.getSession().setAttribute("token", refreshTokenResponse.token());
-                log.info("✅ Token refreshed successfully for user {}", jwtUtil.getUserIdFromToken(refreshTokenResponse.token()));
+                log.info("✅ Token refreshed successfully for user {}", jwtUtil.getUserId(refreshTokenResponse.token()));
 
             } catch (ServiceException e) {
                 log.error("❌ Failed to refresh token: {}, redirecting to login page", e.getMessage());

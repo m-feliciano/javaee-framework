@@ -10,7 +10,6 @@ import com.dev.servlet.core.mapper.ProductMapper;
 import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.response.IServletResponse;
-import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.domain.model.Product;
 import com.dev.servlet.domain.model.enums.RequestMethod;
 import com.dev.servlet.domain.service.ICategoryService;
@@ -78,7 +77,7 @@ public class ProductController extends BaseController {
     @SneakyThrows
     public IServletResponse search(Query query, IPageRequest pageRequest, @Authentication String auth) {
         log.trace("");
-        Product product = productMapper.queryToProduct(query, jwts.getUserFromToken(auth));
+        Product product = productMapper.queryToProduct(query, jwts.getUser(auth));
         return getServletResponse(pageRequest, auth, product);
     }
 
@@ -86,7 +85,7 @@ public class ProductController extends BaseController {
     @SneakyThrows
     public IServletResponse list(IPageRequest pageRequest, @Authentication String auth) {
         log.trace("");
-        Product product = productMapper.toProduct(null, jwts.getUserIdFromToken(auth));
+        Product product = productMapper.toProduct(null, jwts.getUserId(auth));
         return getServletResponse(pageRequest, auth, product);
     }
 
