@@ -15,6 +15,7 @@ A custom Java EE framework for building robust web applications. This project sh
 - [Architecture](#architecture)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Stateless Architecture](#stateless-architecture)
 - [Configuration](#configuration)
 - [Testing](#testing)
 - [API Documentation](#api-documentation)
@@ -109,10 +110,44 @@ The application will be available at `http://localhost:8080` (adjust port as nee
 Example request:
 ```bash
 curl -X GET "http://localhost:8080/api/v1/product/list/?page=1&limit=5&sort=id&order=asc" \
-     -H "Cookie: JSESSIONID=YOUR_SESSION_ID"
+     -H "Cookie: YOUR_COOKIE_HERE"
 ```
 
-### Screenshots
+## Stateless Architecture
+
+This application follows a **stateless architecture**, which means the server does not store any session information between requests. Each request contains all the information needed to process it independently.
+
+### Why Stateless?
+
+✅ **Scalability**: No session synchronization needed — any server can handle any request
+
+✅ **Performance**: No server-side session storage or lookup overhead
+
+✅ **Reliability**: Server crashes don't lose user sessions
+
+✅ **Cloud-Ready**: Perfect for horizontal scaling and load balancing
+
+✅ **Microservices**: Easy to split into independent services
+
+## Quick Reference
+
+### 🚀 Stateless Architecture Summary
+
+| Feature                | Status              | Details                       |
+|------------------------|---------------------|-------------------------------|
+| **Session Storage**    | ❌ None              | Zero server-side sessions     |
+| **Authentication**     | ✅ JWT               | Self-contained tokens         |
+| **Token Storage**      | ✅ HTTP-Only Cookies | Secure, XSS-protected         |
+| **Token Lifetime**     | ⏱️ 30min / 30d      | Access / Refresh              |
+| **Auto-Refresh**       | ✅ Yes               | Seamless UX                   |
+| **Horizontal Scaling** | ✅ Yes               | No session replication needed |
+| **CSRF Protection**    | ✅ SameSite=Strict   | Production                    |
+| **XSS Protection**     | ✅ HttpOnly          | Always                        |
+| **HTTPS Required**     | ✅ Production        | Secure flag enforced          |
+
+---
+
+## Screenshots
 
 <div align="center">
   <img src="images/homepage.png" alt="Application Homepage" width="80%">
@@ -198,6 +233,3 @@ Ensure your code follows the project's coding standards and includes tests.
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
-
-**Author**: Marcelo Feliciano  
-**Version**: 3.1.1 (API v1)

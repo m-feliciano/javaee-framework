@@ -2,6 +2,7 @@ package com.dev.servlet.core.builder;
 
 import com.dev.servlet.core.util.KeyPairJsonUtil;
 import com.dev.servlet.core.util.URIUtils;
+import com.dev.servlet.domain.service.internal.AuthCookieServiceImpl;
 import com.dev.servlet.domain.transfer.Request;
 import com.dev.servlet.domain.transfer.records.KeyPair;
 import com.dev.servlet.domain.transfer.records.Query;
@@ -75,7 +76,7 @@ public class RequestBuilder {
         }
 
         private String token(HttpServletRequest request) {
-            return (String) request.getSession().getAttribute("token");
+            return AuthCookieServiceImpl.extractBearerToken(request);
         }
 
         @Nullable
