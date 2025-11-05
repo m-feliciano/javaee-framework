@@ -1,66 +1,72 @@
 package com.dev.servlet.core.util;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.dev.servlet.domain.model.User;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
+import javax.crypto.SecretKey;
 import javax.inject.Singleton;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+@Slf4j
 @Singleton
+@SuppressWarnings("unchecked")
 public class JwtUtil {
-    private static final long ACCESS_TOKEN_MS = 7L * 24 * 60 * 60 * 1000; // 7 days
-    private static final long REFRESH_TOKEN_MS = 30L * 24 * 60 * 60 * 1000; // 30 days
     private static final String ISSUER = "Servlet";
     private static final String SUBJECT = "Authentication";
     private static final String BEARER_PREFIX = "Bearer ";
     private static final String SUB_REFRESH = "Refresh";
-    private static final String USER_ID = "userId";
+    private static final String USER = "user";
     private static final String ROLES = "roles";
 
-    private final Algorithm algorithm;
+    private final SecretKey key;
 
     public JwtUtil() {
-        algorithm = Algorithm.HMAC256(getJwtSecretBytes());
+        byte[] jwtSecret = getJwtSecretBytes();
+        key = Keys.hmacShaKeyFor(jwtSecret);
     }
 
     private byte[] getJwtSecretBytes() {
-        String key = PropertiesUtil.getProperty("security.jwt.key");
-        if (key == null || key.isBlank())
-            throw new IllegalStateException("security.jwt.key is not configured");
+        String keyStr = PropertiesUtil.getProperty("security.jwt.key");
+        if (StringUtils.isBlank(keyStr)) {
+            log.error("security.jwt.key is not configured");
+            throw new IllegalStateException("Cannot retrieve security.jwt.key");
+        }
 
-        return key.getBytes(StandardCharsets.UTF_8);
+        return keyStr.getBytes(StandardCharsets.UTF_8);
     }
 
     private String extractToken(String token) {
         if (token == null) return null;
-
         String t = token.trim();
         if (t.startsWith(BEARER_PREFIX))
             return t.substring(BEARER_PREFIX.length()).trim();
-
         return t;
     }
 
     public String generateAccessToken(User user) {
         try {
             long now = System.currentTimeMillis();
-            return JWT.create()
-                    .withIssuer(ISSUER)
-                    .withSubject(SUBJECT)
-                    .withClaim(USER_ID, user.getId())
-                    .withArrayClaim(ROLES, user.getPerfis().toArray(new Long[0]))
-                    .withIssuedAt(new Date(now))
-                    .withExpiresAt(new Date(now + ACCESS_TOKEN_MS))
-                    .withJWTId(UUID.randomUUID().toString())
-                    .sign(algorithm);
+            return Jwts.builder()
+                    .issuer(ISSUER)
+                    .subject(SUBJECT)
+                    .claim(USER, user.getId())
+                    .claim(ROLES, user.getPerfis())
+                    .issuedAt(new Date(now))
+                    .expiration(new Date(now + TimeUnit.HOURS.toMillis(1)))
+                    .id(UUID.randomUUID().toString())
+                    .signWith(key)
+                    .compact();
         } catch (Exception e) {
+            log.error("Error generating JWT token", e);
             throw new RuntimeException(e);
         }
     }
@@ -68,55 +74,63 @@ public class JwtUtil {
     public String generateRefreshToken(User user) {
         try {
             long now = System.currentTimeMillis();
-            return JWT.create()
-                    .withIssuer(ISSUER)
-                    .withSubject(SUB_REFRESH)
-                    .withClaim(USER_ID, user.getId())
-                    .withIssuedAt(new Date(now))
-                    .withExpiresAt(new Date(now + REFRESH_TOKEN_MS))
-                    .withJWTId(UUID.randomUUID().toString())
-                    .sign(algorithm);
+            return Jwts.builder()
+                    .issuer(ISSUER)
+                    .subject(SUB_REFRESH)
+                    .claim(USER, user.getId())
+                    .issuedAt(new Date(now))
+                    .expiration(new Date(now + TimeUnit.DAYS.toMillis(30)))
+                    .id(UUID.randomUUID().toString())
+                    .signWith(key)
+                    .compact();
         } catch (Exception e) {
+            log.error("Error generating refresh JWT token", e);
             throw new RuntimeException(e);
         }
     }
 
     public boolean validateToken(String bearerToken) {
         String token = extractToken(bearerToken);
-        if (token == null) return false;
-
-        try {
-            JWTVerifier verifier = JWT.require(algorithm).withIssuer(ISSUER).build();
-            DecodedJWT jwt = verifier.verify(token);
-            return jwt.getExpiresAt() != null && !jwt.getExpiresAt().before(new Date());
-
-        } catch (Exception ignored) {
-            return false;
+        if (token != null) {
+            try {
+                Jwts.parser()
+                        .verifyWith(key)
+                        .requireIssuer(ISSUER)
+                        .build()
+                        .parseSignedClaims(token);
+                return true;
+            } catch (Exception e) {
+                log.warn("Invalid JWT token", e);
+            }
         }
+        return false;
     }
 
     public User getUser(String token) {
-        return decodeAndMap(token, jwt -> {
-            String userId = jwt.getClaim(USER_ID).asString();
-            List<Long> roles = jwt.getClaim(ROLES).asList(Long.class);
-            User user = User.builder().id(userId).build();
+        return decodeAndMap(token, claims -> {
+            String userId = claims.get(USER, String.class);
+            List<Long> roles = claims.get(ROLES, List.class);
+            User user = new User(userId);
             user.setPerfis(roles);
             return user;
         });
     }
 
     public String getUserId(String token) {
-        return decodeAndMap(token, jwt -> jwt.getClaim(USER_ID).asString());
+        return decodeAndMap(token, claims -> claims.get(USER, String.class));
     }
 
     public List<Long> getRoles(String token) {
-        return decodeAndMap(token, jwt -> jwt.getClaim(ROLES).asList(Long.class));
+        return (List<Long>) decodeAndMap(token, claims -> claims.get(ROLES, List.class));
     }
 
-    public <T> T decodeAndMap(String token, Function<DecodedJWT, T> mapper) {
-        String plainToken = extractToken(token);
-        JWTVerifier verifier = JWT.require(algorithm).withIssuer(ISSUER).build();
-        DecodedJWT jwt = verifier.verify(plainToken);
-        return mapper.apply(jwt);
+    public <T> T decodeAndMap(String token, Function<Claims, T> resolver) {
+        Claims claims = Jwts.parser()
+                .verifyWith(key)
+                .requireIssuer(ISSUER)
+                .build()
+                .parseSignedClaims(extractToken(token))
+                .getPayload();
+        return resolver.apply(claims);
     }
 }

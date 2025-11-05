@@ -7,50 +7,50 @@ import com.dev.servlet.core.builder.RequestBuilder;
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.interfaces.IRateLimiter;
 import com.dev.servlet.core.response.IHttpResponse;
+import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.core.util.PropertiesUtil;
 import com.dev.servlet.core.util.URIUtils;
+import com.dev.servlet.domain.model.User;
 import com.dev.servlet.domain.model.enums.RequestMethod;
+import com.dev.servlet.domain.service.AuthCookieService;
+import com.dev.servlet.domain.service.IUserService;
 import com.dev.servlet.domain.transfer.Request;
+import com.dev.servlet.domain.transfer.request.UserRequest;
 import com.dev.servlet.domain.transfer.response.UserResponse;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.interceptor.Interceptors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.PrintWriter;
 import java.text.MessageFormat;
 
+@Setter
 @Slf4j
 @NoArgsConstructor
 @ApplicationScoped
 public class ServletDispatcherImpl implements IServletDispatcher {
     public static final int WAIT_TIME = 600;
-    public static final String BEARER_PREFIX = "Bearer ";
     public static final String LOGOUT = "logout";
 
-    @Setter
     private boolean rateLimitEnabled;
+
+    @Inject
+    private AuthCookieService cookieService;
+    @Inject
+    private IUserService userService;
+    @Inject
+    private JwtUtil jwts;
+    @Inject
     private IHttpExecutor<?> httpExecutor;
+    @Inject
     private IRateLimiter rateLimiter;
-
-    @Inject
-    @Named("LeakyBucketImpl")
-    public void setRateLimiter(IRateLimiter rateLimiter) {
-        this.rateLimiter = rateLimiter;
-    }
-
-    @Inject
-    @Named("HttpExecutor")
-    public void setHttpExecutor(IHttpExecutor<?> httpExecutor) {
-        this.httpExecutor = httpExecutor;
-    }
 
     @PostConstruct
     public void init() {
@@ -86,11 +86,11 @@ public class ServletDispatcherImpl implements IServletDispatcher {
             processResponse(httpServletRequest, httpServletResponse, request, httpResponse);
 
         } catch (ServiceException e) {
-            log.error("Service exception for {} {}: {} - {}", method, requestURI, e.getCode(), e.getMessage());
+            log.error("Service exception for {} {}", method, requestURI, e);
             writeResponseError(httpServletRequest, httpServletResponse, e.getCode(), e.getMessage());
         } catch (Exception e) {
-            log.error("Unexpected exception for {} {}: {}", method, requestURI, e.getMessage(), e);
-            String message = "An error occurred while processing the request. Contact the support team.";
+            log.error("Unexpected exception for {} {}", method, requestURI, e);
+            String message = "An unexpected error occurred. Please try again later.";
             writeResponseError(httpServletRequest, httpServletResponse, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message);
         }
     }
@@ -113,26 +113,36 @@ public class ServletDispatcherImpl implements IServletDispatcher {
 
     private void processResponseData(HttpServletRequest httpRequest,
                                      HttpServletResponse httpResponse,
-                                     Request request,
-                                     IHttpResponse<?> response) {
-
+                                     Request request, IHttpResponse<?> response) {
         if (RequestMethod.POST.getMethod().equals(request.getMethod()) && response.body() instanceof UserResponse userResponse) {
-            HttpSession httpSession = httpRequest.getSession();
-            httpSession.setAttribute("user", userResponse.withoutToken());
+            httpRequest.setAttribute("user", userResponse);
 
-            if (userResponse.getToken() != null) {
-                httpSession.setAttribute("token", BEARER_PREFIX + userResponse.getToken());
-            }
-            if (userResponse.getRefreshToken() != null) {
-                httpSession.setAttribute("refreshToken", BEARER_PREFIX + userResponse.getRefreshToken());
+            if (userResponse.getToken() != null || userResponse.getRefreshToken() != null) {
+                cookieService.setAuthCookies(httpResponse, userResponse.getToken(), userResponse.getRefreshToken());
+                log.debug("✅ Auth cookies set for user ID: {}", userResponse.getId());
             }
         }
 
+        addUserToRequest(httpRequest);
         setRequestAttributes(httpRequest, response);
         handleResponseErrors(httpRequest, httpResponse, response);
 
         if (request.getEndpoint() != null && request.getEndpoint().contains(LOGOUT)) {
-            httpRequest.getSession().invalidate();
+            cookieService.clearAuthCookies(httpResponse);
+            log.debug("✅ Cookies cleared on logout");
+        }
+    }
+
+    private void addUserToRequest(HttpServletRequest httpRequest) {
+        try {
+            String token = cookieService.getTokenFromCookie(httpRequest, cookieService.getAccessTokenCookieName());
+            if (!StringUtils.isBlank(token)) {
+                User user = jwts.getUser("Bearer " + token);
+                UserResponse response = userService.getById(new UserRequest(user.getId()), token);
+                httpRequest.setAttribute("user", response);
+            }
+        } catch (Exception e) {
+            log.warn("⚠️ Unable to add user to request", e);
         }
     }
 

@@ -5,6 +5,7 @@ import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.util.EndpointParser;
 import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.core.util.PropertiesUtil;
+import com.dev.servlet.domain.service.AuthCookieService;
 import com.dev.servlet.domain.service.AuthService;
 import com.dev.servlet.domain.transfer.response.RefreshTokenResponse;
 import lombok.NoArgsConstructor;
@@ -34,6 +35,7 @@ public class AuthFilter implements Filter {
     private IServletDispatcher dispatcher;
     private AuthService loginService;
     private JwtUtil jwtUtil;
+    private AuthCookieService cookieService;
 
     @Inject
     @Named("ServletDispatcherImpl")
@@ -51,6 +53,11 @@ public class AuthFilter implements Filter {
         this.jwtUtil = jwtUtil;
     }
 
+    @Inject
+    public void setCookieService(AuthCookieService cookieService) {
+        this.cookieService = cookieService;
+    }
+
     @PostConstruct
     public void init() {
         String property = PropertiesUtil.getProperty("auth.authorized");
@@ -58,31 +65,12 @@ public class AuthFilter implements Filter {
         log.info("Auth filter initialized with pre-authorized paths: {}", preAuthorized);
     }
 
-    /**
-     * Sets up the filter with pre-authorized controllers and their endpoints.
-     * Expected format: controller:endpoint1,endpoint2;controller2:endpoint3
-     *
-     * @param property the comma-separated pre-authorized paths string
-     */
-    private void setupFilter(String property) {
-        for (String entry : property.split(";")) {
-            String[] parts = entry.split(":");
-            String controller = parts[0];
-            String[] endpoints = parts[1].split(",");
-
-            preAuthorized.computeIfAbsent(controller, k -> new HashSet<>());
-            for (String ep : endpoints) {
-                preAuthorized.get(controller).add(ep);
-            }
-        }
-    }
-
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException {
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
 
-        String token = (String) httpRequest.getSession().getAttribute("token");
+        String token = cookieService.getTokenFromCookie(httpRequest, cookieService.getAccessTokenCookieName());
         if (token == null && !isAuthorizedRequest(httpRequest)) {
             log.warn("❌ Unauthorized access to the service: {}, redirecting to login page", httpRequest.getRequestURI());
             redirectToLogin(httpResponse);
@@ -91,13 +79,21 @@ public class AuthFilter implements Filter {
 
         if (token != null && !jwtUtil.validateToken(token)) {
             try {
-                String refreshToken = (String) httpRequest.getSession().getAttribute("refreshToken");
-                RefreshTokenResponse refreshTokenResponse = loginService.refreshToken(refreshToken);
-                httpRequest.getSession().setAttribute("token", refreshTokenResponse.token());
+                String refreshToken = cookieService.getTokenFromCookie(httpRequest, cookieService.getRefreshTokenCookieName());
+                if (refreshToken == null) {
+                    log.error("❌ Refresh token not found, redirecting to login page");
+                    cookieService.clearAuthCookies(httpResponse);
+                    redirectToLogin(httpResponse);
+                    return;
+                }
+
+                RefreshTokenResponse refreshTokenResponse = loginService.refreshToken("Bearer " + refreshToken);
+                cookieService.setAccessTokenCookie(httpResponse, refreshTokenResponse.token());
                 log.info("✅ Token refreshed successfully for user {}", jwtUtil.getUserId(refreshTokenResponse.token()));
 
             } catch (ServiceException e) {
                 log.error("❌ Failed to refresh token: {}, redirecting to login page", e.getMessage());
+                cookieService.clearAuthCookies(httpResponse);
                 redirectToLogin(httpResponse);
                 return;
             }
@@ -110,6 +106,19 @@ public class AuthFilter implements Filter {
     private void redirectToLogin(HttpServletResponse response) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.sendRedirect(PropertiesUtil.getProperty(LOGIN_PAGE));
+    }
+
+    private void setupFilter(String property) {
+        for (String entry : property.split(";")) {
+            String[] parts = entry.split(":");
+            String controller = parts[0];
+            String[] endpoints = parts[1].split(",");
+
+            preAuthorized.computeIfAbsent(controller, k -> new HashSet<>());
+            for (String ep : endpoints) {
+                preAuthorized.get(controller).add(ep);
+            }
+        }
     }
 
     private boolean isAuthorizedRequest(HttpServletRequest request) {

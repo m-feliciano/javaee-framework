@@ -78,10 +78,8 @@ public class User {
     }
 
     public void addPerfil(Long perfil) {
-        synchronized (this) {
-            if (this.perfis == null) {
-                this.perfis = new ArrayList<>();
-            }
+        if (this.perfis == null) {
+            this.perfis = new ArrayList<>();
         }
         this.perfis.add(perfil);
     }

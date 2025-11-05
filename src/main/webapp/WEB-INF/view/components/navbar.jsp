@@ -26,20 +26,6 @@
             </li>
         </ul>
         <div class="d-flex">
-            <div class="avatar mt-1 mx30">
-                <a href="${baseLink}${version}${listUser}/${user.id}">
-                    <c:choose>
-                        <c:when test="${not empty user.imgUrl and user.imgUrl ne ''}">
-                            <img src="<c:out value='${user.imgUrl}' escapeXml='true'/>" alt="user"
-                                 class="avatar-img rounded-circle" loading="lazy"
-                                 onerror="this.src='<c:url value='/resources/assets/avatar2.png'/>'">
-                        </c:when>
-                        <c:otherwise>
-                            <img src="<c:url value='/resources/assets/avatar2.png'/>" alt="user" class="avatar-img rounded-circle">
-                        </c:otherwise>
-                    </c:choose>
-                </a>
-            </div>
             <a class="nav-link btn-logout mr-2" href="<c:url value='${baseLink}${version}${listUser}/${user.id}'/>">Perfil</a>
         </div>
         <form class="form-inline" action="${baseLink}${version}${logout}" METHOD="post">
