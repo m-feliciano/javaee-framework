@@ -115,8 +115,6 @@ public class ServletDispatcherImpl implements IServletDispatcher {
                                      HttpServletResponse httpResponse,
                                      Request request, IHttpResponse<?> response) {
         if (RequestMethod.POST.getMethod().equals(request.getMethod()) && response.body() instanceof UserResponse userResponse) {
-            httpRequest.setAttribute("user", userResponse);
-
             if (userResponse.getToken() != null || userResponse.getRefreshToken() != null) {
                 cookieService.setAuthCookies(httpResponse, userResponse.getToken(), userResponse.getRefreshToken());
                 log.debug("✅ Auth cookies set for user ID: {}", userResponse.getId());
@@ -136,7 +134,7 @@ public class ServletDispatcherImpl implements IServletDispatcher {
     private void addUserToRequest(HttpServletRequest httpRequest) {
         try {
             String token = cookieService.getTokenFromCookie(httpRequest, cookieService.getAccessTokenCookieName());
-            if (!StringUtils.isBlank(token)) {
+            if (StringUtils.isNotBlank(token)) {
                 User user = jwts.getUser("Bearer " + token);
                 UserResponse response = userService.getById(new UserRequest(user.getId()), token);
                 httpRequest.setAttribute("user", response);

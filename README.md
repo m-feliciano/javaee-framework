@@ -138,7 +138,7 @@ This application follows a **stateless architecture**, which means the server do
 | **Session Storage**    | ❌ None              | Zero server-side sessions     |
 | **Authentication**     | ✅ JWT               | Self-contained tokens         |
 | **Token Storage**      | ✅ HTTP-Only Cookies | Secure, XSS-protected         |
-| **Token Lifetime**     | ⏱️ 30min / 30d      | Access / Refresh              |
+| **Token Lifetime**     | ⏱️ 1d / 30d         | Access / Refresh              |
 | **Auto-Refresh**       | ✅ Yes               | Seamless UX                   |
 | **Horizontal Scaling** | ✅ Yes               | No session replication needed |
 | **CSRF Protection**    | ✅ SameSite=Strict   | Production                    |

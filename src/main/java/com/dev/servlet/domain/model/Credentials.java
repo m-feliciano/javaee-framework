@@ -1,5 +1,6 @@
 package com.dev.servlet.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +25,7 @@ public class Credentials {
     @Column(name = "login", unique = true)
     private String login;
 
-    // Already encrypted
+    @JsonIgnore
     @Column(name = "password")
     private String password;
 

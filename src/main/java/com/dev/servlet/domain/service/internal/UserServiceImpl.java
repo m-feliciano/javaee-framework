@@ -2,6 +2,7 @@ package com.dev.servlet.domain.service.internal;
 
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.mapper.UserMapper;
+import com.dev.servlet.core.util.CacheUtils;
 import com.dev.servlet.domain.model.Credentials;
 import com.dev.servlet.domain.model.User;
 import com.dev.servlet.domain.model.enums.RoleType;
@@ -27,6 +28,8 @@ import static com.dev.servlet.core.util.ThrowableUtils.serviceError;
 @NoArgsConstructor
 @Model
 public class UserServiceImpl extends BaseServiceImpl<User, String> implements IUserService {
+
+    private static final String CACHE_KEY = "userCacheKey";
 
     @Inject
     private UserMapper userMapper;
@@ -72,7 +75,11 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
                 .perfis(List.of(RoleType.DEFAULT.getCode()))
                 .build();
         newUser = super.save(newUser);
+        log.info("User registered: {}", newUser.getCredentials().getLogin());
+
         UserResponse response = userMapper.toResponse(newUser);
+        CacheUtils.setObject(newUser.getId(), CACHE_KEY, response);
+
         auditService.auditSuccess("user:register", null, new AuditPayload<>(user, response));
         return response;
     }
@@ -103,6 +110,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
 
         try {
             user = super.update(user);
+            CacheUtils.clear(entity.getId(), CACHE_KEY);
         } catch (Exception e) {
             auditService.auditFailure("user:update", auth, new AuditPayload<>(userRequest, null));
             throw e;
@@ -118,8 +126,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
         log.trace("");
 
         try {
-            User user = loadUser(request.id(), auth);
-            UserResponse response = userMapper.toResponse(user);
+            UserResponse response = getUserResponse(request.id(), auth);
             auditService.auditSuccess("user:get_by_id", auth, new AuditPayload<>(request, response));
             return response;
         } catch (Exception e) {
@@ -136,6 +143,8 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
             UserResponse response = getById(request, auth);
             User user = User.builder().id(response.getId()).build();
             super.delete(user);
+            CacheUtils.clearAll(response.getId());
+
             auditService.auditSuccess("user:delete", auth, new AuditPayload<>(request, null));
         } catch (Exception e) {
             auditService.auditFailure("user:delete", auth, new AuditPayload<>(request, e.getMessage()));
@@ -148,12 +157,18 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
         return super.find(new User(login, password));
     }
 
-    private User loadUser(String id, String auth) throws ServiceException {
+    private UserResponse getUserResponse(String id, String auth) throws ServiceException {
         String userId = jwts.getUserId(auth);
         if (!id.equals(userId)) {
             throw serviceError(HttpServletResponse.SC_FORBIDDEN, "User not authorized.");
         }
 
-        return findById(id).orElse(null);
+        if (CacheUtils.getObject(id, CACHE_KEY) == null) {
+            findById(id)
+                    .ifPresent(user ->
+                            CacheUtils.setObject(id, CACHE_KEY, userMapper.toResponse(user)));
+        }
+
+        return CacheUtils.getObject(id, CACHE_KEY);
     }
 }

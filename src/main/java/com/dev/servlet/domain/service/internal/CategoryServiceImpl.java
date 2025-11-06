@@ -55,7 +55,7 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
             category.setStatus(Status.ACTIVE.getValue());
             category = super.save(category);
 
-            CacheUtils.clear(CACHE_KEY, user.getId());
+            CacheUtils.clear(user.getId(), CACHE_KEY);
             CategoryResponse response = categoryMapper.toResponse(category);
             auditService.auditSuccess("category:register", auth, new AuditPayload<>(request, response));
             return response;
@@ -75,7 +75,7 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
             category.setName(request.name().toUpperCase());
             super.update(category);
 
-            CacheUtils.clear(CACHE_KEY, userId);
+            CacheUtils.clear(userId, CACHE_KEY);
             CategoryResponse response = categoryMapper.toResponse(category);
             auditService.auditSuccess("category:update", auth, new AuditPayload<>(request, response));
             return response;
@@ -133,7 +133,7 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
             Category category = loadCategory(request.id(), userId);
             super.delete(category);
 
-            CacheUtils.clear(CACHE_KEY, userId);
+            CacheUtils.clear(userId, CACHE_KEY);
             auditService.auditSuccess("category:delete", auth, new AuditPayload<>(request, null));
         } catch (Exception e) {
             auditService.auditFailure("category:delete", auth, new AuditPayload<>(request, null));
@@ -142,14 +142,14 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
     }
 
     private Collection<CategoryResponse> getAll(User user) {
-        final String cacheKey = user.getId();
+        final String userId = user.getId();
 
-        List<CategoryResponse> response = CacheUtils.get(CACHE_KEY, cacheKey);
+        List<CategoryResponse> response = CacheUtils.get(userId, CACHE_KEY);
         if (CollectionUtils.isEmpty(response)) {
             var categories = super.findAll(new Category(user));
             if (!CollectionUtils.isEmpty(categories)) {
                 response = categories.stream().map(categoryMapper::toResponse).toList();
-                CacheUtils.set(CACHE_KEY, cacheKey, response);
+                CacheUtils.set(userId, CACHE_KEY, response);
             }
         }
 

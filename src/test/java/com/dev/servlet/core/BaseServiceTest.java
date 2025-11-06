@@ -24,9 +24,6 @@ public abstract class BaseServiceTest {
         propertiesUtilMock.when(() -> PropertiesUtil.getProperty(anyString(), any())).thenReturn(1L);
 
         cacheUtilsMock = mockStatic(CacheUtils.class);
-        cacheUtilsMock
-                .when(() -> CacheUtils.clearCacheKeyPrefix(anyString(), eq(TEST_TOKEN)))
-                .thenAnswer(invocation -> null);
     }
 
     @AfterAll
