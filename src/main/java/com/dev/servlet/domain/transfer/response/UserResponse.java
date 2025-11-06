@@ -18,7 +18,7 @@ public final class UserResponse {
     private String imgUrl;
     private String token;
     private String refreshToken;
-    private List<Long> perfis;
+    private List<Integer> perfis;
 
     public UserResponse(String id) {
         this.id = id;

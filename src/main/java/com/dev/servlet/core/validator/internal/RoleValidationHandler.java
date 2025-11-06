@@ -19,7 +19,7 @@ public record RoleValidationHandler(JwtUtil jwts) implements ValidationHandler {
     public void validate(RequestMapping mapping, Request request) throws ServiceException {
         if (CollectionUtils.isEmpty(mapping.roles())) return;
 
-        List<Long> roles = jwts.getRoles(request.getToken());
+        List<Integer> roles = jwts.getRoles(request.getToken());
         for (RoleType role : mapping.roles()) {
             if (roles.contains(role.getCode())) return;
         }

@@ -109,7 +109,7 @@ public class JwtUtil {
     public User getUser(String token) {
         return decodeAndMap(token, claims -> {
             String userId = claims.get(USER, String.class);
-            List<Long> roles = claims.get(ROLES, List.class);
+            List<Integer> roles = (List<Integer>) claims.get(ROLES, List.class);
             User user = new User(userId);
             user.setPerfis(roles);
             return user;
@@ -120,8 +120,8 @@ public class JwtUtil {
         return decodeAndMap(token, claims -> claims.get(USER, String.class));
     }
 
-    public List<Long> getRoles(String token) {
-        return (List<Long>) decodeAndMap(token, claims -> claims.get(ROLES, List.class));
+    public List<Integer> getRoles(String token) {
+        return (List<Integer>) decodeAndMap(token, claims -> claims.get(ROLES, List.class));
     }
 
     public <T> T decodeAndMap(String token, Function<Claims, T> resolver) {

@@ -40,7 +40,7 @@ public class AuthServiceImpl implements AuthService {
 
         User user = userService.findByLoginAndPassword(login, password).orElse(null);
         if (user == null) {
-            auditService.auditFailure("user:login", login, new AuditPayload<>(request, null));
+            auditService.auditFailure("user:login", null, new AuditPayload<>(request, null));
             throw new ServiceException("Invalid login or password");
         }
 

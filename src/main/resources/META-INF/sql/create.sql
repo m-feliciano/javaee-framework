@@ -153,7 +153,7 @@ create index idx_inventory_created_at
 
 create table tb_perfil
 (
-    id   bigserial
+    id   integer
         primary key,
     name varchar(50) not null
         unique
@@ -166,7 +166,7 @@ create table user_perfis
 (
     user_id   varchar(36) not null
         references tb_user,
-    perfil_id bigint      not null
+    perfil_id integer     not null
         references tb_perfil,
     primary key (user_id, perfil_id)
 );
