@@ -1,4 +1,4 @@
-# Java Servlets Framework
+# Java EE Framework
 
 [![Java](https://img.shields.io/badge/Java-17-007396)](https://www.oracle.com/java/)
 [![Maven](https://img.shields.io/badge/Maven-3.6+-C71A36)](https://maven.apache.org/)
@@ -6,21 +6,19 @@
 [![Hibernate](https://img.shields.io/badge/Hibernate-5.6.15-59666C)](https://hibernate.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A custom Java EE framework for building robust web applications. This project showcases the best practices in enterprise Java development, including Clean Architecture principles, security, efficient caching, and testing.
+A custom framework for building robust web applications. This project showcases the best practices in enterprise Java development, including Clean Architecture principles, security, efficient caching, and testing.
 
 ## Table of Contents
 
 - [Features](#features)
 - [Technology Stack](#technology-stack)
 - [Architecture](#architecture)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Health Check System](#-health-check-system)
+- [Health Check System](#health-check-dashboard)
 - [Stateless Architecture](#stateless-architecture)
+- [Installation](#installation)
 - [Configuration](#configuration)
-- [Testing](#testing)
+- [Usage](#usage)
 - [API Documentation](#api-documentation)
-- [Contributing](#contributing)
 - [License](#license)
 
 ## Features
@@ -39,13 +37,13 @@ A custom Java EE framework for building robust web applications. This project sh
 
 | Component   | Technology               | Version/Notes                                    |
 |-------------|--------------------------|--------------------------------------------------|
-| ☕ Language  | Java                     | 17                                               |
+| ☕ Language  | Java                    | 17                                               |
 | 🌐 Servlet  | Servlet API              | 4.0.1 (javax.*)                                  |
 | 🧩 CDI      | Weld / CDI API           | 2.4.8.Final / 1.2                                |
-| 🗄️ ORM     | Hibernate ORM            | 5.6.15.Final                                     |
+| 🗄️ ORM      | Hibernate ORM            | 5.6.15.Final                                     |
 | 🐘 Database | PostgreSQL JDBC          | 42.4.4                                           |
-| 🔐 Security | Auth0 java-jwt           | 4.4.0                                            |
-| ⚡ Cache     | Ehcache                  | 3.9.11; hibernate-ehcache 5.6.15                 |
+| 🔐 Security | Auth jsonwebtoken        | 0.12.3                                           |
+| ⚡ Cache     | Ehcache                 | 3.9.11; hibernate-ehcache 5.6.15                 |
 | 🧪 Testing  | JUnit Jupiter / Mockito  | RELEASE (5.10.2) / 5.14.2, 5.2.0                 |
 | 📦 HTTP     | OkHttp                   | 4.12.0                                           |
 | 🔣 JSON     | Jackson (core/databind)  | 2.19.0                                           |
@@ -67,52 +65,7 @@ This application follows Clean Architecture principles, separating concerns into
 ### Request Flow
 
 ```
-🌐 Browser → 🔐 Filters → 🔧 Dispatcher → 📋 BaseController → 🎯 Controller → 🏭 Service → 💾 DAO → 🐘 PostgreSQL
-```
-
-## Installation
-
-### Prerequisites
-
-- Java 17 or higher
-- Maven 3.6 or higher
-- PostgreSQL database
-
-### Steps
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/servlets.git
-   cd servlets
-   ```
-
-2. Set up the database:
-   - Ensure PostgreSQL is running.
-   - Create a database and update connection details in `src/main/resources/app-dev.properties`.
-
-3. Build the project:
-   ```bash
-   mvn clean package
-   ```
-
-4. Deploy the WAR file:
-   - Copy `target/servlets-<current_version>.war` to your servlet container (e.g., Tomcat, WildFly).
-   - Start the server.
-
-The application will be available at `http://localhost:8080` (adjust port as needed).
-
-## Usage
-
-### API Examples
-
-- **Login**: `/api/v1/auth/login`
-- **Products**: `/api/v1/product/list`
-- **Inventory (by ID)**: `/api/v1/inventory/list/{id}`
-
-Example request:
-```bash
-curl -X GET "http://localhost:8080/api/v1/product/list/?page=1&limit=5&sort=id&order=asc" \
-     -H "Cookie: YOUR_COOKIE_HERE"
+🌐 Browser → 🔐 Filters → 🔧 Dispatcher → 📋 BaseController → 🎯 Controller → 🏭 Service → 💾 DAO → 🐘 Database
 ```
 
 ## Stateless Architecture
@@ -149,19 +102,19 @@ This application follows a **stateless architecture**, which means the server do
 
 ---
 
-## Screenshots
+## Preview
 
 <div align="center">
   <img src="images/homepage.png" alt="Application Homepage" width="80%">
-  <p><em>Homepage displaying product listings</em></p>
+  <p><em>Homepage displaying products</em></p>
 
   <img src="images/product-list.png" alt="Product Management Interface" width="80%">
   <p><em>Product management dashboard</em></p>
 </div>
 
-### 🏥 Health Check Dashboard
+## Health Check Dashboard
 
-A health monitoring dashboard provides real-time system status:
+Health monitoring dashboard provides real-time system status:
 
 <div align="center">
   <img src="images/health-dashboard.png" alt="Health Check Dashboard" width="80%">
@@ -178,9 +131,40 @@ A health monitoring dashboard provides real-time system status:
 - 📊 Memory usage monitoring with visual alerts
 - ⏱️ System uptime tracking
 - 🔗 Quick access to K8s health probes
-- 📱 Responsive design
 
-**Access:** `http://localhost:8080/api/v1/health/check`
+**Access:** `/api/v1/health/check`
+
+
+## Installation
+
+### Prerequisites
+
+- Java 17 or higher
+- Maven 3.6 or higher
+- Any SQL database
+
+### Steps
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/servlets.git
+   cd servlets
+   ```
+
+2. Set up the database:
+   - Ensure PostgreSQL is running.
+   - Create a database and update connection details in `src/main/resources/app-dev.properties`.
+
+3. Build the project:
+   ```bash
+   mvn clean package
+   ```
+
+4. Deploy the WAR file:
+   - Copy `target/servlets-<current_version>.war` to your servlet container (e.g., Tomcat, WildFly).
+   - Start the server.
+
+The application will be available at `http://localhost:8080` (adjust port as needed).
 
 ## Configuration
 
@@ -207,21 +191,23 @@ rate.limit.enabled=true
 cache.timeout.minutes=30
 ```
 
-## Testing
+## Usage
 
-Run the test suite with Maven:
+### API Examples
+
+- **Login**: `/api/v1/auth/login`
+- **Products**: `/api/v1/product/list`
+- **Inventory (by ID)**: `/api/v1/inventory/list/{id}`
+
+Example request:
 ```bash
-mvn test
+curl -X GET "http://localhost:8080/api/v1/product/list/?page=1&limit=5&sort=id&order=asc" \
+     -H "Cookie: YOUR_COOKIE_HERE"
 ```
-
-Tests cover:
-- Unit tests for services, controllers, and utilities
-- Integration tests for security filters and rate limiting
-- Mocked dependencies using Mockito
 
 ## API Documentation
 
-For detailed API documentation, refer to the inline comments in the controller classes or use tools like Swagger if integrated.
+For detailed API documentation, refer to the inline comments
 
 ### Audit Logging
 
@@ -238,20 +224,6 @@ The `AuditService` generates JSON logs for all operations:
   "payload": { ... }
 }
 ```
-
-Logs are stored in `logs/audit.log`.
-
-## Contributing
-
-We welcome contributions! Please follow these steps:
-
-1. Fork the repository.
-2. Create a feature branch: `git checkout -b feature/your-feature`.
-3. Commit your changes: `git commit -m 'Add some feature'`.
-4. Push to the branch: `git push origin feature/your-feature`.
-5. Open a pull request.
-
-Ensure your code follows the project's coding standards and includes tests.
 
 ## License
 
