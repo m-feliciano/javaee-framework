@@ -67,7 +67,7 @@ public class AuthServiceImpl implements AuthService {
             return "redirect:/" + onSuccess;
         }
 
-        auditService.auditFailure("auth:form", auth, null);
+        auditService.auditWarning("auth:form", auth, null);
         return "forward:pages/formLogin.jsp";
     }
 

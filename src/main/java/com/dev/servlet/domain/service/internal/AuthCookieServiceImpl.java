@@ -1,11 +1,14 @@
 package com.dev.servlet.domain.service.internal;
 
 import com.dev.servlet.core.util.PropertiesUtil;
+import com.dev.servlet.domain.service.AuditService;
 import com.dev.servlet.domain.service.AuthCookieService;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -18,8 +21,12 @@ public class AuthCookieServiceImpl implements AuthCookieService {
 
     public static final String ACCESS_TOKEN_COOKIE = "accessToken";
     public static final String REFRESH_TOKEN_COOKIE = "refreshToken";
-    private static final int ACCESS_TOKEN_MAX_AGE = Math.toIntExact(TimeUnit.MINUTES.toSeconds(30));
+    private static final int ACCESS_TOKEN_MAX_AGE = Math.toIntExact(TimeUnit.DAYS.toSeconds(1));
     private static final int REFRESH_TOKEN_MAX_AGE = Math.toIntExact(TimeUnit.DAYS.toSeconds(30));
+
+    @Setter
+    @Inject
+    private AuditService auditService;
 
     private boolean isSecure;
     private String cookiePath;
@@ -117,6 +124,9 @@ public class AuthCookieServiceImpl implements AuthCookieService {
 
         log.trace("Cookie added: {} [maxAge={}s, secure={}, httpOnly=true, sameSite={}]",
                 name, maxAge, isSecure, sameSite);
+
+        CookieAuditInfo auditInfo = new CookieAuditInfo(name, maxAge);
+        auditService.auditSuccess("auth_cookie:set_cookie", null, new AuditPayload<>(auditInfo, cookieHeader));
     }
 
     private String buildSecureCookieHeader(String name, String value, int maxAge) {
@@ -152,5 +162,7 @@ public class AuthCookieServiceImpl implements AuthCookieService {
         }
         return null;
     }
+
+    record CookieAuditInfo(String cookieName, int cookieMaxAge) {}
 }
 

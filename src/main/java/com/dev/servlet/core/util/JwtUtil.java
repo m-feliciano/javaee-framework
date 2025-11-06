@@ -61,7 +61,7 @@ public class JwtUtil {
                     .claim(USER, user.getId())
                     .claim(ROLES, user.getPerfis())
                     .issuedAt(new Date(now))
-                    .expiration(new Date(now + TimeUnit.HOURS.toMillis(1)))
+                    .expiration(new Date(now + TimeUnit.DAYS.toMillis(1)))
                     .id(UUID.randomUUID().toString())
                     .signWith(key)
                     .compact();

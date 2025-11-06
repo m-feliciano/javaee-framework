@@ -5,15 +5,16 @@ import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.util.EndpointParser;
 import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.core.util.PropertiesUtil;
+import com.dev.servlet.domain.service.AuditService;
 import com.dev.servlet.domain.service.AuthCookieService;
 import com.dev.servlet.domain.service.AuthService;
 import com.dev.servlet.domain.transfer.response.RefreshTokenResponse;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletRequest;
@@ -26,37 +27,24 @@ import java.util.Map;
 import java.util.Set;
 
 
+@Setter
 @Slf4j
 @NoArgsConstructor
 public class AuthFilter implements Filter {
-    public static final String LOGIN_PAGE = "loginPage";
+    private static final String LOGIN_PAGE = "loginPage";
+    private static final String BEARER_PREFIX = "Bearer ";
     private final Map<String, Set<String>> preAuthorized = new java.util.HashMap<>();
 
+    @Inject
     private IServletDispatcher dispatcher;
+    @Inject
     private AuthService loginService;
+    @Inject
     private JwtUtil jwtUtil;
+    @Inject
     private AuthCookieService cookieService;
-
     @Inject
-    @Named("ServletDispatcherImpl")
-    public void setDispatcher(IServletDispatcher dispatcher) {
-        this.dispatcher = dispatcher;
-    }
-
-    @Inject
-    public void setLoginService(AuthService loginService) {
-        this.loginService = loginService;
-    }
-
-    @Inject
-    public void setJwtUtil(JwtUtil jwtUtil) {
-        this.jwtUtil = jwtUtil;
-    }
-
-    @Inject
-    public void setCookieService(AuthCookieService cookieService) {
-        this.cookieService = cookieService;
-    }
+    private AuditService auditService;
 
     @PostConstruct
     public void init() {
@@ -70,40 +58,55 @@ public class AuthFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
 
+        boolean isAuthorized = isAuthorizedRequest(httpRequest);
+        if (isAuthorized) {
+            log.debug("✅ Pre-authorized access [endpoint={}]", httpRequest.getRequestURI());
+            auditService.auditSuccess("auth_filter:login", null, null);
+            dispatcher.dispatch(httpRequest, httpResponse);
+            return;
+        }
+
         String token = cookieService.getTokenFromCookie(httpRequest, cookieService.getAccessTokenCookieName());
-        if (token == null && !isAuthorizedRequest(httpRequest)) {
-            log.warn("❌ Unauthorized access to the service: {}, redirecting to login page", httpRequest.getRequestURI());
+        String refreshToken = cookieService.getTokenFromCookie(httpRequest, cookieService.getRefreshTokenCookieName());
+
+        if (token == null && refreshToken == null) {
+            log.warn("❌ No tokens found for: {}, redirecting to login page", httpRequest.getRequestURI());
             redirectToLogin(httpResponse);
             return;
         }
 
-        if (token != null && !jwtUtil.validateToken(token)) {
-            try {
-                String refreshToken = cookieService.getTokenFromCookie(httpRequest, cookieService.getRefreshTokenCookieName());
-                if (refreshToken == null) {
-                    log.error("❌ Refresh token not found, redirecting to login page");
-                    cookieService.clearAuthCookies(httpResponse);
-                    redirectToLogin(httpResponse);
-                    return;
-                }
+        boolean tokenValid = token != null && jwtUtil.validateToken(token);
+        if (tokenValid) {
+            log.debug("✅ Valid token access [endpoint={}]", httpRequest.getRequestURI());
+            auditService.auditSuccess("auth_filter:valid_token", null, null);
+            dispatcher.dispatch(httpRequest, httpResponse);
+            return;
+        }
 
-                RefreshTokenResponse refreshTokenResponse = loginService.refreshToken("Bearer " + refreshToken);
+        if (refreshToken != null && jwtUtil.validateToken(refreshToken)) {
+            try {
+                RefreshTokenResponse refreshTokenResponse = loginService.refreshToken(BEARER_PREFIX + refreshToken);
                 cookieService.setAccessTokenCookie(httpResponse, refreshTokenResponse.token());
                 log.info("✅ Token refreshed successfully for user {}", jwtUtil.getUserId(refreshTokenResponse.token()));
 
-            } catch (ServiceException e) {
-                log.error("❌ Failed to refresh token: {}, redirecting to login page", e.getMessage());
-                cookieService.clearAuthCookies(httpResponse);
-                redirectToLogin(httpResponse);
+                auditService.auditSuccess("auth_filter:refresh_token", null, null);
+
+                httpResponse.setStatus(HttpServletResponse.SC_FOUND);
+                httpResponse.sendRedirect(httpRequest.getRequestURI());
                 return;
+
+            } catch (ServiceException e) {
+                log.error("❌ Failed to refresh token, redirecting to login page", e);
             }
         }
 
-        log.debug("✅ Access authorized [endpoint={}]", httpRequest.getRequestURI());
-        dispatcher.dispatch(httpRequest, httpResponse);
+        log.warn("❌ Both tokens are invalid for: {}, redirecting to login page", httpRequest.getRequestURI());
+        cookieService.clearAuthCookies(httpResponse);
+        redirectToLogin(httpResponse);
     }
 
     private void redirectToLogin(HttpServletResponse response) throws IOException {
+        auditService.auditWarning("auth_filter:redirect_login", null, null);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.sendRedirect(PropertiesUtil.getProperty(LOGIN_PAGE));
     }
