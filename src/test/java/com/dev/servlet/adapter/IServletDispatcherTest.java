@@ -3,11 +3,11 @@ package com.dev.servlet.adapter;
 
 import com.dev.servlet.adapter.internal.HttpExecutor;
 import com.dev.servlet.adapter.internal.ServletDispatcherImpl;
-import com.dev.servlet.domain.transfer.Request;
-import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.builder.RequestBuilder;
 import com.dev.servlet.core.interfaces.IRateLimiter;
+import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.util.URIUtils;
+import com.dev.servlet.domain.transfer.Request;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -64,7 +64,6 @@ class IServletDispatcherTest {
             "Test dispatch method with a forward response and a valid rate limit. " +
             "It should forward the request to the specified URL.")
     void testDispatch_Success() throws Exception {
-        // Arrange: Set up mocks and expected behavior
         when(httpResponseMock.next()).thenReturn("forward:success.jsp");
 
         RequestDispatcher dispatcher = mock(RequestDispatcher.class);
@@ -75,10 +74,10 @@ class IServletDispatcherTest {
 
             when(httpExecutor.call(any(Request.class))).thenReturn(httpResponseMock);
 
-            // Act: Call the method under test
+
             servletDispatcher.dispatch(httpRequest, httpResponse);
 
-            // Assert: Verify the expected behavior
+
             verify(dispatcher).forward(httpRequest, httpResponse);
             verify(rateLimiter).acquireOrWait(ServletDispatcherImpl.WAIT_TIME);
             verify(httpExecutor).call(any(Request.class));
@@ -90,7 +89,6 @@ class IServletDispatcherTest {
             "Test dispatch method with a redirect response and a valid rate limit. " +
             "It should send a redirect to the specified URL.")
     void testDispatch_SendRedirect() throws Exception {
-        // Arrange: Set up mocks and expected behavior
         when(httpResponseMock.next()).thenReturn("redirect:/somewhere");
 
         try (MockedStatic<HttpExecutor> executorMockStatic = mockStatic(HttpExecutor.class);
@@ -98,10 +96,10 @@ class IServletDispatcherTest {
 
             when(httpExecutor.call(any(Request.class))).thenReturn(httpResponseMock);
 
-            // Act: Call the method under test
+
             servletDispatcher.dispatch(httpRequest, httpResponse);
 
-            // Assert: Verify the expected behavior
+
             verify(httpResponse).sendRedirect("/somewhere");
         }
     }

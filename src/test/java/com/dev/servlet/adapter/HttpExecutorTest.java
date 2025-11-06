@@ -49,7 +49,6 @@ class HttpExecutorTest {
     void testCall_Success() {
         IHttpResponse<Object> expectedResponse = HttpResponse.next("Next").build();
 
-        // Mock the static method to return the mocked parser
         try (MockedStatic<EndpointParser> parserMock = mockStatic(EndpointParser.class);
              MockedStatic<BeanUtil> beanUtilMock = mockStatic(BeanUtil.class)) {
 

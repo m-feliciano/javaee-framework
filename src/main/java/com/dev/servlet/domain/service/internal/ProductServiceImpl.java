@@ -22,6 +22,7 @@ import com.dev.servlet.infrastructure.persistence.dao.ProductDAO;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.StopWatch;
 
 import javax.enterprise.inject.Model;
 import javax.inject.Inject;
@@ -30,7 +31,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static com.dev.servlet.core.util.ThrowableUtils.notFound;
 import static com.dev.servlet.core.util.ThrowableUtils.serviceError;
@@ -65,21 +68,37 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
 
     @Override
     public <U> IPageable<U> getAllPageable(IPageRequest payload, Mapper<Product, U> mapper) {
+        StopWatch sw = new StopWatch();
+
         try {
+            sw.start();
             IPageable<U> pageable = super.getAllPageable(payload, mapper);
-            auditService.auditSuccess("product:list", null, new AuditPayload<>(payload, pageable));
+            sw.stop();
+            auditService.auditSuccess("product:list", null,
+                    new AuditPayload<>(payload,
+                            null,
+                            Map.of(
+                                    "total_products", pageable.getTotalElements(),
+                                    "current_page", pageable.getCurrentPage(),
+                                    "page_size", pageable.getPageSize(),
+                                    "time_to_complete in ms", sw.getTime(TimeUnit.MILLISECONDS))
+                    ));
             return pageable;
 
         } catch (Exception e) {
-            auditService.auditFailure("product:list", null, new AuditPayload<>(payload, null));
+            sw.stop();
+            auditService.auditFailure("product:list", null,
+                    new AuditPayload<>(payload,
+                            null,
+                            Map.of("time_to_fail in ms", sw.getTime(TimeUnit.MILLISECONDS))
+                    ));
+
             throw e;
         }
     }
 
     @Override
     public ProductResponse create(ProductRequest request, String auth) {
-        log.trace("");
-
         try {
             Product product = productMapper.toProduct(request, jwts.getUserId(auth));
             product.setRegisterDate(new Date());
@@ -96,8 +115,6 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
 
     @Override
     public ProductResponse findById(ProductRequest request, String auth) throws ServiceException {
-        log.trace("");
-
         try {
             Product product = productMapper.toProduct(request, jwts.getUserId(auth));
             product = findProduct(product);
@@ -113,8 +130,6 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
 
     @Override
     public ProductResponse update(ProductRequest request, String auth) throws ServiceException {
-        log.trace("");
-
         try {
             Product product = productMapper.toProduct(request, jwts.getUserId(auth));
             product = findProduct(product);
@@ -136,7 +151,6 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
 
     @Override
     public void delete(ProductRequest request, String auth) throws ServiceException {
-        log.trace("");
         try {
             Product product = productMapper.toProduct(request, jwts.getUserId(auth));
             product = findProduct(product);
@@ -163,8 +177,6 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
     @Override
     @SneakyThrows
     public Optional<List<ProductResponse>> scrape(String url, String environment, String auth) {
-        log.trace("");
-
         if (!"development".equals(environment)) {
             log.warn("Web scraping is only allowed in development environment");
             auditService.auditWarning("product:scrape", auth, new AuditPayload<>(url, null));
@@ -194,11 +206,16 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
         try {
             products = baseDAO.save(products);
             List<ProductResponse> productResponses = products.stream().map(productMapper::toResponse).toList();
-            auditService.auditSuccess("product:scrape", auth, new AuditPayload<>(url, productResponses));
+
+            auditService.auditSuccess("product:scrape", auth,
+                    new AuditPayload<>(url, null,
+                            Map.of("products_scraped", productResponses.size()
+                            )));
+
             return Optional.of(productResponses);
 
         } catch (Exception e) {
-            log.error("Error saving scraped products: {}", e.getMessage(), e);
+            log.error("Error saving scraped products", e);
             auditService.auditFailure("product:scrape", auth, new AuditPayload<>(url, null));
             return Optional.empty();
         }

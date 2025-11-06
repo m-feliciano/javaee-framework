@@ -1,4 +1,5 @@
 package com.dev.servlet.infrastructure.persistence.dao;
+
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.util.CollectionUtils;
 import com.dev.servlet.domain.model.Category;
@@ -108,7 +109,6 @@ public class ProductDAO extends BaseDAO<Product, String> {
     }
     @Override
     public List<Product> save(List<Product> products) throws ServiceException {
-        log.trace("");
         AtomicReference<String> errors = new AtomicReference<>();
         Session session = getNewOpenSession();
         session.doWork(connection -> {

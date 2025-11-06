@@ -4,9 +4,6 @@ import lombok.NoArgsConstructor;
 
 import javax.servlet.http.HttpServletResponse;
 
-/**
- * Utility class for handling and wrapping checked exceptions.
- */
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class ThrowableUtils {
 

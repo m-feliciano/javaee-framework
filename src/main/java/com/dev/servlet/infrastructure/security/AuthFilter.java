@@ -60,7 +60,6 @@ public class AuthFilter implements Filter {
 
         boolean isAuthorized = isAuthorizedRequest(httpRequest);
         if (isAuthorized) {
-            log.debug("✅ Pre-authorized access [endpoint={}]", httpRequest.getRequestURI());
             auditService.auditSuccess("auth_filter:login", null, null);
             dispatcher.dispatch(httpRequest, httpResponse);
             return;
@@ -70,14 +69,14 @@ public class AuthFilter implements Filter {
         String refreshToken = cookieService.getTokenFromCookie(httpRequest, cookieService.getRefreshTokenCookieName());
 
         if (token == null && refreshToken == null) {
-            log.warn("❌ No tokens found for: {}, redirecting to login page", httpRequest.getRequestURI());
+            log.warn("No tokens found for: {}, redirecting to login page", httpRequest.getRequestURI());
             redirectToLogin(httpResponse);
             return;
         }
 
         boolean tokenValid = token != null && jwtUtil.validateToken(token);
         if (tokenValid) {
-            log.debug("✅ Valid token access [endpoint={}]", httpRequest.getRequestURI());
+            log.debug("Valid token access [endpoint={}]", httpRequest.getRequestURI());
             auditService.auditSuccess("auth_filter:valid_token", null, null);
             dispatcher.dispatch(httpRequest, httpResponse);
             return;
@@ -87,8 +86,6 @@ public class AuthFilter implements Filter {
             try {
                 RefreshTokenResponse refreshTokenResponse = loginService.refreshToken(BEARER_PREFIX + refreshToken);
                 cookieService.setAccessTokenCookie(httpResponse, refreshTokenResponse.token());
-                log.info("✅ Token refreshed successfully for user {}", jwtUtil.getUserId(refreshTokenResponse.token()));
-
                 auditService.auditSuccess("auth_filter:refresh_token", null, null);
 
                 httpResponse.setStatus(HttpServletResponse.SC_FOUND);
@@ -96,11 +93,11 @@ public class AuthFilter implements Filter {
                 return;
 
             } catch (ServiceException e) {
-                log.error("❌ Failed to refresh token, redirecting to login page", e);
+                log.error("Failed to refresh token, redirecting to login page", e);
             }
         }
 
-        log.warn("❌ Both tokens are invalid for: {}, redirecting to login page", httpRequest.getRequestURI());
+        log.warn("Both tokens are invalid for: {}, redirecting to login page", httpRequest.getRequestURI());
         cookieService.clearAuthCookies(httpResponse);
         redirectToLogin(httpResponse);
     }

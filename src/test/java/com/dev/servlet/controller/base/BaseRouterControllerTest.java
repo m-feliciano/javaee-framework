@@ -71,10 +71,8 @@ class BaseRouterControllerTest {
 
     @Test
     void route_WithValidEndpoint_ShouldCallCorrectMethod() throws Exception {
-        // Arrange
         when(request.getPayload(any())).thenReturn(new Object());
 
-        // Act
         try (MockedStatic<PropertiesUtil> propertiesUtil = mockStatic(PropertiesUtil.class)) {
             propertiesUtil.when(() -> PropertiesUtil.getProperty(eq("security.jwt.key")))
                     .thenReturn("test-key-832dcrf5t6yhbjijim0987y");
@@ -87,7 +85,6 @@ class BaseRouterControllerTest {
 
         IHttpResponse<Set<KeyPair>> response = controllerSpy.route(endpoint, request);
 
-        // Assert
         assertNotNull(response);
         assertEquals(200, response.statusCode());
         assertEquals("Test response", response.body().iterator().next().getValue());
@@ -95,7 +92,6 @@ class BaseRouterControllerTest {
 
     @Test
     void route_WithValidEndpointAndPropertyParam_ShouldPassPropertyValue() throws Exception {
-        // Arrange
         when(endpoint.path()).thenReturn("scrape");
 
         try (MockedStatic<PropertiesUtil> propertiesUtil = mockStatic(PropertiesUtil.class)) {
@@ -108,7 +104,6 @@ class BaseRouterControllerTest {
             propertiesUtil.when(() -> PropertiesUtil.getProperty(eq("security.jwt.key")))
                     .thenReturn("test-key-832dcrf5t6yhbjijim0987y");
 
-            // Act
             ProductController controllerSpy = spy((ProductController) controller);
             HttpResponse<Object> httpResponse = HttpResponse.next("").build();
             doReturn(httpResponse)
@@ -117,7 +112,6 @@ class BaseRouterControllerTest {
 
             IHttpResponse<Void> response = controllerSpy.route(endpoint, request);
 
-            // Assert
             assertNotNull(response);
             assertEquals(200, response.statusCode());
         }
@@ -125,9 +119,8 @@ class BaseRouterControllerTest {
 
     @Test
     void route_WithInvalidEndpoint_ShouldThrowException() {
-        // Arrange
         when(endpoint.path()).thenReturn("nonexistent");
-        // Act & Assert
+
         ServiceException exception = assertThrows(ServiceException.class, () -> controller.route(endpoint, request));
         assertEquals(500, exception.getCode());
         assertEquals("Endpoint not implemented: /nonexistent", exception.getMessage());
@@ -135,9 +128,8 @@ class BaseRouterControllerTest {
 
     @Test
     void route_WithValidEndpointButValidationFails_ShouldThrowException() {
-        // Arrange
         when(request.getMethod()).thenReturn("POST");
-        // Act & Assert
+
         ServiceException exception = assertThrows(ServiceException.class, () -> controller.route(endpoint, request));
         assertEquals(405, exception.getCode());
         assertEquals("Method not allowed.", exception.getMessage());

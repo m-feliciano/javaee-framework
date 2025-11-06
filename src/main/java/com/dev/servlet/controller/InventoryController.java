@@ -6,18 +6,18 @@ import com.dev.servlet.core.annotation.Controller;
 import com.dev.servlet.core.annotation.RequestMapping;
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.mapper.InventoryMapper;
-import com.dev.servlet.domain.model.enums.RequestMethod;
-import com.dev.servlet.domain.service.ICategoryService;
-import com.dev.servlet.domain.service.IStockService;
-import com.dev.servlet.domain.transfer.records.Query;
-import com.dev.servlet.domain.transfer.response.CategoryResponse;
-import com.dev.servlet.domain.transfer.response.InventoryResponse;
-import com.dev.servlet.domain.transfer.records.KeyPair;
-import com.dev.servlet.domain.transfer.request.InventoryCreateRequest;
-import com.dev.servlet.domain.transfer.request.InventoryRequest;
 import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.response.IServletResponse;
+import com.dev.servlet.domain.model.enums.RequestMethod;
+import com.dev.servlet.domain.service.ICategoryService;
+import com.dev.servlet.domain.service.IStockService;
+import com.dev.servlet.domain.transfer.records.KeyPair;
+import com.dev.servlet.domain.transfer.records.Query;
+import com.dev.servlet.domain.transfer.request.InventoryCreateRequest;
+import com.dev.servlet.domain.transfer.request.InventoryRequest;
+import com.dev.servlet.domain.transfer.response.CategoryResponse;
+import com.dev.servlet.domain.transfer.response.InventoryResponse;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 
@@ -95,15 +95,7 @@ public class InventoryController extends BaseController {
         return newHttpResponse(204, redirectTo(inventory.getId()));
     }
 
-    /**
-     * Generates an IServletResponse object based on inventory and category data retrieved
-     * from respective services and forwards it to a specified target page.
-     *
-     * @param request the inventory request containing details required to fetch inventory data
-     * @param auth the authorization token to authenticate service requests
-     * @return an IServletResponse containing a structured set of key-value pairs for inventories and categories
-     * @throws ServiceException if an error occurs while fetching data from the stock or category service
-     */
+
     private IServletResponse getServletResponse(InventoryRequest request, String auth) throws ServiceException {
         Collection<InventoryResponse> inventories = stockService.list(request, auth);
         Collection<CategoryResponse> categories = categoryService.list(null, auth);

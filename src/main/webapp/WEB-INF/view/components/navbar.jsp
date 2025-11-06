@@ -5,6 +5,7 @@
 <%@ include file="/WEB-INF/routes/product-routes.jspf" %>
 <%@ include file="/WEB-INF/routes/user-routes.jspf" %>
 <%@ include file="/WEB-INF/routes/auth-routes.jspf" %>
+<%@ include file="/WEB-INF/routes/health-routes.jspf" %>
 
 <nav class="navbar navbar-expand-lg">
     <div class="collapse navbar-collapse nav-items" id="navbarTogglerDemo01">
@@ -25,6 +26,9 @@
                 <a class="nav-link" href="${baseLink}${version}${listInventory}">Inventory</a>
             </li>
         </ul>
+        <div class="d-flex">
+            <a class="nav-link btn-logout mr-2" href="${baseLink}${version}${healthCheck}">Health</a>
+        </div>
         <div class="d-flex">
             <a class="nav-link btn-logout mr-2" href="<c:url value='${baseLink}${version}${listUser}/${user.id}'/>">Perfil</a>
         </div>

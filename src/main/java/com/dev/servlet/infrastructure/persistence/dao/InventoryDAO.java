@@ -118,7 +118,6 @@ public class InventoryDAO extends BaseDAO<Inventory, String> {
 
     @Override
     public List<Inventory> save(List<Inventory> inventories) throws ServiceException {
-        log.trace("");
         AtomicReference<String> errors = new AtomicReference<>();
         Session session = getNewOpenSession();
         session.doWork(connection -> {

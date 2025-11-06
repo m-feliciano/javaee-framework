@@ -1,4 +1,5 @@
 package com.dev.servlet.infrastructure.external.webscrape.service;
+
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.infrastructure.external.webscrape.WebScrapeRequest;
 import com.dev.servlet.infrastructure.external.webscrape.api.ScrapeApiClient;
@@ -17,7 +18,6 @@ import java.util.stream.Collectors;
 public class ProductWebScrapeApiClient extends ScrapeApiClient<List<ProductWebScrapeDTO>> {
     @Override
     public Optional<List<ProductWebScrapeDTO>> scrape(WebScrapeRequest scrapeRequest) throws Exception {
-        log.trace("");
         try {
             var webScrapingResponses = fetchProductsFromScrapingApi(scrapeRequest);
             List<ProductWebScrapeDTO> response = webScrapingResponses.stream()
@@ -41,7 +41,6 @@ public class ProductWebScrapeApiClient extends ScrapeApiClient<List<ProductWebSc
         int MAX_PAGES = 50;
         do {
             String url = scrapeRequest.getUrl().replace("<page>", String.valueOf(page));
-            log.debug("Scraping page {}: {}", page, url);
             Request request = new Request.Builder().url(url).get().build();
             try (Response response = client.newCall(request).execute()) {
                 if (!response.isSuccessful() || response.body() == null) {
@@ -49,7 +48,6 @@ public class ProductWebScrapeApiClient extends ScrapeApiClient<List<ProductWebSc
                     throw new ServiceException(response.message());
                 }
                 String responseBody = response.body().string();
-                log.debug("Response body for page {}: {}", page, responseBody);
                 TypeReference<WebScrapingResponse<ProductWebScrapeDTO>> typeReference = new TypeReference<>() {
                 };
                 scrapingResponse = objectMapper.readValue(responseBody, typeReference);
@@ -64,7 +62,6 @@ public class ProductWebScrapeApiClient extends ScrapeApiClient<List<ProductWebSc
         if (page > MAX_PAGES) {
             log.warn("Maximum number of pages reached: {}. Stopping scraping.", MAX_PAGES);
         }
-        log.debug("Scraping completed. Total pages scraped: {}", responses.size());
         return responses;
     }
 }

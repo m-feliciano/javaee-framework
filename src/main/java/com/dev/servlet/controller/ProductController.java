@@ -76,7 +76,6 @@ public class ProductController extends BaseController {
     @RequestMapping(value = "/search")
     @SneakyThrows
     public IServletResponse search(Query query, IPageRequest pageRequest, @Authentication String auth) {
-        log.trace("");
         Product product = productMapper.queryToProduct(query, jwts.getUser(auth));
         return getServletResponse(pageRequest, auth, product);
     }
@@ -84,7 +83,6 @@ public class ProductController extends BaseController {
     @RequestMapping(value = "/list", jsonType = ProductRequest.class)
     @SneakyThrows
     public IServletResponse list(IPageRequest pageRequest, @Authentication String auth) {
-        log.trace("");
         Product product = productMapper.toProduct(null, jwts.getUserId(auth));
         return getServletResponse(pageRequest, auth, product);
     }
@@ -119,18 +117,7 @@ public class ProductController extends BaseController {
         return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
     }
 
-    /**
-     * Builds and returns an {@code IServletResponse} object by aggregating product information,
-     * total price, and available categories based on the given request parameters.
-     *
-     * @param pageRequest the pageable request that provides pagination and filtering information
-     * @param auth the authentication token used to access category service
-     * @param product the product entity used as a filter for obtaining paginated product data
-     * @return an {@code IServletResponse} containing the paginated product data, total price,
-     *         and available categories as key-value pairs
-     * @throws ServiceException if an error occurs during the process of retrieving the data or
-     *         building the response
-     */
+
     private IServletResponse getServletResponse(IPageRequest pageRequest, String auth, Product product) throws ServiceException {
         IPageable<ProductResponse> page = getAllPageable(pageRequest, product);
         BigDecimal price = calculateTotalPrice(page, product);
@@ -144,28 +131,13 @@ public class ProductController extends BaseController {
         return newServletResponse(container, forwardTo("listProducts"));
     }
 
-    /**
-     * Retrieves a pageable list of product responses based on the given page request and filter criteria.
-     *
-     * @param pageRequest the pagination and sorting parameters, including page number and size
-     * @param filter      the product entity used as a filtering criterion for the query
-     * @return a pageable object containing the paginated product responses
-     */
+
     private IPageable<ProductResponse> getAllPageable(IPageRequest pageRequest, Product filter) {
         pageRequest.setFilter(filter);
         return productService.getAllPageable(pageRequest, productMapper::toResponseWithoutCategory);
     }
 
-    /**
-     * Calculates the total price of products based on the specified pageable data and product filter.
-     * If the page contains data, the total price is calculated using the provided product filter;
-     * otherwise, returns a value of zero.
-     *
-     * @param page a pageable object containing the data to be processed; if it is null or empty,
-     *             the calculation will return zero
-     * @param filter the product filter used for calculating the total price
-     * @return the total price as a BigDecimal; returns BigDecimal.ZERO if the page is null or empty
-     */
+
     private BigDecimal calculateTotalPrice(IPageable<?> page, Product filter) {
         if (page != null && page.getContent().iterator().hasNext()) {
             return productService.calculateTotalPriceFor(filter);
