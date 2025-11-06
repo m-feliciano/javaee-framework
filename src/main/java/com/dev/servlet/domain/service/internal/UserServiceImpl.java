@@ -163,12 +163,13 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
             throw serviceError(HttpServletResponse.SC_FORBIDDEN, "User not authorized.");
         }
 
-        if (CacheUtils.getObject(id, CACHE_KEY) == null) {
-            findById(id)
-                    .ifPresent(user ->
-                            CacheUtils.setObject(id, CACHE_KEY, userMapper.toResponse(user)));
-        }
+        UserResponse response = CacheUtils.getObject(id, CACHE_KEY);
+        if (response != null) return response;
 
-        return CacheUtils.getObject(id, CACHE_KEY);
+        findById(id)
+                .ifPresent(u ->
+                            CacheUtils.setObject(id, CACHE_KEY, userMapper.toResponse(u)));
+
+      return CacheUtils.getObject(id, CACHE_KEY);
     }
 }

@@ -1,5 +1,6 @@
 package com.dev.servlet.domain.transfer.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,10 +15,15 @@ import java.util.List;
 public final class UserResponse {
     private String id;
     private String login;
+
+    @JsonIgnore
     private String password;
-    private String imgUrl;
+    @JsonIgnore
     private String token;
+    @JsonIgnore
     private String refreshToken;
+
+    private String imgUrl;
     private List<Integer> perfis;
 
     public UserResponse(String id) {
