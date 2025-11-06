@@ -58,7 +58,7 @@ public class User {
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "user_perfis", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "perfil_id")
-    private List<Long> perfis;
+    private List<Integer> perfis;
 
     @Transient
     @JsonIgnore
@@ -77,7 +77,7 @@ public class User {
         this.setPassword(password);
     }
 
-    public void addPerfil(Long perfil) {
+    public void addPerfil(Integer perfil) {
         if (this.perfis == null) {
             this.perfis = new ArrayList<>();
         }
@@ -88,7 +88,7 @@ public class User {
         if (this.perfis == null) {
             return false;
         }
-        for (Long perfil : this.perfis) {
+        for (Integer perfil : this.perfis) {
             if (RoleType.toEnum(perfil).equals(role)) {
                 return true;
             }

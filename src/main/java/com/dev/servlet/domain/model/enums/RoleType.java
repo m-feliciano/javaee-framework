@@ -1,20 +1,19 @@
 package com.dev.servlet.domain.model.enums;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public enum RoleType {
-    ADMIN(1L, "ADMIN"),
-    DEFAULT(2L, "USER"),
-    MODERATOR(3L, "MODERATOR"),
-    VISITOR(4L, "GUEST");
-    private final Long code;
-    private final String description;
-    RoleType(Long code, String descricao) {
-        this.code = code;
-        this.description = descricao;
-    }
+    ADMIN(1, "ADMIN"),
+    DEFAULT(2, "USER"),
+    MODERATOR(3, "MODERATOR"),
+    VISITOR(4, "GUEST");
 
-    public static RoleType toEnum(Long code) {
+    private final Integer code;
+    private final String description;
+
+    public static RoleType toEnum(Integer code) {
         if (code == null) return null;
         for (RoleType p : RoleType.values()) {
             if (code.equals(p.code))
