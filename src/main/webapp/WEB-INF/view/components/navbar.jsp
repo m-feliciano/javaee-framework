@@ -27,6 +27,9 @@
             </li>
         </ul>
         <div class="d-flex">
+            <a class="nav-link btn-logout mr-2" href="${baseLink}${version}/activity/history">History</a>
+        </div>
+        <div class="d-flex">
             <a class="nav-link btn-logout mr-2" href="${baseLink}${version}${healthCheck}">Health</a>
         </div>
         <div class="d-flex">

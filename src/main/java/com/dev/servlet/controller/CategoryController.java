@@ -4,18 +4,19 @@ import com.dev.servlet.controller.base.BaseController;
 import com.dev.servlet.core.annotation.Authentication;
 import com.dev.servlet.core.annotation.Controller;
 import com.dev.servlet.core.annotation.RequestMapping;
-import com.dev.servlet.domain.model.enums.RequestMethod;
-import com.dev.servlet.domain.service.ICategoryService;
-import com.dev.servlet.domain.transfer.response.CategoryResponse;
-import com.dev.servlet.domain.transfer.request.CategoryRequest;
 import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
+import com.dev.servlet.domain.service.ICategoryService;
+import com.dev.servlet.domain.transfer.request.CategoryRequest;
+import com.dev.servlet.domain.transfer.response.CategoryResponse;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Collection;
+
+import static com.dev.servlet.domain.model.enums.RequestMethod.POST;
 
 @NoArgsConstructor
 @Singleton
@@ -30,7 +31,7 @@ public class CategoryController extends BaseController {
         return HttpResponse.<Void>next(forwardTo("formCreateCategory")).build();
     }
 
-    @RequestMapping(value = "/delete/{id}", method = RequestMethod.POST, jsonType = CategoryRequest.class)
+    @RequestMapping(value = "/delete/{id}", method = POST, jsonType = CategoryRequest.class)
     @SneakyThrows
     public IHttpResponse<Void> delete(CategoryRequest category, @Authentication String auth) {
         categoryService.delete(category, auth);
@@ -44,14 +45,14 @@ public class CategoryController extends BaseController {
         return okHttpResponse(response, forwardTo("formUpdateCategory"));
     }
 
-    @RequestMapping(value = "/create", method = RequestMethod.POST, jsonType = CategoryRequest.class)
+    @RequestMapping(value = "/create", method = POST, jsonType = CategoryRequest.class)
     @SneakyThrows
     public IHttpResponse<Void> register(CategoryRequest request, @Authentication String auth) {
         CategoryResponse response = categoryService.register(request, auth);
         return newHttpResponse(201, redirectTo(response.getId()));
     }
 
-    @RequestMapping(value = "/update/{id}", method = RequestMethod.POST, jsonType = CategoryRequest.class)
+    @RequestMapping(value = "/update/{id}", method = POST, jsonType = CategoryRequest.class)
     @SneakyThrows
     public IHttpResponse<Void> update(CategoryRequest category, @Authentication String auth) {
         CategoryResponse response = categoryService.update(category, auth);

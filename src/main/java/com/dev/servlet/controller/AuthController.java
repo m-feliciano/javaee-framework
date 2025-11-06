@@ -7,7 +7,6 @@ import com.dev.servlet.core.annotation.Property;
 import com.dev.servlet.core.annotation.RequestMapping;
 import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
-import com.dev.servlet.domain.model.enums.RequestMethod;
 import com.dev.servlet.domain.service.AuthService;
 import com.dev.servlet.domain.transfer.request.LoginRequest;
 import com.dev.servlet.domain.transfer.response.UserResponse;
@@ -18,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletResponse;
+
+import static com.dev.servlet.domain.model.enums.RequestMethod.POST;
 
 @Slf4j
 @NoArgsConstructor
@@ -41,7 +42,7 @@ public class AuthController extends BaseController {
         return HttpResponse.<String>next(next).build();
     }
 
-    @RequestMapping(value = "/login", method = RequestMethod.POST, requestAuth = false, jsonType = LoginRequest.class)
+    @RequestMapping(value = "/login", method = POST, requestAuth = false, jsonType = LoginRequest.class)
     @SneakyThrows
     public IHttpResponse<UserResponse> login(LoginRequest request, @Property("homepage") String homepage) {
         try {
@@ -58,7 +59,7 @@ public class AuthController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/logout", method = RequestMethod.POST)
+    @RequestMapping(value = "/logout", method = POST)
     public IHttpResponse<String> logout(@Authentication String auth) {
         authService.logout(auth);
         return HttpResponse.<String>next(FORWARD_PAGES_FORM_LOGIN_JSP).build();

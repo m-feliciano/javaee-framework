@@ -11,7 +11,6 @@ import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.response.IServletResponse;
 import com.dev.servlet.domain.model.Product;
-import com.dev.servlet.domain.model.enums.RequestMethod;
 import com.dev.servlet.domain.service.ICategoryService;
 import com.dev.servlet.domain.service.IProductService;
 import com.dev.servlet.domain.transfer.records.KeyPair;
@@ -34,6 +33,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.dev.servlet.domain.model.enums.RequestMethod.POST;
+
 @NoArgsConstructor
 @Slf4j
 @Singleton
@@ -47,7 +48,7 @@ public class ProductController extends BaseController {
     @Inject
     private ProductMapper productMapper;
 
-    @RequestMapping(value = "/create", method = RequestMethod.POST, jsonType = ProductRequest.class)
+    @RequestMapping(value = "/create", method = POST, jsonType = ProductRequest.class)
     public IHttpResponse<Void> create(ProductRequest request, @Authentication String auth) throws ServiceException {
         ProductResponse product = productService.create(request, auth);
         return newHttpResponse(201, redirectTo(product.getId()));
@@ -95,13 +96,13 @@ public class ProductController extends BaseController {
     }
 
     @SneakyThrows
-    @RequestMapping(value = "/update/{id}", method = RequestMethod.POST, jsonType = ProductRequest.class)
+    @RequestMapping(value = "/update/{id}", method = POST, jsonType = ProductRequest.class)
     public IHttpResponse<Void> update(ProductRequest request, @Authentication String auth) {
         ProductResponse response = productService.update(request, auth);
         return newHttpResponse(204, redirectTo(response.getId()));
     }
 
-    @RequestMapping(value = "/delete/{id}", method = RequestMethod.POST, jsonType = ProductRequest.class)
+    @RequestMapping(value = "/delete/{id}", method = POST, jsonType = ProductRequest.class)
     @SneakyThrows
     public IHttpResponse<Void> delete(ProductRequest filter, @Authentication String auth) {
         productService.delete(filter, auth);
@@ -119,7 +120,7 @@ public class ProductController extends BaseController {
 
 
     private IServletResponse getServletResponse(IPageRequest pageRequest, String auth, Product product) throws ServiceException {
-        IPageable<ProductResponse> page = getAllPageable(pageRequest, product);
+        IPageable<ProductResponse> page = getAllPageable(pageRequest, auth, product);
         BigDecimal price = calculateTotalPrice(page, product);
         Collection<CategoryResponse> categories = categoryService.list(null, auth);
 
@@ -132,11 +133,10 @@ public class ProductController extends BaseController {
     }
 
 
-    private IPageable<ProductResponse> getAllPageable(IPageRequest pageRequest, Product filter) {
+    private IPageable<ProductResponse> getAllPageable(IPageRequest pageRequest, String auth, Product filter) {
         pageRequest.setFilter(filter);
-        return productService.getAllPageable(pageRequest, productMapper::toResponseWithoutCategory);
+        return productService.getAllPageable(pageRequest, auth, productMapper::toResponseWithoutCategory);
     }
-
 
     private BigDecimal calculateTotalPrice(IPageable<?> page, Product filter) {
         if (page != null && page.getContent().iterator().hasNext()) {
