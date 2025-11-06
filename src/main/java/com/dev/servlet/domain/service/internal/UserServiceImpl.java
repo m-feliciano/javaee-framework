@@ -51,8 +51,6 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
 
     @Override
     public UserResponse register(UserCreateRequest user) throws ServiceException {
-        log.trace("");
-
         boolean passwordError = user.password() == null || !user.password().equals(user.confirmPassword());
         if (passwordError) {
             auditService.auditFailure("user:register", null, new AuditPayload<>(user, null));
@@ -86,8 +84,6 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
 
     @Override
     public UserResponse update(UserRequest userRequest, String auth) throws ServiceException {
-        log.trace("");
-
         final String email = userRequest.login().toLowerCase();
 
         boolean emailUnavailable = !this.isEmailAvailable(email, userMapper.toUser(userRequest));
@@ -123,8 +119,6 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
 
     @Override
     public UserResponse getById(UserRequest request, String auth) throws ServiceException {
-        log.trace("");
-
         try {
             UserResponse response = getUserResponse(request.id(), auth);
             auditService.auditSuccess("user:get_by_id", auth, new AuditPayload<>(request, response));
@@ -137,8 +131,6 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
 
     @Override
     public void delete(UserRequest request, String auth) throws ServiceException {
-        log.trace("");
-
         try {
             UserResponse response = getById(request, auth);
             User user = User.builder().id(response.getId()).build();

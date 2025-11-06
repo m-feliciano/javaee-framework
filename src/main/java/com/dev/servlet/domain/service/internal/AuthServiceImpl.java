@@ -34,7 +34,6 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserResponse login(LoginRequest request) throws ServiceException {
-        log.trace("");
         String login = request.login();
         String password = request.password();
 
@@ -53,14 +52,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void logout(String auth) {
-        log.trace("");
         CacheUtils.clearAll(jwtUtil.getUserId(auth));
         auditService.auditSuccess("user:logout", auth, null);
     }
 
     @Override
     public String form(String auth, String onSuccess) {
-        log.trace("");
 
         if (jwtUtil.validateToken(auth)) {
             auditService.auditSuccess("auth:form", auth, null);
@@ -73,7 +70,6 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public RefreshTokenResponse refreshToken(String refreshToken) throws ServiceException {
-        log.trace("");
         if (!jwtUtil.validateToken(refreshToken)) {
             auditService.auditFailure("auth:refresh_token", refreshToken, null);
             throw new ServiceException("Invalid refresh token");

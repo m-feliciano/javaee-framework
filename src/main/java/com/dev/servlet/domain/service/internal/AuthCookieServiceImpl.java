@@ -44,7 +44,7 @@ public class AuthCookieServiceImpl implements AuthCookieService {
                 isSecure, cookiePath, cookieDomain, sameSite);
 
         if (!isSecure && "production".equalsIgnoreCase(PropertiesUtil.getProperty("app.env"))) {
-            log.warn("⚠️ SECURITY WARNING: Cookie Secure flag is disabled in production environment!");
+            log.warn("SECURITY WARNING: Cookie Secure flag is disabled in production environment!");
         }
     }
 
@@ -59,14 +59,13 @@ public class AuthCookieServiceImpl implements AuthCookieService {
                 }
             }
         }
-        log.debug("Cookie not found: {}", cookieName);
         return null;
     }
 
     @Override
     public void setAccessTokenCookie(HttpServletResponse response, String token) {
         setAuthCookies(response, token, null);
-        log.debug("✅ Access token cookie set [maxAge={}s]", ACCESS_TOKEN_MAX_AGE);
+        log.debug("Access token cookie set [maxAge={}s]", ACCESS_TOKEN_MAX_AGE);
     }
 
     @Override
@@ -77,14 +76,13 @@ public class AuthCookieServiceImpl implements AuthCookieService {
         if (refreshToken != null) {
             addSecureCookie(response, REFRESH_TOKEN_COOKIE, refreshToken, REFRESH_TOKEN_MAX_AGE);
         }
-        log.debug("✅ Auth cookies set [accessToken={}s, refreshToken={}s]", ACCESS_TOKEN_MAX_AGE, REFRESH_TOKEN_MAX_AGE);
+        log.debug("Auth cookies set [accessToken={}s, refreshToken={}s]", ACCESS_TOKEN_MAX_AGE, REFRESH_TOKEN_MAX_AGE);
     }
 
     @Override
     public void clearAuthCookies(HttpServletResponse response) {
         addSecureCookie(response, ACCESS_TOKEN_COOKIE, "", 0);
         addSecureCookie(response, REFRESH_TOKEN_COOKIE, "", 0);
-        log.debug("✅ Auth cookies cleared");
     }
 
     @Override
@@ -97,15 +95,6 @@ public class AuthCookieServiceImpl implements AuthCookieService {
         return REFRESH_TOKEN_COOKIE;
     }
 
-    /**
-     * Adds a secure cookie with all security attributes including SameSite.
-     * Since Servlet 3.x doesn't support SameSite natively, we set it via Set-Cookie header.
-     *
-     * @param response the HTTP response
-     * @param name     the cookie name
-     * @param value    the cookie value
-     * @param maxAge   the cookie max age in seconds
-     */
     private void addSecureCookie(HttpServletResponse response, String name, String value, int maxAge) {
         Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(true);
@@ -121,9 +110,6 @@ public class AuthCookieServiceImpl implements AuthCookieService {
 
         String cookieHeader = buildSecureCookieHeader(name, value, maxAge);
         response.addHeader("Set-Cookie", cookieHeader);
-
-        log.trace("Cookie added: {} [maxAge={}s, secure={}, httpOnly=true, sameSite={}]",
-                name, maxAge, isSecure, sameSite);
 
         CookieAuditInfo auditInfo = new CookieAuditInfo(name, maxAge);
         auditService.auditSuccess("auth_cookie:set_cookie", null, new AuditPayload<>(auditInfo, cookieHeader));

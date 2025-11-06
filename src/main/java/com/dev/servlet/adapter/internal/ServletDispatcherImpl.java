@@ -21,6 +21,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.MDC;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -78,11 +79,7 @@ public class ServletDispatcherImpl implements IServletDispatcher {
             }
 
             Request request = newRequest(httpServletRequest);
-            log.debug("Request object created: endpoint={}, method={}", request.getEndpoint(), request.getMethod());
-
             IHttpResponse<?> httpResponse = httpExecutor.call(request);
-            log.debug("Response received: status={}, next={}", httpResponse.statusCode(), httpResponse.next());
-
             processResponse(httpServletRequest, httpServletResponse, request, httpResponse);
 
         } catch (ServiceException e) {
@@ -117,9 +114,10 @@ public class ServletDispatcherImpl implements IServletDispatcher {
         if (RequestMethod.POST.getMethod().equals(request.getMethod()) && response.body() instanceof UserResponse userResponse) {
             if (userResponse.getToken() != null || userResponse.getRefreshToken() != null) {
                 cookieService.setAuthCookies(httpResponse, userResponse.getToken(), userResponse.getRefreshToken());
-                log.debug("✅ Auth cookies set for user ID: {}", userResponse.getId());
             }
         }
+
+        httpResponse.setHeader("X-Correlation-ID", MDC.get("correlationId"));
 
         addUserToRequest(httpRequest);
         setRequestAttributes(httpRequest, response);
@@ -127,7 +125,6 @@ public class ServletDispatcherImpl implements IServletDispatcher {
 
         if (request.getEndpoint() != null && request.getEndpoint().contains(LOGOUT)) {
             cookieService.clearAuthCookies(httpResponse);
-            log.debug("✅ Cookies cleared on logout");
         }
     }
 
@@ -140,7 +137,7 @@ public class ServletDispatcherImpl implements IServletDispatcher {
                 httpRequest.setAttribute("user", response);
             }
         } catch (Exception e) {
-            log.warn("⚠️ Unable to add user to request", e);
+            log.warn("Unable to add user to request", e);
         }
     }
 

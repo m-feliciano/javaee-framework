@@ -52,7 +52,6 @@ class IRateLimiterTest {
         }
         assertFalse(leakyBucket.acquire(), "No tokens should be available");
 
-        // Wait for refill
         Thread.sleep(1000);
 
         assertTrue(leakyBucket.acquire(), "Token should be acquired after refill");
@@ -67,7 +66,6 @@ class IRateLimiterTest {
             assertTrue(leakyBucket.acquire(), "Token should be acquired");
         }
 
-        // Acquire with wait
         assertTrue(leakyBucket.acquireOrWait(1000), "Token should be acquired after waiting");
     }
 
@@ -80,7 +78,6 @@ class IRateLimiterTest {
             assertTrue(leakyBucket.acquire(), "Token should be acquired");
         }
 
-        // Attempt to acquire with insufficient wait time
         assertFalse(leakyBucket.acquireOrWait(50), "Token should not be acquired within timeout");
     }
 

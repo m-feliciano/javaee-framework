@@ -1,4 +1,3 @@
-// src/main/java/com/dev/servlet/domain/transfer/dto/ProductDTO.java
 package com.dev.servlet.domain.transfer.response;
 
 import lombok.Data;

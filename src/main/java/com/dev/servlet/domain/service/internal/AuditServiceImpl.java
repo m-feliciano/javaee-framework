@@ -49,7 +49,7 @@ public class AuditServiceImpl implements AuditService {
             } catch (Exception e) {
                 logger.warn("Failed to serialize payload", e);
             }
-            // Log structured JSON. In production, route this logger to a centralized system (ELK/Cloud).
+
             logger.info(mapper.writeValueAsString(record));
         } catch (Exception e) {
             logger.error("Failed to write audit record", e);

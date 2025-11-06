@@ -21,19 +21,18 @@ public class LogExecutionTimeInterceptor {
 
         stopWatch.start();
         try {
-            log.debug("⬆️ Entering {}.{}", className, methodName);
             return context.proceed();
 
         } catch (Exception e) {
             stopWatch.stop();
             long time = stopWatch.getTime();
-            log.error("❌ {}.{} failed [duration={}ms]", className, methodName, time, e);
+            log.error("{}.{} failed [duration={}ms]", className, methodName, time, e);
             throw e;
 
         } finally {
             stopWatch.stop();
             long time = stopWatch.getTime();
-            log.info("⬇️ {}.{} completed [duration={}ms]", className, methodName, time);
+            log.debug("{}.{} completed [duration={}ms]", className, methodName, time);
         }
     }
 }

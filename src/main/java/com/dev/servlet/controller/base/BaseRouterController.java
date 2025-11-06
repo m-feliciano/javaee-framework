@@ -48,10 +48,10 @@ public abstract class BaseRouterController {
     public <U> IHttpResponse<U> route(EndpointParser endpoint, Request request) throws Exception {
         var method = routeMappingFromEndpoint("/" + endpoint.path());
         var requestMapping = method.getAnnotation(RequestMapping.class);
-        // Validate request parameters
+
         RequestValidator validator = new RequestValidator(endpoint, jwts);
         validator.validate(requestMapping, request);
-        // Invoke service method
+
         Object[] args = prepareMethodArguments(method, request);
         return invokeServiceMethod(this, method, args);
     }

@@ -15,6 +15,7 @@ A custom Java EE framework for building robust web applications. This project sh
 - [Architecture](#architecture)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Health Check System](#-health-check-system)
 - [Stateless Architecture](#stateless-architecture)
 - [Configuration](#configuration)
 - [Testing](#testing)
@@ -27,11 +28,12 @@ A custom Java EE framework for building robust web applications. This project sh
 - **Custom API**: Custom framework for building APIs with Java Servlets and CDI.
 - **Security**: JWT-based authentication with XSS protection, password encryption, role-based access control and refresh tokens.
 - **Performance**: Multi-level caching with Ehcache and rate limiting using Leaky Bucket algorithm.
+- **Health Monitoring**: Production-ready health check system with visual dashboard and Kubernetes probes.
 - **Database**: JPA/Hibernate integration with PostgreSQL, including pagination and sorting.
 - **Validation**: Custom annotations and DTO mapping for robust data handling.
 - **External Integrations**: Web scraping client using OkHttp for development/testing.
 - **Utilities**: Comprehensive toolkit for URI parsing, cryptography, formatting, and reflection.
-- **Audit Logging**: Detailed JSON-based logging for all operations.
+- **Audit Logging**: Detailed JSON-based logging for all operations with correlation IDs.
 
 ## Technology Stack
 
@@ -156,6 +158,29 @@ This application follows a **stateless architecture**, which means the server do
   <img src="images/product-list.png" alt="Product Management Interface" width="80%">
   <p><em>Product management dashboard</em></p>
 </div>
+
+### 🏥 Health Check Dashboard
+
+A health monitoring dashboard provides real-time system status:
+
+<div align="center">
+  <img src="images/health-dashboard.png" alt="Health Check Dashboard" width="80%">
+  <p><em>System Health Status - Real-time monitoring</em></p>
+</div>
+
+<div align="center">
+    <img src="images/health-ready.png" alt="Health Check Dashboard" width="80%">
+    <p><em>SystemReady State</em></p> 
+</div>
+
+**Features:**
+- ✅ Real-time component status (Database, Cache)
+- 📊 Memory usage monitoring with visual alerts
+- ⏱️ System uptime tracking
+- 🔗 Quick access to K8s health probes
+- 📱 Responsive design
+
+**Access:** `http://localhost:8080/api/v1/health/check`
 
 ## Configuration
 

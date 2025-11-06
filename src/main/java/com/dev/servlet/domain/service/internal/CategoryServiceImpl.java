@@ -46,8 +46,6 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
 
     @Override
     public CategoryResponse register(CategoryRequest request, String auth) throws ServiceException {
-        log.trace("");
-
         try {
             User user = jwts.getUser(auth);
             Category category = categoryMapper.toCategory(request);
@@ -67,8 +65,6 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
 
     @Override
     public CategoryResponse update(CategoryRequest request, String auth) throws ServiceException {
-        log.trace("");
-
         try {
             String userId = jwts.getUserId(auth);
             Category category = loadCategory(request.id(), userId);
@@ -87,8 +83,6 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
 
     @Override
     public CategoryResponse getById(CategoryRequest request, String auth) throws ServiceException {
-        log.trace("");
-
         try {
             String userId = jwts.getUserId(auth);
             Category category = loadCategory(request.id(), userId);
@@ -103,8 +97,6 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
 
     @Override
     public Collection<CategoryResponse> list(CategoryRequest request, String token) {
-        log.trace("");
-
         try {
             User user = jwts.getUser(token);
 
@@ -126,8 +118,6 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
 
     @Override
     public void delete(CategoryRequest request, String auth) throws ServiceException {
-        log.trace("");
-
         try {
             String userId = jwts.getUserId(auth);
             Category category = loadCategory(request.id(), userId);
@@ -157,8 +147,6 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
     }
 
     private Category loadCategory(String request, String userId) throws ServiceException {
-        log.trace("");
-
         Category category = Category.builder().id(request).user(new User(userId)).build();
         return this.find(category).orElseThrow(() -> notFound("Category not found"));
     }

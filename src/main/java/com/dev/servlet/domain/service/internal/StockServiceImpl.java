@@ -51,8 +51,6 @@ public class StockServiceImpl extends BaseServiceImpl<Inventory, String> impleme
 
     @Override
     public InventoryResponse create(InventoryCreateRequest request, String auth) throws ServiceException {
-        log.trace("");
-
         Inventory inventory = inventoryMapper.createToInventory(request);
         try {
             ProductResponse product = businessService.getProductById(inventory.getProduct().getId(), auth);
@@ -72,8 +70,6 @@ public class StockServiceImpl extends BaseServiceImpl<Inventory, String> impleme
 
     @Override
     public List<InventoryResponse> list(InventoryRequest request, String auth) throws ServiceException {
-        log.trace("");
-
         try {
             Inventory inventory = inventoryMapper.toInventory(request);
             inventory.setUser(jwtUtil.getUser(auth));
@@ -92,8 +88,6 @@ public class StockServiceImpl extends BaseServiceImpl<Inventory, String> impleme
 
     @Override
     public InventoryResponse findById(InventoryRequest request, String auth) throws ServiceException {
-        log.trace("");
-
         try {
             Inventory inventory = loadInventory(request.id());
             InventoryResponse response = inventoryMapper.toResponse(inventory);
@@ -107,8 +101,6 @@ public class StockServiceImpl extends BaseServiceImpl<Inventory, String> impleme
 
     @Override
     public InventoryResponse update(InventoryRequest request, String auth) throws ServiceException {
-        log.trace("");
-
         try {
             Inventory inventory = loadInventory(request.id());
             ProductResponse product = businessService.getProductById(request.product().id(), auth);
@@ -129,8 +121,6 @@ public class StockServiceImpl extends BaseServiceImpl<Inventory, String> impleme
 
     @Override
     public void delete(InventoryRequest request, String auth) throws ServiceException {
-        log.trace("");
-
         try {
             Inventory inventory = loadInventory(request.id());
             super.delete(inventory);
@@ -143,8 +133,6 @@ public class StockServiceImpl extends BaseServiceImpl<Inventory, String> impleme
 
     @Override
     public boolean hasInventory(Inventory inventory, String auth) {
-        log.trace("");
-
         try {
             inventory.setUser(jwtUtil.getUser(auth));
             InventoryDAO DAO = this.getDAO();
