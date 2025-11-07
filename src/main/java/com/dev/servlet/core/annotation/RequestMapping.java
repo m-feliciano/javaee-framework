@@ -14,7 +14,6 @@ public @interface RequestMapping {
     String value();
     RequestMethod method() default RequestMethod.GET;
     Class<?> jsonType() default Void.class;
-    boolean validate() default false;
     boolean requestAuth() default true;
     String apiVersion() default "v1";
     RoleType[] roles() default {};

@@ -50,8 +50,8 @@ public class UserController extends BaseController {
 
     @RequestMapping(value = "/list/{id}", jsonType = UserRequest.class)
     @SneakyThrows
-    public IHttpResponse<UserResponse> list(UserRequest user, @Authentication String auth) {
-        UserResponse response = userService.findById(user, auth);
+    public IHttpResponse<UserResponse> getUserDetail(UserRequest user, @Authentication String auth) {
+        UserResponse response = userService.getUserDetail(user, auth);
         return okHttpResponse(response, forwardTo("formListUser"));
     }
 }

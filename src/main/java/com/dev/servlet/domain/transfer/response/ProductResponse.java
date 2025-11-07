@@ -1,10 +1,14 @@
 package com.dev.servlet.domain.transfer.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 public final class ProductResponse {
     private String id;
@@ -15,4 +19,9 @@ public final class ProductResponse {
     private Date registerDate;
     private BigDecimal price;
     private CategoryResponse category;
+
+    public ProductResponse(String id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 }

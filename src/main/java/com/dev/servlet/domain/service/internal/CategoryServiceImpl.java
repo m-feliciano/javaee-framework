@@ -82,7 +82,7 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
     }
 
     @Override
-    public CategoryResponse getById(CategoryRequest request, String auth) throws ServiceException {
+    public CategoryResponse getCategoryDetail(CategoryRequest request, String auth) throws ServiceException {
         try {
             String userId = jwts.getUserId(auth);
             Category category = loadCategory(request.id(), userId);

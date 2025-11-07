@@ -11,7 +11,7 @@ public interface ICategoryService {
 
     CategoryResponse update(CategoryRequest category, String auth) throws ServiceException;
 
-    CategoryResponse getById(CategoryRequest category, String auth) throws ServiceException;
+    CategoryResponse getCategoryDetail(CategoryRequest category, String auth) throws ServiceException;
 
     Collection<CategoryResponse> list(CategoryRequest category, String auth) throws ServiceException;
 

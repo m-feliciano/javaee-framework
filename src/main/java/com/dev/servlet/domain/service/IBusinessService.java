@@ -7,5 +7,5 @@ import com.dev.servlet.domain.transfer.response.ProductResponse;
 public interface IBusinessService {
     boolean hasInventory(Inventory inventory, String auth);
 
-    ProductResponse getProductById(String id, String auth) throws ServiceException;
+    ProductResponse getProductDetail(String id, String auth) throws ServiceException;
 }

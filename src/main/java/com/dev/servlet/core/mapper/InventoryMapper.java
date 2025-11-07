@@ -13,6 +13,7 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.WARN)
 public interface InventoryMapper {
+    @Mapping(target = "product", expression = "java(new com.dev.servlet.domain.transfer.response.ProductResponse(inventory.getProduct().getId(), inventory.getProduct().getName()))")
     InventoryResponse toResponse(Inventory inventory);
 
     Inventory toInventory(InventoryRequest inventoryResponse);

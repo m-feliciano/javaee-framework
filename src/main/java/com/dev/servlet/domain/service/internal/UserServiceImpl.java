@@ -124,7 +124,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
     }
 
     @Override
-    public UserResponse findById(UserRequest user, String auth) throws ServiceException {
+    public UserResponse getUserDetail(UserRequest user, String auth) throws ServiceException {
         try {
             UserResponse response = getUserResponse(user.id(), auth);
             auditService.auditSuccess("user:find_by_id", auth, new AuditPayload<>(user, response));

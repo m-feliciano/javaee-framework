@@ -51,7 +51,7 @@ public class InventoryController extends BaseController {
     @RequestMapping(value = "/create", method = POST, jsonType = InventoryCreateRequest.class)
     @SneakyThrows
     public IHttpResponse<Void> create(InventoryCreateRequest request, @Authentication String auth) {
-        InventoryResponse inventory = stockService.create(request, auth);
+        InventoryResponse inventory = stockService.register(request, auth);
         return newHttpResponse(201, redirectTo(inventory.getId()));
     }
 
@@ -77,15 +77,15 @@ public class InventoryController extends BaseController {
 
     @RequestMapping(value = "/list/{id}", jsonType = InventoryRequest.class)
     @SneakyThrows
-    public IHttpResponse<InventoryResponse> findById(InventoryRequest request, @Authentication String auth) {
-        InventoryResponse inventory = stockService.findById(request, auth);
+    public IHttpResponse<InventoryResponse> getStockDetail(InventoryRequest request, @Authentication String auth) {
+        InventoryResponse inventory = stockService.getStockDetail(request, auth);
         return okHttpResponse(inventory, forwardTo("formListItem"));
     }
 
     @RequestMapping(value = "/edit/{id}", jsonType = InventoryRequest.class)
     @SneakyThrows
     public IHttpResponse<InventoryResponse> edit(InventoryRequest request, @Authentication String auth) {
-        InventoryResponse inventory = stockService.findById(request, auth);
+        InventoryResponse inventory = stockService.getStockDetail(request, auth);
         return okHttpResponse(inventory, forwardTo("formUpdateItem"));
     }
 

@@ -9,11 +9,11 @@ import com.dev.servlet.domain.transfer.response.InventoryResponse;
 import java.util.List;
 
 public interface IStockService {
-    InventoryResponse create(InventoryCreateRequest request, String auth) throws ServiceException;
+    InventoryResponse register(InventoryCreateRequest request, String auth) throws ServiceException;
 
     List<InventoryResponse> list(InventoryRequest request, String auth) throws ServiceException;
 
-    InventoryResponse findById(InventoryRequest request, String auth) throws ServiceException;
+    InventoryResponse getStockDetail(InventoryRequest request, String auth) throws ServiceException;
 
     InventoryResponse update(InventoryRequest request, String auth) throws ServiceException;
 

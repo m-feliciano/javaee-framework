@@ -30,8 +30,8 @@ public class BusinessServiceImpl implements IBusinessService {
     }
 
     @Override
-    public ProductResponse getProductById(String id, String auth) throws ServiceException {
+    public ProductResponse getProductDetail(String id, String auth) throws ServiceException {
         ProductRequest request = ProductRequest.builder().id(id).build();
-        return productService.findById(request, auth);
+        return productService.getProductDetail(request, auth);
     }
 }

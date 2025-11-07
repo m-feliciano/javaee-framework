@@ -49,8 +49,8 @@ public class ProductController extends BaseController {
     private ProductMapper productMapper;
 
     @RequestMapping(value = "/create", method = POST, jsonType = ProductRequest.class)
-    public IHttpResponse<Void> create(ProductRequest request, @Authentication String auth) throws ServiceException {
-        ProductResponse product = productService.create(request, auth);
+    public IHttpResponse<Void> register(ProductRequest request, @Authentication String auth) throws ServiceException {
+        ProductResponse product = productService.register(request, auth);
         return newHttpResponse(201, redirectTo(product.getId()));
     }
 
@@ -64,7 +64,7 @@ public class ProductController extends BaseController {
     @RequestMapping(value = "/edit/{id}", jsonType = ProductRequest.class)
     @SneakyThrows
     public IServletResponse edit(ProductRequest request, @Authentication String auth) {
-        ProductResponse response = this.getById(request, auth).body();
+        ProductResponse response = this.getProductDetail(request, auth).body();
 
         Collection<CategoryResponse> categories = categoryService.list(null, auth);
         Set<KeyPair> body = Set.of(
@@ -90,8 +90,8 @@ public class ProductController extends BaseController {
 
     @SneakyThrows
     @RequestMapping(value = "/list/{id}", jsonType = ProductRequest.class)
-    public IHttpResponse<ProductResponse> getById(ProductRequest request, @Authentication String auth) {
-        ProductResponse product = productService.findById(request, auth);
+    public IHttpResponse<ProductResponse> getProductDetail(ProductRequest request, @Authentication String auth) {
+        ProductResponse product = productService.getProductDetail(request, auth);
         return okHttpResponse(product, forwardTo("formListProduct"));
     }
 

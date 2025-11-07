@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IProductService {
-    ProductResponse create(ProductRequest product, String auth) throws ServiceException;
+    ProductResponse register(ProductRequest product, String auth) throws ServiceException;
 
-    ProductResponse findById(ProductRequest product, String auth) throws ServiceException;
+    ProductResponse getProductDetail(ProductRequest product, String auth) throws ServiceException;
 
     ProductResponse update(ProductRequest product, String auth) throws ServiceException;
 

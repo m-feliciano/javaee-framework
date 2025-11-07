@@ -50,10 +50,10 @@ public class StockServiceImpl extends BaseServiceImpl<Inventory, String> impleme
     }
 
     @Override
-    public InventoryResponse create(InventoryCreateRequest request, String auth) throws ServiceException {
+    public InventoryResponse register(InventoryCreateRequest request, String auth) throws ServiceException {
         Inventory inventory = inventoryMapper.createToInventory(request);
         try {
-            ProductResponse product = businessService.getProductById(inventory.getProduct().getId(), auth);
+            ProductResponse product = businessService.getProductDetail(inventory.getProduct().getId(), auth);
             inventory.setProduct(new Product(product.getId()));
             inventory.setStatus(Status.ACTIVE.getValue());
             inventory.setUser(jwtUtil.getUser(auth));
@@ -87,7 +87,7 @@ public class StockServiceImpl extends BaseServiceImpl<Inventory, String> impleme
     }
 
     @Override
-    public InventoryResponse findById(InventoryRequest request, String auth) throws ServiceException {
+    public InventoryResponse getStockDetail(InventoryRequest request, String auth) throws ServiceException {
         try {
             Inventory inventory = loadInventory(request.id());
             InventoryResponse response = inventoryMapper.toResponse(inventory);
@@ -103,7 +103,7 @@ public class StockServiceImpl extends BaseServiceImpl<Inventory, String> impleme
     public InventoryResponse update(InventoryRequest request, String auth) throws ServiceException {
         try {
             Inventory inventory = loadInventory(request.id());
-            ProductResponse product = businessService.getProductById(request.product().id(), auth);
+            ProductResponse product = businessService.getProductDetail(request.product().id(), auth);
 
             inventory.setProduct(new Product(product.getId()));
             inventory.setDescription(request.description());

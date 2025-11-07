@@ -16,7 +16,7 @@ public interface IUserService {
      */
     UserResponse getById(UserRequest user, String auth) throws ServiceException;
 
-    UserResponse findById(UserRequest user, String auth) throws ServiceException;
+    UserResponse getUserDetail(UserRequest user, String auth) throws ServiceException;
 
     UserResponse update(UserRequest user, String auth) throws ServiceException;
 

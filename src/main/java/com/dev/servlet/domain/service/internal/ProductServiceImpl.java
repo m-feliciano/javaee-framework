@@ -99,7 +99,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
     }
 
     @Override
-    public ProductResponse create(ProductRequest request, String auth) {
+    public ProductResponse register(ProductRequest request, String auth) {
         try {
             Product product = productMapper.toProduct(request, jwts.getUserId(auth));
             product.setRegisterDate(new Date());
@@ -115,7 +115,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
     }
 
     @Override
-    public ProductResponse findById(ProductRequest request, String auth) throws ServiceException {
+    public ProductResponse getProductDetail(ProductRequest request, String auth) throws ServiceException {
         try {
             Product product = productMapper.toProduct(request, jwts.getUserId(auth));
             product = findProduct(product);

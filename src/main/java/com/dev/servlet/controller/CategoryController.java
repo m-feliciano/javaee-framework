@@ -41,7 +41,7 @@ public class CategoryController extends BaseController {
     @RequestMapping(value = "/edit/{id}", jsonType = CategoryRequest.class)
     @SneakyThrows
     public IHttpResponse<CategoryResponse> edit(CategoryRequest category, @Authentication String auth) {
-        CategoryResponse response = categoryService.getById(category, auth);
+        CategoryResponse response = categoryService.getCategoryDetail(category, auth);
         return okHttpResponse(response, forwardTo("formUpdateCategory"));
     }
 
@@ -68,8 +68,8 @@ public class CategoryController extends BaseController {
 
     @RequestMapping(value = "/list/{id}", jsonType = CategoryRequest.class)
     @SneakyThrows
-    public IHttpResponse<CategoryResponse> listById(CategoryRequest request, @Authentication String auth) {
-        CategoryResponse response = categoryService.getById(request, auth);
+    public IHttpResponse<CategoryResponse> getCategoryDetail(CategoryRequest request, @Authentication String auth) {
+        CategoryResponse response = categoryService.getCategoryDetail(request, auth);
         return okHttpResponse(response, forwardTo("formListCategory"));
     }
 }
