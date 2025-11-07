@@ -7,11 +7,7 @@
             <div class="row ml5 mb-3 justify-center">
                 <div class="avatar mr-3 align-center">
                     <c:if test="${not empty user.imgUrl and user.imgUrl ne ''}">
-                        <img src="<c:out value='${user.imgUrl}' escapeXml='true'/>" alt="user" class="avatar-img rounded-circle"
-                             onerror="this.src='<c:url value='/resources/assets/avatar2.png'/>'">
-                    </c:if>
-                    <c:if test="${empty user.imgUrl or user.imgUrl eq ''}">
-                        <img src="/resources/assets/avatar2.png" alt="user" class="avatar-img rounded-circle">
+                        <img src="<c:out value='${user.imgUrl}' escapeXml='true'/>" alt="user" class="avatar-img rounded-circle"/>
                     </c:if>
                 </div>
                 <div class="col-md-9">

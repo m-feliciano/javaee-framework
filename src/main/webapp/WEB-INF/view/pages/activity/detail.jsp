@@ -111,8 +111,8 @@
                 <i class="bi bi-info-circle"></i> General Information
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
+                <div class="row" style="justify-content: space-evenly">
+                    <div class="col-md-12">
                         <div class="info-row">
                             <span class="info-label">Status:</span>
                             <span class="badge badge-${activity.status}">
@@ -147,7 +147,7 @@
                             </c:choose>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <div class="info-row">
                             <span class="info-label">Endpoint:</span>
                             <c:choose>

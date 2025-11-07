@@ -42,6 +42,22 @@
         font-size: 0.85em;
     }
 
+    .badge-http-method {
+        background-color: #2196F3;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.85em;
+        font-weight: 600;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .badge-http-method {
+            background-color: #58a6ff;
+            color: #0d1117;
+        }
+    }
+
     .btn-view-json {
         padding: 4px 12px;
         font-size: 0.9em;
@@ -53,17 +69,6 @@
 </style>
 
 <div class="main">
-    <jsp:include page="/WEB-INF/view/components/search.jsp">
-        <jsp:param name="placeholder" value="Search activity"/>
-        <jsp:param name="action" value="${baseLink}${version}/activity/search"/>
-        <jsp:param name="onclear" value="${baseLink}${version}/activity/history"/>
-        <jsp:param name="limit" value="50"/>
-        <jsp:param name="showCategory" value="false"/>
-        <jsp:param name="showFilters" value="false"/>
-        <jsp:param name="sort" value="timestamp"/>
-        <jsp:param name="order" value="desc"/>
-    </jsp:include>
-
     <div class="container-fluid">
         <div class="row mb-3">
             <div class="col-12">
@@ -71,9 +76,19 @@
                     <i class="bi bi-clock-history"></i>
                     Activity History
                 </h2>
-                <p class="text-muted">View all your activities and actions performed in the system</p>
             </div>
         </div>
+
+        <jsp:include page="/WEB-INF/view/components/search.jsp">
+            <jsp:param name="placeholder" value="Search activity"/>
+            <jsp:param name="action" value="${baseLink}${version}/activity/search"/>
+            <jsp:param name="onclear" value="${baseLink}${version}/activity/history"/>
+            <jsp:param name="limit" value="${ pageable.getPageSize() }"/>
+            <jsp:param name="showCategory" value="false"/>
+            <jsp:param name="sort" value="timestamp"/>
+            <jsp:param name="searchType" value="name"/>
+            <jsp:param name="order" value="desc"/>
+        </jsp:include>
 
         <c:choose>
             <c:when test="${empty pageable.content}">
@@ -131,7 +146,7 @@
                                 </td>
                                 <td>
                                     <c:if test="${not empty activity.httpMethod}">
-                                            <span class="badge badge-secondary">
+                                            <span class="badge-http-method">
                                                 <c:out value="${activity.httpMethod}"/>
                                             </span>
                                     </c:if>

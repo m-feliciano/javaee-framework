@@ -19,8 +19,9 @@
         <jsp:param name="placeholder" value="Search product"/>
         <jsp:param name="action" value="${baseLink}${version}${ searchProduct }"/>
         <jsp:param name="onclear" value="${baseLink}${version}${ listProduct }"/>
-        <jsp:param name="limit" value="20"/>
+        <jsp:param name="limit" value="${ pageable.getPageSize() }"/>
         <jsp:param name="categories" value="${ categories }"/>
+        <jsp:param name="searchType" value="name"/>
     </jsp:include>
 
     <c:if test="${ !pageable.getContent().iterator().hasNext() }">
@@ -51,7 +52,7 @@
 
                             <tr>
                                 <th class="w-8" scope="row"><c:out value="${fn:substring(product.id, 0, 8)}" escapeXml="true"/></th>
-                                <td class="text-center w-9">
+                                <td class="text-center w-20">
                                     <a href="<c:url value='${baseLink}${version}${ listProduct }/${ product.id }'/>" target="_blank">
                                         <c:choose>
                                             <c:when test="${not empty product.url and product.url ne ''}">
@@ -69,11 +70,20 @@
                                         </c:choose>
                                     </a>
                                 </td>
-                                <td class="w-20"><c:out value="${product.name}" escapeXml="true"/></td>
-                                <td class="w-25"><c:out value="${product.description}" escapeXml="true"/></td>
-                                <td class="w-10">${ parsedPrice }</td>
-                                <td class="w-14">${ registerDate }</td>
-                                <td class="w-14">
+                                <td class="w-14"><c:out value="${product.name}" escapeXml="true"/></td>
+                                <td class="w-20">
+                                    <c:choose>
+                                        <c:when test="${fn:length(product.description) > 100}">
+                                            <c:out value="${fn:substring(product.description, 0, 100)}..." escapeXml="true"/>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <c:out value="${product.description}" escapeXml="true"/>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td class="w-8">${ parsedPrice }</td>
+                                <td class="w-10">${ registerDate }</td>
+                                <td class="w-19">
                                     <a href="${baseLink}${version}${ listProduct }/${ product.id }"
                                        class="btn btn-auto btn-primary">
                                         <i class="bi bi-eye"></i>

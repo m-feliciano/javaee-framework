@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Design - Showcase</title>
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+          integrity="sha384-4LISF5TTJX/fLmGSxO53rV4miRxdg84mZsxmO8Rx5jGtp/LbrixFETvWa5a6sESd"
+          crossorigin="anonymous"/>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/resources/css/variables.css">
+    <link rel="stylesheet" href="/resources/css/styles.css">
+    <link rel="stylesheet" href="/resources/css/navbar.css">
+    <link rel="stylesheet" href="/resources/css/components.css">
+</head>
+<body>
+
+<!-- Navbar Example -->
+<nav class="navbar">
+    <div class="navbar-container">
+        <a class="navbar-brand" href="#">
+            <i class="bi bi-star-fill" style="font-size: 1.5rem;"></i>
+        </a>
+
+        <button class="navbar-toggler" type="button">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link active" href="#">
+                    <i class="bi bi-house-door"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="bi bi-box-seam"></i>
+                    <span>Produtos</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="bi bi-tag"></i>
+                    <span>Categorias</span>
+                </a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button">
+                    <div class="navbar-user">
+                        <div class="user-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                            JD
+                        </div>
+                        <div class="user-info">
+                            <span class="user-name">João Dias</span>
+                            <span class="user-role">Administrador</span>
+                        </div>
+                    </div>
+                </a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#">
+                        <i class="bi bi-person-circle"></i>
+                        <span>Meu Perfil</span>
+                    </a>
+                    <a class="dropdown-item" href="#">
+                        <i class="bi bi-gear"></i>
+                        <span>Configurações</span>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Sair</span>
+                    </a>
+                </div>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="main">
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">Total de Produtos</span>
+                <div class="stat-icon">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+            </div>
+            <div class="stat-value">1,234</div>
+            <div class="stat-change positive">
+                <i class="bi bi-arrow-up"></i>
+                <span>+12% este mês</span>
+            </div>
+        </div>
+
+        <div class="stat-card success">
+            <div class="stat-header">
+                <span class="stat-title">Vendas do Mês</span>
+                <div class="stat-icon">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+            </div>
+            <div class="stat-value">R$ 45.2K</div>
+            <div class="stat-change positive">
+                <i class="bi bi-arrow-up"></i>
+                <span>+8% vs. mês anterior</span>
+            </div>
+        </div>
+
+        <div class="stat-card warning">
+            <div class="stat-header">
+                <span class="stat-title">Estoque Baixo</span>
+                <div class="stat-icon">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+            </div>
+            <div class="stat-value">23</div>
+            <div class="stat-change negative">
+                <i class="bi bi-arrow-down"></i>
+                <span>Itens precisam reposição</span>
+            </div>
+        </div>
+
+        <div class="stat-card info">
+            <div class="stat-header">
+                <span class="stat-title">Novos Clientes</span>
+                <div class="stat-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+            </div>
+            <div class="stat-value">189</div>
+            <div class="stat-change positive">
+                <i class="bi bi-arrow-up"></i>
+                <span>+5% esta semana</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+        <div class="action-bar-title">
+            <h1>Lista de Produtos</h1>
+            <p class="action-bar-subtitle">Gerencie seu catálogo de produtos</p>
+        </div>
+        <div class="action-buttons">
+            <button class="btn btn-outline-primary">
+                <i class="bi bi-filter"></i>
+                Filtrar
+            </button>
+            <button class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i>
+                Novo Produto
+            </button>
+        </div>
+    </div>
+
+    <!-- Search Container -->
+    <div class="search-container">
+        <form class="search-form">
+            <div class="search-input-wrapper">
+                <label class="form-label">Buscar Produto</label>
+                <div class="search-input">
+                    <input type="text" class="form-control" placeholder="Digite o nome do produto...">
+                    <i class="bi bi-search"></i>
+                </div>
+            </div>
+            <div class="search-input-wrapper" style="max-width: 200px;">
+                <label class="form-label">Categoria</label>
+                <select class="form-control">
+                    <option>Todas</option>
+                    <option>Eletrônicos</option>
+                    <option>Roupas</option>
+                    <option>Alimentos</option>
+                </select>
+            </div>
+            <div class="search-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i>
+                    Buscar
+                </button>
+                <button type="button" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i>
+                    Limpar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Table Card -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Produtos Cadastrados</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Produto</th>
+                        <th>Categoria</th>
+                        <th>Estoque</th>
+                        <th>Preço</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>
+                            <strong>Notebook Dell XPS 13</strong><br>
+                            <small class="text-muted">SKU: NB-001</small>
+                        </td>
+                        <td>Eletrônicos</td>
+                        <td>45 unidades</td>
+                        <td><strong>R$ 4.999,00</strong></td>
+                        <td><span class="badge badge-success">Ativo</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-info">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-primary">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>
+                            <strong>iPhone 15 Pro</strong><br>
+                            <small class="text-muted">SKU: IP-015</small>
+                        </td>
+                        <td>Eletrônicos</td>
+                        <td>12 unidades</td>
+                        <td><strong>R$ 7.299,00</strong></td>
+                        <td><span class="badge badge-success">Ativo</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-info">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-primary">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>
+                            <strong>Camisa Polo Lacoste</strong><br>
+                            <small class="text-muted">SKU: CP-089</small>
+                        </td>
+                        <td>Roupas</td>
+                        <td>8 unidades</td>
+                        <td><strong>R$ 349,90</strong></td>
+                        <td><span class="badge badge-warning">Estoque Baixo</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-info">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-primary">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container">
+        <div class="pagination-info">
+            Mostrando 1-10 de 156 resultados
+        </div>
+        <ul class="pagination">
+            <li class="page-item disabled">
+                <a class="page-link" href="#">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            <li class="page-item active">
+                <a class="page-link" href="#">1</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">2</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">3</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">4</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">5</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Additional Components Demo -->
+    <div class="row" style="margin-top: 3rem;">
+        <div class="col-12 col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Formulário de Exemplo</h3>
+                </div>
+                <div class="card-body">
+                    <form>
+                        <div class="form-group">
+                            <label class="form-label required">Nome do Produto</label>
+                            <input type="text" class="form-control" placeholder="Digite o nome">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Descrição</label>
+                            <textarea class="form-control" rows="3" placeholder="Descreva o produto"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Categoria</label>
+                            <select class="form-control">
+                                <option>Selecione...</option>
+                                <option>Eletrônicos</option>
+                                <option>Roupas</option>
+                                <option>Alimentos</option>
+                            </select>
+                        </div>
+
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="active">
+                            <label class="form-check-label" for="active">
+                                Produto ativo
+                            </label>
+                        </div>
+
+                        <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem;">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i>
+                                Salvar
+                            </button>
+                            <button type="button" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i>
+                                Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Alertas e Badges</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        <i class="bi bi-check-circle-fill"></i>
+                        Operação realizada com sucesso!
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill"></i>
+                        Você tem 3 notificações pendentes.
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        Atenção: Alguns produtos estão com estoque baixo.
+                    </div>
+
+                    <div class="alert alert-danger">
+                        <i class="bi bi-x-circle-fill"></i>
+                        Erro ao processar sua solicitação.
+                    </div>
+
+                    <div style="margin-top: 2rem;">
+                        <h4 style="margin-bottom: 1rem;">Badges</h4>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <span class="badge badge-primary">Primário</span>
+                            <span class="badge badge-success">Sucesso</span>
+                            <span class="badge badge-danger">Perigo</span>
+                            <span class="badge badge-warning">Aviso</span>
+                            <span class="badge badge-info">Info</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 2rem;">
+                        <h4 style="margin-bottom: 1rem;">Progress Bar</h4>
+                        <div class="progress">
+                            <div class="progress-bar" style="width: 75%"></div>
+                        </div>
+                        <small class="text-muted">75% completo</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Footer -->
+<div class="footer">
+    <div class="footer-content">
+        <div class="footer-grid">
+            <div class="footer-section">
+                <h3>Sobre</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Empresa</a></li>
+                    <li><a href="#">Equipe</a></li>
+                    <li><a href="#">Carreiras</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Suporte</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Central de Ajuda</a></li>
+                    <li><a href="#">Documentação</a></li>
+                    <li><a href="#">Contato</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Termos de Uso</a></li>
+                    <li><a href="#">Privacidade</a></li>
+                    <li><a href="#">Cookies</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 TeamDev. Todos os direitos reservados.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Mobile menu toggle
+    document.querySelector('.navbar-toggler')?.addEventListener('click', function() {
+        document.querySelector('.navbar-nav').classList.toggle('show');
+    });
+</script>
+
+</body>
+</html>
+

@@ -1,7 +1,7 @@
 package com.dev.servlet.domain.service.internal;
 
 import com.dev.servlet.domain.model.UserActivityLog;
-import com.dev.servlet.domain.service.IUserActivityService;
+import com.dev.servlet.domain.service.UserActivityService;
 import com.dev.servlet.infrastructure.persistence.dao.UserActivityLogDAO;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,7 @@ import java.util.Optional;
 @Slf4j
 @NoArgsConstructor
 @Singleton
-public class UserActivityServiceImpl extends BaseServiceImpl<UserActivityLog, String> implements IUserActivityService {
+public class UserActivityServiceImpl extends BaseServiceImpl<UserActivityLog, String> implements UserActivityService {
 
     @Inject
     public UserActivityServiceImpl(UserActivityLogDAO logDAO) {

@@ -1,0 +1,218 @@
+/* ========================================
+   PATCHES E CORREÇÕES DE COMPATIBILIDADE
+   Fixes para páginas legadas
+   ======================================== */
+
+/* Garante que o body e content não quebrem */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.content {
+    flex: 1;
+    width: 100%;
+}
+
+/* Fix para tabelas que podem estar quebrando */
+.table {
+    table-layout: auto;
+}
+
+.table td, .table th {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Fix para forms inline que podem estar quebrando */
+form.d-inline {
+    display: inline-block !important;
+    margin: 0;
+}
+
+form.d-inline button,
+form.d-inline input {
+    margin: 0;
+}
+
+/* Fix para botões dentro de tabelas */
+.table .btn {
+    margin: 2px;
+}
+
+/* Fix para imagens dentro de tabelas */
+.table img {
+    display: inline-block;
+    max-width: none;
+}
+
+.table .img-square-min {
+    width: 100px;
+    height: 100px;
+}
+
+/* Fix para o caption da tabela */
+table caption {
+    caption-side: bottom;
+}
+
+/* Fix para navbar que pode estar quebrando */
+.navbar {
+    display: flex;
+    position: relative;
+}
+
+.navbar-container {
+    width: 100%;
+}
+
+/* Fix para o main não sobrepor navbar */
+.main {
+    margin-top: var(--spacing-2);
+}
+
+/* Fix para evitar overflow horizontal */
+html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+/* Row mantém comportamento flex do grid */
+
+/* Fix para search container */
+.search-container .search-form {
+    width: 100%;
+}
+
+/* Fix para pagination */
+.pagination {
+    flex-wrap: wrap;
+}
+
+/* Fix para modal backdrop */
+.modal {
+    align-items: flex-start;
+    padding-top: var(--spacing-8);
+}
+
+/* Fix para botões com ícones */
+.btn i {
+    margin: 0;
+}
+
+/* Fix para prevent layout shift */
+* {
+    max-width: 100%;
+}
+
+img {
+    height: auto;
+}
+
+/* Garante que cards não quebrem */
+.card {
+    max-width: 100%;
+    overflow: visible;
+}
+
+.card-body {
+    overflow-x: auto;
+}
+
+/* Fix para alertas */
+.alert {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+/* Fix para badges dentro de tabelas */
+.table .badge {
+    white-space: nowrap;
+}
+
+/* Fix para action buttons no final da página */
+.d-flex.flex-row-reverse {
+    justify-content: flex-start;
+}
+
+/* Fix para ensure proper stacking */
+.navbar {
+    z-index: var(--z-sticky);
+}
+
+.main {
+    z-index: 1;
+}
+
+/* Fix para forms que podem estar quebrando */
+form {
+    max-width: 100%;
+}
+
+/* Garante que inputs não quebrem layout */
+input, select, textarea {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Fix para button groups inline */
+.btn + .btn {
+    margin-left: 0;
+}
+
+td .btn {
+    margin-right: var(--spacing-1);
+}
+
+td .btn:last-child {
+    margin-right: 0;
+}
+
+/* Fix para evitar texto muito longo quebrar */
+.table td {
+    min-width: 50px;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Limita altura máxima e adiciona ellipsis para descrições longas */
+.table td.w-25 {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Print-friendly */
+@media print {
+    .navbar, .btn, .search-container, .pagination-container {
+        display: none !important;
+    }
+
+    .main {
+        padding: 0;
+    }
+}
+
+/* Fix para garantir que nada ultrapasse a viewport */
+.container-fluid, .main, .content, .row {
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+.main {
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+}
+
+/* Fix especifico para listProducts */
+.table-responsive {
+    margin-bottom: var(--spacing-4);
+}
+
+/* Garante que action buttons sejam visíveis */
+.d-flex.flex-row-reverse.mb20 {
+    margin-top: var(--spacing-4);
+}
+

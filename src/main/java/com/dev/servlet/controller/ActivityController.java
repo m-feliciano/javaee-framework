@@ -10,7 +10,7 @@ import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.domain.model.User;
 import com.dev.servlet.domain.model.UserActivityLog;
-import com.dev.servlet.domain.service.IUserActivityService;
+import com.dev.servlet.domain.service.UserActivityService;
 import com.dev.servlet.domain.transfer.records.Query;
 import com.dev.servlet.domain.transfer.records.Sort;
 import com.dev.servlet.domain.transfer.request.ActivityRequest;
@@ -31,7 +31,7 @@ import static com.dev.servlet.domain.model.enums.RequestMethod.GET;
 @Controller("activity")
 public class ActivityController extends BaseController {
     @Inject
-    private IUserActivityService activityService;
+    private UserActivityService activityService;
     @Inject
     private JwtUtil jwts;
     @Inject
@@ -41,6 +41,7 @@ public class ActivityController extends BaseController {
     public IHttpResponse<IPageable<UserActivityLogResponse>> getHistory(PageRequest defaultPage, @Authentication String auth) {
         try {
             String userId = jwts.getUserId(auth);
+
             PageRequest pageRequest = PageRequest.of(
                     defaultPage.getInitialPage(),
                     defaultPage.getPageSize(),

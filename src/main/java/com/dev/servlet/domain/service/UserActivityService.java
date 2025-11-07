@@ -7,7 +7,7 @@ import com.dev.servlet.infrastructure.persistence.IPageable;
 
 import java.util.Optional;
 
-public interface IUserActivityService {
+public interface UserActivityService {
 
     void logActivity(UserActivityLog log);
 

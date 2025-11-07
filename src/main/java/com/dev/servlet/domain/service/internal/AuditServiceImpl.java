@@ -4,7 +4,7 @@ import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.domain.model.UserActivityLog;
 import com.dev.servlet.domain.model.enums.ActivityStatus;
 import com.dev.servlet.domain.service.AuditService;
-import com.dev.servlet.domain.service.IUserActivityService;
+import com.dev.servlet.domain.service.UserActivityService;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,10 +31,10 @@ public class AuditServiceImpl implements AuditService {
             .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     private final JwtUtil jwtUtil;
-    private final IUserActivityService activityService;
+    private final UserActivityService activityService;
 
     @Inject
-    public AuditServiceImpl(JwtUtil jwtUtil, IUserActivityService activityService) {
+    public AuditServiceImpl(JwtUtil jwtUtil, UserActivityService activityService) {
         this.jwtUtil = jwtUtil;
         this.activityService = activityService;
     }
