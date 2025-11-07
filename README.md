@@ -64,10 +64,11 @@ accessibility compliance.
 ### Quick Preview
 
 <p align="center">
-  <img src="images/homepage.png" alt="Health Dashboard" width="700">
+  <img src="images/product-list.png" alt="Product Management Interface" width="800">
   <br>
-  <em>Home page</em>
+  <em>Data grid with server-side pagination, sorting, and filtering</em>
 </p>
+
 
 **[→ See full screenshot gallery and UI/UX documentation](PREVIEW.md)**
 

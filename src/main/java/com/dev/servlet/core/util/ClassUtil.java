@@ -101,9 +101,9 @@ public final class ClassUtil {
             } else if (type == Boolean.class) {
                 value = Boolean.parseBoolean(value.toString());
             } else if (type == BigDecimal.class) {
-                value = FormatterUtil.parseCurrency(value.toString());
+                value = DateUtil.parseCurrency(value.toString());
             } else if (type == Date.class) {
-                value = FormatterUtil.toDate(value.toString());
+                value = DateUtil.toDateInitial(value.toString());
             }
             return type.cast(value);
         } catch (Exception ignored) {
