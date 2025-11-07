@@ -9,7 +9,6 @@ import com.dev.servlet.core.mapper.InventoryMapper;
 import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.response.IServletResponse;
-import com.dev.servlet.domain.model.enums.RequestMethod;
 import com.dev.servlet.domain.service.ICategoryService;
 import com.dev.servlet.domain.service.IStockService;
 import com.dev.servlet.domain.transfer.records.KeyPair;
@@ -25,6 +24,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.Set;
+
+import static com.dev.servlet.domain.model.enums.RequestMethod.POST;
 
 @NoArgsConstructor
 @Singleton
@@ -47,14 +48,14 @@ public class InventoryController extends BaseController {
         return newHttpResponse(200, response, forwardTo("formCreateItem"));
     }
 
-    @RequestMapping(value = "/create", method = RequestMethod.POST, jsonType = InventoryCreateRequest.class)
+    @RequestMapping(value = "/create", method = POST, jsonType = InventoryCreateRequest.class)
     @SneakyThrows
     public IHttpResponse<Void> create(InventoryCreateRequest request, @Authentication String auth) {
         InventoryResponse inventory = stockService.create(request, auth);
         return newHttpResponse(201, redirectTo(inventory.getId()));
     }
 
-    @RequestMapping(value = "/delete/{id}", method = RequestMethod.POST, jsonType = InventoryRequest.class)
+    @RequestMapping(value = "/delete/{id}", method = POST, jsonType = InventoryRequest.class)
     @SneakyThrows
     public IHttpResponse<Void> delete(InventoryRequest request, @Authentication String auth) {
         stockService.delete(request, auth);
@@ -88,7 +89,7 @@ public class InventoryController extends BaseController {
         return okHttpResponse(inventory, forwardTo("formUpdateItem"));
     }
 
-    @RequestMapping(value = "/update/{id}", method = RequestMethod.POST, jsonType = InventoryRequest.class)
+    @RequestMapping(value = "/update/{id}", method = POST, jsonType = InventoryRequest.class)
     @SneakyThrows
     public IHttpResponse<Void> update(InventoryRequest request, @Authentication String auth) {
         InventoryResponse inventory = stockService.update(request, auth);

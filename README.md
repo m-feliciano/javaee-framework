@@ -1,232 +1,152 @@
-# Java EE Framework
+# Enterprise Java Web Framework
 
 [![Java](https://img.shields.io/badge/Java-17-007396)](https://www.oracle.com/java/)
 [![Maven](https://img.shields.io/badge/Maven-3.6+-C71A36)](https://maven.apache.org/)
 [![Servlets](https://img.shields.io/badge/Servlets-4.0.1-orange)](https://javaee.github.io/servlet-spec/)
 [![Hibernate](https://img.shields.io/badge/Hibernate-5.6.15-59666C)](https://hibernate.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-A custom framework for building robust web applications. This project showcases the best practices in enterprise Java development, including Clean Architecture principles, security, efficient caching, and testing.
+A production-grade Java EE framework implementing Clean Architecture, and enterprise security standards. Built for
+high-performance, scalable web applications with comprehensive observability and cloud-native deployment capabilities.
 
 ## Table of Contents
 
-- [Features](#features)
+- [Core Features](#core-features)
 - [Technology Stack](#technology-stack)
-- [Architecture](#architecture)
-- [Health Check System](#health-check-dashboard)
-- [Stateless Architecture](#stateless-architecture)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Usage](#usage)
-- [API Documentation](#api-documentation)
+- [Application Preview](#application-preview) → **[Full Gallery](PREVIEW.md)**
+- [Getting Started](#getting-started)
 - [License](#license)
 
-## Features
+## Core Features
 
-- **Custom API**: Custom framework for building APIs with Java Servlets and CDI.
-- **Security**: JWT-based authentication with XSS protection, password encryption, role-based access control and refresh tokens.
-- **Performance**: Multi-level caching with Ehcache and rate limiting using Leaky Bucket algorithm.
-- **Health Monitoring**: Production-ready health check system with visual dashboard and Kubernetes probes.
-- **Database**: JPA/Hibernate integration with PostgreSQL, including pagination and sorting.
-- **Validation**: Custom annotations and DTO mapping for robust data handling.
-- **External Integrations**: Web scraping client using OkHttp for development/testing.
-- **Utilities**: Comprehensive toolkit for URI parsing, cryptography, formatting, and reflection.
-- **Audit Logging**: Detailed JSON-based logging for all operations with correlation IDs.
+### Enterprise-Grade Capabilities
+
+- **🏗️ Custom MVC Framework**: Built from scratch using Servlet API 4.0 and CDI 1.2
+- **🔐 Advanced Security**: JWT-based authentication, refresh token rotation, CSRF protection
+- **⚡ Multi-Layer Caching**: L1 (Hibernate), L2 (Ehcache), Application-level with TTL management
+- **🚦 Rate Limiting**: Leaky Bucket algorithm
+- **📊 Health Monitoring**: Dashboard with metrics export
+- **🔍 Audit Trail**: Structured JSON logging with correlation IDs and trace context propagation
+- **🎯 Validation Framework**: JSR-303 compliant with custom annotations and composite validators
+- **🔄 DTO Mapping**: MapStruct-based object mapping with circular reference handling
+- **📦 Dependency Injection**: CDI with producer methods, qualifiers, and interceptors
 
 ## Technology Stack
 
-| Component   | Technology               | Version/Notes                                    |
-|-------------|--------------------------|--------------------------------------------------|
-| ☕ Language  | Java                    | 17                                               |
-| 🌐 Servlet  | Servlet API              | 4.0.1 (javax.*)                                  |
-| 🧩 CDI      | Weld / CDI API           | 2.4.8.Final / 1.2                                |
-| 🗄️ ORM      | Hibernate ORM            | 5.6.15.Final                                     |
-| 🐘 Database | PostgreSQL JDBC          | 42.4.4                                           |
-| 🔐 Security | Auth jsonwebtoken        | 0.12.3                                           |
-| ⚡ Cache     | Ehcache                 | 3.9.11; hibernate-ehcache 5.6.15                 |
-| 🧪 Testing  | JUnit Jupiter / Mockito  | RELEASE (5.10.2) / 5.14.2, 5.2.0                 |
-| 📦 HTTP     | OkHttp                   | 4.12.0                                           |
-| 🔣 JSON     | Jackson (core/databind)  | 2.19.0                                           |
-| 🧱 Logging  | SLF4J / Logback          | 2.0.9 / 1.5.18                                   |
-| 🧾 JSP/JSTL | JSTL / Taglibs Standard  | 1.2 / 1.2.5                                      |
-| ♻️ Others   | Lombok / mchange-commons | 1.18.32 / 0.2.20                                 |
+### Core Technologies
 
-## Architecture
-
-This application follows Clean Architecture principles, separating concerns into layers:
-
-- **Adapter**: Handles HTTP requests, dispatching, and execution logging.
-- **Controller**: Manages REST endpoints and routing logic.
-- **Core**: Contains utilities, validators, mappers, and cache decorators.
-- **Domain**: Business logic, entities, services, and repositories.
-- **Infrastructure**: Persistence, security filters, and external clients.
-- **Config**: CDI producers and configuration beans.
-
-### Request Flow
-
-```
-🌐 Browser → 🔐 Filters → 🔧 Dispatcher → 📋 BaseController → 🎯 Controller → 🏭 Service → 💾 DAO → 🐘 Database
-```
-
-## Stateless Architecture
-
-This application follows a **stateless architecture**, which means the server does not store any session information between requests. Each request contains all the information needed to process it independently.
-
-### Why Stateless?
-
-✅ **Scalability**: No session synchronization needed — any server can handle any request
-
-✅ **Performance**: No server-side session storage or lookup overhead
-
-✅ **Reliability**: Server crashes don't lose user sessions
-
-✅ **Cloud-Ready**: Perfect for horizontal scaling and load balancing
-
-✅ **Microservices**: Easy to split into independent services
-
-## Quick Reference
-
-### 🚀 Stateless Architecture Summary
-
-| Feature                | Status              | Details                       |
-|------------------------|---------------------|-------------------------------|
-| **Session Storage**    | ❌ None              | Zero server-side sessions     |
-| **Authentication**     | ✅ JWT               | Self-contained tokens         |
-| **Token Storage**      | ✅ HTTP-Only Cookies | Secure, XSS-protected         |
-| **Token Lifetime**     | ⏱️ 1d / 30d         | Access / Refresh              |
-| **Auto-Refresh**       | ✅ Yes               | Seamless UX                   |
-| **Horizontal Scaling** | ✅ Yes               | No session replication needed |
-| **CSRF Protection**    | ✅ SameSite=Strict   | Production                    |
-| **XSS Protection**     | ✅ HttpOnly          | Always                        |
-| **HTTPS Required**     | ✅ Production        | Secure flag enforced          |
+| Component         | Technology          | Version |
+|-------------------|---------------------|---------|
+| **Runtime**       | Java SE             | 17 LTS  |
+| **Web Layer**     | Jakarta Servlet API | 4.0.1   |
+| **DI Container**  | Weld SE             | 2.4.8   |
+| **ORM**           | Hibernate           | 5.6.15  |
+| **Database**      | PostgreSQL JDBC     | 42.7.8  |
+| **Security**      | JJWT                | 0.12.3  |
+| **L2 Cache**      | Ehcache             | 3.9.11  |
+| **Testing**       | JUnit 5 + Mockito   | 5.10.2  |
+| **HTTP Client**   | OkHttp              | 4.12.0  |
+| **Serialization** | Jackson             | 2.19.0  |
+| **Logging**       | SLF4J + Logback     | 1.5.18  |
+| **Mapping**       | MapStruct           | 1.6.3   |
+| **Build**         | Maven               | 3.6+    |
 
 ---
 
-## Preview
+## 📸 Application Preview
 
-<div align="center">
-  <img src="images/homepage.png" alt="Application Homepage" width="80%">
-  <p><em>Homepage displaying products</em></p>
+> **[📱 View Full Gallery with Screenshots →](PREVIEW.md)**
 
-  <img src="images/product-list.png" alt="Product Management Interface" width="80%">
-  <p><em>Product management dashboard</em></p>
-</div>
+Modern, enterprise-grade UI implementing Material Design principles with full dark mode support and WCAG AAA
+accessibility compliance.
 
-## Health Check Dashboard
+### Quick Preview
 
-Health monitoring dashboard provides real-time system status:
+<p align="center">
+  <img src="images/homepage.png" alt="Health Dashboard" width="700">
+  <br>
+  <em>Home page</em>
+</p>
 
-<div align="center">
-  <img src="images/health-dashboard.png" alt="Health Check Dashboard" width="80%">
-  <p><em>System Health Status - Real-time monitoring</em></p>
-</div>
+**[→ See full screenshot gallery and UI/UX documentation](PREVIEW.md)**
 
-<div align="center">
-    <img src="images/health-ready.png" alt="Health Check Dashboard" width="80%">
-    <p><em>SystemReady State</em></p> 
-</div>
+---
 
-**Features:**
-- ✅ Real-time component status (Database, Cache)
-- 📊 Memory usage monitoring with visual alerts
-- ⏱️ System uptime tracking
-- 🔗 Quick access to K8s health probes
-
-**Access:** `/api/v1/health/check`
-
-
-## Installation
+## Getting Started
 
 ### Prerequisites
 
-- Java 17 or higher
-- Maven 3.6 or higher
-- Any SQL database
-
-### Steps
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/servlets.git
-   cd servlets
-   ```
-
-2. Set up the database:
-   - Ensure PostgreSQL is running.
-   - Create a database and update connection details in `src/main/resources/app-dev.properties`.
-
-3. Build the project:
-   ```bash
-   mvn clean package
-   ```
-
-4. Deploy the WAR file:
-   - Copy `target/servlets-<current_version>.war` to your servlet container (e.g., Tomcat, WildFly).
-   - Start the server.
-
-The application will be available at `http://localhost:8080` (adjust port as needed).
-
-## Configuration
-
-Configuration is managed via properties files:
-
-- **Development**: `src/main/resources/app-dev.properties`
-- **Production**: `src/main/resources/app-prod.properties`
-
-Key settings include:
-- Database connection parameters
-- JWT secret key
-- Cache timeouts
-- Rate limiting toggles
-- Pagination defaults
-
-Example configuration snippet:
-```properties
-env=development
-host=localhost
-port=8080
-context=/api/v1
-security.jwt.key=your-secret-key-here
-rate.limit.enabled=true
-cache.timeout.minutes=30
-```
-
-## Usage
-
-### API Examples
-
-- **Login**: `/api/v1/auth/login`
-- **Products**: `/api/v1/product/list`
-- **Inventory (by ID)**: `/api/v1/inventory/list/{id}`
-
-Example request:
 ```bash
-curl -X GET "http://localhost:8080/api/v1/product/list/?page=1&limit=5&sort=id&order=asc" \
-     -H "Cookie: YOUR_COOKIE_HERE"
+# Required
+Java 17 LTS (OpenJDK or Oracle)
+Maven 3.6+
+PostgreSQL 12+
+
+# Optional (for development)
+Docker & Docker Compose
+IntelliJ IDEA / Eclipse
+Postman / Insomnia
 ```
 
-## API Documentation
+### Quick Start
 
-For detailed API documentation, refer to the inline comments
-
-### Audit Logging
-
-The `AuditService` generates JSON logs for all operations:
-
-```json
-{
-  "schemaVersion": "1.0",
-  "event": "product:list",
-  "timestamp": "2025-10-20T04:13:59.125748900Z",
-  "correlationId": "61aa3a37-26aa-44df-b8eb-cc564a5a8603",
-  "outcome": "success",
-  "userId": "f6fbba83",
-  "payload": { ... }
-}
+```bash
+# 1. Clone repository
+git clone https://github.com/yourusername/servlets.git
+cd servlets
+# 2. Database setup
+createdb servlets_db
+psql servlets_db < src/main/resources/META-INF/sql/create.sql
+# 3. Configure environment
+cp src/main/resources/app-dev.properties.example src/main/resources/app-dev.properties
+# Edit database credentials
+# 4. Build
+mvn clean package -DskipTests
+# 5. Deploy
+cp target/servlets-*.war $TOMCAT_HOME/webapps/
+# 6. Start Tomcat
+$TOMCAT_HOME/bin/startup.sh
+# 7. Verify
+curl http://localhost:8080/api/v1/health/check
 ```
+
+### Docker Deployment
+
+```dockerfile
+FROM tomcat:9-jdk17-openjdk
+
+COPY target/servlets-*.war /usr/local/tomcat/webapps/ROOT.war
+
+EXPOSE 8080
+
+CMD ["catalina.sh", "run"]
+```
+
+```bash
+docker build -t servlets:latest .
+docker run -p 8080:8080 servlets:latest
+```
+
+## Architecture
+
+### Clean Architecture Layers
+
+The framework follows Clean Architecture principles, organized into four main layers:
+
+- **Adapter Layer** (`adapter`): Handles external interfaces, including the custom MVC dispatcher (`ServletDispatcherImpl`), HTTP executors, and request/response adapters.
+- **Core Layer** (`core`): Contains framework internals, such as custom annotations (`@Controller`, `@RequestMapping`), utilities, validators, and response builders.
+- **Domain Layer** (`domain`): Business logic, entities, services, and domain models. Includes audit services, authentication, and health monitoring.
+- **Infrastructure Layer** (`infrastructure`): External concerns like persistence (Hibernate), security filters (JWT, XSS), and caching (Ehcache).
+
+### Custom MVC Framework
+
+Controllers extend `BaseRouterController`, using reflection to map HTTP requests to annotated methods. The `ServletDispatcherImpl` processes requests via `HttpExecutor`, supporting retry logic, rate limiting, and error handling. Dependency injection is managed by CDI (Weld).
+
+### Security & Observability
+
+JWT-based auth with refresh tokens, CSRF protection, and audit trails with correlation IDs. Health checks provide readiness/liveness probes. Multi-layer caching ensures performance.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
+This project is licensed under the MIT License - see [LICENSE](LICENSE) for details.

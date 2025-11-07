@@ -25,5 +25,5 @@ public interface IProductService {
 
     Optional<List<ProductResponse>> scrape(String url, String environment, String auth);
 
-    <U> IPageable<U> getAllPageable(IPageRequest pageRequest, Mapper<Product, U> mapper);
+    <U> IPageable<U> getAllPageable(IPageRequest pageRequest, String auth, Mapper<Product, U> mapper);
 }

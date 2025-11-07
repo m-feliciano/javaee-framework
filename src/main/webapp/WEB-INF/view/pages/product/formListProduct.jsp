@@ -13,91 +13,127 @@
 <title>Product: <c:out value='${ product.name }' escapeXml='true'/></title>
 
 <div class="main">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="${baseLink}${version}${listProduct}">Products</a></li>
+            <li class="breadcrumb-item active"><c:out value='${ product.name }' escapeXml='true'/></li>
+        </ol>
+    </nav>
+
+    <div class="action-bar">
+        <div class="action-bar-title">
+            <h1><c:out value='${ product.name }' escapeXml='true'/></h1>
+            <p class="action-bar-subtitle">Product Details</p>
+        </div>
+        <div class="action-buttons">
+            <a href="${baseLink}${version}${listProduct}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i>
+                Back
+            </a>
+            <a href="${baseLink}${version}${editProduct}/${product.id}" class="btn btn-primary">
+                <i class="bi bi-pencil-square"></i>
+                Edit
+            </a>
+        </div>
+    </div>
+
     <div class="row">
-        <div class="col-md-6">
-            <div class="mb-3">
-                <div class="row">
-                    <div class="col-md-6">
-                        <label for="inputId" class="form-label">ID</label>
-                        <input type="text" class="form-control text-right" id="productId" name="id"
-                               value="<c:out value='${ product.id }' escapeXml='true'/>" readonly="readonly"/>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="inputRegisterDate" class="form-label">REGISTER</label>
-                        <input type="text" class="form-control text-right" id="registerDate" name="registerDate"
-                               value="<c:out value='${ stdDate }' escapeXml='true'/>" readonly/>
-                    </div>
+        <div class="col-12 col-lg-5">
+            <div class="card">
+                <div class="card-body text-center">
+                    <c:choose>
+                        <c:when test="${empty product.url}">
+                            <img src="<c:url value='/resources/assets/no_image_available.png'/>"
+                                 class="img-fluid"
+                                 alt="No available"/>
+                        </c:when>
+                        <c:otherwise>
+                            <img src="<c:out value='${product.url}' escapeXml='true'/>"
+                                 class="img-fluid"
+                                 alt="<c:out value='Product ${product.name}' escapeXml='true'/>"
+                                 loading="lazy"/>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
-            </div>
-            <div class="mb-3">
-                <label for="inputName" class="form-label">NAME</label>
-                <input type="text" class="form-control" id="productName" name="name"
-                       placeholder="Product name" value="<c:out value='${ product.name }' escapeXml='true'/>"
-                       autocomplete="name" minlength="4" readonly/>
-            </div>
-            <div class="mb-4">
-                <div class="row justify-content-end">
-                    <div class="col-md-6">
-                        <label for="inputCategory" class="form-label">CATEGORY</label>
-                        <input type="text" name="category.id" class="form-control text-center" id="inputCategory"
-                               value="${ product.category.name }" autocomplete="name" readonly/>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="inputPrice" class="form-label">PRICE</label>
-                        <input name="price" class="form-control text-right" id="inputPrice"
-                               placeholder="price" value="${parsedNumber}" readonly/>
-                    </div>
-                </div>
-            </div>
-            <div class="mb-3">
-                <label for="inputDescription" class="form-label">DESCRIPTION</label>
-                <textarea name="description" class="form-control" id="inputDescription"
-                          placeholder="Simple Description" readonly rows="10"
-                          cols="auto">${product.description}</textarea>
-            </div>
-            <c:if test="${ not empty product.url and not product.url eq '' }">
-                <div class="mb-3">
-                    <label for="inputUrl" class="form-label">URL</label>
-                    <input type="text" name="url" class="form-control" id="inputUrl"
-                           placeholder="URL" value="${product.url}" readonly/>
-                </div>
-            </c:if>
-
-            <div class="row justify-content-end mr-0 mb20">
-                <jsp:include page="/WEB-INF/view/components/buttons/customButton.jsp">
-                    <jsp:param name="btnLabel" value="Back"/>
-                    <jsp:param name="btnType" value="button"/>
-                    <jsp:param name="btnClass" value="btn btn-light"/>
-                    <jsp:param name="btnIcon" value="bi bi-arrow-left"/>
-                    <jsp:param name="btnOnclick" value="onclick='window.location.href=`${baseLink}${version}${listProduct}`'"/>
-                    <jsp:param name="btnId" value="id='backButton'"/>
-                </jsp:include>
-
-                <span class="mr-2"></span>
-
-                <a type="button" href="${baseLink}${version}${editProduct}/${product.id}" class="btn btn-success">
-                    Edit <i class="bi bi-pencil-square"></i>
-                </a>
             </div>
         </div>
 
-        <div class="col-md-6 text-center mt30">
-            <div class="mb-3">
-                <c:choose>
-                    <c:when test="${ empty product.url }">
-                        <img src="<c:url value='/resources/assets/no_image_available.png'/>"
-                             class="img-thumbnail" alt="No available" width="60%" height="60%"/>
-                    </c:when>
-                    <c:otherwise>
-                        <img class="img-thumbnail" width="60%" height="60%"
-                             src="<c:out value='${product.url}' escapeXml='true'/>"
-                             alt="<c:out value='Product ${product.name}' escapeXml='true'/>"
-                             loading="lazy">
-                    </c:otherwise>
-                </c:choose>
+        <div class="col-12 col-lg-7">
+            <div class="card" style="margin-bottom: var(--spacing-6);">
+                <div class="card-header">
+                    <h3><i class="bi bi-info-circle"></i> Basic Information</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12 col-md-6" style="margin-bottom: var(--spacing-4);">
+                            <label class="form-label"><strong>ID</strong></label>
+                            <input type="text" class="form-control"
+                                   value="<c:out value='${ product.id }' escapeXml='true'/>"
+                                   readonly/>
+                        </div>
+                        <div class="col-12 col-md-6" style="margin-bottom: var(--spacing-4);">
+                            <label class="form-label"><strong>Register Date</strong></label>
+                            <input type="text" class="form-control"
+                                   value="<c:out value='${ stdDate }' escapeXml='true'/>"
+                                   readonly/>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-md-6" style="margin-bottom: var(--spacing-4);">
+                            <label class="form-label"><strong>Category</strong></label>
+                            <input type="text" class="form-control"
+                                   value="<c:out value='${ product.category.name }' escapeXml='true'/>"
+                                   readonly/>
+                        </div>
+                        <div class="col-12 col-md-6" style="margin-bottom: var(--spacing-4);">
+                            <label class="form-label"><strong>Price</strong></label>
+                            <input type="text" class="form-control"
+                                   value="${parsedNumber}"
+                                   readonly
+                                   style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: var(--success);"/>
+                        </div>
+                    </div>
+
+                    <c:if test="${not empty product.url and not product.url eq ''}">
+                        <div style="margin-bottom: var(--spacing-4);">
+                            <label class="form-label"><strong>Image URL</strong></label>
+                            <div class="d-flex gap-2">
+                                <input type="text" class="form-control"
+                                       value="<c:out value='${product.url}' escapeXml='true'/>"
+                                       readonly/>
+                                <a href="${product.url}" target="_blank" class="btn btn-secondary">
+                                    <i class="bi bi-box-arrow-up-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </c:if>
+                </div>
+            </div>
+
+            <!-- Description Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="bi bi-card-text"></i> Description</h3>
+                </div>
+                <div class="card-body">
+                    <div class="product-description">
+                        <c:choose>
+                            <c:when test="${not empty product.description}">
+                                <p style="white-space: pre-wrap; line-height: var(--line-height-relaxed);"><c:out value='${product.description}' escapeXml='true'/></p>
+                            </c:when>
+                            <c:otherwise>
+                                <p class="text-muted">
+                                    <i class="bi bi-info-circle"></i> No description available
+                                </p>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
 <!-- footer -->
 <jsp:include page="/WEB-INF/view/components/footer.jsp"/>

@@ -35,232 +35,102 @@
 
 <title>System Health</title>
 
-<style>
-    .health-card {
-        background: white;
-        border-radius: 10px;
-        padding: 25px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        margin-bottom: 20px;
-    }
-
-    .status-badge {
-        display: inline-block;
-        padding: 8px 20px;
-        border-radius: 20px;
-        font-weight: bold;
-        font-size: 14px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .status-up {
-        background: #d4edda;
-        color: #155724;
-        border: 2px solid #c3e6cb;
-    }
-
-    .status-down {
-        background: #f8d7da;
-        color: #721c24;
-        border: 2px solid #f5c6cb;
-    }
-
-    .component-status {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 15px;
-        margin: 10px 0;
-        border-radius: 8px;
-        background: #f8f9fa;
-        border-left: 4px solid #6c757d;
-    }
-
-    .component-up {
-        border-left-color: #28a745;
-        background: #d4edda;
-    }
-
-    .component-down {
-        border-left-color: #dc3545;
-        background: #f8d7da;
-    }
-
-    .metric-box {
-        text-align: center;
-        padding: 20px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 10px;
-        margin: 10px 0;
-    }
-
-    .metric-value {
-        font-size: 32px;
-        font-weight: bold;
-        margin: 10px 0;
-    }
-
-    .metric-label {
-        font-size: 14px;
-        opacity: 0.9;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .info-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 12px 0;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-    .info-row:last-child {
-        border-bottom: none;
-    }
-
-    .info-label {
-        font-weight: 600;
-        color: #495057;
-    }
-
-    .info-value {
-        color: #6c757d;
-    }
-
-    .progress-custom {
-        height: 25px;
-        border-radius: 8px;
-        background: #e9ecef;
-        overflow: hidden;
-        position: relative;
-    }
-
-    .progress-bar-custom {
-        height: 100%;
-        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-size: 12px;
-        transition: width 0.3s ease;
-    }
-
-    .progress-bar-warning {
-        background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
-    }
-
-    .progress-bar-danger {
-        background: linear-gradient(90deg, #fa709a 0%, #fee140 100%);
-    }
-
-    .page-header {
-        margin-bottom: 30px;
-    }
-
-    .page-title {
-        font-size: 28px;
-        font-weight: 600;
-        color: #212529;
-        margin-bottom: 10px;
-    }
-
-    .page-subtitle {
-        color: #6c757d;
-        font-size: 14px;
-    }
-
-    .timestamp {
-        font-size: 12px;
-        color: #6c757d;
-        font-style: italic;
-    }
-</style>
-
 <div class="main">
-    <div class="page-header">
-        <h1 class="page-title">
-            <i class="bi bi-heart-pulse"></i> System Health Status
-        </h1>
-        <p class="page-subtitle">Real-time monitoring of application health and performance metrics</p>
+    <!-- Page Header -->
+    <div class="action-bar">
+        <div class="action-bar-title">
+            <h1><i class="bi bi-heart-pulse-fill"></i> System Health</h1>
+            <p class="action-bar-subtitle">Real-time monitoring of application health and performance</p>
+        </div>
+        <div class="action-buttons">
+            <button onclick="location.reload()" class="btn btn-secondary">
+                <i class="bi bi-arrow-clockwise"></i>
+                Refresh
+            </button>
+        </div>
     </div>
 
     <!-- Main Status Card -->
-    <div class="health-card">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h3 class="mb-2">Overall Status</h3>
-                <c:choose>
-                    <c:when test="${isUp}">
-                        <span class="status-badge status-up">
-                            <i class="bi bi-check-circle"></i> HEALTHY
-                        </span>
-                    </c:when>
-                    <c:otherwise>
-                        <span class="status-badge status-down">
-                            <i class="bi bi-exclamation-triangle"></i> UNHEALTHY
-                        </span>
-                    </c:otherwise>
-                </c:choose>
-            </div>
-            <div class="text-end">
-                <div class="timestamp">
-                    <i class="bi bi-clock"></i>
-                    Last check: <fmt:formatDate value="<%= new java.util.Date((Long)health.get(\"timestamp\")) %>"
-                                               pattern="dd/MM/yyyy HH:mm:ss"/>
+    <div class="card" style="margin-bottom: var(--spacing-6);">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center" style="flex-wrap: wrap; gap: var(--spacing-4);">
+                <div>
+                    <h3 style="margin-bottom: var(--spacing-2);">
+                        <i class="bi bi-activity"></i> Overall Status
+                    </h3>
+                    <c:choose>
+                        <c:when test="${isUp}">
+                            <span class="badge" style="background-color: var(--success); color: white; padding: 0.5rem 1rem; font-size: 0.875rem;">
+                                <i class="bi bi-check-circle-fill"></i> HEALTHY
+                            </span>
+                        </c:when>
+                        <c:otherwise>
+                            <span class="badge" style="background-color: var(--danger); color: white; padding: 0.5rem 1rem; font-size: 0.875rem;">
+                                <i class="bi bi-exclamation-triangle-fill"></i> UNHEALTHY
+                            </span>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+                <div style="text-align: right;">
+                    <small class="text-muted">
+                        <i class="bi bi-clock"></i>
+                        Last check: <fmt:formatDate value="<%= new java.util.Date((Long)health.get(\"timestamp\")) %>"
+                                                   pattern="dd/MM/yyyy HH:mm:ss"/>
+                    </small>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- System Information -->
-    <div class="row">
-        <div class="col-md-6">
-            <div class="health-card">
-                <h4 class="mb-3"><i class="bi bi-info-circle"></i> System Information</h4>
-
+    <!-- Stats Grid -->
+    <div class="stats-grid" style="margin-bottom: var(--spacing-6);">
+        <!-- System Info Card -->
+        <div class="stat-card info">
+            <div class="stat-header">
+                <span class="stat-title"><i class="bi bi-info-circle-fill"></i> System Info</span>
+                <div class="stat-icon">
+                    <i class="bi bi-cpu"></i>
+                </div>
+            </div>
+            <div style="margin-top: var(--spacing-4);">
                 <c:if test="${not empty health.version}">
-                    <div class="info-row">
-                        <span class="info-label">Version:</span>
-                        <span class="info-value"><c:out value="${health.version}" escapeXml="true"/></span>
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-2) 0; border-bottom: 1px solid var(--border-color);">
+                        <span style="font-weight: 600; font-size: 0.875rem;">Version:</span>
+                        <span style="font-size: 0.875rem;"><c:out value="${health.version}"/></span>
                     </div>
                 </c:if>
-
                 <c:if test="${not empty health.service}">
-                    <div class="info-row">
-                        <span class="info-label">Service:</span>
-                        <span class="info-value"><c:out value="${health.service}" escapeXml="true"/></span>
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-2) 0; border-bottom: 1px solid var(--border-color);">
+                        <span style="font-weight: 600; font-size: 0.875rem;">Service:</span>
+                        <span style="font-size: 0.875rem;"><c:out value="${health.service}"/></span>
                     </div>
                 </c:if>
-
                 <c:if test="${not empty health.environment}">
-                    <div class="info-row">
-                        <span class="info-label">Environment:</span>
-                        <span class="info-value">
-                            <span class="badge ${health.environment eq 'production' ? 'badge-danger' : 'badge-warning'}">
-                                <c:out value="${health.environment}" escapeXml="true"/>
-                            </span>
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-2) 0; border-bottom: 1px solid var(--border-color);">
+                        <span style="font-weight: 600; font-size: 0.875rem;">Environment:</span>
+                        <span class="badge" style="background-color: ${health.environment eq 'production' ? 'var(--danger)' : 'var(--warning)'}; color: white;">
+                            <c:out value="${health.environment}"/>
                         </span>
                     </div>
                 </c:if>
-
                 <c:if test="${not empty uptimeFormatted}">
-                    <div class="info-row">
-                        <span class="info-label">Uptime:</span>
-                        <span class="info-value"><c:out value="${uptimeFormatted}" escapeXml="true"/></span>
+                    <div style="display: flex; justify-content: space-between; padding: var(--spacing-2) 0;">
+                        <span style="font-weight: 600; font-size: 0.875rem;">Uptime:</span>
+                        <span style="font-size: 0.875rem; color: var(--success); font-weight: 600;"><c:out value="${uptimeFormatted}"/></span>
                     </div>
                 </c:if>
             </div>
         </div>
 
-        <!-- Components Status -->
-        <div class="col-md-6">
-            <div class="health-card">
-                <h4 class="mb-3"><i class="bi bi-puzzle"></i> Components</h4>
-
+        <!-- Components Card -->
+        <div class="stat-card ${isUp ? 'success' : 'danger'}">
+            <div class="stat-header">
+                <span class="stat-title"><i class="bi bi-puzzle-fill"></i> Components</span>
+                <div class="stat-icon">
+                    <i class="bi bi-puzzle"></i>
+                </div>
+            </div>
+            <div style="margin-top: var(--spacing-4);">
                 <c:if test="${not empty components}">
                     <%
                         @SuppressWarnings("unchecked")
@@ -269,28 +139,28 @@
                             request.setAttribute("componentName", entry.getKey());
                             request.setAttribute("componentStatus", entry.getValue());
                     %>
-                        <div class="component-status ${componentStatus eq 'UP' ? 'component-up' : 'component-down'}">
-                            <span style="font-weight: 600; text-transform: capitalize;">
-                                <i class="bi ${componentStatus eq 'UP' ? 'bi-check-circle' : 'bi-x-circle'}"></i>
-                                <c:out value="${componentName}" escapeXml="true"/>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-2) 0; border-bottom: 1px solid var(--border-color);">
+                            <span style="font-weight: 600; text-transform: capitalize; font-size: 0.875rem;">
+                                <i class="bi ${componentStatus eq 'UP' ? 'bi-check-circle-fill' : 'bi-x-circle-fill'}"
+                                   style="color: ${componentStatus eq 'UP' ? 'var(--success)' : 'var(--danger)'}"></i>
+                                <c:out value="${componentName}"/>
                             </span>
-                            <span class="badge ${componentStatus eq 'UP' ? 'badge-success' : 'badge-danger'}">
-                                <c:out value="${componentStatus}" escapeXml="true"/>
+                            <span class="badge" style="background-color: ${componentStatus eq 'UP' ? 'var(--success)' : 'var(--danger)'}; color: white;">
+                                <c:out value="${componentStatus}"/>
                             </span>
                         </div>
                     <%
                         }
                     %>
                 </c:if>
-
                 <c:if test="${empty components}">
-                    <p class="text-muted">No component information available</p>
+                    <p class="text-muted" style="font-size: 0.875rem; margin: 0;">No component information available</p>
                 </c:if>
             </div>
         </div>
     </div>
 
-    <!-- Memory Metrics (if available) -->
+    <!-- Memory Metrics -->
     <c:if test="${not empty memory}">
         <%
             @SuppressWarnings("unchecked")
@@ -300,110 +170,119 @@
             request.setAttribute("usagePercent", memory.get("usage_percent"));
         %>
 
-        <div class="health-card">
-            <h4 class="mb-3"><i class="bi bi-memory"></i> Memory Usage</h4>
-
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="metric-box">
-                        <div class="metric-label">Used Memory</div>
-                        <div class="metric-value"><c:out value="${usedMb}"/> MB</div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="metric-box" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                        <div class="metric-label">Max Memory</div>
-                        <div class="metric-value"><c:out value="${maxMb}"/> MB</div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="metric-box" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                        <div class="metric-label">Usage</div>
-                        <div class="metric-value"><c:out value="${usagePercent}"/>%</div>
-                    </div>
-                </div>
+        <div class="card" style="margin-bottom: var(--spacing-6);">
+            <div class="card-header">
+                <h3><i class="bi bi-memory"></i> Memory Usage</h3>
             </div>
+            <div class="card-body">
+                <div class="stats-grid" style="margin-bottom: var(--spacing-5);">
+                    <div class="stat-card info">
+                        <div class="stat-title">Used Memory</div>
+                        <div class="stat-value"><c:out value="${usedMb}"/> MB</div>
+                    </div>
 
-            <div class="mt-4">
-                <div class="progress-custom">
-                    <div class="progress-bar-custom ${usagePercent > 90 ? 'progress-bar-danger' : usagePercent > 70 ? 'progress-bar-warning' : ''}"
-                         style="width: ${usagePercent}%">
-                        <c:out value="${usagePercent}"/>%
+                    <div class="stat-card warning">
+                        <div class="stat-title">Max Memory</div>
+                        <div class="stat-value"><c:out value="${maxMb}"/> MB</div>
+                    </div>
+
+                    <div class="stat-card ${usagePercent > 90 ? 'danger' : usagePercent > 70 ? 'warning' : 'success'}">
+                        <div class="stat-title">Usage</div>
+                        <div class="stat-value"><c:out value="${usagePercent}"/>%</div>
                     </div>
                 </div>
-                <small class="text-muted mt-2 d-block">
-                    <c:choose>
-                        <c:when test="${usagePercent > 90}">
-                            <i class="bi bi-exclamation-triangle text-danger"></i> Critical: Memory usage is very high
-                        </c:when>
-                        <c:when test="${usagePercent > 70}">
-                            <i class="bi bi-exclamation-circle text-warning"></i> Warning: Memory usage is elevated
-                        </c:when>
-                        <c:otherwise>
-                            <i class="bi bi-check-circle text-success"></i> Normal: Memory usage is healthy
-                        </c:otherwise>
-                    </c:choose>
-                </small>
+
+                <!-- Progress Bar -->
+                <div style="margin-top: var(--spacing-4);">
+                    <div class="progress">
+                        <div class="progress-bar ${usagePercent > 90 ? 'danger' : usagePercent > 70 ? 'warning' : 'success'}"
+                             style="width: ${usagePercent}%"></div>
+                    </div>
+                    <div style="margin-top: var(--spacing-3);">
+                        <c:choose>
+                            <c:when test="${usagePercent > 90}">
+                                <div class="alert alert-danger">
+                                    <i class="bi bi-exclamation-triangle-fill"></i>
+                                    <strong>Critical:</strong> Memory usage is very high
+                                </div>
+                            </c:when>
+                            <c:when test="${usagePercent > 70}">
+                                <div class="alert alert-warning">
+                                    <i class="bi bi-exclamation-circle-fill"></i>
+                                    <strong>Warning:</strong> Memory usage is elevated
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="alert alert-success">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <strong>Normal:</strong> Memory usage is healthy
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                </div>
             </div>
         </div>
     </c:if>
 
-    <!-- API Endpoints Info -->
-    <div class="health-card">
-        <h4 class="mb-3"><i class="bi bi-link-45deg"></i> Health Check Endpoints</h4>
-
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Endpoint</th>
-                        <th>Purpose</th>
-                        <th>Kubernetes Use</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><code>/api/v1/health/check</code></td>
-                        <td>Overall health status</td>
-                        <td><span class="badge badge-secondary">-</span></td>
-                        <td>
-                            <a href="${baseLink}${version}/health/check" class="btn btn-sm btn-primary">
-                                <i class="bi bi-box-arrow-up-right"></i> Test
-                            </a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><code>/api/v1/health/ready</code></td>
-                        <td>Readiness probe</td>
-                        <td><span class="badge badge-info">readinessProbe</span></td>
-                        <td>
-                            <a href="${baseLink}${version}/health/ready" class="btn btn-sm btn-primary">
-                                <i class="bi bi-box-arrow-up-right"></i> Test
-                            </a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><code>/api/v1/health/live</code></td>
-                        <td>Liveness probe</td>
-                        <td><span class="badge badge-success">livenessProbe</span></td>
-                        <td>
-                            <a href="${baseLink}${version}/health/live" class="btn btn-sm btn-primary">
-                                <i class="bi bi-box-arrow-up-right"></i> Test
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+    <!-- API Endpoints -->
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="bi bi-link-45deg"></i> Health Check Endpoints</h3>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <div class="table-responsive">
+                <table class="table table-hover" style="margin-bottom: 0;">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Endpoint</th>
+                            <th>Purpose</th>
+                            <th>Kubernetes Use</th>
+                            <th style="width: 100px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>/api/v1/health/check</code></td>
+                            <td>Overall health status</td>
+                            <td><span class="badge badge-secondary">General</span></td>
+                            <td>
+                                <a href="${baseLink}${version}/health/check" target="_blank" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-box-arrow-up-right"></i> Test
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/v1/health/ready</code></td>
+                            <td>Readiness probe</td>
+                            <td><span class="badge badge-info">readinessProbe</span></td>
+                            <td>
+                                <a href="${baseLink}${version}/health/ready" target="_blank" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-box-arrow-up-right"></i> Test
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/v1/health/live</code></td>
+                            <td>Liveness probe</td>
+                            <td><span class="badge badge-success">livenessProbe</span></td>
+                            <td>
+                                <a href="${baseLink}${version}/health/live" target="_blank" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-box-arrow-up-right"></i> Test
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    setInterval(function () {
+    setTimeout(function () {
         location.reload();
-    }, 2000);
+    }, 10000);
 </script>
 
+<jsp:include page="/WEB-INF/view/components/footer.jsp"/>

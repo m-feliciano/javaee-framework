@@ -67,16 +67,17 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
     }
 
     @Override
-    public <U> IPageable<U> getAllPageable(IPageRequest payload, Mapper<Product, U> mapper) {
+    public <U> IPageable<U> getAllPageable(IPageRequest payload, String auth, Mapper<Product, U> mapper) {
         StopWatch sw = new StopWatch();
 
         try {
             sw.start();
             IPageable<U> pageable = super.getAllPageable(payload, mapper);
             sw.stop();
-            auditService.auditSuccess("product:list", null,
+            auditService.auditSuccess("product:list",
+                    auth,
                     new AuditPayload<>(payload,
-                            null,
+                            pageable.getContent(),
                             Map.of(
                                     "total_products", pageable.getTotalElements(),
                                     "current_page", pageable.getCurrentPage(),
@@ -208,7 +209,8 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
             List<ProductResponse> productResponses = products.stream().map(productMapper::toResponse).toList();
 
             auditService.auditSuccess("product:scrape", auth,
-                    new AuditPayload<>(url, null,
+                    new AuditPayload<>(url,
+                            productResponses,
                             Map.of("products_scraped", productResponses.size()
                             )));
 

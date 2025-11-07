@@ -119,12 +119,18 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
 
     @Override
     public UserResponse getById(UserRequest request, String auth) throws ServiceException {
+        log.info("User requested: {}", request.id());
+        return getUserResponse(request.id(), auth);
+    }
+
+    @Override
+    public UserResponse findById(UserRequest user, String auth) throws ServiceException {
         try {
-            UserResponse response = getUserResponse(request.id(), auth);
-            auditService.auditSuccess("user:get_by_id", auth, new AuditPayload<>(request, response));
+            UserResponse response = getUserResponse(user.id(), auth);
+            auditService.auditSuccess("user:find_by_id", auth, new AuditPayload<>(user, response));
             return response;
         } catch (Exception e) {
-            auditService.auditFailure("user:get_by_id", auth, new AuditPayload<>(request, null));
+            auditService.auditFailure("user:find_by_id", auth, new AuditPayload<>(user, null));
             throw e;
         }
     }

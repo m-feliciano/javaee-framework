@@ -17,4 +17,8 @@ public final class PageRequest implements IPageRequest, Serializable {
     private int initialPage;
     private int pageSize;
     private Object filter;
+
+    public static PageRequest of(int initialPage, int pageSize, Object filter, Sort timestamp) {
+        return PageRequest.builder().initialPage(initialPage).pageSize(pageSize).filter(filter).sort(timestamp).build();
+    }
 }

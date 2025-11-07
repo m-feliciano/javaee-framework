@@ -216,6 +216,37 @@ create trigger update_tb_inventory_updated_at
     for each row
 execute procedure update_updated_at_column();
 
+create table tb_user_activity_log
+(
+    id                 varchar(36)  not null
+        primary key,
+    user_id            varchar(36)  not null,
+    action             varchar(100) not null,
+    entity_type        varchar(50),
+    entity_id          varchar(36),
+    status             varchar(20)  not null,
+    request_payload    text,
+    response_payload   text,
+    error_message      text,
+    http_status_code   integer,
+    http_method        varchar(10),
+    endpoint           varchar(255),
+    ip_address         varchar(45),
+    correlation_id     varchar(50),
+    execution_time_ms  bigint,
+    timestamp          timestamp default CURRENT_TIMESTAMP not null,
+    user_agent         varchar(500),
+    constraint fk_activity_log_user
+        foreign key (user_id) references tb_user (id)
+);
+
+alter table tb_user_activity_log owner to postgres;
+
+create index idx_activity_log_user_id on tb_user_activity_log (user_id);
+create index idx_activity_log_timestamp on tb_user_activity_log (timestamp desc);
+create index idx_activity_log_action on tb_user_activity_log (action);
+create index idx_activity_log_status on tb_user_activity_log (status);
+create index idx_activity_log_correlation_id on tb_user_activity_log (correlation_id);
 
 -- =====================================
 -- DADOS INICIAIS

@@ -1,89 +1,103 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<c:set var="currentPage" value="${param.currentPage != null ? param.currentPage : 1}"/>
-<c:set var="totalRecords" value="${param.totalRecords}"/>
-<c:set var="totalPages" value="${param.totalPages}"/>
-<c:set var="pageSize" value="${param.pageSize}"/>
-<c:set var="sort" value="${param.sort}"/>
-<c:set var="direction" value="${param.direction}"/>
-<c:set var="linkhref" value="${param.href}"/>
-
-<div class="row w-100 text-center">
-    <c:if test="${totalPages > 1}">
-        <div class="col-12">
-            <div class="col-md-24">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                            <a class="page-link" style="color: #343a40;" aria-label="Previous"
-                               href="${linkhref}?page=${currentPage - 1}&limit=${pageSize}&sort=${sort}&order=${direction}">
-                                <i class="bi bi-arrow-left"></i>
-                                <span>Previous</span>
-                            </a>
-                        </li>
-
-                        <c:forEach begin="${currentPage > 3 ? currentPage - 2 : 1}"
-                                   end="${currentPage + 2 > totalPages ? totalPages : currentPage + 2}"
-                                   var="i">
-                            <c:choose>
-                                <c:when test="${currentPage == i}">
-                                    <li class="page-item active" aria-current="page">
-                                        <a class="page-link"
-                                           style="background-color: #343a40; border-color: #343a40"
-                                           disabled="true" tabindex="-1">${i}
-                                        </a>
-                                    </li>
-                                </c:when>
-                                <c:otherwise>
-                                    <li class="page-item">
-                                        <a class="page-link" style="color: #343a40;"
-                                           href="${linkhref}?page=${i}&limit=${pageSize}&sort=${sort}&order=${direction}">${i}
-                                        </a>
-                                    </li>
-                                </c:otherwise>
-                            </c:choose>
-                        </c:forEach>
-
-                        <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
-                            <a class="page-link" style="color: #343a40;" aria-label="Next"
-                               href="${linkhref}?page=${currentPage + 1}&limit=${pageSize}&sort=${sort}&order=${direction}">
-                                <i class="bi bi-arrow-right"></i>
-                                <span>Next</span>
-                            </a>
-                        </li>
-
-                        <c:if test="${totalPages > 4}">
-                            <li class="page-item" style="margin-left: 10px">
-                                <form class="form-inline" action="${linkhref}" method="get">
-                                    <input type="hidden" name="limit" value="${pageSize}"/>
-                                    <div class="input-group">
-                                        <div>
-                                        <span class="input-group-text"
-                                              style="background: #fff; border: none">Go to:</span>
-                                        </div>
-                                        <div>
-                                            <label for="page" class="sr-only">Page</label>
-                                            <input type="number" id="page" name="page" class="form-control"
-                                                   value="${currentPage}" min="1" max="${totalPages}"
-                                                   style="width: 100px;"/>
-                                        </div>
-                                        <button type="submit" class="btn btn-auto btn-black ml5">
-                                        <span style="font-size: 14px">
-                                           <i class="bi bi-arrow-right"></i>
-                                        </span>
-                                        </button>
-                                    </div>
-                                </form>
-                            </li>
-                        </c:if>
-                        <li class="page-item nohover" style="margin-left: 20px">
-                            <span class="page-link" style="color: #343a40; border: none">
-                                <span>Page ${currentPage} of ${totalPages}</span>
-                            </span>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
+<c:if test="${param.totalPages > 1}">
+    <div class="pagination-container">
+        <div class="pagination-info">
+            Showing ${(param.currentPage - 1) * param.pageSize + 1} -
+            ${param.currentPage * param.pageSize > param.totalRecords ? param.totalRecords : param.currentPage * param.pageSize}
+            of ${param.totalRecords} results&nbsp;&nbsp;
         </div>
-    </c:if>
-</div>
+
+        <ul class="pagination">
+            <!-- Previous Page -->
+            <c:choose>
+                <c:when test="${param.currentPage > 1}">
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="${param.href}?page=${param.currentPage - 1}&limit=${param.pageSize}&sort=${param.sort}&direction=${param.direction}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                </c:when>
+                <c:otherwise>
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            <i class="bi bi-chevron-left"></i>
+                        </span>
+                    </li>
+                </c:otherwise>
+            </c:choose>
+
+            <!-- First Page -->
+            <c:if test="${param.currentPage > 3}">
+                <li class="page-item">
+                    <a class="page-link"
+                       href="${param.href}?page=1&limit=${param.pageSize}&sort=${param.sort}&direction=${param.direction}">
+                        1
+                    </a>
+                </li>
+                <c:if test="${param.currentPage > 4}">
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                </c:if>
+            </c:if>
+
+            <!-- Pages around current -->
+            <c:forEach begin="${param.currentPage - 2 < 1 ? 1 : param.currentPage - 2}"
+                       end="${param.currentPage + 2 > param.totalPages ? param.totalPages : param.currentPage + 2}"
+                       var="i">
+                <c:choose>
+                    <c:when test="${i == param.currentPage}">
+                        <li class="page-item active">
+                            <span class="page-link">${i}</span>
+                        </li>
+                    </c:when>
+                    <c:otherwise>
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="${param.href}?page=${i}&limit=${param.pageSize}&sort=${param.sort}&direction=${param.direction}">
+                                ${i}
+                            </a>
+                        </li>
+                    </c:otherwise>
+                </c:choose>
+            </c:forEach>
+
+            <!-- Last Page -->
+            <c:if test="${param.currentPage < param.totalPages - 2}">
+                <c:if test="${param.currentPage < param.totalPages - 3}">
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                </c:if>
+                <li class="page-item">
+                    <a class="page-link"
+                       href="${param.href}?page=${param.totalPages}&limit=${param.pageSize}&sort=${param.sort}&direction=${param.direction}">
+                        ${param.totalPages}
+                    </a>
+                </li>
+            </c:if>
+
+            <!-- Next Page -->
+            <c:choose>
+                <c:when test="${param.currentPage < param.totalPages}">
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="${param.href}?page=${param.currentPage + 1}&limit=${param.pageSize}&sort=${param.sort}&direction=${param.direction}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </c:when>
+                <c:otherwise>
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            <i class="bi bi-chevron-right"></i>
+                        </span>
+                    </li>
+                </c:otherwise>
+            </c:choose>
+        </ul>
+    </div>
+</c:if>
+
