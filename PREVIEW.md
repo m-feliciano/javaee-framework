@@ -35,14 +35,13 @@ css/
 
 ## Application Interfaces
 
-### Product Management
+### Home Page
 
 <p align="center">
-  <img src="images/product-list.png" alt="Product Management Interface" width="800">
+  <img src="images/homepage.png" alt="Health Dashboard" width="700">
   <br>
-  <em>Data grid with server-side pagination, sorting, and filtering</em>
+  <em>Home page</em>
 </p>
-
 ---
 
 ## Health Monitoring Dashboard
@@ -66,15 +65,15 @@ css/
 ### Audit Logging UI
 
 <p align="center">
-  <img src="images/history-dark.png" alt="Activity History - Dark Mode" width="800">
+  <img src="images/timeline.png" alt="Timeline - Dark Mode" width="800">
   <br>
-  <em>Searchable audit trail with advanced filtering and correlation tracking</em>
+  <em>Timeline view with event filtering and correlation tracking</em>
 </p>
 
 <p align="center">
-  <img src="images/history-detail-dark.png" alt="Activity Detail - Dark Mode" width="800">
+  <img src="images/history-view.png" alt="Timeline - Dark Mode" width="800">
   <br>
-  <em>JSON payload viewer with syntax highlighting and tree navigation</em>
+  <em>Timeline view with event filtering and correlation tracking</em>
 </p>
 
 <p align="center">

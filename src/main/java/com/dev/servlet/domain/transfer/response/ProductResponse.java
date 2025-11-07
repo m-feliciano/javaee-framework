@@ -20,8 +20,9 @@ public final class ProductResponse {
     private BigDecimal price;
     private CategoryResponse category;
 
-    public ProductResponse(String id, String name) {
+    public ProductResponse(String id, String name, BigDecimal price) {
         this.id = id;
         this.name = name;
+        this.price = price;
     }
 }

@@ -13,6 +13,8 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 @NoArgsConstructor
 @RequestScoped
@@ -48,6 +50,25 @@ public class UserActivityLogDAO extends BaseDAO<UserActivityLog, String> {
         }
 
         return predicate;
+    }
+
+    public List<UserActivityLog> findByUserIdAndDateRange(String userId, Date startDate, Date endDate) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<UserActivityLog> cq = cb.createQuery(UserActivityLog.class);
+        Root<UserActivityLog> root = cq.from(UserActivityLog.class);
+
+        Predicate predicate = cb.equal(root.get("userId"), userId);
+
+        if (startDate != null) {
+            predicate = cb.and(predicate, cb.greaterThanOrEqualTo(root.get("timestamp"), startDate));
+        }
+        if (endDate != null) {
+            predicate = cb.and(predicate, cb.lessThanOrEqualTo(root.get("timestamp"), endDate));
+        }
+
+        cq.where(predicate).orderBy(cb.desc(root.get("timestamp")));
+        TypedQuery<UserActivityLog> query = em.createQuery(cq);
+        return query.getResultList();
     }
 }
 

@@ -7,6 +7,7 @@ import com.dev.servlet.core.annotation.RequestMapping;
 import com.dev.servlet.core.mapper.ActivityMapper;
 import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
+import com.dev.servlet.core.util.DateUtil;
 import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.domain.model.User;
 import com.dev.servlet.domain.model.UserActivityLog;
@@ -20,10 +21,14 @@ import com.dev.servlet.infrastructure.persistence.IPageable;
 import com.dev.servlet.infrastructure.persistence.internal.PageRequest;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 
 import javax.inject.Inject;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
+import static com.dev.servlet.core.util.DateUtil.DD_MM_MYYYY;
 import static com.dev.servlet.domain.model.enums.RequestMethod.GET;
 
 @Slf4j
@@ -91,6 +96,34 @@ public class ActivityController extends BaseController {
 
         } catch (Exception e) {
             log.error("Error fetching user history by action", e);
+            return HttpResponse.error(500, "Internal server error");
+        }
+    }
+
+    @RequestMapping(value = "/timeline", method = GET)
+    public IHttpResponse<List<UserActivityLogResponse>> getTimeline(Query query, @Authentication String auth) {
+        try {
+            String userId = jwts.getUserId(auth);
+
+            String startDateStr = null;
+            String endDateStr = null;
+            if (query != null) {
+                startDateStr = query.queries().get("startDate");
+                endDateStr = query.queries().get("endDate");
+            }
+
+            String startDate = ObjectUtils.getIfNull(startDateStr, DateUtil.getTodayStartDateStringYYYYMMDD());
+            Date dateInitial = DateUtil.toDateInitial(startDate, DD_MM_MYYYY);
+
+            String endDate = ObjectUtils.getIfNull(endDateStr, DateUtil.getTodayEndDateStringYYYYMMDD());
+            Date dateFinal = DateUtil.toDateFinal(endDate, DD_MM_MYYYY);
+
+            List<UserActivityLogResponse> activities = activityService.getActivitiesByDateRange(
+                    userId, dateInitial, dateFinal, activityMapper::toResponse);
+
+            return HttpResponse.ok(activities).next(forwardTo("timeline")).build();
+        } catch (Exception e) {
+            log.error("Error fetching timeline activities", e);
             return HttpResponse.error(500, "Internal server error");
         }
     }
