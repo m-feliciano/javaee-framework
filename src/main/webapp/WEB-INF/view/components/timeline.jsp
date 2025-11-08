@@ -131,19 +131,19 @@
                             <c:forEach items="${dateCountMap}" var="entry">
                                 <c:set var="dateKey" value="${entry.key}"/>
                                 <c:set var="totalCount" value="${entry.value}"/>
-                                <c:set var="successCount" value="${dateSuccessMap[dateKey]}"/>
-                                <c:set var="failedCount" value="${dateFailedMap[dateKey]}"/>
+                                <c:set var="daySuccessCount" value="${dateSuccessMap[dateKey]}"/>
+                                <c:set var="dayFailedCount" value="${dateFailedMap[dateKey]}"/>
 
-                                <c:if test="${empty successCount}">
-                                    <c:set var="successCount" value="0"/>
+                                <c:if test="${empty daySuccessCount}">
+                                    <c:set var="daySuccessCount" value="0"/>
                                 </c:if>
-                                <c:if test="${empty failedCount}">
-                                    <c:set var="failedCount" value="0"/>
+                                <c:if test="${empty dayFailedCount}">
+                                    <c:set var="dayFailedCount" value="0"/>
                                 </c:if>
 
                                 <c:set var="heightPercentTotal" value="${100 - (totalCount * 100) / maxCount}"/>
-                                <c:set var="heightPercentSuccess" value="${100 - (successCount * 100) / maxCount}"/>
-                                <c:set var="heightPercentFailed" value="${100 - (failedCount * 100) / maxCount}"/>
+                                <c:set var="heightPercentSuccess" value="${100 - (daySuccessCount * 100) / maxCount}"/>
+                                <c:set var="heightPercentFailed" value="${100 - (dayFailedCount * 100) / maxCount}"/>
                                 <c:set var="xPercent" value="${(index * 100) / (totalDates - 1)}"/>
 
                                 <c:choose>
