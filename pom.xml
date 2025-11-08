@@ -199,8 +199,15 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>${maven.compiler.release}</source>
-                    <target>${maven.compiler.release}</target>
+                    <!-- Usa o JDK 21 via Toolchain -->
+                    <jdkToolchain>
+                        <version>21</version>
+                        <vendor>openjdk</vendor>
+                    </jdkToolchain>
+
+                    <!-- Gera bytecode compatível com Java 17 -->
+                    <release>17</release>
+
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.mapstruct</groupId>
