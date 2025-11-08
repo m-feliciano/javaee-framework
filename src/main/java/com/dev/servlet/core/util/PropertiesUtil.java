@@ -2,7 +2,6 @@ package com.dev.servlet.core.util;
 
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -42,7 +41,6 @@ public final class PropertiesUtil {
         }
     }
 
-    @NotNull
     private static Properties getProperties() throws IOException {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         URL resourceUrl = loader.getResource("");

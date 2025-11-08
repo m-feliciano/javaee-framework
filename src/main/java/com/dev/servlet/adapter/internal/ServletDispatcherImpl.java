@@ -5,10 +5,8 @@ import com.dev.servlet.adapter.IServletDispatcher;
 import com.dev.servlet.core.builder.HtmlTemplate;
 import com.dev.servlet.core.builder.RequestBuilder;
 import com.dev.servlet.core.exception.ServiceException;
-import com.dev.servlet.core.interfaces.IRateLimiter;
 import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.util.JwtUtil;
-import com.dev.servlet.core.util.PropertiesUtil;
 import com.dev.servlet.core.util.URIUtils;
 import com.dev.servlet.domain.model.User;
 import com.dev.servlet.domain.model.enums.RequestMethod;
@@ -23,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
@@ -37,10 +34,7 @@ import java.text.MessageFormat;
 @NoArgsConstructor
 @ApplicationScoped
 public class ServletDispatcherImpl implements IServletDispatcher {
-    public static final int WAIT_TIME = 600;
     public static final String LOGOUT = "logout";
-
-    private boolean rateLimitEnabled;
 
     @Inject
     private AuthCookieService cookieService;
@@ -50,13 +44,6 @@ public class ServletDispatcherImpl implements IServletDispatcher {
     private JwtUtil jwts;
     @Inject
     private IHttpExecutor<?> httpExecutor;
-    @Inject
-    private IRateLimiter rateLimiter;
-
-    @PostConstruct
-    public void init() {
-        rateLimitEnabled = PropertiesUtil.getProperty("rate.limit.enabled", true);
-    }
 
     @Interceptors({LogExecutionTimeInterceptor.class})
     public void dispatch(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
@@ -73,11 +60,6 @@ public class ServletDispatcherImpl implements IServletDispatcher {
         log.info("Processing request: {} {}", method, requestURI);
 
         try {
-            if (rateLimitEnabled && !rateLimiter.acquireOrWait(WAIT_TIME)) {
-                log.warn("Rate limit exceeded for request: {} {}", method, requestURI);
-                throw new ServiceException(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Please try again later.");
-            }
-
             Request request = newRequest(httpServletRequest);
             IHttpResponse<?> httpResponse = httpExecutor.call(request);
             processResponse(httpServletRequest, httpServletResponse, request, httpResponse);
@@ -124,6 +106,8 @@ public class ServletDispatcherImpl implements IServletDispatcher {
         handleResponseErrors(httpRequest, httpResponse, response);
 
         if (request.getEndpoint() != null && request.getEndpoint().contains(LOGOUT)) {
+            httpRequest.getSession().invalidate();
+            httpRequest.getSession(true);
             cookieService.clearAuthCookies(httpResponse);
         }
     }

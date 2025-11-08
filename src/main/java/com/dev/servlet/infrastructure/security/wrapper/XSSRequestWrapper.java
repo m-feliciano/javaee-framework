@@ -1,9 +1,9 @@
 package com.dev.servlet.infrastructure.security.wrapper;
-import org.apache.commons.text.StringEscapeUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import java.util.HashMap;
 import java.util.Map;
+import org.owasp.encoder.Encode;
 
 public class XSSRequestWrapper extends HttpServletRequestWrapper {
     public XSSRequestWrapper(HttpServletRequest request) {
@@ -46,6 +46,6 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
     }
 
     private String sanitize(String value) {
-        return value != null ? StringEscapeUtils.escapeHtml4(value) : null;
+        return value != null ? Encode.forHtml(value) : null;
     }
 }

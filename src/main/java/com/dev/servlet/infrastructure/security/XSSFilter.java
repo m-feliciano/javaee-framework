@@ -20,8 +20,4 @@ public class XSSFilter implements Filter {
         XSSRequestWrapper wrappedRequest = new XSSRequestWrapper(httpRequest);
         chain.doFilter(wrappedRequest, response);
     }
-
-    @Override
-    public void destroy() {
-    }
 }
