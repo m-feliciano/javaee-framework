@@ -22,22 +22,21 @@
             <!--            <property name="hibernate.format_sql" value="true"/>-->
             <property name="hibernate.cache.use_query_cache" value="true"/>
 
-            <property name="hibernate.c3p0.initialPoolSize" value="10"/>
-            <property name="hibernate.c3p0.min_size" value="5"/>
-            <property name="hibernate.c3p0.max_size" value="50"/>
-            <property name="hibernate.c3p0.acquire_increment" value="5"/>
-            <property name="hibernate.c3p0.timeout" value="1800"/>
-            <property name="hibernate.c3p0.idle_test_period" value="300"/>
-            <property name="hibernate.c3p0.max_idle_time" value="600"/>
+            <!-- HikariCP Connection Pool -->
+            <property name="hibernate.connection.provider_class" value="org.hibernate.hikaricp.internal.HikariCPConnectionProvider"/>
+            <property name="hibernate.hikari.minimumIdle" value="5"/>
+            <property name="hibernate.hikari.maximumPoolSize" value="50"/>
+            <property name="hibernate.hikari.idleTimeout" value="300000"/>
+            <property name="hibernate.hikari.connectionTimeout" value="20000"/>
+            <property name="hibernate.hikari.maxLifetime" value="1800000"/>
+            <property name="hibernate.hikari.connectionTestQuery" value="SELECT 1"/>
+            <property name="hibernate.hikari.poolName" value="ServletsHikariPool"/>
 
-            <property name="hibernate.c3p0.preferredTestQuery" value="SELECT 1"/>
-            <property name="hibernate.c3p0.testConnectionOnCheckout" value="false"/>
-            <property name="hibernate.c3p0.testConnectionOnCheckin" value="true"/>
-            <property name="hibernate.c3p0.max_statements" value="100"/>
-            <property name="hibernate.c3p0.maxStatementsPerConnection" value="20"/>
-
-            <property name="hibernate.cache.ehcache.missing_cache_strategy" value="create"/>
-            <property name="hibernate.cache.region.factory_class" value="org.hibernate.cache.ehcache.EhCacheRegionFactory"/>
+            <!-- JCache / Ehcache 3 Configuration -->
+            <property name="hibernate.cache.region.factory_class" value="org.hibernate.cache.jcache.JCacheRegionFactory"/>
+            <property name="hibernate.javax.cache.provider" value="org.ehcache.jsr107.EhcacheCachingProvider"/>
+            <property name="hibernate.javax.cache.uri" value="ehcache.xml"/>
+            <property name="hibernate.javax.cache.missing_cache_strategy" value="create"/>
         </properties>
     </persistence-unit>
 </persistence>

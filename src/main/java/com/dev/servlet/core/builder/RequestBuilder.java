@@ -8,7 +8,6 @@ import com.dev.servlet.domain.transfer.records.KeyPair;
 import com.dev.servlet.domain.transfer.records.Query;
 import com.dev.servlet.infrastructure.persistence.IPageRequest;
 import lombok.Builder;
-import org.jetbrains.annotations.Nullable;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -79,7 +78,6 @@ public class RequestBuilder {
             return AuthCookieServiceImpl.extractBearerToken(request);
         }
 
-        @Nullable
         private String resolveId() {
             String id = URIUtils.getResourceId(httpServletRequest);
             if (id != null) {

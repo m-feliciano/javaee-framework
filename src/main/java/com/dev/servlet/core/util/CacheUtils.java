@@ -9,7 +9,6 @@ import org.ehcache.config.builders.CacheManagerBuilder;
 import org.ehcache.config.builders.ExpiryPolicyBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.Collection;
@@ -143,7 +142,5 @@ public final class CacheUtils {
     }
 
     private record Container(Object data) implements Serializable {
-        @Serial
-        private static final long serialVersionUID = 1L;
     }
 }

@@ -23,6 +23,16 @@
         <filter-name>MDCFilter</filter-name>
         <url-pattern>/api/*</url-pattern>
     </filter-mapping>
+
+    <filter>
+        <filter-name>RateLimitFilter</filter-name>
+        <filter-class>com.dev.servlet.infrastructure.security.RateLimitFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>RateLimitFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
+    </filter-mapping>
+
     <filter>
         <filter-name>SecurityPasswordEncryptionFilter</filter-name>
         <filter-class>com.dev.servlet.infrastructure.security.PasswordEncryptFilter</filter-class>
