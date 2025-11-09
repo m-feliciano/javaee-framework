@@ -1,5 +1,5 @@
 package com.dev.servlet.infrastructure.persistence;
-import com.dev.servlet.domain.transfer.records.Sort;
+import com.dev.servlet.domain.records.Sort;
 
 public interface ISorted {
     default Sort getSort() {

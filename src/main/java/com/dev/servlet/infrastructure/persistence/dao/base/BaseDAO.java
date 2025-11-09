@@ -2,7 +2,7 @@ package com.dev.servlet.infrastructure.persistence.dao.base;
 
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.util.ClassUtil;
-import com.dev.servlet.domain.transfer.records.Sort;
+import com.dev.servlet.domain.records.Sort;
 import com.dev.servlet.infrastructure.persistence.IPageRequest;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

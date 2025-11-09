@@ -1,6 +1,6 @@
 package com.dev.servlet.infrastructure.persistence.internal;
 
-import com.dev.servlet.domain.transfer.records.Sort;
+import com.dev.servlet.domain.records.Sort;
 import com.dev.servlet.infrastructure.persistence.IPageable;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

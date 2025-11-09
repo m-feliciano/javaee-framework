@@ -137,7 +137,8 @@ The framework follows Clean Architecture principles, organized into four main la
 
 - **Adapter Layer** (`adapter`): Handles external interfaces, including the custom MVC dispatcher (`ServletDispatcherImpl`), HTTP executors, and request/response adapters.
 - **Core Layer** (`core`): Contains framework internals, such as custom annotations (`@Controller`, `@RequestMapping`), utilities, validators, and response builders.
-- **Domain Layer** (`domain`): Business logic, entities, services, and domain models. Includes audit services, authentication, and health monitoring.
+- **Domain Layer** (`domain`): Entities, Transfers, and domain models.
+- **Service Layer** (`service`): Business logic, Includes audit services, authentication, and health monitoring.
 - **Infrastructure Layer** (`infrastructure`): External concerns like persistence (Hibernate), security filters (JWT, XSS), and caching (Ehcache).
 
 ### Custom MVC Framework

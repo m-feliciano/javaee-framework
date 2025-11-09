@@ -5,7 +5,7 @@ import com.dev.servlet.core.annotation.Controller;
 import com.dev.servlet.core.annotation.RequestMapping;
 import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
-import com.dev.servlet.domain.service.HealthService;
+import com.dev.servlet.service.HealthService;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

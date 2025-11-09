@@ -1,7 +1,7 @@
 package com.dev.servlet.infrastructure.security;
 
 import com.dev.servlet.domain.model.enums.RequestMethod;
-import com.dev.servlet.domain.service.AuthCookieService;
+import com.dev.servlet.service.AuthCookieService;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;

@@ -14,12 +14,7 @@ public enum RequestMethod {
         this.method = method;
     }
 
-    public static RequestMethod fromString(String method) {
-        for (RequestMethod requestMethod : RequestMethod.values()) {
-            if (requestMethod.getMethod().equalsIgnoreCase(method)) {
-                return requestMethod;
-            }
-        }
-        throw new IllegalArgumentException("No enum constant " + RequestMethod.class.getCanonicalName() + "." + method);
+    public boolean isEquals(String method) {
+        return this.method.equalsIgnoreCase(method);
     }
 }

@@ -7,10 +7,10 @@ import com.dev.servlet.core.annotation.RequestMapping;
 import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.domain.model.enums.RoleType;
-import com.dev.servlet.domain.service.IUserService;
-import com.dev.servlet.domain.transfer.request.UserCreateRequest;
-import com.dev.servlet.domain.transfer.request.UserRequest;
-import com.dev.servlet.domain.transfer.response.UserResponse;
+import com.dev.servlet.service.IUserService;
+import com.dev.servlet.domain.request.UserCreateRequest;
+import com.dev.servlet.domain.request.UserRequest;
+import com.dev.servlet.domain.response.UserResponse;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 

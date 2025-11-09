@@ -1,6 +1,6 @@
 package com.dev.servlet.infrastructure.security;
 
-import com.dev.servlet.core.util.IRateLimiter;
+import com.dev.servlet.core.util.RateLimiter;
 import com.dev.servlet.core.util.PropertiesUtil;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ public class RateLimitFilter implements Filter {
     private static final Map<String, EndpointRateLimit> endpointLimits = new HashMap<>();
 
     @Inject
-    private IRateLimiter rateLimiter;
+    private RateLimiter rateLimiter;
 
     private boolean enabled;
 

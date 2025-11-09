@@ -6,7 +6,7 @@ import com.dev.servlet.core.util.CollectionUtils;
 import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.core.validator.ValidationHandler;
 import com.dev.servlet.domain.model.enums.RoleType;
-import com.dev.servlet.domain.transfer.Request;
+import com.dev.servlet.domain.request.Request;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;

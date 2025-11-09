@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <div class="search-container">
     <form class="search-form" action="${param.action}" method="get">
@@ -30,8 +31,21 @@
         <c:if test="${not empty param.searchType}">
             <input type="hidden" name="k" value="${param.searchType}">
         </c:if>
-        <c:if test="${not empty param.limit}">
+        <c:if test="${not empty param.listStatus}">
             <div class="search-input-wrapper" style="max-width: 150px;">
+                <label class="form-label" for="searchStatus">Status</label>
+                <select id="searchStatus" name="status" class="form-control" onchange="this.form.submit()">
+                    <option value="">All</option>
+                    <c:forEach items="${param.listStatus}" var="statusItem">
+                        <c:set var="plainStatus" value="${statusItem.replaceAll('[^a-zA-Z0-9]', '')}" />
+                        <option value="${plainStatus}"
+                                <c:if test="${plainStatus == status}">selected</c:if>>${plainStatus}</option>
+                    </c:forEach>
+                </select>
+            </div>
+        </c:if>
+        <c:if test="${not empty param.limit}">
+            <div class="search-input-wrapper" style="max-width: 100px;">
                 <label class="form-label" for="searchLimit">Limit</label>
                 <select id="searchLimit" name="limit" class="form-control" onchange="this.form.submit()">
                     <option value="5" ${param.limit == '5' ? 'selected' : ''}>5</option>

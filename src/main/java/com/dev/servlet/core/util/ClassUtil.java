@@ -1,6 +1,6 @@
 package com.dev.servlet.core.util;
 
-import com.dev.servlet.domain.transfer.records.KeyPair;
+import com.dev.servlet.domain.records.KeyPair;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;

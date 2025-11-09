@@ -5,7 +5,7 @@ import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.response.IServletResponse;
 import com.dev.servlet.core.util.JwtUtil;
-import com.dev.servlet.domain.transfer.records.KeyPair;
+import com.dev.servlet.domain.records.KeyPair;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;

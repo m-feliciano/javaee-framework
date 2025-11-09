@@ -3,6 +3,7 @@ package com.dev.servlet.infrastructure.persistence.dao;
 import com.dev.servlet.domain.model.UserActivityLog;
 import com.dev.servlet.infrastructure.persistence.dao.base.BaseDAO;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.MatchMode;
 
 import javax.enterprise.context.RequestScoped;
@@ -52,12 +53,15 @@ public class UserActivityLogDAO extends BaseDAO<UserActivityLog, String> {
         return predicate;
     }
 
-    public List<UserActivityLog> findByUserIdAndDateRange(String userId, Date startDate, Date endDate) {
+    public List<UserActivityLog> findByUserIdAndDateRange(String userId, Date startDate, Date endDate, String status) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<UserActivityLog> cq = cb.createQuery(UserActivityLog.class);
         Root<UserActivityLog> root = cq.from(UserActivityLog.class);
 
         Predicate predicate = cb.equal(root.get("userId"), userId);
+        if (StringUtils.isNotBlank(status)) {
+            predicate = cb.and(predicate, cb.equal(root.get("status"), status.toUpperCase()));
+        }
 
         if (startDate != null) {
             predicate = cb.and(predicate, cb.greaterThanOrEqualTo(root.get("timestamp"), startDate));

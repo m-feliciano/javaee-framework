@@ -11,13 +11,13 @@ import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.response.IServletResponse;
 import com.dev.servlet.domain.model.Product;
-import com.dev.servlet.domain.service.ICategoryService;
-import com.dev.servlet.domain.service.IProductService;
-import com.dev.servlet.domain.transfer.records.KeyPair;
-import com.dev.servlet.domain.transfer.records.Query;
-import com.dev.servlet.domain.transfer.request.ProductRequest;
-import com.dev.servlet.domain.transfer.response.CategoryResponse;
-import com.dev.servlet.domain.transfer.response.ProductResponse;
+import com.dev.servlet.service.ICategoryService;
+import com.dev.servlet.service.IProductService;
+import com.dev.servlet.domain.records.KeyPair;
+import com.dev.servlet.domain.records.Query;
+import com.dev.servlet.domain.request.ProductRequest;
+import com.dev.servlet.domain.response.CategoryResponse;
+import com.dev.servlet.domain.response.ProductResponse;
 import com.dev.servlet.infrastructure.persistence.IPageRequest;
 import com.dev.servlet.infrastructure.persistence.IPageable;
 import lombok.NoArgsConstructor;
@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.dev.servlet.domain.model.enums.RequestMethod.GET;
 import static com.dev.servlet.domain.model.enums.RequestMethod.POST;
 
 @NoArgsConstructor
@@ -88,15 +89,15 @@ public class ProductController extends BaseController {
         return getServletResponse(pageRequest, auth, product);
     }
 
-    @SneakyThrows
     @RequestMapping(value = "/list/{id}", jsonType = ProductRequest.class)
+    @SneakyThrows
     public IHttpResponse<ProductResponse> getProductDetail(ProductRequest request, @Authentication String auth) {
         ProductResponse product = productService.getProductDetail(request, auth);
         return okHttpResponse(product, forwardTo("formListProduct"));
     }
 
-    @SneakyThrows
     @RequestMapping(value = "/update/{id}", method = POST, jsonType = ProductRequest.class)
+    @SneakyThrows
     public IHttpResponse<Void> update(ProductRequest request, @Authentication String auth) {
         ProductResponse response = productService.update(request, auth);
         return newHttpResponse(204, redirectTo(response.getId()));
@@ -109,8 +110,8 @@ public class ProductController extends BaseController {
         return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
     }
 
+    @RequestMapping(value = "/scrape", method = GET)
     @SneakyThrows
-    @RequestMapping("/scrape")
     public IHttpResponse<Void> scrape(@Authentication String auth,
                                       @Property("env") String environment,
                                       @Property("scrape.product.url") String url) {
@@ -120,8 +121,9 @@ public class ProductController extends BaseController {
 
 
     private IServletResponse getServletResponse(IPageRequest pageRequest, String auth, Product product) throws ServiceException {
-        IPageable<ProductResponse> page = getAllPageable(pageRequest, auth, product);
-        BigDecimal price = calculateTotalPrice(page, product);
+        pageRequest.setFilter(product);
+        IPageable<ProductResponse> page = productService.getAllPageable(pageRequest, auth, productMapper::toResponseWithoutCategory);
+        BigDecimal price = productService.calculateTotalPriceFor(page, product);
         Collection<CategoryResponse> categories = categoryService.list(null, auth);
 
         Set<KeyPair> container = new HashSet<>();
@@ -130,18 +132,5 @@ public class ProductController extends BaseController {
         container.add(new KeyPair("categories", categories));
 
         return newServletResponse(container, forwardTo("listProducts"));
-    }
-
-
-    private IPageable<ProductResponse> getAllPageable(IPageRequest pageRequest, String auth, Product filter) {
-        pageRequest.setFilter(filter);
-        return productService.getAllPageable(pageRequest, auth, productMapper::toResponseWithoutCategory);
-    }
-
-    private BigDecimal calculateTotalPrice(IPageable<?> page, Product filter) {
-        if (page != null && page.getContent().iterator().hasNext()) {
-            return productService.calculateTotalPriceFor(filter);
-        }
-        return BigDecimal.ZERO;
     }
 }

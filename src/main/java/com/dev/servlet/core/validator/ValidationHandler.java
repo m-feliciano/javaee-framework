@@ -2,7 +2,7 @@ package com.dev.servlet.core.validator;
 
 import com.dev.servlet.core.annotation.RequestMapping;
 import com.dev.servlet.core.exception.ServiceException;
-import com.dev.servlet.domain.transfer.Request;
+import com.dev.servlet.domain.request.Request;
 
 public interface ValidationHandler {
 

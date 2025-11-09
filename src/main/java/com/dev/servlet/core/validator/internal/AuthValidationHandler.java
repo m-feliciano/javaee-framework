@@ -3,7 +3,7 @@ package com.dev.servlet.core.validator.internal;
 import com.dev.servlet.core.annotation.RequestMapping;
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.validator.ValidationHandler;
-import com.dev.servlet.domain.transfer.Request;
+import com.dev.servlet.domain.request.Request;
 
 import javax.servlet.http.HttpServletResponse;
 

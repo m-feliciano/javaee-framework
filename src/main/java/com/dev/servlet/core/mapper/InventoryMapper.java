@@ -1,12 +1,12 @@
 package com.dev.servlet.core.mapper;
 
 import com.dev.servlet.domain.model.Inventory;
-import com.dev.servlet.domain.transfer.records.Query;
-import com.dev.servlet.domain.transfer.request.CategoryRequest;
-import com.dev.servlet.domain.transfer.request.InventoryCreateRequest;
-import com.dev.servlet.domain.transfer.request.InventoryRequest;
-import com.dev.servlet.domain.transfer.request.ProductRequest;
-import com.dev.servlet.domain.transfer.response.InventoryResponse;
+import com.dev.servlet.domain.records.Query;
+import com.dev.servlet.domain.request.CategoryRequest;
+import com.dev.servlet.domain.request.InventoryCreateRequest;
+import com.dev.servlet.domain.request.InventoryRequest;
+import com.dev.servlet.domain.request.ProductRequest;
+import com.dev.servlet.domain.response.InventoryResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -14,7 +14,7 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(unmappedTargetPolicy = ReportingPolicy.WARN)
 public interface InventoryMapper {
     String PRODUCT_RESPONSE_TEMPLATE = """
-        java(new com.dev.servlet.domain.transfer.response.ProductResponse(
+        java(new com.dev.servlet.domain.response.ProductResponse(
                 inventory.getProduct().getId(),
                 inventory.getProduct().getName(),
                 inventory.getProduct().getPrice()

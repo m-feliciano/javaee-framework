@@ -9,16 +9,16 @@ import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.CDI;
 import java.lang.annotation.Annotation;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Slf4j
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class BeanUtil {
 
     private static final String CONTROLLER_PACKAGE_NAME = "com.dev.servlet.controller.";
-    private static final Map<String, Class<?>> services = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<String, Class<?>> services = new ConcurrentHashMap<>();
 
     private static <T> T getBean(Class<T> beanType) {
         return getResolver().resolve(beanType);
@@ -61,23 +61,23 @@ public final class BeanUtil {
         }
 
         public Object getBean(String service) {
-            if (services.containsKey(service)) {
-                return BeanUtil.getBean(services.get(service));
-            }
-            try {
-                Class<?> serviceClass;
+            Class<?> beanType = services.computeIfAbsent(service, (data) -> {
                 try {
-                    serviceClass = ClassUtils.getClass(CONTROLLER_PACKAGE_NAME + service);
-                } catch (ClassNotFoundException e) {
-                    log.error("Failed to load service class: {}", service, e);
+                    Class<?> beanClass;
+                    try {
+                        beanClass = ClassUtils.getClass(CONTROLLER_PACKAGE_NAME + service);
+                    } catch (ClassNotFoundException e) {
+                        log.error("Failed to load service class: {}", service, e);
+                        return null;
+                    }
+                    return beanClass;
+                } catch (Exception e) {
+                    log.error("Error resolving service: {}", service, e);
                     return null;
                 }
-                services.put(service, serviceClass);
-                return resolve(serviceClass);
-            } catch (Exception e) {
-                log.error("Error resolving service: {}", service, e);
-                return null;
-            }
+            });
+
+            return BeanUtil.getBean(beanType);
         }
     }
 }

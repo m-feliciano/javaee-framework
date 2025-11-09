@@ -1,14 +1,16 @@
 package com.dev.servlet.adapter;
 
 
-import com.dev.servlet.adapter.internal.HttpExecutor;
+import com.dev.servlet.adapter.internal.HttpExecutorImpl;
 import com.dev.servlet.adapter.internal.ServletDispatcherImpl;
 import com.dev.servlet.core.response.IHttpResponse;
+import com.dev.servlet.core.util.LogSuppressor;
 import com.dev.servlet.core.util.URIUtils;
-import com.dev.servlet.domain.transfer.Request;
+import com.dev.servlet.domain.request.Request;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 
 import javax.servlet.RequestDispatcher;
@@ -24,13 +26,14 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(LogSuppressor.class)
 @SuppressWarnings("ALL")
 class IServletDispatcherTest {
 
     private IServletDispatcher servletDispatcher;
     private HttpServletRequest httpRequest;
     private HttpServletResponse httpResponse;
-    private IHttpExecutor httpExecutor;
+    private HttpExecutor httpExecutor;
     private IHttpResponse httpResponseMock;
     private PrintWriter printWriter;
 
@@ -39,7 +42,7 @@ class IServletDispatcherTest {
         servletDispatcher = new ServletDispatcherImpl();
         httpRequest = mock(HttpServletRequest.class);
         httpResponse = mock(HttpServletResponse.class);
-        httpExecutor = mock(HttpExecutor.class);
+        httpExecutor = mock(HttpExecutorImpl.class);
         httpResponseMock = mock(IHttpResponse.class);
         printWriter = mock(PrintWriter.class);
 
@@ -59,13 +62,13 @@ class IServletDispatcherTest {
         RequestDispatcher dispatcher = mock(RequestDispatcher.class);
         when(httpRequest.getRequestDispatcher("/WEB-INF/view/success.jsp")).thenReturn(dispatcher);
 
-        try (MockedStatic<HttpExecutor> executorMockStatic = mockStatic(HttpExecutor.class);
+        try (MockedStatic<HttpExecutorImpl> executorMockStatic = mockStatic(HttpExecutorImpl.class);
              MockedStatic<URIUtils> uriUtilsMockedStatic = mockStatic(URIUtils.class)) {
 
-            when(httpExecutor.call(any(Request.class))).thenReturn(httpResponseMock);
+            when(httpExecutor.send(any(Request.class))).thenReturn(httpResponseMock);
             servletDispatcher.dispatch(httpRequest, httpResponse);
             verify(dispatcher).forward(httpRequest, httpResponse);
-            verify(httpExecutor).call(any(Request.class));
+            verify(httpExecutor).send(any(Request.class));
         }
     }
 
@@ -75,10 +78,10 @@ class IServletDispatcherTest {
     void testDispatch_SendRedirect() throws Exception {
         when(httpResponseMock.next()).thenReturn("redirect:/somewhere");
 
-        try (MockedStatic<HttpExecutor> executorMockStatic = mockStatic(HttpExecutor.class);
+        try (MockedStatic<HttpExecutorImpl> executorMockStatic = mockStatic(HttpExecutorImpl.class);
              MockedStatic<URIUtils> uriUtilsMockedStatic = mockStatic(URIUtils.class)) {
 
-            when(httpExecutor.call(any(Request.class))).thenReturn(httpResponseMock);
+            when(httpExecutor.send(any(Request.class))).thenReturn(httpResponseMock);
             servletDispatcher.dispatch(httpRequest, httpResponse);
             verify(httpResponse).sendRedirect("/somewhere");
         }

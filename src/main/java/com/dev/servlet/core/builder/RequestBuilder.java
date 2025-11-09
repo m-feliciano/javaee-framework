@@ -2,19 +2,21 @@ package com.dev.servlet.core.builder;
 
 import com.dev.servlet.core.util.KeyPairJsonUtil;
 import com.dev.servlet.core.util.URIUtils;
-import com.dev.servlet.domain.service.internal.AuthCookieServiceImpl;
-import com.dev.servlet.domain.transfer.Request;
-import com.dev.servlet.domain.transfer.records.KeyPair;
-import com.dev.servlet.domain.transfer.records.Query;
+import com.dev.servlet.domain.request.Request;
+import com.dev.servlet.domain.records.KeyPair;
+import com.dev.servlet.domain.records.Query;
 import com.dev.servlet.infrastructure.persistence.IPageRequest;
 import lombok.Builder;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
+import static com.dev.servlet.core.enums.ConstantUtils.ACCESS_TOKEN_COOKIE;
+import static com.dev.servlet.core.enums.ConstantUtils.BEARER_PREFIX;
+
 @Builder(builderClassName = "RequestCreator", builderMethodName = "newBuilder")
-public class RequestBuilder {
-    private final HttpServletRequest httpServletRequest;
+public record RequestBuilder(HttpServletRequest servletRequest) {
 
     public static class RequestCreator {
         private String endpoint;
@@ -26,35 +28,35 @@ public class RequestBuilder {
         private int retry;
 
         public RequestCreator endpoint() {
-            this.endpoint = httpServletRequest.getServletPath();
+            this.endpoint = servletRequest.getServletPath();
             return this;
         }
 
         public RequestCreator method() {
-            this.method = httpServletRequest.getMethod();
+            this.method = servletRequest.getMethod();
             return this;
         }
 
         public RequestCreator body() {
             final String id = resolveId();
-            List<KeyPair> parameters = URIUtils.getParameters(httpServletRequest);
+            List<KeyPair> parameters = URIUtils.getParameters(servletRequest);
             parameters.add(new KeyPair("id", id));
             this.jsonBody = KeyPairJsonUtil.toJson(parameters);
             return this;
         }
 
         public RequestCreator token() {
-            this.token = token(httpServletRequest);
+            this.token = token(servletRequest);
             return this;
         }
 
         public RequestCreator pageRequest() {
-            this.pageRequest = URIUtils.getPageRequest(httpServletRequest);
+            this.pageRequest = URIUtils.getPageRequest(servletRequest);
             return this;
         }
 
         public RequestCreator query() {
-            this.query = URIUtils.query(httpServletRequest);
+            this.query = URIUtils.query(servletRequest);
             return this;
         }
 
@@ -75,11 +77,18 @@ public class RequestBuilder {
         }
 
         private String token(HttpServletRequest request) {
-            return AuthCookieServiceImpl.extractBearerToken(request);
+            if (request.getCookies() != null) {
+                for (Cookie cookie : request.getCookies()) {
+                    if (ACCESS_TOKEN_COOKIE.equals(cookie.getName())) {
+                        return BEARER_PREFIX + cookie.getValue();
+                    }
+                }
+            }
+            return null;
         }
 
         private String resolveId() {
-            String id = URIUtils.getResourceId(httpServletRequest);
+            String id = URIUtils.getResourceId(servletRequest);
             if (id != null) {
                 endpoint = endpoint.substring(0, endpoint.lastIndexOf("/"));
                 endpoint = endpoint.concat("/{id}");

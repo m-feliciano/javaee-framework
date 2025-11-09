@@ -13,7 +13,7 @@
 <fmt:formatDate value="${product.registerDate}" pattern="dd/MM/yyyy" var="stdDate"/>
 
 <div class="main">
-    <form action="${baseLink}${version}${ updateProduct }/${product.id}" method="post">
+    <form action="${baseLink}${version}${ updateProduct }/${product.id}" method="post" class="csrf-form">
         <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">

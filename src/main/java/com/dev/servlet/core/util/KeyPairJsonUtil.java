@@ -1,6 +1,6 @@
 package com.dev.servlet.core.util;
 
-import com.dev.servlet.domain.transfer.records.KeyPair;
+import com.dev.servlet.domain.records.KeyPair;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 

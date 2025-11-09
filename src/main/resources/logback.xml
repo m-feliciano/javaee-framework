@@ -41,7 +41,7 @@
     </appender>
 
     <!-- Logger específico para Auditoria -->
-    <logger name="com.dev.servlet.domain.service.internal.AuditServiceImpl" level="INFO" additivity="true">
+    <logger name="com.dev.servlet.service.internal.AuditServiceImpl" level="INFO" additivity="true">
         <appender-ref ref="AUDIT"/>
     </logger>
 

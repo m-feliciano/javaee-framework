@@ -15,6 +15,6 @@ public class ShortUuidGenerator implements IdentifierGenerator {
     }
 
     private String generateShortUuid() {
-        return UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+        return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
     }
 }

@@ -43,18 +43,16 @@ public final class CacheUtils {
     }
 
     private static Cache<String, Container> getOrCreateCache(String authKey) {
-        if (tokenCaches.containsKey(authKey)) {
-            return tokenCaches.get(authKey);
-        }
-        String cacheName = "cache_" + authKey;
-        cacheManager.removeCache(cacheName);
-        CacheConfigurationBuilder<String, Container> config = cacheConfigurationBuilder();
-        cacheManager.createCache(cacheName, config);
-        log.info("Created new cache for token: {}", authKey);
-        Cache<String, Container> cache = cacheManager.getCache(cacheName, String.class, Container.class);
-        tokenCaches.put(authKey, cache);
-        lastAccessMap.put(authKey, System.currentTimeMillis());
-        return cache;
+        return tokenCaches.computeIfAbsent(authKey, (data) -> {
+            String cacheName = "cache_" + authKey;
+            cacheManager.removeCache(cacheName);
+            CacheConfigurationBuilder<String, Container> config = cacheConfigurationBuilder();
+            cacheManager.createCache(cacheName, config);
+            log.info("Created new cache for token: {}", authKey);
+            Cache<String, Container> cache = cacheManager.getCache(cacheName, String.class, Container.class);
+            lastAccessMap.put(authKey, System.currentTimeMillis());
+            return cache;
+        });
     }
 
     private static CacheConfigurationBuilder<String, Container> cacheConfigurationBuilder() {
@@ -116,7 +114,7 @@ public final class CacheUtils {
         String cacheName = "cache_" + userId;
         cacheManager.removeCache(cacheName);
         tokenCaches.remove(userId);
-        log.info("Cleared all cache entries for token='{}'", userId);
+        log.info("Cleared all cache entries for userId='{}'", userId);
     }
 
     private static void cleanupUnusedCaches() {
@@ -128,7 +126,7 @@ public final class CacheUtils {
                 cacheManager.removeCache(cacheName);
                 tokenCaches.remove(cacheKey);
                 lastAccessMap.remove(cacheKey);
-                log.info("Evicted unused cache for token='{}'", cacheKey);
+                log.info("Evicted unused cache for userId='{}'", cacheKey);
             }
         }
     }

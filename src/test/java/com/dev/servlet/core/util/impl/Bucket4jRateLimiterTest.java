@@ -1,19 +1,39 @@
 package com.dev.servlet.core.util.impl;
 
-import com.dev.servlet.core.util.IRateLimiter;
+import com.dev.servlet.core.util.LogSuppressor;
+import com.dev.servlet.core.util.RateLimiter;
+import com.dev.servlet.core.util.PropertiesUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mockStatic;
 
+@ExtendWith(LogSuppressor.class)
 class Bucket4jRateLimiterTest {
 
-    private IRateLimiter rateLimiter;
+    private RateLimiter rateLimiter;
 
     @BeforeEach
     void setUp() {
-        rateLimiter = new Bucket4jRateLimiter();
-        ((Bucket4jRateLimiter) rateLimiter).init();
+        try (var propertiesUtilMock = mockStatic(PropertiesUtil.class)) {
+            propertiesUtilMock
+                    .when(() -> PropertiesUtil.getProperty(eq("rate.limit.capacity"), any()))
+                    .thenReturn(10L);
+            propertiesUtilMock
+                    .when(() -> PropertiesUtil.getProperty(eq("rate.limit.refill.tokens"), any()))
+                    .thenReturn(10L);
+            propertiesUtilMock
+                    .when(() -> PropertiesUtil.getProperty(eq("rate.limit.refill.period.seconds"), any()))
+                    .thenReturn(60L);
+
+            rateLimiter = new Bucket4jRateLimiter();
+            ((Bucket4jRateLimiter) rateLimiter).init();
+        }
     }
 
     @Test

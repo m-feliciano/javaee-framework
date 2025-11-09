@@ -10,7 +10,7 @@ import com.dev.servlet.core.validator.internal.AuthValidationHandler;
 import com.dev.servlet.core.validator.internal.ConstraintValidationHandler;
 import com.dev.servlet.core.validator.internal.MethodValidationHandler;
 import com.dev.servlet.core.validator.internal.RoleValidationHandler;
-import com.dev.servlet.domain.transfer.Request;
+import com.dev.servlet.domain.request.Request;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -6,9 +6,9 @@ import com.dev.servlet.core.annotation.Controller;
 import com.dev.servlet.core.annotation.RequestMapping;
 import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
-import com.dev.servlet.domain.service.ICategoryService;
-import com.dev.servlet.domain.transfer.request.CategoryRequest;
-import com.dev.servlet.domain.transfer.response.CategoryResponse;
+import com.dev.servlet.service.ICategoryService;
+import com.dev.servlet.domain.request.CategoryRequest;
+import com.dev.servlet.domain.response.CategoryResponse;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 

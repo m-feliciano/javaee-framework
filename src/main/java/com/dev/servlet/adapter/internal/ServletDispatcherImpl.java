@@ -1,6 +1,6 @@
 package com.dev.servlet.adapter.internal;
 
-import com.dev.servlet.adapter.IHttpExecutor;
+import com.dev.servlet.adapter.HttpExecutor;
 import com.dev.servlet.adapter.IServletDispatcher;
 import com.dev.servlet.core.builder.HtmlTemplate;
 import com.dev.servlet.core.builder.RequestBuilder;
@@ -10,11 +10,11 @@ import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.core.util.URIUtils;
 import com.dev.servlet.domain.model.User;
 import com.dev.servlet.domain.model.enums.RequestMethod;
-import com.dev.servlet.domain.service.AuthCookieService;
-import com.dev.servlet.domain.service.IUserService;
-import com.dev.servlet.domain.transfer.Request;
-import com.dev.servlet.domain.transfer.request.UserRequest;
-import com.dev.servlet.domain.transfer.response.UserResponse;
+import com.dev.servlet.service.AuthCookieService;
+import com.dev.servlet.service.IUserService;
+import com.dev.servlet.domain.request.Request;
+import com.dev.servlet.domain.request.UserRequest;
+import com.dev.servlet.domain.response.UserResponse;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -45,34 +45,34 @@ public class ServletDispatcherImpl implements IServletDispatcher {
     @Inject
     private JwtUtil jwts;
     @Inject
-    private IHttpExecutor<?> httpExecutor;
+    private HttpExecutor<?> httpExecutor;
 
     @Interceptors({LogExecutionTimeInterceptor.class})
     public void dispatch(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
         this.execute(servletRequest, servletResponse);
     }
 
-    private static Request newRequest(HttpServletRequest httpServletRequest) {
-        return RequestBuilder.newBuilder().httpServletRequest(httpServletRequest).complete().retry(1).build();
+    private static Request requestOf(HttpServletRequest httpServletRequest) {
+        return RequestBuilder.newBuilder().servletRequest(httpServletRequest).complete().retry(1).build();
     }
 
-    private void execute(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-        String requestURI = httpServletRequest.getRequestURI();
-        String method = httpServletRequest.getMethod();
+    private void execute(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
+        String requestURI = servletRequest.getRequestURI();
+        String method = servletRequest.getMethod();
         log.info("Processing request: {} {}", method, requestURI);
 
         try {
-            Request request = newRequest(httpServletRequest);
-            IHttpResponse<?> httpResponse = httpExecutor.call(request);
-            processResponse(httpServletRequest, httpServletResponse, request, httpResponse);
+            Request request = requestOf(servletRequest);
+            IHttpResponse<?> httpResponse = httpExecutor.send(request);
+            processResponse(servletRequest, servletResponse, request, httpResponse);
 
         } catch (ServiceException e) {
             log.error("Service exception for {} {}", method, requestURI, e);
-            writeResponseError(httpServletRequest, httpServletResponse, e.getCode(), e.getMessage());
+            writeResponseError(servletRequest, servletResponse, e.getCode(), e.getMessage());
         } catch (Exception e) {
             log.error("Unexpected exception for {} {}", method, requestURI, e);
             String message = "An unexpected error occurred. Please try again later.";
-            writeResponseError(httpServletRequest, httpServletResponse, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message);
+            writeResponseError(servletRequest, servletResponse, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message);
         }
     }
 
@@ -94,10 +94,13 @@ public class ServletDispatcherImpl implements IServletDispatcher {
 
     private void processResponseData(HttpServletRequest httpRequest,
                                      HttpServletResponse httpResponse,
-                                     Request request, IHttpResponse<?> response) {
-        if (RequestMethod.POST.getMethod().equals(request.getMethod()) && response.body() instanceof UserResponse userResponse) {
-            if (userResponse.getToken() != null || userResponse.getRefreshToken() != null) {
-                cookieService.setAuthCookies(httpResponse, userResponse.getToken(), userResponse.getRefreshToken());
+                                     Request request,
+                                     IHttpResponse<?> response) {
+        log.debug("Response status: {}", response.statusCode());
+
+        if (RequestMethod.POST.isEquals(request.getMethod()) && response.body() instanceof UserResponse user) {
+            if (user.hasToken()) {
+                cookieService.setAuthCookies(httpResponse, user.getToken(), user.getRefreshToken());
             }
         }
 
@@ -107,7 +110,7 @@ public class ServletDispatcherImpl implements IServletDispatcher {
         setRequestAttributes(httpRequest, response);
         handleResponseErrors(httpRequest, httpResponse, response);
 
-        if (request.getEndpoint() != null && request.getEndpoint().contains(LOGOUT)) {
+        if (request.contains(LOGOUT)) {
             cookieService.clearCookies(httpResponse);
         }
     }
@@ -128,10 +131,12 @@ public class ServletDispatcherImpl implements IServletDispatcher {
     private void processResponse(HttpServletRequest httpRequest, HttpServletResponse httpResponse, Request request, IHttpResponse<?> response) throws ServiceException {
         processResponseData(httpRequest, httpResponse, request, response);
         if (response.next() == null) return;
+
         String[] path = response.next().split(":");
         if (path.length != 2) {
             throw new ServiceException("Cannot parse URL: " + response.next());
         }
+
         String pathAction = path[0];
         String pathUrl = path[1];
         try {

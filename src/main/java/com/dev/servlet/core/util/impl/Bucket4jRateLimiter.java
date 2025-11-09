@@ -1,6 +1,6 @@
 package com.dev.servlet.core.util.impl;
 
-import com.dev.servlet.core.util.IRateLimiter;
+import com.dev.servlet.core.util.RateLimiter;
 import com.dev.servlet.core.util.PropertiesUtil;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Singleton
 @NoArgsConstructor
-public class Bucket4jRateLimiter implements IRateLimiter {
+public class Bucket4jRateLimiter implements RateLimiter {
 
     private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
     private BucketConfiguration bucketConfiguration;

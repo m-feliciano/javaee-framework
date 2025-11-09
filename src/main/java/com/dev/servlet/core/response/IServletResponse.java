@@ -1,6 +1,6 @@
 package com.dev.servlet.core.response;
 
-import com.dev.servlet.domain.transfer.records.KeyPair;
+import com.dev.servlet.domain.records.KeyPair;
 
 import java.util.Optional;
 import java.util.Set;

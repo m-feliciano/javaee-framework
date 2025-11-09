@@ -1,6 +1,6 @@
 package com.dev.servlet.infrastructure.persistence.internal;
 
-import com.dev.servlet.domain.transfer.records.Sort;
+import com.dev.servlet.domain.records.Sort;
 import com.dev.servlet.infrastructure.persistence.IPageRequest;
 import lombok.Builder;
 import lombok.Data;

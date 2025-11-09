@@ -1,7 +1,7 @@
 package com.dev.servlet.core.mapper;
 
 import com.dev.servlet.domain.model.UserActivityLog;
-import com.dev.servlet.domain.transfer.response.UserActivityLogResponse;
+import com.dev.servlet.domain.response.UserActivityLogResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;

@@ -161,7 +161,7 @@ public class ProductDAO extends BaseDAO<Product, String> {
         Predicate predicate = buildDefaultFilter(filter, builder, root);
         query.where(predicate).select(builder.sum(root.get("price")));
         BigDecimal totalPrice = em.createQuery(query).getSingleResult();
-        return ObjectUtils.defaultIfNull(totalPrice, BigDecimal.ZERO);
+        return ObjectUtils.getIfNull(totalPrice, BigDecimal.ZERO);
     }
     @Override
     @SuppressWarnings("unchecked")

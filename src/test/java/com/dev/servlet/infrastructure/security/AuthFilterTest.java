@@ -2,7 +2,7 @@ package com.dev.servlet.infrastructure.security;
 
 import com.dev.servlet.adapter.IServletDispatcher;
 import com.dev.servlet.core.util.JwtUtil;
-import com.dev.servlet.domain.service.AuthService;
+import com.dev.servlet.service.AuthService;
 import org.junit.jupiter.api.BeforeEach;
 
 import javax.servlet.FilterChain;

@@ -1,4 +1,5 @@
 <%@ page import="com.dev.servlet.core.response.IHttpResponse" %>
+<%@ page import="java.util.List" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -9,6 +10,7 @@
 <%
     IHttpResponse<?> httpResponse = (IHttpResponse<?>) request.getAttribute("response");
     request.setAttribute("pageable", httpResponse.body());
+    request.setAttribute("listStatus", List.of("SUCCESS", "FAILED", "PENDING"));
 %>
 
 <title>Activity History</title>
@@ -184,6 +186,7 @@
             <jsp:param name="sort" value="timestamp"/>
             <jsp:param name="searchType" value="name"/>
             <jsp:param name="order" value="desc"/>
+            <jsp:param name="listStatus" value="${listStatus}"/>
         </jsp:include>
 
         <c:choose>
@@ -269,7 +272,12 @@
                 </div>
 
                 <jsp:include page="/WEB-INF/view/components/pagination.jsp">
-                    <jsp:param name="pageable" value="${pageable}"/>
+                    <jsp:param name="totalRecords" value="${pageable.getTotalElements()}"/>
+                    <jsp:param name="currentPage" value="${pageable.getCurrentPage()}"/>
+                    <jsp:param name="totalPages" value="${pageable.getTotalPages()}"/>
+                    <jsp:param name="pageSize" value="${pageable.getPageSize()}"/>
+                    <jsp:param name="sort" value="${pageable.getSort().getField()}"/>
+                    <jsp:param name="direction" value="${pageable.getSort().getDirection().getValue()}"/>
                 </jsp:include>
             </c:otherwise>
         </c:choose>

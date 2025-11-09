@@ -9,8 +9,8 @@ import com.dev.servlet.core.util.EndpointParser;
 import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.core.util.PropertiesUtil;
 import com.dev.servlet.core.validator.RequestValidator;
-import com.dev.servlet.domain.transfer.Request;
-import com.dev.servlet.domain.transfer.records.Query;
+import com.dev.servlet.domain.request.Request;
+import com.dev.servlet.domain.records.Query;
 import com.dev.servlet.infrastructure.persistence.IPageRequest;
 
 import java.lang.reflect.Method;

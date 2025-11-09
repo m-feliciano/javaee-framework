@@ -2,10 +2,10 @@ package com.dev.servlet.core.mapper;
 
 import com.dev.servlet.domain.model.Product;
 import com.dev.servlet.domain.model.User;
-import com.dev.servlet.domain.transfer.records.Query;
-import com.dev.servlet.domain.transfer.request.CategoryRequest;
-import com.dev.servlet.domain.transfer.request.ProductRequest;
-import com.dev.servlet.domain.transfer.response.ProductResponse;
+import com.dev.servlet.domain.records.Query;
+import com.dev.servlet.domain.request.CategoryRequest;
+import com.dev.servlet.domain.request.ProductRequest;
+import com.dev.servlet.domain.response.ProductResponse;
 import com.dev.servlet.infrastructure.external.webscrape.transfer.ProductWebScrapeDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

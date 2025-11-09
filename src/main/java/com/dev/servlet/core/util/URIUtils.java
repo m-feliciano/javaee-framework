@@ -1,8 +1,8 @@
 package com.dev.servlet.core.util;
 
-import com.dev.servlet.domain.transfer.records.KeyPair;
-import com.dev.servlet.domain.transfer.records.Query;
-import com.dev.servlet.domain.transfer.records.Sort;
+import com.dev.servlet.domain.records.KeyPair;
+import com.dev.servlet.domain.records.Query;
+import com.dev.servlet.domain.records.Sort;
 import com.dev.servlet.infrastructure.persistence.IPageRequest;
 import com.dev.servlet.infrastructure.persistence.internal.PageRequest;
 import lombok.NoArgsConstructor;

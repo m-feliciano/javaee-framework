@@ -43,7 +43,7 @@ public class XSSRequestWrapperTest {
     @Test
     @DisplayName("Sanitize single parameter containing script tag")
     void testGetParameter() {
-        assertEquals("&lt;script&gt;alert('xss')&lt;/script&gt;", wrapper.getParameter("input"));
+        assertEquals("&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;", wrapper.getParameter("input"));
     }
 
     @Test
@@ -51,7 +51,7 @@ public class XSSRequestWrapperTest {
     void testGetParameterValues() {
         String[] values = wrapper.getParameterValues("input");
         assertEquals(2, values.length);
-        assertEquals("&lt;img src=x onerror=alert('xss')&gt;", values[0]);
+        assertEquals("&lt;img src=x onerror=alert(&#39;xss&#39;)&gt;", values[0]);
     }
 
     @Test
@@ -67,7 +67,7 @@ public class XSSRequestWrapperTest {
     void testGetParameterMap() {
         Map<String, String[]> parameterMap = wrapper.getParameterMap();
         assertEquals(1, parameterMap.size());
-        assertEquals("&lt;script&gt;alert('xss')&lt;/script&gt;", parameterMap.get("input")[0]);
+        assertEquals("&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;", parameterMap.get("input")[0]);
     }
 
     @Test
@@ -113,8 +113,8 @@ public class XSSRequestWrapperTest {
         String[] param1Values = wrapper.getParameterValues("param1");
         String[] param2Values = wrapper.getParameterValues("param2");
 
-        assertEquals("&lt;script&gt;alert('xss')&lt;/script&gt;", param1Values[0]);
-        assertEquals("&lt;img src=x onerror=alert('xss')&gt;", param2Values[0]);
+        assertEquals("&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;", param1Values[0]);
+        assertEquals("&lt;img src=x onerror=alert(&#39;xss&#39;)&gt;", param2Values[0]);
     }
 
     @Test
