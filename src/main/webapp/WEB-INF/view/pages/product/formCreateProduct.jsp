@@ -7,7 +7,7 @@
 %>
 
 <div class="main">
-    <form action="${baseLink}${version}${ createProduct }" method="post">
+    <form action="${baseLink}${version}${ createProduct }" method="post" class="csrf-form">
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputName" class="form-label">NAME</label>
@@ -51,5 +51,5 @@
         </div>
     </form>
 </div>
-<!-- footer -->
+
 <jsp:include page="/WEB-INF/view/components/footer.jsp"/>

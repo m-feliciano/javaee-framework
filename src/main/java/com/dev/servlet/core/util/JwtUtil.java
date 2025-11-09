@@ -16,13 +16,14 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+import static com.dev.servlet.core.enums.ConstantUtils.BEARER_PREFIX;
+
 @Slf4j
 @Singleton
 @SuppressWarnings("unchecked")
 public class JwtUtil {
     private static final String ISSUER = "Servlet";
     private static final String SUBJECT = "Authentication";
-    private static final String BEARER_PREFIX = "Bearer ";
     private static final String SUB_REFRESH = "Refresh";
     private static final String USER = "user";
     private static final String ROLES = "roles";

@@ -26,13 +26,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static com.dev.servlet.core.enums.ConstantUtils.BEARER_PREFIX;
+import static com.dev.servlet.core.enums.ConstantUtils.LOGIN_PAGE;
+
 
 @Setter
 @Slf4j
 @NoArgsConstructor
 public class AuthFilter implements Filter {
-    private static final String LOGIN_PAGE = "loginPage";
-    private static final String BEARER_PREFIX = "Bearer ";
     private final Map<String, Set<String>> preAuthorized = new java.util.HashMap<>();
 
     @Inject
@@ -98,7 +99,7 @@ public class AuthFilter implements Filter {
         }
 
         log.warn("Both tokens are invalid for: {}, redirecting to login page", httpRequest.getRequestURI());
-        cookieService.clearAuthCookies(httpResponse);
+        cookieService.clearCookies(httpResponse);
         redirectToLogin(httpResponse);
     }
 

@@ -6,6 +6,7 @@ import com.dev.servlet.domain.service.AuthCookieService;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -13,16 +14,23 @@ import javax.inject.Singleton;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.concurrent.TimeUnit;
+
+import static com.dev.servlet.core.enums.ConstantUtils.ACCESS_TOKEN_COOKIE;
+import static com.dev.servlet.core.enums.ConstantUtils.BEARER_PREFIX;
+import static com.dev.servlet.core.enums.ConstantUtils.CSRF_TOKEN_COOKIE;
+import static com.dev.servlet.core.enums.ConstantUtils.CSRF_TOKEN_HEADER;
+import static com.dev.servlet.core.enums.ConstantUtils.REFRESH_TOKEN_COOKIE;
 
 @Slf4j
 @Singleton
 public class AuthCookieServiceImpl implements AuthCookieService {
 
-    public static final String ACCESS_TOKEN_COOKIE = "accessToken";
-    public static final String REFRESH_TOKEN_COOKIE = "refreshToken";
     private static final int ACCESS_TOKEN_MAX_AGE = Math.toIntExact(TimeUnit.DAYS.toSeconds(1));
     private static final int REFRESH_TOKEN_MAX_AGE = Math.toIntExact(TimeUnit.DAYS.toSeconds(30));
+    private static final int CSRF_TOKEN_MAX_AGE = Math.toIntExact(TimeUnit.HOURS.toSeconds(1));
 
     @Setter
     @Inject
@@ -32,6 +40,7 @@ public class AuthCookieServiceImpl implements AuthCookieService {
     private String cookiePath;
     private String cookieDomain;
     private String sameSite;
+    private final SecureRandom secureRandom = new SecureRandom();
 
     @PostConstruct
     public void init() {
@@ -80,9 +89,10 @@ public class AuthCookieServiceImpl implements AuthCookieService {
     }
 
     @Override
-    public void clearAuthCookies(HttpServletResponse response) {
+    public void clearCookies(HttpServletResponse response) {
         addSecureCookie(response, ACCESS_TOKEN_COOKIE, "", 0);
         addSecureCookie(response, REFRESH_TOKEN_COOKIE, "", 0);
+        setCsrfTokenCookie(response, "");
     }
 
     @Override
@@ -122,6 +132,85 @@ public class AuthCookieServiceImpl implements AuthCookieService {
         header.append("; Max-Age=").append(maxAge);
         header.append("; HttpOnly");
 
+        return buildHeader(header);
+    }
+
+    @Override
+    public String getCsrfToken(HttpServletRequest request) {
+        return getTokenFromCookie(request, CSRF_TOKEN_COOKIE);
+    }
+
+    @Override
+    public void ensureCsrfToken(HttpServletRequest request, HttpServletResponse response) {
+        String csrfToken = getCsrfToken(request);
+        if (StringUtils.isBlank(csrfToken)) {
+            setCsrfTokenCookie(response, generateCsrfToken());
+            log.debug("Generated new CSRF token");
+            auditService.auditSuccess("csrf:token_generated", null, null);
+        }
+    }
+
+    @Override
+    public boolean validateCsrfToken(HttpServletRequest request) {
+        String cookieToken = getCsrfToken(request);
+        String requestToken = request.getHeader(CSRF_TOKEN_HEADER);
+
+        if (StringUtils.isBlank(requestToken)) {
+            requestToken = request.getParameter(CSRF_TOKEN_HEADER);
+        }
+
+        if (StringUtils.isBlank(cookieToken) || StringUtils.isBlank(requestToken)) {
+            log.warn("Missing CSRF token [cookie={}, request={}]", cookieToken != null, requestToken != null);
+            auditService.auditFailure("csrf:token_missing", null, null);
+            return false;
+        }
+
+        boolean valid = cookieToken.equals(requestToken);
+        if (!valid) {
+            log.warn("CSRF token mismatch");
+            auditService.auditFailure("csrf:token_mismatch", null, null);
+        } else {
+            log.debug("CSRF token validated successfully");
+        }
+        return valid;
+    }
+
+    private String generateCsrfToken() {
+        byte[] bytes = new byte[32];
+        secureRandom.nextBytes(bytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+    }
+
+    private void setCsrfTokenCookie(HttpServletResponse response, String token) {
+        Cookie cookie = new Cookie(CSRF_TOKEN_COOKIE, token);
+        cookie.setHttpOnly(false);
+        cookie.setSecure(isSecure);
+        cookie.setPath(cookiePath);
+        cookie.setMaxAge(CSRF_TOKEN_MAX_AGE);
+
+        if (StringUtils.isNotBlank(cookieDomain)) {
+            cookie.setDomain(cookieDomain);
+        }
+
+        response.addCookie(cookie);
+
+        String cookieHeader = buildCsrfCookieHeader(token);
+        response.addHeader("Set-Cookie", cookieHeader);
+
+        CookieAuditInfo auditInfo = new CookieAuditInfo(CSRF_TOKEN_COOKIE, CSRF_TOKEN_MAX_AGE);
+        auditService.auditSuccess("csrf:cookie_set", null, new AuditPayload<>(auditInfo, cookieHeader));
+    }
+
+    private String buildCsrfCookieHeader(String token) {
+        StringBuilder header = new StringBuilder();
+        header.append(CSRF_TOKEN_COOKIE).append("=").append(token);
+        header.append("; Path=").append(cookiePath);
+        header.append("; Max-Age=").append(CSRF_TOKEN_MAX_AGE);
+        return buildHeader(header);
+    }
+
+    @NotNull
+    private String buildHeader(StringBuilder header) {
         if (isSecure) {
             header.append("; Secure");
         }
@@ -142,7 +231,7 @@ public class AuthCookieServiceImpl implements AuthCookieService {
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if (ACCESS_TOKEN_COOKIE.equals(cookie.getName())) {
-                    return "Bearer " + cookie.getValue();
+                    return BEARER_PREFIX + cookie.getValue();
                 }
             }
         }

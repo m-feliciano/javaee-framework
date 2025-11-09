@@ -63,9 +63,8 @@
                                    class="btn btn-auto btn-primary">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <form action="<c:url value='${baseLink}${version}${deleteItem}/${inventory.id}'/>" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-auto btn-danger"
-                                            onclick="return confirm('Are you sure?')">
+                                <form action="<c:url value='${baseLink}${version}${deleteItem}/${inventory.id}'/>" method="post" class="d-inline csrf-delete-form">
+                                    <button type="submit" class="btn btn-auto btn-danger">
                                         <i class="bi bi-trash3"></i>
                                     </button>
                                 </form>

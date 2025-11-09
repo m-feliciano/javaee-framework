@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/routes/category-routes.jspf" %>
 
 <div class="main">
-    <form action="${baseLink}${version}${createCategory}" method="post">
+    <form action="${baseLink}${version}${createCategory}" method="post" class="csrf-form">
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputName" class="form-label">NAME</label>

@@ -7,7 +7,7 @@
 %>
 
 <div class="main">
-    <form action="${baseLink}${version}${ createItem }" method="post">
+    <form action="${baseLink}${version}${ createItem }" method="post" class="csrf-form">
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputProductId" class="form-label">PRODUCT ID</label>

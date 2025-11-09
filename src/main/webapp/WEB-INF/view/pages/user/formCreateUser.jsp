@@ -7,7 +7,7 @@
 <body>
 <div class="login-container">
     <h2 class="text-center">Sign up</h2>
-    <form action="<c:out value='${baseLink}${version}${registerUser}' escapeXml='true'/>" method="post">
+    <form action="<c:out value='${baseLink}${version}${registerUser}' escapeXml='true'/>" method="post" class="csrf-form">
         <div class="mb-3">
             <label for="inputLogin" class="form-label">Email</label>
             <input type="text" id="inputLogin" name="login" value="<c:out value='${email}' escapeXml='true'/>" class="form-control" placeholder="Email"
