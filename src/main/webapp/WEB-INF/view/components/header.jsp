@@ -40,6 +40,8 @@
     <link rel="stylesheet" href="<c:url value='/resources/css/fixes.css'/>">
     <link rel="stylesheet" href="<c:url value='/resources/css/dark-mode.css'/>">
 
+    <script src="<c:url value='/resources/js/csrf-util.js'/>"></script>
+
     <title><c:out value="${headerTitle}" default="Store" escapeXml="true"/></title>
 </head>
 <body>

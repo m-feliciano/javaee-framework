@@ -50,6 +50,14 @@
         <url-pattern>/api/*</url-pattern>
     </filter-mapping>
     <filter>
+        <filter-name>CsrfFilter</filter-name>
+        <filter-class>com.dev.servlet.infrastructure.security.CsrfFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>CsrfFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
+    </filter-mapping>
+    <filter>
         <filter-name>SecurityAuthFilter</filter-name>
         <filter-class>com.dev.servlet.infrastructure.security.AuthFilter</filter-class>
     </filter>

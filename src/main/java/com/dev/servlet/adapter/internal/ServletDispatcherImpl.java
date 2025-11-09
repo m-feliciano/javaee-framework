@@ -29,6 +29,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.text.MessageFormat;
 
+import static com.dev.servlet.core.enums.ConstantUtils.BEARER_PREFIX;
+
 @Setter
 @Slf4j
 @NoArgsConstructor
@@ -106,9 +108,7 @@ public class ServletDispatcherImpl implements IServletDispatcher {
         handleResponseErrors(httpRequest, httpResponse, response);
 
         if (request.getEndpoint() != null && request.getEndpoint().contains(LOGOUT)) {
-            httpRequest.getSession().invalidate();
-            httpRequest.getSession(true);
-            cookieService.clearAuthCookies(httpResponse);
+            cookieService.clearCookies(httpResponse);
         }
     }
 
@@ -116,7 +116,7 @@ public class ServletDispatcherImpl implements IServletDispatcher {
         try {
             String token = cookieService.getTokenFromCookie(httpRequest, cookieService.getAccessTokenCookieName());
             if (StringUtils.isNotBlank(token)) {
-                User user = jwts.getUser("Bearer " + token);
+                User user = jwts.getUser(BEARER_PREFIX + token);
                 UserResponse response = userService.getById(new UserRequest(user.getId()), token);
                 httpRequest.setAttribute("user", response);
             }

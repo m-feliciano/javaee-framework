@@ -89,23 +89,8 @@
                     <input type="file" name="image" class="form-control" id="inputImage" accept="image/*"/>
                 </div>
             </div>
-
-            <%--            <div class="col-md-6">--%>
-            <%--                <div class="mb-3">--%>
-            <%--                    <label for="inputImage" class="form-label">IMAGES</label>--%>
-            <%--                    <div class="row">--%>
-            <%--                        <c:if test="${ not empty product.images }">--%>
-            <%--                            <c:forEach items="${ product.images }" var="image">--%>
-            <%--                                <div class="col-md-3">--%>
-            <%--                                    <img src="${ image }" class="img-thumbnail" alt="Product Image"/>--%>
-            <%--                                </div>--%>
-            <%--                            </c:forEach>--%>
-            <%--                        </c:if>--%>
-            <%--                    </div>--%>
-            <%--                </div>--%>
-            <%--            </div>--%>
         </div>
     </form>
 </div>
-<!-- footer -->
+
 <jsp:include page="/WEB-INF/view/components/footer.jsp"/>

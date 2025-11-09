@@ -11,10 +11,16 @@ public interface AuthCookieService {
 
     void setAuthCookies(HttpServletResponse response, String accessToken, String refreshToken);
 
-    void clearAuthCookies(HttpServletResponse response);
+    void clearCookies(HttpServletResponse response);
 
     String getAccessTokenCookieName();
 
     String getRefreshTokenCookieName();
+
+    String getCsrfToken(HttpServletRequest request);
+
+    void ensureCsrfToken(HttpServletRequest request, HttpServletResponse response);
+
+    boolean validateCsrfToken(HttpServletRequest request);
 }
 

@@ -2,7 +2,7 @@
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <div class="main">
-    <form action="<c:out value='${baseLink}${version}${ updateUser }/${user.id}' escapeXml='true'/>" method="post">
+    <form action="<c:out value='${baseLink}${version}${ updateUser }/${user.id}' escapeXml='true'/>" method="post" class="csrf-form">
         <div class="col-md-6">
             <div class="row ml5 mb-3 justify-center">
                 <div class="avatar mr-3 align-center">
