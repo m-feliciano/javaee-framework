@@ -281,6 +281,30 @@ CREATE INDEX idx_inventory_description_status ON tb_inventory(description, statu
 CREATE INDEX idx_user_auth ON tb_user(login, password, status);
 CREATE INDEX idx_user_perfis_composite ON user_perfis(user_id, perfil_id);
 
+-- TB_REFRESH_TOKEN
+create table tb_refresh_token
+(
+    id          varchar(36)    not null
+        primary key,
+    token       text           not null
+        unique,
+    user_id     varchar(36)    not null
+        references tb_user,
+    revoked     boolean        default false not null,
+    issued_at   timestamp      default CURRENT_TIMESTAMP not null,
+    expires_at  timestamp      not null,
+    replaced_by varchar(36),
+    ip_address  varchar(45),
+    user_agent  varchar(500)
+);
+
+alter table tb_refresh_token owner to postgres;
+
+create index idx_refresh_token_user_id on tb_refresh_token (user_id);
+create index idx_refresh_token_not_revoked_id on tb_refresh_token (token, revoked);
+create index idx_refresh_token_expires_at on tb_refresh_token (expires_at);
+create index idx_refresh_token_revoked on tb_refresh_token (revoked);
+
 -- Atualizar estatísticas
 ANALYZE tb_product;
 ANALYZE tb_category;
@@ -288,3 +312,4 @@ ANALYZE tb_inventory;
 ANALYZE tb_user;
 ANALYZE user_perfis;
 ANALYZE tb_perfil;
+ANALYZE tb_refresh_token;
