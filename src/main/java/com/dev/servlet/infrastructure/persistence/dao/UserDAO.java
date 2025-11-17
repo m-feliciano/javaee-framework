@@ -47,7 +47,7 @@ public class UserDAO extends BaseDAO<User, String> {
 
     @Override
     public boolean delete(User user) {
-        Session session = getNewOpenSession();
+        Session session = openSession();
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaUpdate<User> cu = builder.createCriteriaUpdate(User.class);
         Root<User> root = cu.from(User.class);

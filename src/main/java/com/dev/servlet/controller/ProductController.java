@@ -1,7 +1,7 @@
 package com.dev.servlet.controller;
 
 import com.dev.servlet.controller.base.BaseController;
-import com.dev.servlet.core.annotation.Authentication;
+import com.dev.servlet.core.annotation.Authorization;
 import com.dev.servlet.core.annotation.Controller;
 import com.dev.servlet.core.annotation.Property;
 import com.dev.servlet.core.annotation.RequestMapping;
@@ -50,21 +50,21 @@ public class ProductController extends BaseController {
     private ProductMapper productMapper;
 
     @RequestMapping(value = "/create", method = POST, jsonType = ProductRequest.class)
-    public IHttpResponse<Void> register(ProductRequest request, @Authentication String auth) throws ServiceException {
+    public IHttpResponse<Void> register(ProductRequest request, @Authorization String auth) throws ServiceException {
         ProductResponse product = productService.register(request, auth);
         return newHttpResponse(201, redirectTo(product.getId()));
     }
 
     @RequestMapping("/new")
     @SneakyThrows
-    public IHttpResponse<Collection<CategoryResponse>> forward(@Authentication String auth) {
+    public IHttpResponse<Collection<CategoryResponse>> forward(@Authorization String auth) {
         var categories = categoryService.list(null, auth);
         return newHttpResponse(302, categories, forwardTo("formCreateProduct"));
     }
 
     @RequestMapping(value = "/edit/{id}", jsonType = ProductRequest.class)
     @SneakyThrows
-    public IServletResponse edit(ProductRequest request, @Authentication String auth) {
+    public IServletResponse edit(ProductRequest request, @Authorization String auth) {
         ProductResponse response = this.getProductDetail(request, auth).body();
 
         Collection<CategoryResponse> categories = categoryService.list(null, auth);
@@ -77,42 +77,42 @@ public class ProductController extends BaseController {
 
     @RequestMapping(value = "/search")
     @SneakyThrows
-    public IServletResponse search(Query query, IPageRequest pageRequest, @Authentication String auth) {
+    public IServletResponse search(Query query, IPageRequest pageRequest, @Authorization String auth) {
         Product product = productMapper.queryToProduct(query, jwts.getUser(auth));
         return getServletResponse(pageRequest, auth, product);
     }
 
     @RequestMapping(value = "/list", jsonType = ProductRequest.class)
     @SneakyThrows
-    public IServletResponse list(IPageRequest pageRequest, @Authentication String auth) {
+    public IServletResponse list(IPageRequest pageRequest, @Authorization String auth) {
         Product product = productMapper.toProduct(null, jwts.getUserId(auth));
         return getServletResponse(pageRequest, auth, product);
     }
 
     @RequestMapping(value = "/list/{id}", jsonType = ProductRequest.class)
     @SneakyThrows
-    public IHttpResponse<ProductResponse> getProductDetail(ProductRequest request, @Authentication String auth) {
+    public IHttpResponse<ProductResponse> getProductDetail(ProductRequest request, @Authorization String auth) {
         ProductResponse product = productService.getProductDetail(request, auth);
         return okHttpResponse(product, forwardTo("formListProduct"));
     }
 
     @RequestMapping(value = "/update/{id}", method = POST, jsonType = ProductRequest.class)
     @SneakyThrows
-    public IHttpResponse<Void> update(ProductRequest request, @Authentication String auth) {
+    public IHttpResponse<Void> update(ProductRequest request, @Authorization String auth) {
         ProductResponse response = productService.update(request, auth);
         return newHttpResponse(204, redirectTo(response.getId()));
     }
 
     @RequestMapping(value = "/delete/{id}", method = POST, jsonType = ProductRequest.class)
     @SneakyThrows
-    public IHttpResponse<Void> delete(ProductRequest filter, @Authentication String auth) {
+    public IHttpResponse<Void> delete(ProductRequest filter, @Authorization String auth) {
         productService.delete(filter, auth);
         return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
     }
 
     @RequestMapping(value = "/scrape", method = GET)
     @SneakyThrows
-    public IHttpResponse<Void> scrape(@Authentication String auth,
+    public IHttpResponse<Void> scrape(@Authorization String auth,
                                       @Property("env") String environment,
                                       @Property("scrape.product.url") String url) {
         Optional<List<ProductResponse>> response = productService.scrape(url, environment, auth);

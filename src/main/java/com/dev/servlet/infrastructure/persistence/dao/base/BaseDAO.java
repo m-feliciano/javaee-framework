@@ -122,7 +122,7 @@ public abstract class BaseDAO<T, ID> implements Serializable {
         }
     }
 
-    protected Session getNewOpenSession() {
+    protected Session openSession() {
         Session session = em.unwrap(Session.class);
         session.beginTransaction();
         return session;

@@ -58,7 +58,7 @@ public class CategoryDAO extends BaseDAO<Category, String> {
 
     @Override
     public boolean delete(Category category) {
-        Session session = getNewOpenSession();
+        Session session = openSession();
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaUpdate<Category> cu = builder.createCriteriaUpdate(Category.class);
         Root<Category> root = cu.from(Category.class);
@@ -76,7 +76,7 @@ public class CategoryDAO extends BaseDAO<Category, String> {
     @Override
     public List<Category> save(List<Category> categories) throws ServiceException {
         AtomicReference<String> errors = new AtomicReference<>();
-        Session session = getNewOpenSession();
+        Session session = openSession();
         session.doWork(connection -> {
             String copies = String.join(", ", Collections.nCopies(3, "?"));
             String sql = "INSERT INTO tb_category (name, status, user_id) VALUES (" + copies + ")";

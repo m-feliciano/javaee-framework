@@ -86,7 +86,7 @@ public class InventoryDAO extends BaseDAO<Inventory, String> {
     }
     @Override
     public boolean delete(Inventory inventory) {
-        Session session = getNewOpenSession();
+        Session session = openSession();
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaUpdate<Inventory> cu = builder.createCriteriaUpdate(Inventory.class);
         Root<Inventory> root = cu.from(Inventory.class);
@@ -119,7 +119,7 @@ public class InventoryDAO extends BaseDAO<Inventory, String> {
     @Override
     public List<Inventory> save(List<Inventory> inventories) throws ServiceException {
         AtomicReference<String> errors = new AtomicReference<>();
-        Session session = getNewOpenSession();
+        Session session = openSession();
         session.doWork(connection -> {
             String copies = String.join(", ", Collections.nCopies(5, "?"));
             String sql = "INSERT INTO tb_inventory (id, description, product_id, user_id, status) VALUES (" + copies + ")";

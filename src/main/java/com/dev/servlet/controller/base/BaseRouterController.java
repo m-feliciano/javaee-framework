@@ -1,6 +1,6 @@
 package com.dev.servlet.controller.base;
 
-import com.dev.servlet.core.annotation.Authentication;
+import com.dev.servlet.core.annotation.Authorization;
 import com.dev.servlet.core.annotation.Property;
 import com.dev.servlet.core.annotation.RequestMapping;
 import com.dev.servlet.core.exception.ServiceException;
@@ -74,7 +74,7 @@ public abstract class BaseRouterController {
             return request.getPageRequest();
         }
 
-        if (parameter.isAnnotationPresent(Authentication.class)) {
+        if (parameter.isAnnotationPresent(Authorization.class)) {
             return request.getToken();
         }
         if (parameter.isAnnotationPresent(Property.class)) {

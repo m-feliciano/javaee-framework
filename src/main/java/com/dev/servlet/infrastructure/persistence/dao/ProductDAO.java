@@ -94,7 +94,7 @@ public class ProductDAO extends BaseDAO<Product, String> {
     }
     @Override
     public boolean delete(Product product) {
-        Session session = getNewOpenSession();
+        Session session = openSession();
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaUpdate<Product> cu = builder.createCriteriaUpdate(Product.class);
         Root<Product> root = cu.from(Product.class);
@@ -110,7 +110,7 @@ public class ProductDAO extends BaseDAO<Product, String> {
     @Override
     public List<Product> save(List<Product> products) throws ServiceException {
         AtomicReference<String> errors = new AtomicReference<>();
-        Session session = getNewOpenSession();
+        Session session = openSession();
         session.doWork(connection -> {
             String copies = String.join(", ", Collections.nCopies(9, "?"));
             String sql = "INSERT INTO tb_product (id, name, description, url_img, register_date, price, user_id, status, category_id) VALUES (" + copies + ")";

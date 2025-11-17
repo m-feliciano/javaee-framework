@@ -1,7 +1,7 @@
 package com.dev.servlet.controller;
 
 import com.dev.servlet.controller.base.BaseController;
-import com.dev.servlet.core.annotation.Authentication;
+import com.dev.servlet.core.annotation.Authorization;
 import com.dev.servlet.core.annotation.Controller;
 import com.dev.servlet.core.annotation.Property;
 import com.dev.servlet.core.annotation.RequestMapping;
@@ -37,7 +37,7 @@ public class AuthController extends BaseController {
     }
 
     @RequestMapping(value = "/form", requestAuth = false)
-    public IHttpResponse<String> form(@Authentication String auth, @Property("homepage") String homepage) {
+    public IHttpResponse<String> form(@Authorization String auth, @Property("homepage") String homepage) {
         String next = authService.form(auth, homepage);
         return HttpResponse.<String>next(next).build();
     }
@@ -60,7 +60,7 @@ public class AuthController extends BaseController {
     }
 
     @RequestMapping(value = "/logout", method = POST)
-    public IHttpResponse<String> logout(@Authentication String auth) {
+    public IHttpResponse<String> logout(@Authorization String auth) {
         authService.logout(auth);
         return HttpResponse.<String>next(FORWARD_PAGES_FORM_LOGIN_JSP).build();
     }

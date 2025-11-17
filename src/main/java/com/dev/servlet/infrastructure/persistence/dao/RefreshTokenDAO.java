@@ -4,6 +4,7 @@ import com.dev.servlet.domain.model.RefreshToken;
 import com.dev.servlet.infrastructure.persistence.dao.base.BaseDAO;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Session;
 
 import javax.enterprise.context.RequestScoped;
 import javax.persistence.TypedQuery;
@@ -33,5 +34,14 @@ public class RefreshTokenDAO extends BaseDAO<RefreshToken, String> {
     @Override
     protected Predicate buildDefaultPredicateFor(RefreshToken filter, CriteriaBuilder cb, Root<?> root) {
         return cb.conjunction();
+    }
+
+    public void revokeAll(String userId) {
+        String query = "UPDATE RefreshToken r SET r.revoked = true WHERE r.user.id = :userId AND r.revoked = false";
+        Session session = openSession();
+        session.createQuery(query)
+                .setParameter("userId", userId)
+                .executeUpdate();
+        session.getTransaction().commit();
     }
 }

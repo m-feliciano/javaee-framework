@@ -72,6 +72,7 @@ public class AuthServiceImpl implements AuthService {
     public void logout(String auth) {
         try {
             String userId = jwtUtil.getUserId(auth);
+            refreshTokenDAO.revokeAll(userId);
             CacheUtils.clearAll(userId);
         } catch (Exception ignored) {}
 
