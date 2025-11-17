@@ -86,7 +86,7 @@ public class AuthFilter implements Filter {
         if (refreshToken != null && jwtUtil.validateToken(refreshToken)) {
             try {
                 RefreshTokenResponse refreshTokenResponse = loginService.refreshToken(BEARER_PREFIX + refreshToken);
-                cookieService.setAccessTokenCookie(httpResponse, refreshTokenResponse.token());
+                cookieService.setAuthCookies(httpResponse, refreshTokenResponse.token(), refreshTokenResponse.refreshToken());
                 auditService.auditSuccess("auth_filter:refresh_token", null, null);
 
                 httpResponse.setStatus(HttpServletResponse.SC_FOUND);

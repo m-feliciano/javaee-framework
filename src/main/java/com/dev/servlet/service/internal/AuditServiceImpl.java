@@ -50,7 +50,11 @@ public class AuditServiceImpl implements AuditService {
 
             String userId = null;
             if (token != null && !token.isBlank()) {
-                userId = jwtUtil.getUserId(token);
+                try {
+                    userId = jwtUtil.getUserId(token);
+                } catch (Exception ignored) {
+                }
+
                 record.put("userId", userId);
             }
 

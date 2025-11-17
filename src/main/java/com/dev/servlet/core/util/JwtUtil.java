@@ -91,18 +91,15 @@ public class JwtUtil {
     }
 
     public boolean validateToken(String bearerToken) {
-        String token = extractToken(bearerToken);
-        if (token != null) {
+        if (bearerToken != null) {
             try {
                 Jwts.parser()
                         .verifyWith(key)
                         .requireIssuer(ISSUER)
                         .build()
-                        .parseSignedClaims(token);
+                        .parseSignedClaims(extractToken(bearerToken));
                 return true;
-            } catch (Exception e) {
-                log.warn("Invalid JWT token", e);
-            }
+            } catch (Exception ignored) {}
         }
         return false;
     }
@@ -133,5 +130,9 @@ public class JwtUtil {
                 .parseSignedClaims(extractToken(token))
                 .getPayload();
         return resolver.apply(claims);
+    }
+
+    public String stripBearer(String refreshJwt) {
+        return extractToken(refreshJwt);
     }
 }
