@@ -18,10 +18,10 @@ public final class PropertiesUtil {
     private static final ConcurrentHashMap<String, String> propertiesCache = new ConcurrentHashMap<>();
 
     public static String getProperty(String key) {
-        try {
-            if (Objects.isNull(propertiesCache.get(key))) {
+        return propertiesCache.computeIfAbsent(key, k -> {
+            try {
                 Properties appProps = getProperties();
-                String property = appProps.getProperty(key);
+                String property = appProps.getProperty(k);
 
                 if (property != null) {
                     while (property.contains("{") && property.contains("}")) {
@@ -29,25 +29,25 @@ public final class PropertiesUtil {
                         String otherValue = appProps.getProperty(otherProperty);
                         property = property.replace("{" + otherProperty + "}", otherValue);
                     }
-
-                    propertiesCache.put(key, property);
                 }
-            }
 
-            return propertiesCache.get(key);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+                return property;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     private static Properties getProperties() throws IOException {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         URL resourceUrl = loader.getResource("");
         Objects.requireNonNull(resourceUrl, "Resource URL is null");
+
         String propFileName = ObjectUtils.getIfNull(
                 System.getProperty("app.config.file"), "app-prod.properties");
         String rootPath = resourceUrl.getPath();
         Properties appProps = new Properties();
+
         try (FileInputStream inStream = new FileInputStream(rootPath + propFileName)) {
             appProps.load(inStream);
         }

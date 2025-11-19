@@ -14,6 +14,7 @@ import java.util.List;
 
 @Slf4j
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+@SuppressWarnings("unchecked")
 public final class CloneUtil {
 
     private static final ObjectMapper objectMapper = new ObjectMapper()
@@ -22,7 +23,6 @@ public final class CloneUtil {
             .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
             .setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
 
-    @SuppressWarnings("unchecked")
     public static <T> T forceClone(T object) {
         if (object == null) return null;
         String json = toJson(object);

@@ -23,16 +23,9 @@ public class LogExecutionTimeInterceptor {
         try {
             return context.proceed();
 
-        } catch (Exception e) {
-            stopWatch.stop();
-            long time = stopWatch.getTime();
-            log.error("{}.{} failed [duration={}ms]", className, methodName, time, e);
-            throw e;
-
         } finally {
             stopWatch.stop();
-            long time = stopWatch.getTime();
-            log.debug("{}.{} completed [duration={}ms]", className, methodName, time);
+            log.debug("{}.{} completed [duration={}ms]", className, methodName, stopWatch.getTime());
         }
     }
 }

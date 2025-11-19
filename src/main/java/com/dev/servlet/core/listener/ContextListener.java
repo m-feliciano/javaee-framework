@@ -19,6 +19,7 @@ public class ContextListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent arg0) {
         ServletContext context = arg0.getServletContext();
         context.setAttribute("systemVersion", PropertiesUtil.getProperty("system.version"));
+        // Disable session tracking via URL rewriting
         context.setSessionTrackingModes(Collections.emptySet());
     }
 }

@@ -27,7 +27,7 @@ import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
 
-import static com.dev.servlet.core.util.DateUtil.DD_MM_MYYYY;
+import static com.dev.servlet.core.util.DateUtil.YYYY_MM_DD;
 import static com.dev.servlet.domain.model.enums.RequestMethod.GET;
 
 @Slf4j
@@ -97,10 +97,10 @@ public class ActivityController extends BaseController {
         }
 
         String startDate = ObjectUtils.getIfNull(startDateStr, DateUtil.getTodayStartDateStringYYYYMMDD());
-        Date dateInitial = DateUtil.toDateInitial(startDate, DD_MM_MYYYY);
+        Date dateInitial = DateUtil.toDateInitial(startDate, YYYY_MM_DD);
 
         String endDate = ObjectUtils.getIfNull(endDateStr, DateUtil.getTodayEndDateStringYYYYMMDD());
-        Date dateFinal = DateUtil.toDateFinal(endDate, DD_MM_MYYYY);
+        Date dateFinal = DateUtil.toDateFinal(endDate, YYYY_MM_DD);
 
         var userActivities = activityService.getByPeriod(userId, dateInitial, dateFinal, activityMapper::toResponse);
         return HttpResponse.ok(userActivities).next(forwardTo("timeline")).build();

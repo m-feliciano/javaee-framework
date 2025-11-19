@@ -5,12 +5,13 @@ import com.dev.servlet.core.annotation.Property;
 import com.dev.servlet.core.annotation.RequestMapping;
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.response.IHttpResponse;
+import com.dev.servlet.core.util.CloneUtil;
 import com.dev.servlet.core.util.EndpointParser;
 import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.core.util.PropertiesUtil;
 import com.dev.servlet.core.validator.RequestValidator;
-import com.dev.servlet.domain.request.Request;
 import com.dev.servlet.domain.records.Query;
+import com.dev.servlet.domain.request.Request;
 import com.dev.servlet.infrastructure.persistence.IPageRequest;
 
 import java.lang.reflect.Method;
@@ -82,7 +83,7 @@ public abstract class BaseRouterController {
             return PropertiesUtil.getProperty(propertyKey);
         }
 
-        return request.getPayload(parameter.getType());
+        return CloneUtil.fromJson(request.getJsonBody(), parameter.getType());
     }
 
     private <U> IHttpResponse<U> invokeServiceMethod(Object instance, Method method, Object[] args) throws Exception {

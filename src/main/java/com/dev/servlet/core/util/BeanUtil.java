@@ -24,10 +24,6 @@ public final class BeanUtil {
         return getResolver().resolve(beanType);
     }
 
-    public static <T> T getBean(Class<T> beanType, Annotation... qualifiers) {
-        return getResolver().resolve(beanType, qualifiers);
-    }
-
     public static DependencyResolver getResolver() {
         return ResolverHolder.resolver;
     }

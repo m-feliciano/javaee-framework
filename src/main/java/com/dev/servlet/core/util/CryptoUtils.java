@@ -8,6 +8,7 @@ import java.util.Base64;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class CryptoUtils {
+
     private static byte[] getSecurityKey() throws Exception {
         String key = PropertiesUtil.getProperty("security.encrypt.key");
         if (key == null) throw new Exception("Security key is not set");

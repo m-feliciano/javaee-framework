@@ -1,9 +1,8 @@
 package com.dev.servlet.domain.request;
 
+import com.dev.servlet.core.util.CloneUtil;
 import com.dev.servlet.domain.records.Query;
 import com.dev.servlet.infrastructure.persistence.IPageRequest;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;
 import lombok.Data;
 
@@ -20,13 +19,7 @@ public class Request {
     private int retry;
 
     public <T> Object getPayload(Class<T> clazz) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return objectMapper.readValue(jsonBody, clazz);
-        } catch (Exception e) {
-            return null;
-        }
+        return CloneUtil.fromJson(jsonBody, clazz);
     }
 
     public boolean contains(String logout) {

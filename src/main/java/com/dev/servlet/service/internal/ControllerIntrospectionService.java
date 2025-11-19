@@ -23,10 +23,9 @@ public class ControllerIntrospectionService {
 
     public List<ControllerInfo> listControllers() {
         try {
-            List<Class<?>> classes = ClassUtil.scanPackage(CONTROLLERS_PACKAGE);
+            List<Class<?>> classes = ClassUtil.scanPackage(CONTROLLERS_PACKAGE, Controller.class);
 
             return classes.stream()
-                    .filter(clz -> clz.isAnnotationPresent(Controller.class))
                     .map(clz -> {
                         String base = clz.getAnnotation(Controller.class).value();
                         List<MethodInfo> methods = buildMethodInfos(clz);
@@ -71,7 +70,7 @@ public class ControllerIntrospectionService {
             String propName = prop != null ? prop.value() : null;
             String typed;
             if (auth != null) {
-                typed = "Authorization Token";
+                typed = "Authorization";
             } else {
                 typed = p.getParameterizedType().getTypeName();
                 typed = typed.substring(typed.lastIndexOf(".") + 1);

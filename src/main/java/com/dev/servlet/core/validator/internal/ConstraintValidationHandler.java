@@ -2,6 +2,7 @@ package com.dev.servlet.core.validator.internal;
 
 import com.dev.servlet.core.annotation.RequestMapping;
 import com.dev.servlet.core.exception.ServiceException;
+import com.dev.servlet.core.util.CloneUtil;
 import com.dev.servlet.core.validator.ValidationHandler;
 import com.dev.servlet.domain.request.Request;
 
@@ -20,7 +21,7 @@ public class ConstraintValidationHandler implements ValidationHandler {
     public void validate(RequestMapping mapping, Request request) throws ServiceException {
         if (mapping.jsonType() == Void.class) return;
 
-        Object payload = request.getPayload(mapping.jsonType());
+        Object payload = CloneUtil.fromJson(request.getJsonBody(), mapping.jsonType());
 
         Set<ConstraintViolation<Object>> violations = validator.validate(payload);
         if (violations.isEmpty()) return;

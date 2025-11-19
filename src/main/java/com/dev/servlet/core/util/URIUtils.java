@@ -20,10 +20,16 @@ import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class URIUtils {
-    public static final String DEFAULT_SORT_FIELD = "id";
-    public static final String DEFAULT_SORT_ORDER = "asc";
-    public static final int DEFAULT_MIN_PAGE_SIZE = 1;
-    public static final int DEFAULT_INITIAL_PAGE = 1;
+    private static final String DEFAULT_SORT_FIELD = "id";
+    private static final String DEFAULT_SORT_ORDER = "asc";
+
+    private static final int DEFAULT_MIN_PAGE_SIZE = 1;
+    private static final int DEFAULT_INITIAL_PAGE = 1;
+
+    private static final String PAGINATION_PAGE = "pagination.page";
+    private static final String PAGINATION_LIMIT = "pagination.limit";
+    private static final String PAGINATION_SORT = "pagination.sort";
+    private static final String PAGINATION_ORDER = "pagination.order";
 
     public static String getResourceId(HttpServletRequest httpServletRequest) {
         String parameter = httpServletRequest.getParameter("id");
@@ -102,10 +108,10 @@ public final class URIUtils {
     }
 
     private static PageRequest buildPagination() {
-        int page = PropertiesUtil.getProperty("pagination.page", DEFAULT_INITIAL_PAGE);
-        int size = PropertiesUtil.getProperty("pagination.limit", DEFAULT_MIN_PAGE_SIZE);
-        String field = PropertiesUtil.getProperty("pagination.sort", DEFAULT_SORT_FIELD);
-        String order = PropertiesUtil.getProperty("pagination.order", DEFAULT_SORT_ORDER);
+        int page = PropertiesUtil.getProperty(PAGINATION_PAGE, DEFAULT_INITIAL_PAGE);
+        int size = PropertiesUtil.getProperty(PAGINATION_LIMIT, DEFAULT_MIN_PAGE_SIZE);
+        String field = PropertiesUtil.getProperty(PAGINATION_SORT, DEFAULT_SORT_FIELD);
+        String order = PropertiesUtil.getProperty(PAGINATION_ORDER, DEFAULT_SORT_ORDER);
         Sort sort = Sort.by(field).direction(Sort.Direction.from(order));
         return PageRequest.builder().initialPage(page).pageSize(size).sort(sort).build();
     }

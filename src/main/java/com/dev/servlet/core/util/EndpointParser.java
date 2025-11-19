@@ -3,6 +3,7 @@ package com.dev.servlet.core.util;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+
 import java.util.Arrays;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
@@ -17,13 +18,15 @@ public class EndpointParser {
     private String path;
 
     private EndpointParser(String path) {
-        if (path == null || path.isEmpty()) {
+        if (StringUtils.isBlank(path)) {
             throw new IllegalArgumentException("Request or endpoint cannot be null or empty");
         }
+
         String[] parts = path.split("/");
         if (parts.length < SERVICE_NAME_START_INDEX) {
             throw new IllegalArgumentException("Invalid endpoint format: " + path);
         }
+
         init(parts);
     }
 

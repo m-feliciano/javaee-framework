@@ -1,5 +1,6 @@
 package com.dev.servlet.config;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 
@@ -13,15 +14,13 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 @Slf4j
+@Setter
 @ApplicationScoped
 public class EntityManagerProducer {
     private EntityManagerFactory factory;
+
     public EntityManagerProducer() {
         factory = Persistence.createEntityManagerFactory("servletpu");
-    }
-
-    public void setEntityManagerFactory(EntityManagerFactory factory) {
-        this.factory = factory;
     }
 
     @Produces

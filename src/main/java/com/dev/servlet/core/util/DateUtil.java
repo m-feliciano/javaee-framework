@@ -3,20 +3,14 @@ package com.dev.servlet.core.util;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class DateUtil {
-    public static final String DD_MM_MYYYY = "yyyy-MM-dd";
-
-    public static BigDecimal parseCurrency(String value) {
-        if (value == null) return null;
-        return new BigDecimal(value.replace(',', '.'))
-                .setScale(2, RoundingMode.HALF_UP);
-    }
+    public static final String YYYY_MM_DD = "yyyy-MM-dd";
+    public static final String DD_MM_YYYY = "dd/MM/yyyy";
 
     public static String toString(BigDecimal value) {
         if (value == null) return null;
@@ -44,7 +38,7 @@ public final class DateUtil {
     }
 
     public static Date toDateInitial(String value) {
-        return toDateInitial(value, "dd/MM/yyyy");
+        return toDateInitial(value, DD_MM_YYYY);
     }
 
     public static Date toDateInitial(String value, String format) {
@@ -65,11 +59,11 @@ public final class DateUtil {
 
     public static String getTodayEndDateStringYYYYMMDD() {
         Date dateFinal = toDateFinal(new Date());
-        return new SimpleDateFormat(DD_MM_MYYYY).format(dateFinal.getTime());
+        return new SimpleDateFormat(YYYY_MM_DD).format(dateFinal.getTime());
     }
 
     public static String getTodayStartDateStringYYYYMMDD() {
         Date dateInitial = toDateInitial(new Date());
-        return new SimpleDateFormat(DD_MM_MYYYY).format(dateInitial.getTime());
+        return new SimpleDateFormat(YYYY_MM_DD).format(dateInitial.getTime());
     }
 }
