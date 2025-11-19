@@ -1,11 +1,4 @@
-/* ========================================
-   DARK MODE - MELHORIAS DE CONTRASTE
-   Ajustes específicos para tema escuro
-   ======================================== */
-
 @media (prefers-color-scheme: dark) {
-
-    /* ===== TIPOGRAFIA MELHORADA ===== */
     body {
         background-color: #0d1117;
         color: #e6edf3;
@@ -30,8 +23,6 @@
     .text-muted {
         color: #8b949e !important;
     }
-
-    /* ===== CARDS E CONTAINERS ===== */
     .card {
         background-color: #161b22;
         border-color: #30363d;
@@ -47,8 +38,6 @@
         background-color: #0d1117;
         border-top-color: #30363d;
     }
-
-    /* ===== NAVBAR ===== */
     .navbar {
         background-color: #161b22;
         border-bottom: 1px solid #30363d;
@@ -84,8 +73,6 @@
     .user-role {
         color: #8b949e;
     }
-
-    /* ===== DROPDOWN ===== */
     .dropdown-menu {
         background-color: #161b22;
         border-color: #30363d;
@@ -104,8 +91,6 @@
     .dropdown-divider {
         border-top-color: #30363d;
     }
-
-    /* ===== FORMS ===== */
     .form-label {
         color: #e6edf3;
     }
@@ -141,14 +126,10 @@
         background-color: #161b22;
         color: #e6edf3;
     }
-
-    /* ===== SEARCH CONTAINER ===== */
     .search-container {
         background-color: #161b22;
         border-color: #30363d;
     }
-
-    /* ===== TABLES ===== */
     .table {
         background-color: #161b22;
         color: #c9d1d9;
@@ -200,8 +181,6 @@
     table caption {
         color: #8b949e;
     }
-
-    /* ===== BUTTONS ===== */
     .btn-secondary {
         background-color: #21262d;
         border-color: #30363d;
@@ -225,8 +204,6 @@
         border-color: #484f58;
         color: #e6edf3;
     }
-
-    /* ===== ALERTS ===== */
     .alert {
         border-color: #30363d;
     }
@@ -254,8 +231,6 @@
         border-color: #da3633;
         color: #f85149;
     }
-
-    /* ===== BADGES ===== */
     .badge-primary {
         background-color: #1f6feb;
         color: #e6edf3;
@@ -280,8 +255,6 @@
         background-color: #1f6feb;
         color: #e6edf3;
     }
-
-    /* ===== PAGINATION ===== */
     .pagination-info {
         color: #8b949e;
     }
@@ -309,8 +282,6 @@
         border-color: #21262d;
         color: #6e7681;
     }
-
-    /* ===== BREADCRUMB ===== */
     .breadcrumb-item {
         color: #8b949e;
     }
@@ -322,8 +293,6 @@
     .breadcrumb-item.active {
         color: #e6edf3;
     }
-
-    /* ===== MODAL ===== */
     .modal-backdrop {
         background-color: rgba(0, 0, 0, 0.8);
     }
@@ -353,8 +322,6 @@
         border-top-color: #30363d;
         background-color: #0d1117;
     }
-
-    /* ===== SCROLLBAR ===== */
     ::-webkit-scrollbar {
         width: 8px;
         height: 8px;
@@ -372,8 +339,6 @@
     ::-webkit-scrollbar-thumb:hover {
         background: #484f58;
     }
-
-    /* ===== STATS CARDS ===== */
     .stat-card {
         background-color: #161b22;
         border-left-color: #58a6ff;
@@ -435,8 +400,6 @@
     .stat-change.negative {
         color: #f85149;
     }
-
-    /* ===== EMPTY STATE ===== */
     .empty-state-icon {
         color: #6e7681;
     }
@@ -448,19 +411,13 @@
     .empty-state-description {
         color: #8b949e;
     }
-
-    /* ===== IMAGENS ===== */
     .img-thumbnail {
         background-color: #161b22;
         border-color: #30363d;
     }
-
-    /* ===== ACTION BAR ===== */
     .action-bar-subtitle {
         color: #8b949e;
     }
-
-    /* ===== FOOTER ===== */
     .footer {
         background-color: var(--card-bg);
         color: var(--gray-600);
@@ -485,7 +442,6 @@
         color: var(--gray-500);
     }
 
-    /* ===== NAVBAR TOGGLER ===== */
     .navbar-toggler {
         border-color: #30363d;
     }
@@ -503,12 +459,10 @@
         background-color: #8b949e;
     }
 
-    /* ===== FIXES ESPECÍFICOS ===== */
     .main {
         background-color: #0d1117;
     }
 
-    /* Links em geral */
     a:not(.btn):not(.nav-link):not(.dropdown-item) {
         color: #58a6ff;
     }
@@ -517,19 +471,16 @@
         color: #79c0ff;
     }
 
-    /* Strong/Bold text */
     strong {
         color: #e6edf3;
     }
 
-    /* Code blocks (se houver) */
     code {
         background-color: #161b22;
         color: #79c0ff;
         border: 1px solid #30363d;
     }
 
-    /* ===== PRODUCT DETAILS ===== */
     .card-body img.img-fluid {
         background-color: #21262d;
         padding: var(--spacing-4);

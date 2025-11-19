@@ -69,7 +69,6 @@ accessibility compliance.
   <em>Data grid with server-side pagination, sorting, and filtering</em>
 </p>
 
-
 **[→ See full screenshot gallery and UI/UX documentation](PREVIEW.md)**
 
 ---

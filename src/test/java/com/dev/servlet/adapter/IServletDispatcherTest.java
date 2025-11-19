@@ -1,6 +1,4 @@
 package com.dev.servlet.adapter;
-
-
 import com.dev.servlet.adapter.internal.HttpExecutorImpl;
 import com.dev.servlet.adapter.internal.ServletDispatcherImpl;
 import com.dev.servlet.core.response.IHttpResponse;

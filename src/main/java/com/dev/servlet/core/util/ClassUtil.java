@@ -75,7 +75,6 @@ public final class ClassUtil {
         return result;
     }
 
-
     public static <T> List<T> castList(List<?> list) {
         List<T> result = new ArrayList<>();
         for (Object object : list) {
@@ -83,7 +82,6 @@ public final class ClassUtil {
         }
         return result;
     }
-
 
     public static <T> T castWrapper(Class<T> type, Object value) {
         if (value == null) return null;
@@ -110,12 +108,9 @@ public final class ClassUtil {
         }
         return null;
     }
-
-
     public static <T> Class<T> getSubClassType(Class<?> clazz) {
         return (Class<T>) ((ParameterizedType) clazz.getGenericSuperclass()).getActualTypeArguments()[0];
     }
-
 
     public static <U> Class<U> extractType(Class<?> clazz, int position) {
         Type genericSuperclass = clazz.getGenericSuperclass();
@@ -125,8 +120,6 @@ public final class ClassUtil {
         }
         throw new IllegalArgumentException("Class does not have parameterized types");
     }
-
-
     public static <T> void setFieldValue(Field field, T entity, Object value) {
         try {
             Object wrapper = ClassUtil.castWrapper(field.getType(), value);
@@ -134,8 +127,6 @@ public final class ClassUtil {
         } catch (Exception ignored) {
         }
     }
-
-
     public static <T> void fillObject(T object, List<KeyPair> data) {
         List<Field> fields = FieldUtils.getAllFieldsList(object.getClass())
                 .stream()

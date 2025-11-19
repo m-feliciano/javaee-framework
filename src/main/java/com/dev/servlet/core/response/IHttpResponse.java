@@ -1,6 +1,5 @@
 package com.dev.servlet.core.response;
 
-
 public interface IHttpResponse<T> {
     int statusCode();
     T body();

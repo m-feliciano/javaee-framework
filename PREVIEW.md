@@ -81,6 +81,11 @@ css/
   <br>
   <em>Light theme variant with optimized contrast for daytime viewing</em>
 </p>
+<p align="center">
+  <img src="images/doc-page.png" alt="Doc - Light Mode" width="800">
+  <br>
+  <em>Documentation page with code samples and Endpoint references</em>
+</p>
 
 ### Technical Implementation
 
@@ -175,16 +180,6 @@ css/
 #### Health Check Implementation
 
 ```java
-
-/**
- * The annotations @Controller and @RequestMapping are build from scratch.
- * The @Inject annotation is a Java EE annotation used to inject
- * dependencies into the controller class.
- *
- * @author marcelo.feliciano
- * @version 1.0
- * @since 2022-012-01
- */
 @Slf4j
 @NoArgsConstructor
 @Controller("health")
@@ -259,14 +254,7 @@ public class AuthServiceImpl implements AuthService {
 ### Auth Filter Implementation
 
 ```java
-/**
- * The AuthFilter handles JWT authentication, refresh token rotation, and pre-authorized endpoints.
- * It integrates with the audit service for logging authentication events.
- *
- * @author marcelo.feliciano
- * @version 1.0
- * @since 2022-12-01
- */
+
 @Slf4j
 @NoArgsConstructor
 public class AuthFilter implements Filter {

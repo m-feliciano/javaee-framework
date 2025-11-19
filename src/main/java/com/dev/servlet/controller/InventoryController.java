@@ -9,14 +9,14 @@ import com.dev.servlet.core.mapper.InventoryMapper;
 import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.response.IServletResponse;
-import com.dev.servlet.service.ICategoryService;
-import com.dev.servlet.service.IStockService;
 import com.dev.servlet.domain.records.KeyPair;
 import com.dev.servlet.domain.records.Query;
 import com.dev.servlet.domain.request.InventoryCreateRequest;
 import com.dev.servlet.domain.request.InventoryRequest;
 import com.dev.servlet.domain.response.CategoryResponse;
 import com.dev.servlet.domain.response.InventoryResponse;
+import com.dev.servlet.service.ICategoryService;
+import com.dev.servlet.service.IStockService;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 
@@ -70,7 +70,7 @@ public class InventoryController extends BaseController {
 
     @RequestMapping(value = "/search")
     @SneakyThrows
-    public IServletResponse list(Query query, @Authorization String auth) {
+    public IServletResponse search(Query query, @Authorization String auth) {
         InventoryRequest request = inventoryMapper.queryToInventory(query);
         return getServletResponse(request, auth);
     }
@@ -95,8 +95,6 @@ public class InventoryController extends BaseController {
         InventoryResponse inventory = stockService.update(request, auth);
         return newHttpResponse(204, redirectTo(inventory.getId()));
     }
-
-
     private IServletResponse getServletResponse(InventoryRequest request, String auth) throws ServiceException {
         Collection<InventoryResponse> inventories = stockService.list(request, auth);
         Collection<CategoryResponse> categories = categoryService.list(null, auth);

@@ -11,9 +11,6 @@ import java.util.Optional;
 public interface IUserService {
     UserResponse register(UserCreateRequest user) throws ServiceException;
 
-    /**
-     * Get user by id (Not logged in history)
-     */
     UserResponse getById(UserRequest user, String auth) throws ServiceException;
 
     UserResponse getUserDetail(UserRequest user, String auth) throws ServiceException;

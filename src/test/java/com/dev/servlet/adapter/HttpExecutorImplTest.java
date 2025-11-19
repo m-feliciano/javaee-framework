@@ -54,8 +54,6 @@ class HttpExecutorImplTest {
 
             parserMock.when(() -> EndpointParser.of(anyString()))
                     .thenReturn(parser);
-
-
             beanUtilMock.when(BeanUtil::getResolver)
                     .thenReturn(mock(BeanUtil.DependencyResolver.class));
 
