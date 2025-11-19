@@ -16,13 +16,15 @@ import com.dev.servlet.infrastructure.persistence.IPageRequest;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import static com.dev.servlet.core.util.ClassUtil.findMethodsOnInterfaceRecursive;
 import static com.dev.servlet.core.util.ThrowableUtils.internalServerError;
 
 public abstract class BaseRouterController {
-    private final Set<Method> reflections = new HashSet<>();
+
+    private final static Map<String, Set<Method>> reflections = new java.util.concurrent.ConcurrentHashMap<>();
     protected JwtUtil jwts;
 
     protected BaseRouterController() {
@@ -30,11 +32,8 @@ public abstract class BaseRouterController {
     }
 
     private void initRouteMapping() {
-        for (Method method : this.getClass().getDeclaredMethods()) {
-            if (method.isAnnotationPresent(RequestMapping.class)) {
-                reflections.add(method);
-            }
-        }
+        reflections.computeIfAbsent(this.getClass().getName(), k ->
+                Set.copyOf(findMethodsOnInterfaceRecursive(this.getClass())));
     }
 
     private Object[] prepareMethodArguments(Method method, Request request) {
@@ -58,10 +57,15 @@ public abstract class BaseRouterController {
     }
 
     private Method routeMappingFromEndpoint(String endpoint) throws ServiceException {
-        return reflections.stream()
-                .filter(m -> m.getAnnotation(RequestMapping.class).value().equals(endpoint))
-                .findFirst()
-                .orElseThrow(() -> internalServerError("Endpoint not implemented: " + endpoint));
+        Set<Method> methods = reflections.get(this.getClass().getName());
+        for (Method method : methods) {
+            RequestMapping mapping = method.getAnnotation(RequestMapping.class);
+            if (mapping.value().equals(endpoint)) {
+                return method;
+            }
+        }
+
+        throw internalServerError("Endpoint not implemented: " + endpoint);
     }
 
     private Object resolveArgument(Parameter parameter, Request request) {

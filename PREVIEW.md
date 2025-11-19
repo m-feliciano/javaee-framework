@@ -202,15 +202,47 @@ public class HealthController extends BaseController {
 @NoArgsConstructor
 @Slf4j
 @Singleton
-@Controller("product")
-public class ProductController extends BaseController {
+public class ProductController extends BaseController implements ProductControllerApi {
     // Dependencies are hidden to avoid excessive code length
 
-    @RequestMapping(value = "/create", method = POST, jsonType = ProductRequest.class) // Custom annotation
     public IHttpResponse<Void> create(ProductRequest request, @Authentication String auth) throws ServiceException {
         ProductResponse product = productService.create(request, auth);
         return newHttpResponse(201, redirectTo(product.getId()));
     }
+}
+```
+
+```java
+
+@Controller("product")
+public interface ProductControllerApi {
+
+    @RequestMapping(value = "/create", method = POST, jsonType = ProductRequest.class)
+    IHttpResponse<Void> register(ProductRequest request, @Authorization String auth);
+
+    @RequestMapping("/new")
+    IHttpResponse<Collection<CategoryResponse>> forward(@Authorization String auth);
+
+    @RequestMapping(value = "/edit/{id}", jsonType = ProductRequest.class)
+    IServletResponse edit(ProductRequest request, @Authorization String auth);
+
+    @RequestMapping(value = "/search")
+    IServletResponse search(Query query, IPageRequest pageRequest, @Authorization String auth);
+
+    @RequestMapping(value = "/list", jsonType = ProductRequest.class)
+    IServletResponse list(IPageRequest pageRequest, @Authorization String auth);
+
+    @RequestMapping(value = "/list/{id}", jsonType = ProductRequest.class)
+    IHttpResponse<ProductResponse> getProductDetail(ProductRequest request, @Authorization String auth);
+
+    @RequestMapping(value = "/update/{id}", method = POST, jsonType = ProductRequest.class)
+    IHttpResponse<Void> update(ProductRequest request, @Authorization String auth);
+
+    @RequestMapping(value = "/delete/{id}", method = POST, jsonType = ProductRequest.class)
+    IHttpResponse<Void> delete(ProductRequest filter, @Authorization String auth);
+
+    @RequestMapping(value = "/scrape", method = GET)
+    IHttpResponse<Void> scrape(@Authorization String auth, @Property("env") String environment, @Property("scrape.product.url") String url);
 }
 ```
 

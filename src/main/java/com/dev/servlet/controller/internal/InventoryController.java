@@ -1,9 +1,8 @@
-package com.dev.servlet.controller;
+package com.dev.servlet.controller.internal;
 
+import com.dev.servlet.controller.InventoryControllerApi;
 import com.dev.servlet.controller.base.BaseController;
 import com.dev.servlet.core.annotation.Authorization;
-import com.dev.servlet.core.annotation.Controller;
-import com.dev.servlet.core.annotation.RequestMapping;
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.mapper.InventoryMapper;
 import com.dev.servlet.core.response.HttpResponse;
@@ -25,12 +24,9 @@ import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.Set;
 
-import static com.dev.servlet.domain.model.enums.RequestMethod.POST;
-
 @NoArgsConstructor
 @Singleton
-@Controller("inventory")
-public class InventoryController extends BaseController {
+public class InventoryController extends BaseController implements InventoryControllerApi {
 
     @Inject
     private IStockService stockService;
@@ -39,7 +35,6 @@ public class InventoryController extends BaseController {
     @Inject
     private InventoryMapper inventoryMapper;
 
-    @RequestMapping(value = "/new")
     public IHttpResponse<String> forwardRegister(Query query) {
         String response = null;
         if (query != null) {
@@ -48,48 +43,41 @@ public class InventoryController extends BaseController {
         return newHttpResponse(200, response, forwardTo("formCreateItem"));
     }
 
-    @RequestMapping(value = "/create", method = POST, jsonType = InventoryCreateRequest.class)
     @SneakyThrows
     public IHttpResponse<Void> create(InventoryCreateRequest request, @Authorization String auth) {
         InventoryResponse inventory = stockService.register(request, auth);
         return newHttpResponse(201, redirectTo(inventory.getId()));
     }
 
-    @RequestMapping(value = "/delete/{id}", method = POST, jsonType = InventoryRequest.class)
     @SneakyThrows
     public IHttpResponse<Void> delete(InventoryRequest request, @Authorization String auth) {
         stockService.delete(request, auth);
         return HttpResponse.<Void>next(redirectToCtx("list")).build();
     }
 
-    @RequestMapping(value = "/list", jsonType = InventoryRequest.class)
     @SneakyThrows
     public IServletResponse list(InventoryRequest request, @Authorization String auth) {
         return getServletResponse(request, auth);
     }
 
-    @RequestMapping(value = "/search")
     @SneakyThrows
     public IServletResponse search(Query query, @Authorization String auth) {
         InventoryRequest request = inventoryMapper.queryToInventory(query);
         return getServletResponse(request, auth);
     }
 
-    @RequestMapping(value = "/list/{id}", jsonType = InventoryRequest.class)
     @SneakyThrows
     public IHttpResponse<InventoryResponse> getStockDetail(InventoryRequest request, @Authorization String auth) {
         InventoryResponse inventory = stockService.getStockDetail(request, auth);
         return okHttpResponse(inventory, forwardTo("formListItem"));
     }
 
-    @RequestMapping(value = "/edit/{id}", jsonType = InventoryRequest.class)
     @SneakyThrows
     public IHttpResponse<InventoryResponse> edit(InventoryRequest request, @Authorization String auth) {
         InventoryResponse inventory = stockService.getStockDetail(request, auth);
         return okHttpResponse(inventory, forwardTo("formUpdateItem"));
     }
 
-    @RequestMapping(value = "/update/{id}", method = POST, jsonType = InventoryRequest.class)
     @SneakyThrows
     public IHttpResponse<Void> update(InventoryRequest request, @Authorization String auth) {
         InventoryResponse inventory = stockService.update(request, auth);
