@@ -177,35 +177,15 @@ css/
 
 ### Technical Architecture
 
-#### Health Check Implementation
-
-```java
-@Slf4j
-@NoArgsConstructor
-@Controller("health")
-public class HealthController extends BaseController {
-    private static final String HEALTH_PAGE = "forward:pages/health/health.jsp";
-    // Dependencies are hidden to avoid excessive code length
-
-    @RequestMapping(value = "/check", method = GET)
-    public IHttpResponse<Map<String, Object>> health() {
-        Map<String, Object> health = healthService.getHealthStatus();
-        return HttpResponse.ok(health).next(HEALTH_PAGE).build();
-    }
-}
-```
-
 #### Product View Implementation
 
 ```java
 
 @NoArgsConstructor
-@Slf4j
 @Singleton
 public class ProductController extends BaseController implements ProductControllerApi {
-    // Dependencies are hidden to avoid excessive code length
 
-    public IHttpResponse<Void> create(ProductRequest request, @Authentication String auth) throws ServiceException {
+    public IHttpResponse<Void> register(ProductRequest request, @Authorization String auth) throws ServiceException {
         ProductResponse product = productService.create(request, auth);
         return newHttpResponse(201, redirectTo(product.getId()));
     }
@@ -271,13 +251,39 @@ public class AuthServiceImpl implements AuthService {
             throw new ServiceException("Invalid refresh token");
         }
 
+        String raw = jwtUtil.stripBearer(refreshToken);
+        var maybe = refreshTokenDAO.findByToken(raw);
+        if (maybe.isEmpty() || maybe.get().getExpiresAt() == null || maybe.get().getExpiresAt().isBefore(Instant.now())) {
+            auditService.auditFailure("auth:refresh_token", refreshToken, null);
+            throw new ServiceException("Refresh token is invalid or revoked");
+        }
+
+        RefreshToken old = maybe.get();
         User user = jwtUtil.getUser(refreshToken);
         UserResponse userResponse = userService.getById(new UserRequest(user.getId()), refreshToken);
         user.setPerfis(userResponse.getPerfis());
-        String newToken = jwtUtil.generateAccessToken(user);
+
+        String newAccessToken = jwtUtil.generateAccessToken(user);
+        String newRefreshJwt = jwtUtil.generateRefreshToken(user);
+
+        // rotate tokens
+        RefreshToken created = RefreshToken.builder()
+                .token(jwtUtil.stripBearer(newRefreshJwt))
+                .user(user)
+                .revoked(false)
+                .issuedAt(Instant.now())
+                .expiresAt(Instant.now().plusSeconds(java.util.concurrent.TimeUnit.DAYS.toSeconds(30)))
+                .replacedBy(null)
+                .build();
+        refreshTokenDAO.save(created);
+
+        old.setRevoked(true);
+        old.setReplacedBy(created.getId());
+        refreshTokenDAO.update(old);
+
         CacheUtils.clearAll(user.getId());
-        var refreshTokenResponse = new RefreshTokenResponse(newToken);
-        auditService.auditSuccess("auth:refresh_token", refreshToken, new AuditPayload<>(null, refreshTokenResponse));
+        var refreshTokenResponse = new RefreshTokenResponse(newAccessToken, newRefreshJwt);
+        auditService.auditSuccess("auth:refresh_token", refreshToken, null);
         return refreshTokenResponse;
     }
 }
