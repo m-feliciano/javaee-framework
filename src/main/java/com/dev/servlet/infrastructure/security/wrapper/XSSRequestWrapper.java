@@ -46,6 +46,6 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
     }
 
     private String sanitize(String value) {
-        return value != null ? Encode.forHtml(value) : null;
+        return value != null ? Encode.forHtmlContent(value) : null;
     }
 }

@@ -1,6 +1,6 @@
 package com.dev.servlet.controller.base;
 
-import com.dev.servlet.controller.ProductController;
+import com.dev.servlet.controller.internal.ProductController;
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
@@ -8,8 +8,8 @@ import com.dev.servlet.core.response.IServletResponse;
 import com.dev.servlet.core.util.EndpointParser;
 import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.core.util.PropertiesUtil;
-import com.dev.servlet.domain.request.Request;
 import com.dev.servlet.domain.records.KeyPair;
+import com.dev.servlet.domain.request.Request;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;

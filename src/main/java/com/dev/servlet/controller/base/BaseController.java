@@ -13,6 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import java.util.Set;
+
+import static com.dev.servlet.core.util.ClassUtil.findControllerOnInterfaceRecursive;
+
 @Slf4j
 @Getter(AccessLevel.PROTECTED)
 public abstract class BaseController extends BaseRouterController {
@@ -32,7 +35,18 @@ public abstract class BaseController extends BaseRouterController {
     }
 
     private static String webServiceFromClass(Class<?> clazz) {
-        return clazz.getAnnotation(Controller.class).value();
+        Controller controller = clazz.getAnnotation(Controller.class);
+        if (controller != null) return controller.value();
+
+        String fromInterfaces = findControllerOnInterfaceRecursive(clazz);
+        if (fromInterfaces != null) return fromInterfaces;
+
+        Class<?> superClass = clazz.getSuperclass();
+        if (superClass != null && superClass != Object.class) {
+            return webServiceFromClass(superClass);
+        }
+
+        throw new IllegalStateException("No @Controller annotation found on class or its interfaces: " + clazz.getName());
     }
 
     protected String redirectToCtx(String context) {

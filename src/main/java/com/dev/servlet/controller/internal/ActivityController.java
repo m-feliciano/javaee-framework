@@ -1,9 +1,8 @@
-package com.dev.servlet.controller;
+package com.dev.servlet.controller.internal;
 
+import com.dev.servlet.controller.ActivityControllerApi;
 import com.dev.servlet.controller.base.BaseController;
 import com.dev.servlet.core.annotation.Authorization;
-import com.dev.servlet.core.annotation.Controller;
-import com.dev.servlet.core.annotation.RequestMapping;
 import com.dev.servlet.core.mapper.ActivityMapper;
 import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
@@ -28,12 +27,11 @@ import java.util.Date;
 import java.util.List;
 
 import static com.dev.servlet.core.util.DateUtil.YYYY_MM_DD;
-import static com.dev.servlet.domain.model.enums.RequestMethod.GET;
 
 @Slf4j
 @NoArgsConstructor
-@Controller("activity")
-public class ActivityController extends BaseController {
+public class ActivityController extends BaseController implements ActivityControllerApi {
+
     @Inject
     private UserActivityService activityService;
     @Inject
@@ -41,7 +39,6 @@ public class ActivityController extends BaseController {
     @Inject
     private ActivityMapper activityMapper;
 
-    @RequestMapping(value = "/history", method = GET)
     public IHttpResponse<IPageable<UserActivityLogResponse>> getHistory(PageRequest defaultPage, @Authorization String auth) {
         final String userId = jwts.getUserId(auth);
 
@@ -56,7 +53,6 @@ public class ActivityController extends BaseController {
         return HttpResponse.ok(activityLogPage).next(forwardTo("history")).build();
     }
 
-    @RequestMapping(value = "/history/{id}", method = GET, jsonType = ActivityRequest.class)
     public IHttpResponse<UserActivityLog> getActivityDetail(ActivityRequest request, @Authorization String auth) {
         final String userId = jwts.getUserId(auth);
 
@@ -65,7 +61,6 @@ public class ActivityController extends BaseController {
                 .orElseGet(() -> HttpResponse.error(404, "Activity not found"));
     }
 
-    @RequestMapping(value = "/search", method = GET)
     public IHttpResponse<IPageable<UserActivityLogResponse>> search(Query query,
                                                                     IPageRequest pageRequest,
                                                                     @Authorization String auth) {
@@ -85,7 +80,6 @@ public class ActivityController extends BaseController {
         return HttpResponse.ok(activities).next(forwardTo("history")).build();
     }
 
-    @RequestMapping(value = "/timeline", method = GET)
     public IHttpResponse<List<UserActivityLogResponse>> getTimeline(Query query, @Authorization String auth) {
         final String userId = jwts.getUserId(auth);
 
@@ -106,4 +100,3 @@ public class ActivityController extends BaseController {
         return HttpResponse.ok(userActivities).next(forwardTo("timeline")).build();
     }
 }
-

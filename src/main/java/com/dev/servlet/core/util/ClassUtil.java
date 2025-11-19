@@ -1,13 +1,17 @@
 package com.dev.servlet.core.util;
 
+import com.dev.servlet.controller.base.BaseRouterController;
+import com.dev.servlet.core.annotation.Controller;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.ClassUtils;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -63,5 +67,26 @@ public final class ClassUtil {
 
     public static <T> Class<T> getSubClassType(Class<?> clazz) {
         return (Class<T>) ((ParameterizedType) clazz.getGenericSuperclass()).getActualTypeArguments()[0];
+    }
+
+    public static String findControllerOnInterfaceRecursive(Class<?> itf) {
+        Controller c = itf.getAnnotation(Controller.class);
+        if (c != null) return c.value();
+
+        for (Class<?> sup : itf.getInterfaces()) {
+            String found = findControllerOnInterfaceRecursive(sup);
+            if (found != null) return found;
+        }
+
+        return null;
+    }
+
+    public static List<Method> findMethodsOnInterfaceRecursive(Class<? extends BaseRouterController> aClass) {
+        List<Method> methods = new ArrayList<>();
+        for (Class<?> itf : aClass.getInterfaces()) {
+            methods.addAll(Arrays.asList(itf.getDeclaredMethods()));
+            methods.addAll(findMethodsOnInterfaceRecursive((Class<? extends BaseRouterController>) itf));
+        }
+        return methods;
     }
 }

@@ -17,11 +17,12 @@ import java.util.concurrent.ConcurrentMap;
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class BeanUtil {
 
-    private static final String CONTROLLER_PACKAGE_NAME = "com.dev.servlet.controller.";
+    private static final String CONTROLLER_PACKAGE_NAME = "com.dev.servlet.controller.internal.";
     private static final ConcurrentMap<String, Class<?>> services = new ConcurrentHashMap<>();
 
     private static <T> T getBean(Class<T> beanType) {
-        return getResolver().resolve(beanType);
+        DependencyResolver resolver = getResolver();
+        return resolver.resolve(beanType);
     }
 
     public static DependencyResolver getResolver() {
@@ -59,14 +60,7 @@ public final class BeanUtil {
         public Object getBean(String service) {
             Class<?> beanType = services.computeIfAbsent(service, (data) -> {
                 try {
-                    Class<?> beanClass;
-                    try {
-                        beanClass = ClassUtils.getClass(CONTROLLER_PACKAGE_NAME + service);
-                    } catch (ClassNotFoundException e) {
-                        log.error("Failed to load service class: {}", service, e);
-                        return null;
-                    }
-                    return beanClass;
+                    return ClassUtils.getClass(CONTROLLER_PACKAGE_NAME + service);
                 } catch (Exception e) {
                     log.error("Error resolving service: {}", service, e);
                     return null;
