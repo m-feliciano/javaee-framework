@@ -1,8 +1,3 @@
-/* ========================================
-   LOGIN PAGE - DESIGN MODERNO
-   ======================================== */
-
-/* Page Container */
 .login-page {
     min-height: 100vh;
     display: flex;
@@ -13,8 +8,6 @@
     position: relative;
     overflow: hidden;
 }
-
-/* Animated Background */
 .login-page::before {
     content: '';
     position: absolute;
@@ -31,8 +24,6 @@
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-20px); }
 }
-
-/* Login Container */
 .login-container {
     background: var(--white);
     border-radius: 1.5rem;
@@ -43,6 +34,7 @@
     animation: slideUp 0.5s ease-out;
     position: relative;
     z-index: 10;
+    padding: 15px;
 }
 
 @keyframes slideUp {
@@ -55,8 +47,6 @@
         transform: translateY(0);
     }
 }
-
-/* Header */
 .login-header {
     text-align: center;
     padding: 3rem 2rem 2rem;
@@ -96,13 +86,9 @@
     margin: 0;
     font-weight: 400;
 }
-
-/* Body */
 .login-body {
     padding: 2.5rem 2rem;
 }
-
-/* Alert Login */
 .alert-login {
     display: flex;
     align-items: center;
@@ -135,8 +121,6 @@
     color: #28a745;
     border: 1px solid rgba(40, 167, 69, 0.2);
 }
-
-/* Form */
 .login-form {
     display: flex;
     flex-direction: column;
@@ -155,8 +139,6 @@
     color: var(--gray-700);
     margin: 0;
 }
-
-/* Input Group */
 .input-group {
     position: relative;
     display: flex;
@@ -190,8 +172,6 @@
 .input-group .form-control:focus ~ .input-group-icon {
     color: #667eea;
 }
-
-/* Form Options */
 .form-options {
     display: flex;
     justify-content: space-between;
@@ -238,8 +218,6 @@
     color: #764ba2;
     text-decoration: underline;
 }
-
-/* Login Button */
 .btn-login {
     width: 100%;
     height: 3.5rem;
@@ -303,12 +281,10 @@
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
-
-/* Footer */
 .login-footer {
     text-align: center;
     padding: 1.5rem 2rem 2rem;
-    background-color: var(--gray-50);
+    background-color: var(--gray-100);
     border-top: 1px solid var(--gray-200);
 }
 
@@ -329,8 +305,6 @@
     color: #764ba2;
     text-decoration: underline;
 }
-
-/* Dark Mode */
 @media (prefers-color-scheme: dark) {
     .login-container {
         background-color: #161b22;
@@ -376,8 +350,6 @@
         color: #8b949e;
     }
 }
-
-/* Responsive */
 @media (max-width: 576px) {
     .login-page {
         padding: 1rem;
@@ -413,8 +385,6 @@
         padding: 1.25rem 1.5rem 1.75rem;
     }
 }
-
-/* Print Style */
 @media print {
     .login-page {
         background: white;

@@ -11,7 +11,6 @@ import com.dev.servlet.core.util.DateUtil;
 import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.domain.model.UserActivityLog;
 import com.dev.servlet.domain.model.enums.ActivityStatus;
-import com.dev.servlet.service.UserActivityService;
 import com.dev.servlet.domain.records.Query;
 import com.dev.servlet.domain.records.Sort;
 import com.dev.servlet.domain.request.ActivityRequest;
@@ -19,6 +18,7 @@ import com.dev.servlet.domain.response.UserActivityLogResponse;
 import com.dev.servlet.infrastructure.persistence.IPageRequest;
 import com.dev.servlet.infrastructure.persistence.IPageable;
 import com.dev.servlet.infrastructure.persistence.internal.PageRequest;
+import com.dev.servlet.service.UserActivityService;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -66,9 +66,9 @@ public class ActivityController extends BaseController {
     }
 
     @RequestMapping(value = "/search", method = GET)
-    public IHttpResponse<IPageable<UserActivityLogResponse>> getHistoryByAction(Query query,
-                                                                                IPageRequest pageRequest,
-                                                                                @Authorization String auth) {
+    public IHttpResponse<IPageable<UserActivityLogResponse>> search(Query query,
+                                                                    IPageRequest pageRequest,
+                                                                    @Authorization String auth) {
         UserActivityLog filter = UserActivityLog.builder()
                 .userId(jwts.getUserId(auth))
                 .action(query.queries().get("name"))

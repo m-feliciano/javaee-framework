@@ -53,7 +53,6 @@
     }
 
     .view-switcher .btn-inactive {
-        background: transparent;
         color: var(--text-muted);
         border: 1px solid var(--border-color);
     }
@@ -65,30 +64,6 @@
 
     .activity-table {
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .badge-SUCCESS {
-        background-color: #28a745;
-        color: white;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 0.85em;
-    }
-
-    .badge-FAILED {
-        background-color: #dc3545;
-        color: white;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 0.85em;
-    }
-
-    .badge-PENDING {
-        background-color: #ffc107;
-        color: black;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 0.85em;
     }
 
     .badge-http-method {
@@ -205,7 +180,7 @@
                             <th>Entity</th>
                             <th>HTTP Method</th>
                             <th>Timestamp</th>
-                            <th>Execution Time</th>
+                            <th>Took</th>
                             <th>Details</th>
                         </tr>
                         </thead>

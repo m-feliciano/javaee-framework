@@ -303,8 +303,6 @@
     .timeline-dashboard {
         margin-top: 1.5rem;
     }
-
-    /* Activity Chart */
     .activity-chart-container {
         background: var(--card-background);
         border: 1px solid var(--border-color);
@@ -513,8 +511,6 @@
         color: var(--text-muted);
         white-space: nowrap;
     }
-
-    /* Statistics Cards */
     .timeline-stats {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -591,8 +587,6 @@
         margin-bottom: 1rem;
         display: block;
     }
-
-    /* Responsive */
     @media (max-width: 768px) {
         .timeline-stats {
             grid-template-columns: 1fr;
@@ -665,8 +659,6 @@
             width: 100%;
         }
     }
-
-    /* Dark Mode */
     @media (prefers-color-scheme: dark) {
         .activity-chart-container {
             background: var(--card-background-dark);

@@ -10,12 +10,14 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Map;
 
 import static com.dev.servlet.domain.model.enums.RequestMethod.GET;
 
 @Slf4j
 @NoArgsConstructor
+@Singleton
 @Controller("health")
 public class HealthController extends BaseController {
     private static final String HEALTH_PAGE = "forward:pages/health/health.jsp";

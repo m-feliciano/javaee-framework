@@ -138,6 +138,4 @@
         </a>
     </div>
 </div>
-
-
 <jsp:include page="/WEB-INF/view/components/footer.jsp"/>

@@ -13,8 +13,136 @@
 
 <title>Activity Detail</title>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 <style>
+    :root {
+        --muted: #6b7280;
+        --accent: #0d6efd;
+        --accent-2: #0a58ca;
+        --success: #198754;
+        --danger: #dc3545;
+        --raw-bg: linear-gradient(180deg, #071025 0%, #08151c 60%);
+        --raw-color: #cfe9ff;
+        --raw-border: rgba(255, 255, 255, 0.04);
+        --raw-box-shadow: inset 0 6px 18px rgba(2, 6, 23, 0.6);
+        --raw-line-number-color: rgba(200, 215, 235, 0.22);
+        --raw-key-color: #ffd7b5;
+        --raw-string-color: #9ef6d2;
+        --raw-number-color: #ffd6a5;
+        --raw-boolean-color: #ffb86b;
+        --raw-null-color: #9aa6b2;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 6px 8px;
+        border-radius: 999px;
+        font-size: .75rem;
+        font-weight: 700
+    }
+
+    .raw-json {
+        background: var(--raw-bg);
+        color: var(--raw-color);
+        padding: 18px 18px 18px 56px;
+        border-radius: 10px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+        white-space: pre-wrap;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        overflow: auto;
+        max-height: 74vh;
+        border: 1px solid var(--raw-border);
+        box-shadow: var(--raw-box-shadow);
+        counter-reset: line;
+        position: relative;
+    }
+
+    .raw-json .line {
+        display: block;
+        position: relative;
+        padding-left: 0;
+    }
+
+    .raw-json .line:before {
+        content: counter(line);
+        counter-increment: line;
+        position: absolute;
+        left: -48px;
+        width: 40px;
+        text-align: right;
+        color: var(--raw-line-number-color);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .raw-json .json-key {
+        color: var(--raw-key-color);
+    }
+
+    .raw-json .json-string {
+        color: var(--raw-string-color);
+    }
+
+    .raw-json .json-number {
+        color: var(--raw-number-color);
+    }
+
+    .raw-json .json-boolean {
+        color: var(--raw-boolean-color);
+    }
+
+    .raw-json .json-null {
+        color: var(--raw-null-color);
+        font-style: italic;
+    }
+
+    pre.raw-json, pre.raw-json code {
+        background: transparent;
+        color: inherit;
+    }
+
+    .btn {
+        cursor: pointer;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-weight: 700;
+        border: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    pre.raw-json, pre.raw-json code {
+        white-space: pre-wrap;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        max-width: 100%;
+    }
+
+    body .main .card .card-body #raw-container pre.raw-json,
+    body .main .card .card-body #raw-container .raw-json {
+        background: var(--raw-bg);
+        color: var(--raw-color);
+        box-shadow: var(--raw-box-shadow);
+        border: 1px solid var(--raw-border);
+    }
+
+    body .main .card .card-body #raw-container pre.raw-json code,
+    body .main .card .card-body #raw-container .raw-json * {
+        background: transparent;
+        color: inherit;
+    }
+
+    #raw-container {
+
+        overflow: auto;
+    }
+
+    pre.raw-json {
+        display: block;
+        height: 100%;
+        max-height: none;
+        overflow: auto;
+    }
+
     .detail-card {
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         margin-bottom: 20px;
@@ -38,7 +166,7 @@
         background-color: #dc3545;
     }
 
-    .json-viewer {
+    .raw-json {
         background: #2d2d2d;
         border-radius: 8px;
         padding: 15px;
@@ -47,7 +175,7 @@
         margin: 0;
     }
 
-    .json-viewer code {
+    .raw-json code {
         color: #f8f8f2;
         font-size: 0.9em;
     }
@@ -64,14 +192,6 @@
     .info-label {
         font-weight: bold;
         color: #555;
-    }
-
-    .badge-SUCCESS {
-        background-color: #28a745;
-    }
-
-    .badge-FAILED {
-        background-color: #dc3545;
     }
 
     .text-right {
@@ -158,7 +278,7 @@
                             </c:choose>
                         </div>
                         <div class="info-row">
-                            <span class="info-label">Execution Time:</span>
+                            <span class="info-label">Took:</span>
                             <c:choose>
                                 <c:when test="${not empty activity.executionTimeMs}">
                                     ${activity.executionTimeMs} ms
@@ -196,8 +316,15 @@
                     <i class="bi bi-arrow-up-circle"></i> Request Payload
                 </div>
                 <div class="card-body">
-                    <pre class="json-viewer"><code class="language-json"><c:out
-                            value="${activity.requestPayload}"/></code></pre>
+                    <pre class="raw-json"
+                         style="background: linear-gradient(180deg,#071025 0%,#08151c 60%);
+                            color: #cfe9ff;
+                            padding:18px 18px 18px 56px;
+                            border-radius:10px;
+                            box-shadow: inset 0 6px 18px rgba(2,6,23,0.6);
+                            border:1px solid rgba(255,255,255,0.04);">
+                        <c:out value="${activity.requestPayload}" escapeXml="true"/>
+                    </pre>
                 </div>
             </div>
         </c:if>
@@ -207,9 +334,18 @@
                 <div class="card-header bg-response">
                     <i class="bi bi-arrow-down-circle"></i> Response Payload
                 </div>
-                <div class="card-body">
-                    <pre class="json-viewer"><code class="language-json"><c:out
-                            value="${activity.responsePayload}"/></code></pre>
+                <div>
+                    <div class="card-body">
+                        <pre class="raw-json"
+                             style="background: linear-gradient(180deg,#071025 0%,#08151c 60%);
+                                    color: #cfe9ff;
+                                    padding:18px 18px 18px 56px;
+                                    border-radius:10px;
+                                    box-shadow: inset 0 6px 18px rgba(2,6,23,0.6);
+                                    border:1px solid rgba(255,255,255,0.04);">
+                            <c:out value="${activity.responsePayload}" escapeXml="true"/>
+                        </pre>
+                    </div>
                 </div>
             </div>
         </c:if>
@@ -236,20 +372,6 @@
     </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
-<script>
-    document.querySelectorAll('.json-viewer code').forEach(function (block) {
-        try {
-            const jsonText = block.textContent;
-            const jsonObj = JSON.parse(jsonText);
-            block.textContent = JSON.stringify(jsonObj, null, 2);
-            Prism.highlightElement(block);
-        } catch (e) {
-            console.log('JSON formatting skipped');
-        }
-    });
-</script>
-
+<script src="<c:url value='/resources/js/pretty-json.js'/>"></script>
 <jsp:include page="/WEB-INF/view/components/footer.jsp"/>
 

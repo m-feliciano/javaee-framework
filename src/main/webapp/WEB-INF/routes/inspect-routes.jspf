@@ -1,0 +1,6 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ include file="/WEB-INF/routes/base-routes.jspf" %>
+
+<c:set value="inspect" var="inspectLink"/>
+<c:url value="/${inspectLink}/raw" var="inspectControllers"/>
+<c:url value="/${inspectLink}/info" var="inspectPage"/>

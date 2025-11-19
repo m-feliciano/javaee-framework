@@ -11,8 +11,6 @@ import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.response.IServletResponse;
 import com.dev.servlet.domain.model.Product;
-import com.dev.servlet.service.ICategoryService;
-import com.dev.servlet.service.IProductService;
 import com.dev.servlet.domain.records.KeyPair;
 import com.dev.servlet.domain.records.Query;
 import com.dev.servlet.domain.request.ProductRequest;
@@ -20,6 +18,8 @@ import com.dev.servlet.domain.response.CategoryResponse;
 import com.dev.servlet.domain.response.ProductResponse;
 import com.dev.servlet.infrastructure.persistence.IPageRequest;
 import com.dev.servlet.infrastructure.persistence.IPageable;
+import com.dev.servlet.service.ICategoryService;
+import com.dev.servlet.service.IProductService;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -118,8 +118,6 @@ public class ProductController extends BaseController {
         Optional<List<ProductResponse>> response = productService.scrape(url, environment, auth);
         return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
     }
-
-
     private IServletResponse getServletResponse(IPageRequest pageRequest, String auth, Product product) throws ServiceException {
         pageRequest.setFilter(product);
         IPageable<ProductResponse> page = productService.getAllPageable(pageRequest, auth, productMapper::toResponseWithoutCategory);

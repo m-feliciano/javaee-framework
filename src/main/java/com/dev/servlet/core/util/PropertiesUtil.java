@@ -13,7 +13,6 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class PropertiesUtil {
     private static final ConcurrentHashMap<String, String> propertiesCache = new ConcurrentHashMap<>();

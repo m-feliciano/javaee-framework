@@ -5,10 +5,10 @@ import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.util.EndpointParser;
 import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.core.util.PropertiesUtil;
+import com.dev.servlet.domain.response.RefreshTokenResponse;
 import com.dev.servlet.service.AuditService;
 import com.dev.servlet.service.AuthCookieService;
 import com.dev.servlet.service.AuthService;
-import com.dev.servlet.domain.response.RefreshTokenResponse;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +28,6 @@ import java.util.Set;
 
 import static com.dev.servlet.core.enums.ConstantUtils.BEARER_PREFIX;
 import static com.dev.servlet.core.enums.ConstantUtils.LOGIN_PAGE;
-
 
 @Setter
 @Slf4j

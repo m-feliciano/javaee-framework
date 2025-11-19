@@ -78,8 +78,6 @@ public class HtmlTemplate {
                     .append("</html>");
             return htmlTemplate.toString().replace("\n", "");
         }
-
-
         private String getTemplateStyle() {
             String templateStyle = """
                     body {
@@ -140,8 +138,6 @@ public class HtmlTemplate {
                     """;
             return templateStyle.replace("\n", "");
         }
-
-
         private String getReplacement(String value) {
             return Optional.ofNullable(value).orElse("");
         }

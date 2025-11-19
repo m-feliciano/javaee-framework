@@ -1,6 +1,5 @@
 package com.dev.servlet.infrastructure.persistence;
 
-
 public interface IPageRequest extends ISorted {
     Object getFilter();
     void setFilter(Object filter);

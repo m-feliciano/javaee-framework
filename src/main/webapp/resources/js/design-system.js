@@ -1,19 +1,6 @@
-/**
- * Sistema de Design Empresarial - Utilitários JavaScript
- * Funções auxiliares para componentes interativos
- */
-
 (function(window, document) {
     'use strict';
-
-    /**
-     * Namespace principal
-     */
     const DesignSystem = {
-
-        /**
-         * Inicializa todos os componentes
-         */
         init: function() {
             this.initNavbar();
             this.initDropdowns();
@@ -22,10 +9,6 @@
             this.initFormValidation();
             this.initTooltips();
         },
-
-        /**
-         * Navbar - Mobile toggle e active links
-         */
         initNavbar: function() {
             const toggler = document.querySelector('.navbar-toggler');
             const navbarNav = document.querySelector('.navbar-nav');
@@ -56,10 +39,6 @@
             // Marca o link ativo baseado na URL atual
             this.highlightActiveLink();
         },
-
-        /**
-         * Destaca o link ativo na navegação
-         */
         highlightActiveLink: function() {
             const currentPath = window.location.pathname;
             const navLinks = document.querySelectorAll('.nav-link');
@@ -73,10 +52,6 @@
                 }
             });
         },
-
-        /**
-         * Dropdowns
-         */
         initDropdowns: function() {
             const dropdowns = document.querySelectorAll('.dropdown');
 
@@ -108,10 +83,6 @@
                 }
             });
         },
-
-        /**
-         * Modals
-         */
         initModals: function() {
             // Abre modal
             document.querySelectorAll('[data-modal-target]').forEach(trigger => {
@@ -165,10 +136,6 @@
             modal.classList.remove('show');
             document.body.style.overflow = '';
         },
-
-        /**
-         * Toast notifications
-         */
         initToasts: function() {
             this.toastContainer = this.createToastContainer();
         },
@@ -221,10 +188,6 @@
                 setTimeout(() => toast.remove(), 300);
             }, duration);
         },
-
-        /**
-         * Validação de formulários
-         */
         initFormValidation: function() {
             const forms = document.querySelectorAll('form[data-validate]');
 
@@ -328,10 +291,6 @@
 
             return isValid;
         },
-
-        /**
-         * Tooltips simples
-         */
         initTooltips: function() {
             document.querySelectorAll('[data-tooltip]').forEach(element => {
                 const tooltipText = element.getAttribute('data-tooltip');
@@ -365,10 +324,6 @@
                 });
             });
         },
-
-        /**
-         * Loading state para botões
-         */
         setButtonLoading: function(button, loading = true) {
             if (loading) {
                 button.dataset.originalText = button.innerHTML;
@@ -382,10 +337,6 @@
                 button.disabled = false;
             }
         },
-
-        /**
-         * Confirm dialog
-         */
         confirm: function(message, callback) {
             if (window.confirm(message)) {
                 callback();

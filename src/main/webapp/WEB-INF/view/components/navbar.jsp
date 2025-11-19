@@ -5,6 +5,7 @@
 <%@ include file="/WEB-INF/routes/user-routes.jspf" %>
 <%@ include file="/WEB-INF/routes/auth-routes.jspf" %>
 <%@ include file="/WEB-INF/routes/health-routes.jspf" %>
+<%@ include file="/WEB-INF/routes/inspect-routes.jspf" %>
 
 <nav class="navbar">
     <div class="navbar-container">
@@ -45,6 +46,12 @@
                 <a class="nav-link" href="${baseLink}${version}${healthCheck}">
                     <i class="bi bi-heart-pulse"></i>
                     <span>Health</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="${baseLink}${version}${inspectPage}">
+                    <i class="bi bi-eye"></i>
+                    <span>Docs</span>
                 </a>
             </li>
 

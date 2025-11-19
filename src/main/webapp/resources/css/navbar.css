@@ -1,7 +1,3 @@
-/* ========================================
-   COMPONENTES - NAVBAR
-   ======================================== */
-
 .navbar {
     position: sticky;
     top: 0;
@@ -83,8 +79,6 @@
 .nav-link i {
     font-size: 1.125rem;
 }
-
-/* Dropdown Menu */
 .dropdown {
     position: relative;
 }
@@ -148,8 +142,6 @@
     overflow: hidden;
     border-top: var(--border-width-thin) solid var(--border-color);
 }
-
-/* User Menu */
 .navbar-user {
     display: flex;
     align-items: center;
@@ -180,8 +172,6 @@
     font-size: var(--font-size-xs);
     color: var(--text-muted);
 }
-
-/* Mobile Menu Toggle */
 .navbar-toggler {
     display: none;
     padding: var(--spacing-2);
@@ -223,8 +213,6 @@
 .navbar-toggler-icon::after {
     bottom: -8px;
 }
-
-/* Mobile Responsive */
 @media (max-width: 992px) {
     .navbar-toggler {
         display: block;
