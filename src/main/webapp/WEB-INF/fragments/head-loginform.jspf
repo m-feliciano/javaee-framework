@@ -36,4 +36,6 @@
     <link rel="stylesheet" href="<c:url value='/resources/css/login.css'/>">
 
     <title>Sign in / Sign up</title>
+
+    <script src="<c:url value='/resources/js/csrf-util.js'/>"></script>
 </head>

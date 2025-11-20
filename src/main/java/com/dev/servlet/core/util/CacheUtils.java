@@ -34,7 +34,7 @@ public final class CacheUtils {
 
     static {
         log.info("Ehcache CacheManager initialized");
-        CACHE_IDLE_TIMEOUT_MINUTES = PropertiesUtil.getProperty("cache.timeout.minutes", 60L);
+        CACHE_IDLE_TIMEOUT_MINUTES = Properties.getOrDefault("cache.timeout.minutes", 60L);
         cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build(true);
         cleaner.scheduleAtFixedRate(
                 CacheUtils::cleanupUnusedCaches,

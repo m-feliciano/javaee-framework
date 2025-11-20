@@ -1,7 +1,7 @@
 package com.dev.servlet.infrastructure.security;
 
 import com.dev.servlet.core.util.RateLimiter;
-import com.dev.servlet.core.util.PropertiesUtil;
+import com.dev.servlet.core.util.Properties;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,7 +31,7 @@ public class RateLimitFilter implements Filter {
 
     @PostConstruct
     public void init() {
-        this.enabled = PropertiesUtil.getProperty("rate.limit.enabled", true);
+        this.enabled = Properties.getOrDefault("rate.limit.enabled", true);
         loadEndpointConfiguration();
         log.info("[RateLimitFilter] initialized [enabled={}]", enabled);
     }

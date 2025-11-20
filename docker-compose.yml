@@ -1,0 +1,54 @@
+services:
+  app:
+    build:
+      context: .
+    env_file:
+      - ./docker.env
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: ${DOCKER_DB_HOST}
+      DB_PORT: ${DOCKER_DB_PORT}
+      POSTGRES_DB: ${DOCKER_POSTGRES_DB}
+      POSTGRES_USER: ${DOCKER_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${DOCKER_POSTGRES_PASSWORD}
+      SECURITY_ENCRYPT_KEY: ${DOCKER_SECURITY_ENCRYPT_KEY}
+      SECURITY_JWT_KEY: ${DOCKER_SECURITY_JWT_KEY}
+      JAVA_OPTS: "-Xms512m -Xmx2048m -Dapp.config.file=app-dev.yml"
+    depends_on:
+      - db
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/api/v1/health/up" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - app_net
+
+  db:
+    image: postgres:15-alpine
+    env_file:
+      - ./docker.env
+    environment:
+      POSTGRES_USER: ${DOCKER_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${DOCKER_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${DOCKER_POSTGRES_DB}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./src/main/resources/META-INF/sql:/docker-entrypoint-initdb.d:ro
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DOCKER_POSTGRES_USER}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - app_net
+
+volumes:
+  db_data:
+
+networks:
+  app_net:
+    driver: bridge

@@ -26,13 +26,21 @@ public class HealthController extends BaseController implements HealthController
         return HttpResponse.ok(health).next(HEALTH_PAGE).build();
     }
 
+    @Override
     public IHttpResponse<Map<String, Object>> readiness() {
         Map<String, Object> ready = healthService.getReadinessStatus();
         return HttpResponse.ok(ready).next(HEALTH_PAGE).build();
     }
 
+    @Override
     public IHttpResponse<Map<String, Object>> liveness() {
         Map<String, Object> live = healthService.getLivenessStatus();
         return HttpResponse.ok(live).next(HEALTH_PAGE).build();
+    }
+
+    @Override
+    public IHttpResponse<Boolean> up() {
+        boolean isUp = healthService.isDatabaseHealthy() && healthService.isCacheHealthy();
+        return HttpResponse.ok(isUp).build();
     }
 }

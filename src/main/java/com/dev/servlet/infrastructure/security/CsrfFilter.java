@@ -3,6 +3,7 @@ package com.dev.servlet.infrastructure.security;
 import com.dev.servlet.domain.model.enums.RequestMethod;
 import com.dev.servlet.service.AuthCookieService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RegExUtils;
 
 import javax.inject.Inject;
 import javax.servlet.Filter;
@@ -19,11 +20,11 @@ import java.util.List;
 @Slf4j
 public class CsrfFilter implements Filter {
 
-    public static final List<String> CSRF_EXCLUDE_URLS = List.of(
-            "/auth/form",
-            "/auth/logout",
-            "/auth/login",
-            "/user/registerUser"
+    public static final List<String> WHITELISTED_ENDPOINTS = List.of(
+            "/health/check",
+            "/health/ready",
+            "/health/live",
+            "/health/up"
     );
 
     @Inject
@@ -35,16 +36,18 @@ public class CsrfFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
 
-        String method = request.getMethod();
-        if (RequestMethod.GET.name().equals(method)) {
-            authCookieService.ensureCsrfToken(request, response);
+        String normalizedUri = RegExUtils.removeAll(request.getRequestURI(), "/api/v[0-9]+");
+        if (normalizedUri != null && WHITELISTED_ENDPOINTS.stream().anyMatch(normalizedUri::equals)) {
+            log.debug("Skipping CSRF validation for login endpoint");
             chain.doFilter(request, response);
             return;
         }
 
         String requestURI = request.getRequestURI();
-        if (requestURI != null && CSRF_EXCLUDE_URLS.stream().anyMatch(requestURI::endsWith)) {
-            log.debug("Skipping CSRF validation for login endpoint");
+        String method = request.getMethod();
+
+        if (RequestMethod.GET.name().equals(method)) {
+            authCookieService.ensureCsrfToken(request, response);
             chain.doFilter(request, response);
             return;
         }
@@ -64,6 +67,7 @@ public class CsrfFilter implements Filter {
     private boolean isStatefulMethod(String method) {
         return RequestMethod.POST.name().equals(method)
                || RequestMethod.PUT.name().equals(method)
+               || RequestMethod.PATCH.name().equals(method)
                || RequestMethod.DELETE.name().equals(method);
     }
 

@@ -1,7 +1,7 @@
 package com.dev.servlet.core;
 
 import com.dev.servlet.core.util.CacheUtils;
-import com.dev.servlet.core.util.PropertiesUtil;
+import com.dev.servlet.core.util.Properties;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.mockito.MockedStatic;
@@ -14,14 +14,14 @@ import static org.mockito.Mockito.mockStatic;
 public abstract class BaseServiceTest {
     protected static final String TEST_TOKEN = "test-bearerToken-with-sufficient-length-for-cache";
 
-    protected static MockedStatic<PropertiesUtil> propertiesUtilMock;
+    protected static MockedStatic<Properties> propertiesUtilMock;
     protected static MockedStatic<CacheUtils> cacheUtilsMock;
 
     @BeforeAll
     static void setUpBaseClass() {
-        propertiesUtilMock = mockStatic(PropertiesUtil.class);
-        propertiesUtilMock.when(() -> PropertiesUtil.getProperty(anyString())).thenReturn("1");
-        propertiesUtilMock.when(() -> PropertiesUtil.getProperty(anyString(), any())).thenReturn(1L);
+        propertiesUtilMock = mockStatic(Properties.class);
+        propertiesUtilMock.when(() -> Properties.get(anyString())).thenReturn("1");
+        propertiesUtilMock.when(() -> Properties.getOrDefault(anyString(), any())).thenReturn(1L);
 
         cacheUtilsMock = mockStatic(CacheUtils.class);
     }

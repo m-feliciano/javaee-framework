@@ -2,23 +2,26 @@ package com.dev.servlet.service.internal;
 
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.mapper.UserMapper;
+import com.dev.servlet.core.response.HttpResponse;
+import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.util.CacheUtils;
 import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.domain.model.RefreshToken;
 import com.dev.servlet.domain.model.User;
-import com.dev.servlet.service.AuditService;
-import com.dev.servlet.service.AuthService;
-import com.dev.servlet.service.IUserService;
 import com.dev.servlet.domain.request.LoginRequest;
 import com.dev.servlet.domain.request.UserRequest;
 import com.dev.servlet.domain.response.RefreshTokenResponse;
 import com.dev.servlet.domain.response.UserResponse;
 import com.dev.servlet.infrastructure.persistence.dao.RefreshTokenDAO;
+import com.dev.servlet.service.AuditService;
+import com.dev.servlet.service.AuthService;
+import com.dev.servlet.service.IUserService;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.servlet.http.HttpServletResponse;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
@@ -39,33 +42,45 @@ public class AuthServiceImpl implements AuthService {
     private RefreshTokenDAO refreshTokenDAO;
 
     @Override
-    public UserResponse login(LoginRequest request) throws ServiceException {
+    public IHttpResponse<UserResponse> login(LoginRequest request, String onSuccess) throws ServiceException {
         String login = request.login();
         String password = request.password();
 
-        User user = userService.findByLoginAndPassword(login, password).orElse(null);
-        if (user == null) {
-            auditService.auditFailure("user:login", null, new AuditPayload<>(request, null));
-            throw new ServiceException("Invalid login or password");
+        try {
+            User user = userService.findByLoginAndPassword(login, password).orElse(null);
+            if (user == null) {
+                auditService.auditFailure("user:login", null, new AuditPayload<>(request, null));
+                throw new ServiceException("Invalid login or password");
+            }
+
+            UserResponse response = userMapper.toResponse(user);
+            String accessToken = jwtUtil.generateAccessToken(user);
+            String refreshJwt = jwtUtil.generateRefreshToken(user);
+
+            RefreshToken rt = RefreshToken.builder()
+                    .token(jwtUtil.stripBearer(refreshJwt))
+                    .user(user)
+                    .revoked(false)
+                    .issuedAt(Instant.now())
+                    .expiresAt(Instant.now().plusSeconds(TimeUnit.DAYS.toSeconds(30)))
+                    .build();
+            refreshTokenDAO.save(rt);
+
+            response.setToken(accessToken);
+            response.setRefreshToken(refreshJwt);
+            auditService.auditSuccess("user:login", response.getToken(), null);
+            return HttpResponse.ok(response).next(onSuccess).build();
+
+        } catch (Exception e) {
+            auditService.auditWarning("user:login", null, new AuditPayload<>(request, null));
+
+            return HttpResponse.<UserResponse>newBuilder()
+                    .statusCode(HttpServletResponse.SC_UNAUTHORIZED)
+                    .error("Invalid login or password")
+                    .reasonText("Unauthorized")
+                    .next("forward:pages/formLogin.jsp")
+                    .build();
         }
-
-        UserResponse response = userMapper.toResponse(user);
-        String accessToken = jwtUtil.generateAccessToken(user);
-        String refreshJwt = jwtUtil.generateRefreshToken(user);
-
-        RefreshToken rt = RefreshToken.builder()
-                .token(jwtUtil.stripBearer(refreshJwt))
-                .user(user)
-                .revoked(false)
-                .issuedAt(Instant.now())
-                .expiresAt(Instant.now().plusSeconds(TimeUnit.DAYS.toSeconds(30)))
-                .build();
-        refreshTokenDAO.save(rt);
-
-        response.setToken(accessToken);
-        response.setRefreshToken(refreshJwt);
-        auditService.auditSuccess("user:login", response.getToken(), null);
-        return response;
     }
 
     @Override
@@ -131,5 +146,15 @@ public class AuthServiceImpl implements AuthService {
         var refreshTokenResponse = new RefreshTokenResponse(newAccessToken, newRefreshJwt);
         auditService.auditSuccess("auth:refresh_token", refreshToken, null);
         return refreshTokenResponse;
+    }
+
+    @Override
+    public String homePage() {
+        return "redirect:/api/v1/auth/form";
+    }
+
+    @Override
+    public String registerPage() {
+        return "forward:pages/user/formCreateUser.jsp";
     }
 }

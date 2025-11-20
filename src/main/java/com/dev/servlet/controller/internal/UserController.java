@@ -23,13 +23,13 @@ public class UserController extends BaseController implements UserControllerApi 
     private IUserService userService;
 
     @SneakyThrows
-    public IHttpResponse<UserResponse> update(UserRequest user, @Authorization String auth) {
+    public IHttpResponse<UserResponse> update(UserRequest user, String auth) {
         UserResponse response = userService.update(user, auth);
         return newHttpResponse(204, response, redirectTo(response.getId()));
     }
 
     @SneakyThrows
-    public IHttpResponse<Void> delete(UserRequest user, @Authorization String auth) {
+    public IHttpResponse<Void> delete(UserRequest user, String auth) {
         userService.delete(user, auth);
         return HttpResponse.<Void>next(forwardTo("formLogin")).build();
     }
@@ -41,7 +41,7 @@ public class UserController extends BaseController implements UserControllerApi 
     }
 
     @SneakyThrows
-    public IHttpResponse<UserResponse> getUserDetail(UserRequest user, @Authorization String auth) {
+    public IHttpResponse<UserResponse> getUserDetail(UserRequest user, String auth) {
         UserResponse response = userService.getUserDetail(user, auth);
         return okHttpResponse(response, forwardTo("formListUser"));
     }

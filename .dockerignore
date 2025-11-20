@@ -1,0 +1,14 @@
+# Ignore build artifacts and IDE files
+target/
+images/
+*.log
+*.tmp
+!.dockerignore
+!.gitignore
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# local environment files
+docker.env

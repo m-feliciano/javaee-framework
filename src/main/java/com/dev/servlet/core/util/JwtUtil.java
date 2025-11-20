@@ -36,7 +36,7 @@ public class JwtUtil {
     }
 
     private byte[] getJwtSecretBytes() {
-        String keyStr = PropertiesUtil.getProperty("security.jwt.key");
+        String keyStr = System.getenv("SECURITY_JWT_KEY");
         if (StringUtils.isBlank(keyStr)) {
             log.error("security.jwt.key is not configured");
             throw new IllegalStateException("Cannot retrieve security.jwt.key");

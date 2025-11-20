@@ -1,7 +1,7 @@
 package com.dev.servlet.core.util.impl;
 
 import com.dev.servlet.core.util.RateLimiter;
-import com.dev.servlet.core.util.PropertiesUtil;
+import com.dev.servlet.core.util.Properties;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.BucketConfiguration;
@@ -30,9 +30,9 @@ public class Bucket4jRateLimiter implements RateLimiter {
 
     @PostConstruct
     public void init() {
-        this.capacity = PropertiesUtil.getProperty("rate.limit.capacity", 20L);
-        this.refillTokens = PropertiesUtil.getProperty("rate.limit.refill.tokens", 20L);
-        this.refillPeriodSeconds = PropertiesUtil.getProperty("rate.limit.refill.period.seconds", 60L);
+        this.capacity = Properties.getOrDefault("rate.limit.capacity", 20L);
+        this.refillTokens = Properties.getOrDefault("rate.limit.refill.tokens", 20L);
+        this.refillPeriodSeconds = Properties.getOrDefault("rate.limit.refill.period.seconds", 60L);
 
         Bandwidth limit = Bandwidth.builder()
                 .capacity(capacity)

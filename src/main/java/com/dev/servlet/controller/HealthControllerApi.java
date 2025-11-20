@@ -6,18 +6,19 @@ import com.dev.servlet.core.response.IHttpResponse;
 
 import java.util.Map;
 
-import static com.dev.servlet.domain.model.enums.RequestMethod.GET;
-
 @Controller("health")
 public interface HealthControllerApi {
 
-    @RequestMapping(value = "/check", method = GET)
+    @RequestMapping(value = "/check")
     IHttpResponse<Map<String, Object>> health();
 
-    @RequestMapping(value = "/ready", method = GET)
+    @RequestMapping(value = "/ready")
     IHttpResponse<Map<String, Object>> readiness();
 
-    @RequestMapping(value = "/live", method = GET)
+    @RequestMapping(value = "/live")
     IHttpResponse<Map<String, Object>> liveness();
+
+    @RequestMapping(value = "/up", requestAuth = false)
+    IHttpResponse<Boolean> up();
 }
 

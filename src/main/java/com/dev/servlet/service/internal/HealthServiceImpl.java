@@ -1,7 +1,7 @@
 package com.dev.servlet.service.internal;
 
 import com.dev.servlet.core.util.CacheUtils;
-import com.dev.servlet.core.util.PropertiesUtil;
+import com.dev.servlet.core.util.Properties;
 import com.dev.servlet.service.HealthService;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,9 +28,9 @@ public class HealthServiceImpl implements HealthService {
         Map<String, Object> health = new HashMap<>();
         health.put("status", "UP");
         health.put("timestamp", System.currentTimeMillis());
-        health.put("version", PropertiesUtil.getProperty("system.version"));
-        health.put("service", PropertiesUtil.getProperty("name"));
-        health.put("environment", PropertiesUtil.getProperty("app.env", "unknown"));
+        health.put("version", Properties.get("system.version"));
+        health.put("service", Properties.get("name"));
+        health.put("environment", Properties.getOrDefault("app.env", "unknown"));
 
         Map<String, String> components = new HashMap<>();
         components.put("database", isDatabaseHealthy() ? "UP" : "DOWN");

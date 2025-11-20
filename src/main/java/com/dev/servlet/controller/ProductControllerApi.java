@@ -45,6 +45,6 @@ public interface ProductControllerApi {
     IHttpResponse<Void> delete(ProductRequest filter, @Authorization String auth);
 
     @RequestMapping(value = "/scrape", method = GET)
-    IHttpResponse<Void> scrape(@Authorization String auth, @Property("env") String environment, @Property("scrape.product.url") String url);
+    IHttpResponse<Void> scrape(@Authorization String auth, @Property("app.env") String environment, @Property("scrape_product_url") String url);
 }
 

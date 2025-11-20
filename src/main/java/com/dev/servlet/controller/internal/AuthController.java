@@ -2,8 +2,6 @@ package com.dev.servlet.controller.internal;
 
 import com.dev.servlet.controller.AuthControllerApi;
 import com.dev.servlet.controller.base.BaseController;
-import com.dev.servlet.core.annotation.Authorization;
-import com.dev.servlet.core.annotation.Property;
 import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.domain.request.LoginRequest;
@@ -15,45 +13,31 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.servlet.http.HttpServletResponse;
 
 @Slf4j
 @NoArgsConstructor
 @Singleton
 public class AuthController extends BaseController implements AuthControllerApi {
 
-    public static final String FORWARD_PAGES_FORM_LOGIN_JSP = "forward:pages/formLogin.jsp";
-
     @Inject
     private AuthService authService;
 
     public IHttpResponse<String> forwardRegister() {
-        return HttpResponse.<String>next("forward:pages/user/formCreateUser.jsp").build();
+        return HttpResponse.<String>next(authService.registerPage()).build();
     }
 
-    public IHttpResponse<String> form(@Authorization String auth, @Property("homepage") String homepage) {
+    public IHttpResponse<String> form(String auth, String homepage) {
         String next = authService.form(auth, homepage);
         return HttpResponse.<String>next(next).build();
     }
 
     @SneakyThrows
-    public IHttpResponse<UserResponse> login(LoginRequest request, @Property("homepage") String homepage) {
-        try {
-            UserResponse user = authService.login(request);
-            return okHttpResponse(user, "redirect:/" + homepage);
-
-        } catch (Exception e) {
-            return HttpResponse.<UserResponse>newBuilder()
-                    .statusCode(HttpServletResponse.SC_UNAUTHORIZED)
-                    .error("Invalid login or password")
-                    .reasonText("Unauthorized")
-                    .next(FORWARD_PAGES_FORM_LOGIN_JSP)
-                    .build();
-        }
+    public IHttpResponse<UserResponse> login(LoginRequest request, String homepage) {
+        return authService.login(request,  "redirect:/" + homepage);
     }
 
-    public IHttpResponse<String> logout(@Authorization String auth) {
+    public IHttpResponse<String> logout(String auth) {
         authService.logout(auth);
-        return HttpResponse.<String>next(FORWARD_PAGES_FORM_LOGIN_JSP).build();
+        return HttpResponse.<String>next(authService.homePage()).build();
     }
 }
