@@ -10,13 +10,13 @@ import java.util.Base64;
 public final class CryptoUtils {
 
     private static byte[] getSecurityKey() throws Exception {
-        String key = PropertiesUtil.getProperty("security.encrypt.key");
+        String key = System.getenv("SECURITY_ENCRYPT_KEY");
         if (key == null) throw new Exception("Security key is not set");
         return key.getBytes();
     }
 
     private static String getSecurityAlgorithm() throws Exception {
-        String key = PropertiesUtil.getProperty("security.encrypt.algorithm");
+        String key = Properties.get("security.encrypt.algorithm");
         if (key == null) throw new Exception("Cypher algorithm is not set");
         return key;
     }

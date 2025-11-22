@@ -39,7 +39,7 @@ public class ActivityController extends BaseController implements ActivityContro
     @Inject
     private ActivityMapper activityMapper;
 
-    public IHttpResponse<IPageable<UserActivityLogResponse>> getHistory(PageRequest defaultPage, @Authorization String auth) {
+    public IHttpResponse<IPageable<UserActivityLogResponse>> getHistory(PageRequest defaultPage, String auth) {
         final String userId = jwts.getUserId(auth);
 
         PageRequest pageRequest = PageRequest.of(
@@ -53,7 +53,7 @@ public class ActivityController extends BaseController implements ActivityContro
         return HttpResponse.ok(activityLogPage).next(forwardTo("history")).build();
     }
 
-    public IHttpResponse<UserActivityLog> getActivityDetail(ActivityRequest request, @Authorization String auth) {
+    public IHttpResponse<UserActivityLog> getActivityDetail(ActivityRequest request, String auth) {
         final String userId = jwts.getUserId(auth);
 
         return activityService.getActivityDetail(request.id(), userId)
@@ -63,7 +63,7 @@ public class ActivityController extends BaseController implements ActivityContro
 
     public IHttpResponse<IPageable<UserActivityLogResponse>> search(Query query,
                                                                     IPageRequest pageRequest,
-                                                                    @Authorization String auth) {
+                                                                    String auth) {
         UserActivityLog filter = UserActivityLog.builder()
                 .userId(jwts.getUserId(auth))
                 .action(query.queries().get("name"))
@@ -80,7 +80,7 @@ public class ActivityController extends BaseController implements ActivityContro
         return HttpResponse.ok(activities).next(forwardTo("history")).build();
     }
 
-    public IHttpResponse<List<UserActivityLogResponse>> getTimeline(Query query, @Authorization String auth) {
+    public IHttpResponse<List<UserActivityLogResponse>> getTimeline(Query query, String auth) {
         final String userId = jwts.getUserId(auth);
 
         String startDateStr = null;

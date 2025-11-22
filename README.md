@@ -7,8 +7,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-A production-grade Java EE framework implementing Clean Architecture, and enterprise security standards. Built for
-high-performance, scalable web applications with comprehensive observability and cloud-native deployment capabilities.
+A Java EE framework implementing Clean Architecture, and enterprise security standards.
+Built for high-performance, scalable web applications with comprehensive observability and cloud-native deployment capabilities.
 
 ## Table of Contents
 
@@ -22,7 +22,7 @@ high-performance, scalable web applications with comprehensive observability and
 
 ### Enterprise-Grade Capabilities
 
-- **🏗️ Custom MVC Framework**: Built from scratch using Servlet API 4.0 and CDI 1.2
+- **🏗️ Custom Framework**: Built from scratch using Servlet API 4.0 and CDI 1.2
 - **🔐 Advanced Security**: JWT-based authentication, refresh token rotation, CSRF protection
 - **⚡ Multi-Layer Caching**: L1 (Hibernate), L2 (Ehcache), Application-level with TTL management
 - **🚦 Rate Limiting**: Leaky Bucket algorithm
@@ -92,40 +92,16 @@ Postman / Insomnia
 ### Quick Start
 
 ```bash
-# 1. Clone repository
-git clone https://github.com/yourusername/servlets.git
-cd servlets
-# 2. Database setup
-createdb servlets_db
-psql servlets_db < src/main/resources/META-INF/sql/create.sql
-# 3. Configure environment
-cp src/main/resources/app-dev.properties.example src/main/resources/app-dev.properties
-# Edit database credentials
-# 4. Build
-mvn clean package -DskipTests
-# 5. Deploy
-cp target/servlets-*.war $TOMCAT_HOME/webapps/
-# 6. Start Tomcat
-$TOMCAT_HOME/bin/startup.sh
-# 7. Verify
-curl http://localhost:8080/api/v1/health/check
-```
+# Create a environment file
+cp .env.example .env
+# Edit .env to set database credentials and other configurations
 
-### Docker Deployment
-
-```dockerfile
-FROM tomcat:9-jdk17-openjdk
-
-COPY target/servlets-*.war /usr/local/tomcat/webapps/ROOT.war
-
-EXPOSE 8080
-
-CMD ["catalina.sh", "run"]
-```
-
-```bash
-docker build -t servlets:latest .
-docker run -p 8080:8080 servlets:latest
+# Build and run with Docker Compose
+docker-compose build -no-cache
+# Start services in detached mode
+docker-compose --env-file .env up -d --build
+# logs
+docker-compose logs -f app
 ```
 
 ## Architecture

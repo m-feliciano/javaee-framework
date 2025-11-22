@@ -28,7 +28,7 @@
                 </div>
             </c:if>
 
-            <form action="${baseLink}${version}${login}" method="post" class="login-form">
+            <form action="${baseLink}${version}${login}" method="post" class="csrf-form login-form">
                 <div class="form-group">
                     <label for="inputLogin" class="form-label">Email Address</label>
                     <div class="input-group">
@@ -94,20 +94,48 @@
 </div>
 
 <script>
-    // Toggle password visibility and loading state
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.querySelector('.login-form');
-
-        form.addEventListener('submit', function(e) {
-            const submitBtn = form.querySelector('button[type="submit"]');
+    function onLoginSubmit(form) {
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
             const btnText = submitBtn.querySelector('.btn-text');
             const btnLoading = submitBtn.querySelector('.btn-loading-spinner');
 
-            btnText.style.display = 'none';
-            btnLoading.style.display = 'inline-flex';
+            if (btnText) btnText.style.display = 'none';
+            if (btnLoading) btnLoading.style.display = 'inline-flex';
             submitBtn.disabled = true;
+        }
+        return true;
+    }
+
+    const pwdInput = document.getElementById('inputPassword');
+    if (pwdInput) {
+        let toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'btn btn-icon btn-password-toggle';
+        toggle.style.marginLeft = '8px';
+        toggle.innerHTML = '<i class="bi bi-eye-fill"></i>';
+
+        const parent = pwdInput.closest('.input-group');
+        if (parent) parent.appendChild(toggle);
+
+        toggle.addEventListener('click', function() {
+            const icon = this.querySelector('i');
+            if (pwdInput.type === 'password') {
+                pwdInput.type = 'text';
+                if (icon) {
+                    icon.classList.remove('bi-eye-fill');
+                    icon.classList.add('bi-eye-slash-fill');
+                }
+            } else {
+                pwdInput.type = 'password';
+                if (icon) {
+                    icon.classList.remove('bi-eye-slash-fill');
+                    icon.classList.add('bi-eye-fill');
+                }
+            }
+            pwdInput.focus();
         });
-    });
+    }
 </script>
 </body>
 </html>

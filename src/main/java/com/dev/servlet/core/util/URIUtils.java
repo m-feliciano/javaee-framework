@@ -108,10 +108,10 @@ public final class URIUtils {
     }
 
     private static PageRequest buildPagination() {
-        int page = PropertiesUtil.getProperty(PAGINATION_PAGE, DEFAULT_INITIAL_PAGE);
-        int size = PropertiesUtil.getProperty(PAGINATION_LIMIT, DEFAULT_MIN_PAGE_SIZE);
-        String field = PropertiesUtil.getProperty(PAGINATION_SORT, DEFAULT_SORT_FIELD);
-        String order = PropertiesUtil.getProperty(PAGINATION_ORDER, DEFAULT_SORT_ORDER);
+        int page = Properties.getOrDefault(PAGINATION_PAGE, DEFAULT_INITIAL_PAGE);
+        int size = Properties.getOrDefault(PAGINATION_LIMIT, DEFAULT_MIN_PAGE_SIZE);
+        String field = Properties.getOrDefault(PAGINATION_SORT, DEFAULT_SORT_FIELD);
+        String order = Properties.getOrDefault(PAGINATION_ORDER, DEFAULT_SORT_ORDER);
         Sort sort = Sort.by(field).direction(Sort.Direction.from(order));
         return PageRequest.builder().initialPage(page).pageSize(size).sort(sort).build();
     }

@@ -1,6 +1,6 @@
 package com.dev.servlet.service.internal;
 
-import com.dev.servlet.core.util.PropertiesUtil;
+import com.dev.servlet.core.util.Properties;
 import com.dev.servlet.service.AuditService;
 import com.dev.servlet.service.AuthCookieService;
 import lombok.Setter;
@@ -43,15 +43,15 @@ public class AuthCookieServiceImpl implements AuthCookieService {
 
     @PostConstruct
     public void init() {
-        this.isSecure = PropertiesUtil.getProperty("security.cookie.secure", true);
-        this.cookiePath = PropertiesUtil.getProperty("security.cookie.path", "/");
-        this.cookieDomain = PropertiesUtil.getProperty("security.cookie.domain");
-        this.sameSite = PropertiesUtil.getProperty("security.cookie.samesite", "Lax");
+        this.isSecure = Properties.getOrDefault("security.cookie.secure", true);
+        this.cookiePath = Properties.getOrDefault("security.cookie.path", "/");
+        this.cookieDomain = Properties.get("security.cookie.domain");
+        this.sameSite = Properties.getOrDefault("security.cookie.samesite", "Lax");
 
         log.info("[AuthCookieService] initialized [secure={}, path={}, domain={}, sameSite={}]",
                 isSecure, cookiePath, cookieDomain, sameSite);
 
-        if (!isSecure && "production".equalsIgnoreCase(PropertiesUtil.getProperty("app.env"))) {
+        if (!isSecure && "production".equalsIgnoreCase(Properties.get("app.env"))) {
             log.warn("SECURITY WARNING: Cookie Secure flag is disabled in production environment!");
         }
     }

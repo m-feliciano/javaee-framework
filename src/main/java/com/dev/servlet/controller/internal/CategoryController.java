@@ -27,37 +27,37 @@ public class CategoryController extends BaseController implements CategoryContro
     }
 
     @SneakyThrows
-    public IHttpResponse<Void> delete(CategoryRequest category, @Authorization String auth) {
+    public IHttpResponse<Void> delete(CategoryRequest category, String auth) {
         categoryService.delete(category, auth);
         return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
     }
 
     @SneakyThrows
-    public IHttpResponse<CategoryResponse> edit(CategoryRequest category, @Authorization String auth) {
+    public IHttpResponse<CategoryResponse> edit(CategoryRequest category, String auth) {
         CategoryResponse response = categoryService.getCategoryDetail(category, auth);
         return okHttpResponse(response, forwardTo("formUpdateCategory"));
     }
 
     @SneakyThrows
-    public IHttpResponse<Void> register(CategoryRequest request, @Authorization String auth) {
+    public IHttpResponse<Void> register(CategoryRequest request, String auth) {
         CategoryResponse response = categoryService.register(request, auth);
         return newHttpResponse(201, redirectTo(response.getId()));
     }
 
     @SneakyThrows
-    public IHttpResponse<Void> update(CategoryRequest category, @Authorization String auth) {
+    public IHttpResponse<Void> update(CategoryRequest category, String auth) {
         CategoryResponse response = categoryService.update(category, auth);
         return newHttpResponse(204, redirectTo(response.getId()));
     }
 
     @SneakyThrows
-    public IHttpResponse<Collection<CategoryResponse>> list(CategoryRequest category, @Authorization String auth) {
+    public IHttpResponse<Collection<CategoryResponse>> list(CategoryRequest category, String auth) {
         Collection<CategoryResponse> response = categoryService.list(category, auth);
         return okHttpResponse(response, forwardTo("listCategories"));
     }
 
     @SneakyThrows
-    public IHttpResponse<CategoryResponse> getCategoryDetail(CategoryRequest request, @Authorization String auth) {
+    public IHttpResponse<CategoryResponse> getCategoryDetail(CategoryRequest request, String auth) {
         CategoryResponse response = categoryService.getCategoryDetail(request, auth);
         return okHttpResponse(response, forwardTo("formListCategory"));
     }

@@ -44,42 +44,42 @@ public class InventoryController extends BaseController implements InventoryCont
     }
 
     @SneakyThrows
-    public IHttpResponse<Void> create(InventoryCreateRequest request, @Authorization String auth) {
+    public IHttpResponse<Void> create(InventoryCreateRequest request, String auth) {
         InventoryResponse inventory = stockService.register(request, auth);
         return newHttpResponse(201, redirectTo(inventory.getId()));
     }
 
     @SneakyThrows
-    public IHttpResponse<Void> delete(InventoryRequest request, @Authorization String auth) {
+    public IHttpResponse<Void> delete(InventoryRequest request, String auth) {
         stockService.delete(request, auth);
         return HttpResponse.<Void>next(redirectToCtx("list")).build();
     }
 
     @SneakyThrows
-    public IServletResponse list(InventoryRequest request, @Authorization String auth) {
+    public IServletResponse list(InventoryRequest request, String auth) {
         return getServletResponse(request, auth);
     }
 
     @SneakyThrows
-    public IServletResponse search(Query query, @Authorization String auth) {
+    public IServletResponse search(Query query, String auth) {
         InventoryRequest request = inventoryMapper.queryToInventory(query);
         return getServletResponse(request, auth);
     }
 
     @SneakyThrows
-    public IHttpResponse<InventoryResponse> getStockDetail(InventoryRequest request, @Authorization String auth) {
+    public IHttpResponse<InventoryResponse> getStockDetail(InventoryRequest request, String auth) {
         InventoryResponse inventory = stockService.getStockDetail(request, auth);
         return okHttpResponse(inventory, forwardTo("formListItem"));
     }
 
     @SneakyThrows
-    public IHttpResponse<InventoryResponse> edit(InventoryRequest request, @Authorization String auth) {
+    public IHttpResponse<InventoryResponse> edit(InventoryRequest request, String auth) {
         InventoryResponse inventory = stockService.getStockDetail(request, auth);
         return okHttpResponse(inventory, forwardTo("formUpdateItem"));
     }
 
     @SneakyThrows
-    public IHttpResponse<Void> update(InventoryRequest request, @Authorization String auth) {
+    public IHttpResponse<Void> update(InventoryRequest request, String auth) {
         InventoryResponse inventory = stockService.update(request, auth);
         return newHttpResponse(204, redirectTo(inventory.getId()));
     }

@@ -8,7 +8,7 @@ import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.util.CloneUtil;
 import com.dev.servlet.core.util.EndpointParser;
 import com.dev.servlet.core.util.JwtUtil;
-import com.dev.servlet.core.util.PropertiesUtil;
+import com.dev.servlet.core.util.Properties;
 import com.dev.servlet.core.validator.RequestValidator;
 import com.dev.servlet.domain.records.Query;
 import com.dev.servlet.domain.request.Request;
@@ -84,7 +84,7 @@ public abstract class BaseRouterController {
         }
         if (parameter.isAnnotationPresent(Property.class)) {
             String propertyKey = parameter.getAnnotation(Property.class).value();
-            return PropertiesUtil.getProperty(propertyKey);
+            return Properties.get(propertyKey);
         }
 
         return CloneUtil.fromJson(request.getJsonBody(), parameter.getType());

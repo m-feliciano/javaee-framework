@@ -1,0 +1,35 @@
+system:
+  version: 3.2.0
+  name: Product Management System
+  date: 2025-10-20
+  author: Marcelo Feliciano
+api:
+  version: v1
+auth:
+  authorized: "auth:*;user:registerUser;health:up"
+security:
+  encrypt:
+    algorithm: Blowfish
+  cookie:
+    secure: false
+    path: "/"
+    domain: ""
+    samesite: Lax
+app:
+  env: development
+rate_limit:
+  enabled: false
+  capacity: 20
+  refill:
+    tokens: 30
+    period_seconds: 60
+cache:
+  timeout_minutes: 120
+pagination:
+  page: 1
+  limit: 5
+  sort: id
+  order: asc
+homepage: "api/v1/product/list/?page=1&limit=5&sort=id&order=asc"
+loginPage: "/api/v1/auth/form"
+scrape_product_url: "https://web-scraping.dev/api/products?page=<page>&order=asc"

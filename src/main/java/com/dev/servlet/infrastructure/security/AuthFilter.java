@@ -4,7 +4,7 @@ import com.dev.servlet.adapter.IServletDispatcher;
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.util.EndpointParser;
 import com.dev.servlet.core.util.JwtUtil;
-import com.dev.servlet.core.util.PropertiesUtil;
+import com.dev.servlet.core.util.Properties;
 import com.dev.servlet.domain.response.RefreshTokenResponse;
 import com.dev.servlet.service.AuditService;
 import com.dev.servlet.service.AuthCookieService;
@@ -48,7 +48,7 @@ public class AuthFilter implements Filter {
 
     @PostConstruct
     public void init() {
-        String property = PropertiesUtil.getProperty("auth.authorized");
+        String property = Properties.get("auth.authorized");
         setupFilter(property);
         log.info("Auth filter initialized with pre-authorized paths: {}", preAuthorized);
     }
@@ -105,7 +105,7 @@ public class AuthFilter implements Filter {
     private void redirectToLogin(HttpServletResponse response) throws IOException {
         auditService.auditWarning("auth_filter:redirect_login", null, null);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.sendRedirect(PropertiesUtil.getProperty(LOGIN_PAGE));
+        response.sendRedirect(Properties.get(LOGIN_PAGE));
     }
 
     private void setupFilter(String property) {

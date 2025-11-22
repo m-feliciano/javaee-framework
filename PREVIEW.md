@@ -185,7 +185,7 @@ css/
 @Singleton
 public class ProductController extends BaseController implements ProductControllerApi {
 
-    public IHttpResponse<Void> register(ProductRequest request, @Authorization String auth) throws ServiceException {
+    public IHttpResponse<Void> register(ProductRequest request, String auth) throws ServiceException {
         ProductResponse product = productService.create(request, auth);
         return newHttpResponse(201, redirectTo(product.getId()));
     }
@@ -193,7 +193,9 @@ public class ProductController extends BaseController implements ProductControll
 ```
 
 ```java
-
+/**
+ * Note: if the interfaces have any @ injections, the framework will handle it automatically
+ */
 @Controller("product")
 public interface ProductControllerApi {
 
@@ -222,7 +224,7 @@ public interface ProductControllerApi {
     IHttpResponse<Void> delete(ProductRequest filter, @Authorization String auth);
 
     @RequestMapping(value = "/scrape", method = GET)
-    IHttpResponse<Void> scrape(@Authorization String auth, @Property("env") String environment, @Property("scrape.product.url") String url);
+    IHttpResponse<Void> scrape(@Authorization String auth, @Property("app.env") String environment, @Property("scrape_product_url") String url);
 }
 ```
 

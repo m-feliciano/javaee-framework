@@ -77,7 +77,7 @@
                         <span>Settings</span>
                     </a>
                     <div class="dropdown-divider"></div>
-                    <form action="${baseLink}${version}${logout}" method="post">
+                    <form action="${baseLink}${version}${logout}" method="post" class="csrf-form">
                         <button type="submit" class="dropdown-item">
                             <i class="bi bi-box-arrow-right"></i>
                             <span>Logout</span>
