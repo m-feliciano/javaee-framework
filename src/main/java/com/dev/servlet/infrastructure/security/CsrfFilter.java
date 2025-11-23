@@ -24,7 +24,8 @@ public class CsrfFilter implements Filter {
             "/health/check",
             "/health/ready",
             "/health/live",
-            "/health/up"
+            "/health/up",
+            "/user/confirm"
     );
 
     @Inject

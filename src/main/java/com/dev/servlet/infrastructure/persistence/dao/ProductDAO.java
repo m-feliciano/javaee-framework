@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.hibernate.Session;
 import org.hibernate.criterion.MatchMode;
+
 import javax.enterprise.context.RequestScoped;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -93,7 +94,7 @@ public class ProductDAO extends BaseDAO<Product, String> {
         return Collections.emptyList();
     }
     @Override
-    public boolean delete(Product product) {
+    public void delete(Product product) {
         Session session = openSession();
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaUpdate<Product> cu = builder.createCriteriaUpdate(Product.class);
@@ -105,7 +106,6 @@ public class ProductDAO extends BaseDAO<Product, String> {
         Query query = em.createQuery(cu);
         query.executeUpdate();
         session.getTransaction().commit();
-        return true;
     }
     @Override
     public List<Product> save(List<Product> products) throws ServiceException {

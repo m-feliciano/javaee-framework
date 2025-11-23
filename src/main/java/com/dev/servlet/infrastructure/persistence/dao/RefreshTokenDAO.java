@@ -31,11 +31,6 @@ public class RefreshTokenDAO extends BaseDAO<RefreshToken, String> {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    @Override
-    protected Predicate buildDefaultPredicateFor(RefreshToken filter, CriteriaBuilder cb, Root<?> root) {
-        return cb.conjunction();
-    }
-
     public void revokeAll(String userId) {
         String query = "UPDATE RefreshToken r SET r.revoked = true WHERE r.user.id = :userId AND r.revoked = false";
         Session session = openSession();

@@ -96,4 +96,11 @@ public class Properties {
         }
         return List.of(array);
     }
+
+    public static String getEnvOrDefault(String env, String defaultValue) {
+        return propertiesCache.computeIfAbsent(env, k -> {
+            String value = System.getenv(k);
+            return value != null ? value : defaultValue;
+        });
+    }
 }

@@ -24,5 +24,5 @@ RUN mkdir -p /usr/local/tomcat/webapps/ROOT && \
 COPY docker/config/app-prod.yml /usr/local/tomcat/webapps/ROOT/WEB-INF/classes/app-prod.yml
 COPY docker/config/app-dev.yml /usr/local/tomcat/webapps/ROOT/WEB-INF/classes/app-dev.yml
 
-EXPOSE 8080
+EXPOSE 8080 8161
 CMD ["catalina.sh", "run"]

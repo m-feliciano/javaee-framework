@@ -3,6 +3,7 @@
 
 <%
     request.setAttribute("error", ((IHttpResponse<?>) request.getAttribute("response")).error());
+    request.setAttribute("user", ((IHttpResponse<?>) request.getAttribute("response")).body());
 %>
 
 <html lang="en">
@@ -19,8 +20,20 @@
             <p class="login-subtitle">Sign in to your account</p>
         </div>
 
-        <!-- Body -->
         <div class="login-body">
+            <c:if test="${not empty user and user.unconfirmedEmail}">
+                <div class="alert-login alert-warning">
+                    <i class="bi bi-envelope-exclamation-fill"></i>
+                    <div class="alert-content" style="display:inline-block; margin-left:8px;">
+                        Your account is not confirmed. Check your inbox for the confirmation link.
+                        <form method="post" action="${baseLink}${version}/user/resend-confirmation" class="csrf-form" style="display:inline;margin-left:8px;">
+                            <input type="hidden" name="id" value="${user.id}" />
+                            <button type="submit" class="btn btn-link p-0">Resend confirmation email</button>
+                        </form>
+                    </div>
+                </div>
+            </c:if>
+
             <c:if test="${not empty error or not empty info}">
                 <div class="alert-login ${not empty error ? 'alert-danger' : 'alert-success'}">
                     <i class="bi ${not empty error ? 'bi-exclamation-circle-fill' : 'bi-check-circle-fill'}"></i>

@@ -1,6 +1,6 @@
 create table tb_user
 (
-    id         varchar(36)                               not null
+    id char(36) not null
         primary key,
     login      varchar(255)                              not null
         unique,
@@ -8,7 +8,7 @@ create table tb_user
     status     varchar(1) default 'A'::character varying not null
         constraint tb_user_status_check
             check ((status)::text = ANY
-                   ((ARRAY ['A'::character varying, 'I'::character varying, 'X'::character varying])::text[])),
+                   ((ARRAY ['A'::character varying, 'I'::character varying, 'X'::character varying, 'P'::character varying])::text[])),
     image_url  text,
     config     text,
     created_at timestamp  default CURRENT_TIMESTAMP      not null,
@@ -29,14 +29,14 @@ create index idx_user_created_at
 
 create table tb_category
 (
-    id         varchar(36)                               not null
+    id      char(36) not null
         primary key,
     name       varchar(255)                              not null,
     status     varchar(1) default 'A'::character varying not null
         constraint tb_category_status_check
             check ((status)::text = ANY
                    ((ARRAY ['A'::character varying, 'I'::character varying, 'X'::character varying])::text[])),
-    user_id    varchar(36)                               not null
+    user_id char(36) not null
         references tb_user,
     created_at timestamp  default CURRENT_TIMESTAMP      not null,
     updated_at timestamp  default CURRENT_TIMESTAMP      not null
@@ -59,7 +59,7 @@ create index idx_category_created_at
 
 create table tb_product
 (
-    id            varchar(36)                               not null
+    id          char(36) not null
         primary key,
     name          varchar(100)                              not null,
     description   text,
@@ -72,9 +72,9 @@ create table tb_product
         constraint tb_product_status_check
             check ((status)::text = ANY
                    ((ARRAY ['A'::character varying, 'I'::character varying, 'X'::character varying])::text[])),
-    user_id       varchar(36)                               not null
+    user_id     char(36) not null
         references tb_user,
-    category_id   varchar(36)
+    category_id char(36)
         references tb_category,
     created_at    timestamp  default CURRENT_TIMESTAMP      not null,
     updated_at    timestamp  default CURRENT_TIMESTAMP      not null
@@ -112,7 +112,7 @@ create index idx_product_created_at
 
 create table tb_inventory
 (
-    id          varchar(36)                               not null
+    id         char(36) not null
         primary key,
     quantity    integer                                   not null
         constraint tb_inventory_quantity_check
@@ -122,9 +122,9 @@ create table tb_inventory
         constraint tb_inventory_status_check
             check ((status)::text = ANY
                    ((ARRAY ['A'::character varying, 'I'::character varying, 'X'::character varying])::text[])),
-    user_id     varchar(36)                               not null
+    user_id    char(36) not null
         references tb_user,
-    product_id  varchar(36)
+    product_id char(36)
         references tb_product,
     created_at  timestamp  default CURRENT_TIMESTAMP      not null,
     updated_at  timestamp  default CURRENT_TIMESTAMP      not null
@@ -164,7 +164,7 @@ alter table tb_perfil
 
 create table user_perfis
 (
-    user_id   varchar(36) not null
+    user_id char(36) not null
         references tb_user,
     perfil_id integer     not null
         references tb_perfil,
@@ -218,12 +218,12 @@ execute procedure update_updated_at_column();
 
 create table tb_user_activity_log
 (
-    id                 varchar(36)  not null
+    id        char(36) not null
         primary key,
-    user_id            varchar(36)  not null,
+    user_id   char(36) not null,
     action             varchar(100) not null,
     entity_type        varchar(50),
-    entity_id          varchar(36),
+    entity_id char(36),
     status             varchar(20)  not null,
     request_payload    text,
     response_payload   text,
@@ -284,16 +284,16 @@ CREATE INDEX idx_user_perfis_composite ON user_perfis(user_id, perfil_id);
 -- TB_REFRESH_TOKEN
 create table tb_refresh_token
 (
-    id          varchar(36)    not null
+    id          char(36) not null
         primary key,
     token       text           not null
         unique,
-    user_id     varchar(36)    not null
+    user_id     char(36) not null
         references tb_user,
     revoked     boolean        default false not null,
     issued_at   timestamp      default CURRENT_TIMESTAMP not null,
     expires_at  timestamp      not null,
-    replaced_by varchar(36),
+    replaced_by char(36),
     ip_address  varchar(45),
     user_agent  varchar(500)
 );
@@ -305,6 +305,18 @@ create index idx_refresh_token_not_revoked_id on tb_refresh_token (token, revoke
 create index idx_refresh_token_expires_at on tb_refresh_token (expires_at);
 create index idx_refresh_token_revoked on tb_refresh_token (revoked);
 
+
+CREATE TABLE tb_confirmation_token
+(
+    id      char(16) PRIMARY KEY,
+    token      varchar(255) NOT NULL,
+    user_id char(36) NOT NULL,
+    created_at timestamptz,
+    expires_at timestamptz,
+    used    boolean DEFAULT false,
+    body    text
+);
+
 -- Atualizar estatísticas
 ANALYZE tb_product;
 ANALYZE tb_category;
@@ -313,3 +325,4 @@ ANALYZE tb_user;
 ANALYZE user_perfis;
 ANALYZE tb_perfil;
 ANALYZE tb_refresh_token;
+ANALYZE tb_confirmation_token;

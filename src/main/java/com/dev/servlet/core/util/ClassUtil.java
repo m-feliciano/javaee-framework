@@ -33,7 +33,7 @@ public final class ClassUtil {
                 String className = packageName + '.' + fileName.substring(0, fileName.length() - 6);
                 Class<?> clazz = ClassUtils.getClass(className);
 
-                if (annotation != null && !clazz.isAnnotationPresent(annotation)) break;
+                if (annotation != null && !clazz.isAnnotationPresent(annotation)) continue;
                 classes.add(clazz);
             }
         }
@@ -55,14 +55,6 @@ public final class ClassUtil {
         File[] files = directory.listFiles();
         Objects.requireNonNull(files);
         return files;
-    }
-
-    public static <T> List<T> castList(List<?> list) {
-        List<T> result = new ArrayList<>();
-        for (Object object : list) {
-            result.add((T) object);
-        }
-        return result;
     }
 
     public static <T> Class<T> getSubClassType(Class<?> clazz) {

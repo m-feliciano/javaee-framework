@@ -85,7 +85,7 @@ public class InventoryDAO extends BaseDAO<Inventory, String> {
         return inventories;
     }
     @Override
-    public boolean delete(Inventory inventory) {
+    public void delete(Inventory inventory) {
         Session session = openSession();
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaUpdate<Inventory> cu = builder.createCriteriaUpdate(Inventory.class);
@@ -98,7 +98,6 @@ public class InventoryDAO extends BaseDAO<Inventory, String> {
         Query query = em.createQuery(cu);
         query.executeUpdate();
         session.getTransaction().commit();
-        return true;
     }
 
     public boolean has(Inventory inventory) {

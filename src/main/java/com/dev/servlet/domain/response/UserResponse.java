@@ -25,6 +25,7 @@ public final class UserResponse {
 
     private String imgUrl;
     private List<Integer> perfis;
+    private Boolean unconfirmedEmail;
 
     public UserResponse(String id) {
         this.id = id;

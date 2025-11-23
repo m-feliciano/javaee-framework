@@ -1,6 +1,7 @@
 package com.dev.servlet.domain.model;
 
 import com.dev.servlet.domain.model.enums.RoleType;
+import com.dev.servlet.domain.model.enums.Status;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,7 +40,7 @@ public class User {
     @Id
     @Column(name = "id", updatable = false)
     @GeneratedValue(generator = "short-uuid")
-    @GenericGenerator(name = "short-uuid", strategy = "com.dev.servlet.core.util.ShortUuidGenerator")
+    @GenericGenerator(name = "short-uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private String id;
 
     @Embedded
@@ -75,6 +76,12 @@ public class User {
     public User(String login, String password) {
         this.setLogin(login);
         this.setPassword(password);
+    }
+
+    public User(String login, String password, Status status) {
+        this.setLogin(login);
+        this.setPassword(password);
+        this.status = status.getValue();
     }
 
     public void addPerfil(Integer perfil) {

@@ -46,7 +46,7 @@ public class UserDAO extends BaseDAO<User, String> {
     }
 
     @Override
-    public boolean delete(User user) {
+    public void delete(User user) {
         Session session = openSession();
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaUpdate<User> cu = builder.createCriteriaUpdate(User.class);
@@ -57,12 +57,15 @@ public class UserDAO extends BaseDAO<User, String> {
         Query query = em.createQuery(cu);
         query.executeUpdate();
         session.getTransaction().commit();
-        return true;
     }
 
     @Override
     protected Predicate buildDefaultPredicateFor(User filter, CriteriaBuilder cb, Root<?> root) {
-        Predicate predicate = cb.equal(root.get(STATUS), Status.ACTIVE.getValue());
+        Predicate predicate = cb.or(
+                cb.equal(root.get(STATUS), Status.ACTIVE.getValue()),
+                cb.equal(root.get(STATUS), Status.PENDING.getValue())
+        );
+
         if (filter.getCredentials() != null) {
             if (filter.getCredentials().getLogin() != null) {
                 predicate = cb.and(predicate,
