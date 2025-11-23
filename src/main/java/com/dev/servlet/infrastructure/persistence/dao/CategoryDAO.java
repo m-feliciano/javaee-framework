@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.criterion.MatchMode;
+
 import javax.enterprise.context.RequestScoped;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -57,7 +58,7 @@ public class CategoryDAO extends BaseDAO<Category, String> {
     }
 
     @Override
-    public boolean delete(Category category) {
+    public void delete(Category category) {
         Session session = openSession();
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaUpdate<Category> cu = builder.createCriteriaUpdate(Category.class);
@@ -70,7 +71,6 @@ public class CategoryDAO extends BaseDAO<Category, String> {
         Query query = em.createQuery(cu);
         query.executeUpdate();
         session.getTransaction().commit();
-        return true;
     }
 
     @Override

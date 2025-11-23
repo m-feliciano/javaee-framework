@@ -50,7 +50,7 @@ public final class CloneUtil {
             return objectMapper.writeValueAsString(object);
         } catch (Exception e) {
             log.error("Error serializing object to JSON: {}", e.getMessage());
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
@@ -58,8 +58,8 @@ public final class CloneUtil {
         try {
             return objectMapper.readValue(json, clazz);
         } catch (Exception e) {
-            log.error("Error deserializing JSON to class {}: {}", clazz.getName(), e.getMessage());
-            return null;
+            log.error("Error deserializing JSON to {}: {}", clazz.getName(), e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 }

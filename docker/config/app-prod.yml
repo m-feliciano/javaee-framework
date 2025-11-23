@@ -6,7 +6,7 @@ system:
 api:
   version: v1
 auth:
-  authorized: "auth:*;user:registerUser;health:up"
+  authorized: "auth:*;user:registerUser,confirm,resend-confirmation,email-change-confirmation;health:up"
 security:
   encrypt:
     algorithm: Blowfish

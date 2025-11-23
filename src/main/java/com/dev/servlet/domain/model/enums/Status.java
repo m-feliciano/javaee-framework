@@ -5,7 +5,9 @@ import java.util.Arrays;
 @Getter
 public enum Status {
     ACTIVE(1, "A"),
-    DELETED(2, "X");
+    DELETED(2, "X"),
+    PENDING(3, "P");
+
     private final int code;
     private final String value;
     Status(int code, String value) {
@@ -18,5 +20,9 @@ public enum Status {
                 .filter(id -> id != null && id.code == cod)
                 .findFirst()
                 .orElse(null);
+    }
+
+    public boolean equals(String value) {
+        return this.value.equals(value);
     }
 }

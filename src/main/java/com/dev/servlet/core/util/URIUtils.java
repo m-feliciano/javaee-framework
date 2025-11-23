@@ -32,11 +32,8 @@ public final class URIUtils {
     private static final String PAGINATION_ORDER = "pagination.order";
 
     public static String getResourceId(HttpServletRequest httpServletRequest) {
-        String parameter = httpServletRequest.getParameter("id");
-        if (parameter != null) return parameter;
         String[] array = httpServletRequest.getServletPath().split("/");
-        parameter = Arrays.stream(array).skip(5).findFirst().orElse(null);
-        return parameter;
+        return Arrays.stream(array).skip(5).findFirst().orElse(null);
     }
 
     public static IPageRequest getPageRequest(HttpServletRequest request) {
@@ -119,6 +116,7 @@ public final class URIUtils {
     public static List<KeyPair> getParameters(HttpServletRequest httpServletRequest) {
         return httpServletRequest.getParameterMap()
                 .entrySet().stream()
+                .filter(r -> !r.getKey().startsWith("X-"))
                 .map(e -> new KeyPair(e.getKey(), e.getValue()[0]))
                 .collect(Collectors.toList());
     }

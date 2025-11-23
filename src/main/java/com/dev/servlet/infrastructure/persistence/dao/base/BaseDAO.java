@@ -33,7 +33,9 @@ public abstract class BaseDAO<T, ID> implements Serializable {
 
     public abstract Collection<T> findAll(T object);
 
-    protected abstract Predicate buildDefaultPredicateFor(T filter, CriteriaBuilder cb, Root<?> root);
+    protected Predicate buildDefaultPredicateFor(T filter, CriteriaBuilder cb, Root<?> root) {
+        return cb.conjunction();
+    }
 
     @Inject
     public void setEm(EntityManager em) {
@@ -75,12 +77,11 @@ public abstract class BaseDAO<T, ID> implements Serializable {
         return executeInTransaction(() -> em.merge(object));
     }
 
-    public boolean delete(T object) {
+    public void delete(T object) {
         executeInTransaction(() -> {
             em.remove(object);
-            return true;
+            return null;
         });
-        return false;
     }
 
     private void beginTransaction() {

@@ -15,8 +15,15 @@ services:
       SECURITY_ENCRYPT_KEY: ${DOCKER_SECURITY_ENCRYPT_KEY}
       SECURITY_JWT_KEY: ${DOCKER_SECURITY_JWT_KEY}
       JAVA_OPTS: "-Xms512m -Xmx2048m -Dapp.config.file=app-dev.yml"
+      ACTIVEMQ_BROKER_URL: ${DOCKER_ACTIVEMQ_BROKER_URL}
+      ARTEMIS_USER: ${DOCKER_ARTEMIS_USER}
+      ARTEMIS_PASSWORD: ${DOCKER_ARTEMIS_PASSWORD}
+      ARTEMIS_ROLE: amq
     depends_on:
-      - db
+      activemq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/api/v1/health/up" ]
@@ -26,6 +33,7 @@ services:
     networks:
       - app_net
 
+  # PostgreSQL Database
   db:
     image: postgres:15-alpine
     env_file:
@@ -40,14 +48,38 @@ services:
     restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${DOCKER_POSTGRES_USER}" ]
-      interval: 5s
+      interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 12
     networks:
       - app_net
 
+  #Broker for messaging
+  activemq:
+    image: apache/activemq-artemis:2.44.0
+    env_file:
+      - ./docker.env
+    environment:
+      - ARTEMIS_USER=${DOCKER_ARTEMIS_USER}
+      - ARTEMIS_PASSWORD=${DOCKER_ARTEMIS_PASSWORD}
+      - ARTEMIS_ROLE=amq
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+    volumes:
+      - broker_data:/var/lib/artemis/data
+    restart: unless-stopped
+    networks:
+      - app_net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8161" ]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
 volumes:
   db_data:
+  broker_data:
 
 networks:
   app_net:

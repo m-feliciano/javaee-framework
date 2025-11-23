@@ -22,4 +22,10 @@ public interface IUserService {
     Optional<User> findByLoginAndPassword(String login, String password);
 
     boolean isEmailAvailable(String email, User candidate);
+
+    UserResponse confirmEmail(String token) throws ServiceException;
+
+    void changeEmail(String token) throws ServiceException;
+
+    void resendConfirmation(String userId) throws ServiceException;
 }

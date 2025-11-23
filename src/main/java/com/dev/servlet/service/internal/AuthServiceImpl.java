@@ -8,6 +8,7 @@ import com.dev.servlet.core.util.CacheUtils;
 import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.domain.model.RefreshToken;
 import com.dev.servlet.domain.model.User;
+import com.dev.servlet.domain.model.enums.Status;
 import com.dev.servlet.domain.request.LoginRequest;
 import com.dev.servlet.domain.request.UserRequest;
 import com.dev.servlet.domain.response.RefreshTokenResponse;
@@ -51,6 +52,15 @@ public class AuthServiceImpl implements AuthService {
             if (user == null) {
                 auditService.auditFailure("user:login", null, new AuditPayload<>(request, null));
                 throw new ServiceException("Invalid login or password");
+            }
+
+            if (Status.PENDING.equals(user.getStatus())) {
+                auditService.auditWarning("user:login", null, new AuditPayload<>(request, null));
+                UserResponse userResponse = UserResponse.builder()
+                        .id(user.getId())
+                        .unconfirmedEmail(true)
+                        .build();
+                return HttpResponse.ok(userResponse).next("forward:pages/formLogin.jsp").build();
             }
 
             UserResponse response = userMapper.toResponse(user);

@@ -8,5 +8,5 @@ public interface ICrudRepository<T, ID> {
     Collection<T> findAll(T object);
     T save(T object);
     T update(T object);
-    boolean delete(T object);
+    void delete(T object);
 }

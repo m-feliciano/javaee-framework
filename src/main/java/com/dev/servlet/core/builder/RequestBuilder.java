@@ -2,11 +2,12 @@ package com.dev.servlet.core.builder;
 
 import com.dev.servlet.core.util.KeyPairJsonUtil;
 import com.dev.servlet.core.util.URIUtils;
-import com.dev.servlet.domain.request.Request;
 import com.dev.servlet.domain.records.KeyPair;
 import com.dev.servlet.domain.records.Query;
+import com.dev.servlet.domain.request.Request;
 import com.dev.servlet.infrastructure.persistence.IPageRequest;
 import lombok.Builder;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -40,7 +41,9 @@ public record RequestBuilder(HttpServletRequest servletRequest) {
         public RequestCreator body() {
             final String id = resolveId();
             List<KeyPair> parameters = URIUtils.getParameters(servletRequest);
-            parameters.add(new KeyPair("id", id));
+            if (id != null && parameters.stream().noneMatch(p -> p.key().equals("id"))) {
+                parameters.add(new KeyPair("id", id));
+            }
             this.jsonBody = KeyPairJsonUtil.toJson(parameters);
             return this;
         }
@@ -89,10 +92,10 @@ public record RequestBuilder(HttpServletRequest servletRequest) {
 
         private String resolveId() {
             String id = URIUtils.getResourceId(servletRequest);
-            if (id != null) {
-                endpoint = endpoint.substring(0, endpoint.lastIndexOf("/"));
-                endpoint = endpoint.concat("/{id}");
-            }
+            if (StringUtils.isBlank(id)) return null;
+
+            endpoint = endpoint.substring(0, endpoint.lastIndexOf("/"));
+            endpoint = endpoint.concat("/{id}");
             return id;
         }
     }

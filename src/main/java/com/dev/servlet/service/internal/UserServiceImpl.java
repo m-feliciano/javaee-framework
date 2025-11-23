@@ -3,24 +3,37 @@ package com.dev.servlet.service.internal;
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.mapper.UserMapper;
 import com.dev.servlet.core.util.CacheUtils;
+import com.dev.servlet.core.util.CloneUtil;
+import com.dev.servlet.core.util.Properties;
+import com.dev.servlet.domain.enumeration.MessageType;
+import com.dev.servlet.domain.model.ConfirmationToken;
 import com.dev.servlet.domain.model.Credentials;
 import com.dev.servlet.domain.model.User;
 import com.dev.servlet.domain.model.enums.RoleType;
 import com.dev.servlet.domain.model.enums.Status;
-import com.dev.servlet.service.AuditService;
-import com.dev.servlet.service.IUserService;
 import com.dev.servlet.domain.request.UserCreateRequest;
 import com.dev.servlet.domain.request.UserRequest;
 import com.dev.servlet.domain.response.UserResponse;
+import com.dev.servlet.infrastructure.messaging.Message;
+import com.dev.servlet.infrastructure.messaging.MessageProducer;
+import com.dev.servlet.infrastructure.messaging.interfaces.MessageService;
+import com.dev.servlet.infrastructure.persistence.dao.ConfirmationTokenDAO;
 import com.dev.servlet.infrastructure.persistence.dao.UserDAO;
+import com.dev.servlet.service.AuditService;
+import com.dev.servlet.service.IUserService;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.PostConstruct;
+import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Model;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.dev.servlet.core.util.ThrowableUtils.serviceError;
 
@@ -38,13 +51,30 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
     private AuditService auditService;
 
     @Inject
+    private ConfirmationTokenDAO confirmationTokenDAO;
+
+    @Inject
+    private Instance<MessageService> messageSenderInstance;
+
+    @Inject
+    private Instance<MessageProducer> emailProducerInstance;
+
+    private String baseUrl;
+
+    @PostConstruct
+    public void init() {
+        baseUrl = Properties.getEnvOrDefault("APP_BASE_URL", "http://localhost:8080");
+    }
+
+    @Inject
     public UserServiceImpl(UserDAO userDAO) {
         super(userDAO);
     }
 
     @Override
     public boolean isEmailAvailable(String email, User candidate) {
-        return this.find(new User(email, null))
+        User filter = new User(email, null, Status.ACTIVE);
+        return this.find(filter)
                 .map(user -> user.getId().equals(candidate.getId()))
                 .orElse(true);
     }
@@ -69,16 +99,57 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
                         .login(user.login().toLowerCase())
                         .password(user.password())
                         .build())
-                .status(Status.ACTIVE.getValue())
+                .status(Status.PENDING.getValue())
                 .perfis(List.of(RoleType.DEFAULT.getCode()))
                 .build();
         newUser = super.save(newUser);
         log.info("User registered: {}", newUser.getCredentials().getLogin());
 
+        String url = this.baseUrl + "/api/v1/user/confirm?token=" + generateConfirmationToken(newUser, null);
+        MessageService sender = messageSender();
+        sender.sendConfirmation(newUser.getCredentials().getLogin(), url);
+
         UserResponse response = userMapper.toResponse(newUser);
         CacheUtils.setObject(newUser.getId(), CACHE_KEY, response);
 
         auditService.auditSuccess("user:register", null, new AuditPayload<>(user, response));
+        return response;
+    }
+
+    @Override
+    public UserResponse confirmEmail(String token) throws ServiceException {
+        ConfirmationToken ct = confirmationTokenDAO.findByToken(token)
+                .orElseThrow(() -> serviceError(HttpServletResponse.SC_NOT_FOUND, "Invalid token."));
+
+        if (ct.isUsed()) {
+            throw serviceError(HttpServletResponse.SC_FORBIDDEN, "Token already used.");
+        }
+
+        if (ct.getExpiresAt() != null && ct.getExpiresAt().isBefore(OffsetDateTime.now())) {
+            throw serviceError(HttpServletResponse.SC_FORBIDDEN, "Token expired.");
+        }
+
+        User user = findById(ct.getUserId())
+                .orElseThrow(() -> serviceError(HttpServletResponse.SC_NOT_FOUND, "User not found."));
+
+        user.setStatus(Status.ACTIVE.getValue());
+        try {
+            user = super.update(user);
+            ct.setUsed(true);
+            confirmationTokenDAO.update(ct);
+            CacheUtils.clear(user.getId(), CACHE_KEY);
+
+        } catch (Exception e) {
+            auditService.auditFailure("user:confirm", null, new AuditPayload<>(token, null));
+            throw e;
+        }
+
+        String url = this.baseUrl + "/api/v1/user/confirm?token=" + generateConfirmationToken(user, null);
+        MessageService sender = messageSender();
+        sender.sendWelcome(user.getId(), user.getCredentials().getLogin(), url);
+
+        UserResponse response = userMapper.toResponse(user);
+        auditService.auditSuccess("user:confirm", null, new AuditPayload<>(token, response));
         return response;
     }
 
@@ -93,11 +164,13 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
         }
 
         UserResponse entity = this.getById(userRequest, auth);
+        String oldEmail = entity.getLogin();
+
         User user = User.builder()
                 .id(entity.getId())
                 .imgUrl(userRequest.imgUrl())
                 .credentials(Credentials.builder()
-                        .login(email)
+                        .login(entity.getLogin())
                         .password(userRequest.password())
                         .build())
                 .status(Status.ACTIVE.getValue())
@@ -110,6 +183,13 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
         } catch (Exception e) {
             auditService.auditFailure("user:update", auth, new AuditPayload<>(userRequest, null));
             throw e;
+        }
+
+        if (!oldEmail.equals(email)) {
+            String link = this.baseUrl + "/api/v1/user/email-change-confirmation?token=" + generateConfirmationToken(user, email);
+            String createdAt = OffsetDateTime.now().toString();
+            MessageService sender = messageSender();
+            sender.send(new Message(user.getId(), MessageType.CHANGE_EMAIL.type, email, createdAt, link));
         }
 
         UserResponse response = userMapper.toResponse(user);
@@ -155,9 +235,87 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
         return super.find(new User(login, password));
     }
 
+    @Override
+    public void resendConfirmation(String userId) throws ServiceException {
+        if (StringUtils.isBlank(userId)) {
+            throw serviceError(HttpServletResponse.SC_BAD_REQUEST, "Login is required");
+        }
+
+        Optional<User> maybe = this.findById(userId);
+        if (maybe.isEmpty()) {
+            log.warn("Resend confirmation requested for unknown userId: {}", userId);
+            return;
+        }
+
+        User user = maybe.get();
+        if (!Status.PENDING.equals(user.getStatus())) {
+            log.info("User {} is not pending confirmation (status={}), skip resend", userId, user.getStatus());
+            return;
+        }
+
+        String link = this.baseUrl + "/api/v1/user/confirm?token=" + generateConfirmationToken(user, null);
+        String email = user.getCredentials().getLogin();
+        String createdAt = OffsetDateTime.now().toString();
+        Message confirmation = new Message(userId, MessageType.CONFIRMATION.type, email, createdAt, link);
+
+        MessageService sender = messageSender();
+        sender.send(confirmation);
+
+        UserResponse response = userMapper.toResponse(user);
+        CacheUtils.setObject(user.getId(), CACHE_KEY, response);
+
+        auditService.auditSuccess("user:resend_confirmation", null, new AuditPayload<>(userId, response));
+    }
+
+    @Override
+    public void changeEmail(String token) throws ServiceException {
+        if (StringUtils.isBlank(token)) {
+            throw serviceError(HttpServletResponse.SC_BAD_REQUEST, "Token is required");
+        }
+
+        Optional<ConfirmationToken> oct = this.confirmationTokenDAO.findByToken(token);
+        if (oct.isEmpty()) {
+            log.warn("Resend confirmation requested for unknown token: {}", oct);
+            return;
+        }
+
+        ConfirmationToken ct = oct.get();
+        String userId = ct.getUserId();
+
+        this.findById(userId).ifPresent(user -> {
+            String email = CloneUtil.fromJson(ct.getBody(), String.class);
+            user.setLogin(email);
+            user = super.update(user);
+
+            ct.setUsed(true);
+            confirmationTokenDAO.update(ct);
+
+            UserResponse response = userMapper.toResponse(user);
+            CacheUtils.setObject(user.getId(), CACHE_KEY, response);
+
+            auditService.auditSuccess("user:change_email", null, new AuditPayload<>(token, response));
+        });
+    }
+
+    private String generateConfirmationToken(User user, Object body) {
+        String token = UUID.randomUUID().toString();
+
+        ConfirmationToken confirmationToken = ConfirmationToken.builder()
+                .token(token)
+                .userId(user.getId())
+                .createdAt(OffsetDateTime.now())
+                .expiresAt(OffsetDateTime.now().plusHours(1))
+                .body(CloneUtil.toJson(body))
+                .used(false)
+                .build();
+
+        confirmationTokenDAO.save(confirmationToken);
+        return token;
+    }
+
     private UserResponse getUserResponse(String id, String auth) throws ServiceException {
         String userId = jwts.getUserId(auth);
-        if (!id.equals(userId)) {
+        if (!id.trim().equals(userId.trim())) {
             throw serviceError(HttpServletResponse.SC_FORBIDDEN, "User not authorized.");
         }
 
@@ -166,8 +324,19 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
 
         findById(id)
                 .ifPresent(u ->
-                            CacheUtils.setObject(id, CACHE_KEY, userMapper.toResponse(u)));
+                        CacheUtils.setObject(id, CACHE_KEY, userMapper.toResponse(u)));
 
-      return CacheUtils.getObject(id, CACHE_KEY);
+        return CacheUtils.getObject(id, CACHE_KEY);
+    }
+
+    private MessageService messageSender() {
+        if (!emailProducerInstance.isUnsatisfied()) {
+            return emailProducerInstance.get();
+
+        } else if (!messageSenderInstance.isUnsatisfied()) {
+            return messageSenderInstance.get();
+        }
+
+        throw new IllegalStateException("No EmailService or JMS producer available; cannot send emails.");
     }
 }

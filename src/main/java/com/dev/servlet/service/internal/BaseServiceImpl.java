@@ -2,12 +2,12 @@ package com.dev.servlet.service.internal;
 
 import com.dev.servlet.core.mapper.Mapper;
 import com.dev.servlet.core.util.JwtUtil;
-import com.dev.servlet.infrastructure.persistence.repository.ICrudRepository;
-import com.dev.servlet.infrastructure.persistence.repository.IPagination;
 import com.dev.servlet.infrastructure.persistence.IPageRequest;
 import com.dev.servlet.infrastructure.persistence.IPageable;
 import com.dev.servlet.infrastructure.persistence.dao.base.BaseDAO;
 import com.dev.servlet.infrastructure.persistence.internal.PageResponse;
+import com.dev.servlet.infrastructure.persistence.repository.ICrudRepository;
+import com.dev.servlet.infrastructure.persistence.repository.IPagination;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -64,8 +64,8 @@ public abstract class BaseServiceImpl<T, ID> implements ICrudRepository<T, ID>, 
     }
 
     @Override
-    public boolean delete(T object) {
-        return baseDAO.delete(object);
+    public void delete(T object) {
+        baseDAO.delete(object);
     }
 
     @Override
