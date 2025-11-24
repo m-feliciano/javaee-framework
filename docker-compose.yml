@@ -14,7 +14,7 @@ services:
       POSTGRES_PASSWORD: ${DOCKER_POSTGRES_PASSWORD}
       SECURITY_ENCRYPT_KEY: ${DOCKER_SECURITY_ENCRYPT_KEY}
       SECURITY_JWT_KEY: ${DOCKER_SECURITY_JWT_KEY}
-      JAVA_OPTS: "-Xms512m -Xmx2048m -Dapp.config.file=app-dev.yml"
+      JAVA_OPTS: "-Xms512m -Xmx1536m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -Dapp.config.file=app-dev.yml"
       ACTIVEMQ_BROKER_URL: ${DOCKER_ACTIVEMQ_BROKER_URL}
       ARTEMIS_USER: ${DOCKER_ARTEMIS_USER}
       ARTEMIS_PASSWORD: ${DOCKER_ARTEMIS_PASSWORD}
@@ -33,7 +33,6 @@ services:
     networks:
       - app_net
 
-  # PostgreSQL Database
   db:
     image: postgres:15-alpine
     env_file:
@@ -54,7 +53,6 @@ services:
     networks:
       - app_net
 
-  #Broker for messaging
   activemq:
     image: apache/activemq-artemis:2.44.0
     env_file:

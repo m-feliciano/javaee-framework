@@ -55,7 +55,7 @@ public class XSSRequestWrapperTest {
 //    }
 //
 //    @Test
-//    @DisplayName("Sanitize hacker email script in parameter values")
+//    @DisplayName("Sanitize hacker to script in parameter values")
 //    void testGetParameterHacker() {
 //        String[] values = wrapper.getParameterValues("input");
 //        assertEquals(2, values.length);

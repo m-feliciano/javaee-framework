@@ -8,4 +8,6 @@ public interface AuditService {
     void auditFailure(String event, String token, AuditPayload<?, ?> payload);
 
     void auditWarning(String event, String token, AuditPayload<?, ?> payload);
+
+    void auditInfo(String event, String token, AuditPayload<?, ?> payload);
 }

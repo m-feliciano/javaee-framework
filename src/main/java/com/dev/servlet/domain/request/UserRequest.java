@@ -11,4 +11,8 @@ public record UserRequest(String id,
     public UserRequest(String id) {
         this(id, null, null, null);
     }
+
+    public UserRequest forAudit() {
+        return UserRequest.builder().id(this.id).login(this.login).build();
+    }
 }

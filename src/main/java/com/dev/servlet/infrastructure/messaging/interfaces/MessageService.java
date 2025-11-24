@@ -7,5 +7,5 @@ public interface MessageService {
 
     void sendConfirmation(String email, String link);
 
-    void sendWelcome(String userId, String email, String link);
+    void sendWelcome(String email, String link);
 }

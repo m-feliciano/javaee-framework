@@ -70,10 +70,11 @@ public class EmailSenderImpl implements MessageService {
 
     @Override
     public void send(Message message) {
-        switch (MessageType.of(message.type())) {
-            case WELCOME -> sendWelcome(message.email(), message.link(), message.link());
-            case CONFIRMATION -> sendConfirmation(message.email(), message.link());
-            case CHANGE_EMAIL -> sendChangeEmail(message.email(), message.link());
+        MessageType messageType = MessageType.of(message.type().type);
+        switch (messageType) {
+            case WELCOME -> sendWelcome(message.toEmail(), message.link());
+            case CONFIRMATION -> sendConfirmation(message.toEmail(), message.link());
+            case CHANGE_EMAIL -> sendChangeEmail(message.toEmail(), message.link());
             default -> log.warn("EmailSenderImpl: unknown message type '{}', skipping send.", message.type());
         }
     }
@@ -116,15 +117,19 @@ public class EmailSenderImpl implements MessageService {
     }
 
     @Override
-    public void sendWelcome(String to, String baseUrl, String link) {
+    public void sendWelcome(String email, String link) {
         final String subject = "Welcome!";
         if (!smtpPrecheck || smtpHost == null || smtpPort == null || smtpUser == null || smtpPass == null) {
-            log.info("[EMAIL-DRYRUN] To={} Subject={} Body={}", to, "Welcome!", baseUrl);
+            log.info("[EMAIL-DRYRUN] To={} Subject={} Body={}", email, subject, link);
             return;
         }
 
-        executor.submit(() ->
-                sendEmail(to, defaultProperties(), subject, generateEmailWelcomePlainText(), generateEmailWelcomeHtml()));
+        executor.submit(() -> {
+            String plain = generateEmailWelcomePlainText();
+            String html = generateEmailWelcomeHtml();
+            Properties props = defaultProperties();
+            sendEmail(email, props, subject, plain, html);
+        });
     }
 
     @PreDestroy

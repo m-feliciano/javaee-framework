@@ -46,7 +46,7 @@
     </logger>
 
     <!-- Logger para LogExecutionTimeInterceptor (DEBUG em dev, INFO em prod) -->
-    <logger name="com.dev.servlet.adapter.internal.LogExecutionTimeInterceptor" level="DEBUG"/>
+    <logger name="com.dev.servlet.adapter.internal.LogExecutionTimeInterceptor" level="INFO"/>
 
     <!-- Logger para ServletDispatcherImpl -->
     <logger name="com.dev.servlet.adapter.internal.ServletDispatcherImpl" level="INFO"/>
@@ -57,15 +57,18 @@
     <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="OFF"/> <!-- Opcional: ver parâmetros -->
     <logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="WARN"/> <!-- Session Metrics -->
 
+    <logger name="io.netty" level="WARN"/>
+    <logger name="org.apache.activemq" level="WARN"/>
     <!-- Logger para Weld -->
     <logger name="org.jboss.weld" level="WARN"/>
-
+    <!-- hikarycp -->
+    <logger name="com.zaxxer.hikari" level="WARN"/>
     <!-- Logger para ehcache -->
     <logger name="net.sf.ehcache" level="WARN"/>
-
+    <logger name="org.ehcache" level="WARN"/>
     <!-- Logger para com.mchange (connection pool) -->
     <logger name="com.mchange" level="WARN"/>
-
+    <logger name="org.apache.commons" level="ERROR"/>
     <!-- Root Logger -->
     <root level="DEBUG">
         <appender-ref ref="FILE"/>

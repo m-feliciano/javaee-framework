@@ -17,7 +17,8 @@ public interface InventoryMapper {
         java(new com.dev.servlet.domain.response.ProductResponse(
                 inventory.getProduct().getId(),
                 inventory.getProduct().getName(),
-                inventory.getProduct().getPrice()
+                                inventory.getProduct().getPrice(),
+                                inventory.getProduct().getUrl()
                 )
         )
     """;
