@@ -146,7 +146,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
 
         String url = this.baseUrl + "/api/v1/user/confirm?token=" + generateConfirmationToken(user, null);
         MessageService sender = messageSender();
-        sender.sendWelcome(user.getId(), user.getCredentials().getLogin(), url);
+        sender.sendWelcome(user.getCredentials().getLogin(), url);
 
         UserResponse response = userMapper.toResponse(user);
         auditService.auditSuccess("user:confirm", null, new AuditPayload<>(token, response));
@@ -159,7 +159,8 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
 
         boolean emailUnavailable = !this.isEmailAvailable(email, userMapper.toUser(userRequest));
         if (emailUnavailable) {
-            auditService.auditWarning("user:update", auth, new AuditPayload<>(userRequest, null));
+            auditService.auditWarning("user:update", auth,
+                    new AuditPayload<>(userRequest.forAudit(), null));
             throw serviceError(HttpServletResponse.SC_FORBIDDEN, "Email already in use.");
         }
 
@@ -181,7 +182,8 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
             user = super.update(user);
             CacheUtils.clear(entity.getId(), CACHE_KEY);
         } catch (Exception e) {
-            auditService.auditFailure("user:update", auth, new AuditPayload<>(userRequest, null));
+            auditService.auditFailure("user:update", auth,
+                    new AuditPayload<>(userRequest.forAudit(), null));
             throw e;
         }
 
@@ -189,11 +191,16 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
             String link = this.baseUrl + "/api/v1/user/email-change-confirmation?token=" + generateConfirmationToken(user, email);
             String createdAt = OffsetDateTime.now().toString();
             MessageService sender = messageSender();
-            sender.send(new Message(user.getId(), MessageType.CHANGE_EMAIL.type, email, createdAt, link));
+            sender.send(new Message(MessageType.CHANGE_EMAIL, email, createdAt, link));
+
+            String info = "Email change requested for userId: " + user.getId();
+            auditService.auditInfo("user:email-change-confirmation", auth,
+                    new AuditPayload<>(userRequest.forAudit(), info));
         }
 
         UserResponse response = userMapper.toResponse(user);
-        auditService.auditSuccess("user:update", auth, new AuditPayload<>(userRequest, response));
+        auditService.auditSuccess("user:update", auth,
+                new AuditPayload<>(userRequest.forAudit(), response));
         return response;
     }
 
@@ -256,7 +263,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
         String link = this.baseUrl + "/api/v1/user/confirm?token=" + generateConfirmationToken(user, null);
         String email = user.getCredentials().getLogin();
         String createdAt = OffsetDateTime.now().toString();
-        Message confirmation = new Message(userId, MessageType.CONFIRMATION.type, email, createdAt, link);
+        Message confirmation = new Message(userId, MessageType.CONFIRMATION, email, createdAt, link);
 
         MessageService sender = messageSender();
         sender.send(confirmation);

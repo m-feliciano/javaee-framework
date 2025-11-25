@@ -8,6 +8,10 @@ import java.util.Map;
 public record Query(Map<String, String> queries) {
 
     public String get(String key) {
-        return queries != null ? queries.get(key) : null;
+        return has(key) ? queries.get(key) : null;
+    }
+
+    public boolean has(String key) {
+        return queries != null && queries.containsKey(key);
     }
 }

@@ -19,8 +19,8 @@ public class ChangeEmailMessageConsumer implements Consumer<Message> {
 
     @Override
     public void accept(Message message) {
-        log.info("ChangeEmailMessageConsumer received message for userId={}, email={}", message.userId(), message.email());
+        log.info("ChangeEmailMessageConsumer received message for ID={}, to email={}", message.id(), message.toEmail());
         messageService.send(message);
-        log.info("Sending change confirmation email to {} with link {}", message.email(), message.link());
+        log.info("Sending change confirmation to {} with link {}", message.toEmail(), message.link());
     }
 }

@@ -25,4 +25,9 @@ public final class ProductResponse {
         this.name = name;
         this.price = price;
     }
+
+    public ProductResponse(String id, String name, BigDecimal price, String url) {
+        this(id, name, price);
+        this.url = url;
+    }
 }

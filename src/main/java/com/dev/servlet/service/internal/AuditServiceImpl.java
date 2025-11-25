@@ -119,6 +119,11 @@ public class AuditServiceImpl implements AuditService {
     }
 
     public void auditWarning(String event, String token, AuditPayload<?, ?> payload) {
-        audit(event, token, ActivityStatus.PENDING, payload);
+        audit(event, token, ActivityStatus.WARNING, payload);
+    }
+
+    @Override
+    public void auditInfo(String event, String token, AuditPayload<?, ?> payload) {
+        audit(event, token, ActivityStatus.INFO, payload);
     }
 }

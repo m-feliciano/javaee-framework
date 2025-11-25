@@ -19,8 +19,8 @@ public class ConfirmationMessageConsumer implements Consumer<Message> {
 
     @Override
     public void accept(Message message) {
-        log.info("ConfirmationConsumer received message for userId={}, email={}", message.userId(), message.email());
-        messageService.sendConfirmation(message.email(), message.link());
-        log.info("Sending confirmation email to {} with link {}", message.email(), message.link());
+        log.info("ConfirmationConsumer received message id={}, to email={}", message.id(), message.toEmail());
+        messageService.sendConfirmation(message.toEmail(), message.link());
+        log.info("Sending confirmation to {} with link {}", message.toEmail(), message.link());
     }
 }

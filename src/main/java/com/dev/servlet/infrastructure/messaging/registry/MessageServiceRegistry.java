@@ -1,9 +1,10 @@
-package com.dev.servlet.infrastructure.messaging;
+package com.dev.servlet.infrastructure.messaging.registry;
 
 import com.dev.servlet.domain.consumer.ChangeEmailMessageConsumer;
 import com.dev.servlet.domain.consumer.ConfirmationMessageConsumer;
 import com.dev.servlet.domain.consumer.WelcomeMessageConsumer;
 import com.dev.servlet.domain.enumeration.MessageType;
+import com.dev.servlet.infrastructure.messaging.Message;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

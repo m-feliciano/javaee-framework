@@ -12,12 +12,12 @@
             <div class="mb-3">
                 <label for="inputItemId" class="form-label">ID</label>
                 <input type="text" name="id" class="form-control" id="inputItemId"
-                       placeholder="ID" value="${ inventory.id }" readonly="readonly" required minlength="1"/>
+                       placeholder="ID" value="${ inventory.id }" disabled required minlength="1"/>
             </div>
             <div class="mb-3">
                 <label for="inputProductId" class="form-label">PRODUCT ID</label>
                 <input type="text" name="product.id" class="form-control" id="inputProductId"
-                       placeholder="ID" value="${inventory.getProduct().getId() }" required minlength="1"/>
+                       disabled placeholder="ID" value="${inventory.getProduct().getId() }" required minlength="1"/>
             </div>
             <div class="mb-3">
                 <label for="inputQuantity" class="form-label">QUANTITY</label>

@@ -6,14 +6,14 @@ import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.domain.model.Inventory;
 import com.dev.servlet.domain.model.Product;
 import com.dev.servlet.domain.model.enums.Status;
-import com.dev.servlet.service.AuditService;
-import com.dev.servlet.service.IBusinessService;
-import com.dev.servlet.service.IStockService;
 import com.dev.servlet.domain.request.InventoryCreateRequest;
 import com.dev.servlet.domain.request.InventoryRequest;
 import com.dev.servlet.domain.response.InventoryResponse;
 import com.dev.servlet.domain.response.ProductResponse;
 import com.dev.servlet.infrastructure.persistence.dao.InventoryDAO;
+import com.dev.servlet.service.AuditService;
+import com.dev.servlet.service.IBusinessService;
+import com.dev.servlet.service.IStockService;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -103,9 +103,6 @@ public class StockServiceImpl extends BaseServiceImpl<Inventory, String> impleme
     public InventoryResponse update(InventoryRequest request, String auth) throws ServiceException {
         try {
             Inventory inventory = loadInventory(request.id());
-            ProductResponse product = businessService.getProductDetail(request.product().id(), auth);
-
-            inventory.setProduct(new Product(product.getId()));
             inventory.setDescription(request.description());
             inventory.setQuantity(request.quantity());
             inventory.setStatus(Status.ACTIVE.getValue());
