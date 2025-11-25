@@ -3,12 +3,12 @@ package com.dev.servlet.service.internal;
 import com.dev.servlet.core.util.CacheUtils;
 import com.dev.servlet.core.util.Properties;
 import com.dev.servlet.service.HealthService;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import jakarta.persistence.EntityManager;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import javax.persistence.EntityManager;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;

@@ -1,20 +1,21 @@
 package com.dev.servlet.adapter;
+
 import com.dev.servlet.adapter.internal.HttpExecutorImpl;
 import com.dev.servlet.adapter.internal.ServletDispatcherImpl;
 import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.util.LogSuppressor;
 import com.dev.servlet.core.util.URIUtils;
 import com.dev.servlet.domain.request.Request;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 

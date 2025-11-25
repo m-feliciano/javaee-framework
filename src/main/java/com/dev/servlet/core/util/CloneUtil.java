@@ -56,7 +56,7 @@ public final class CloneUtil {
 
     public static <T> T fromJson(String json, Class<T> clazz) {
         try {
-            return objectMapper.readValue(json, clazz);
+            return json != null ? objectMapper.readValue(json, clazz) : null;
         } catch (Exception e) {
             log.error("Error deserializing JSON to {}: {}", clazz.getName(), e.getMessage());
             throw new RuntimeException(e);

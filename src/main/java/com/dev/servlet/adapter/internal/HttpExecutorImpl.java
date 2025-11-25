@@ -8,10 +8,10 @@ import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.util.BeanUtil;
 import com.dev.servlet.core.util.EndpointParser;
 import com.dev.servlet.domain.request.Request;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
 
 @Slf4j

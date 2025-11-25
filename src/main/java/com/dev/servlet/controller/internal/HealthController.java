@@ -4,12 +4,13 @@ import com.dev.servlet.controller.HealthControllerApi;
 import com.dev.servlet.controller.base.BaseController;
 import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
+import com.dev.servlet.core.util.CloneUtil;
 import com.dev.servlet.service.HealthService;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Map;
 
 @Slf4j
@@ -39,8 +40,9 @@ public class HealthController extends BaseController implements HealthController
     }
 
     @Override
-    public IHttpResponse<Boolean> up() {
+    public HttpResponse<String> up() {
         boolean isUp = healthService.isDatabaseHealthy() && healthService.isCacheHealthy();
-        return HttpResponse.ok(isUp).build();
+        String json = "{\"status\":\"" + (isUp ? "UP" : "DOWN") + "\"}";
+        return HttpResponse.ofJson(json);
     }
 }

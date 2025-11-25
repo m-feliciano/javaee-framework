@@ -6,23 +6,22 @@ import com.dev.servlet.domain.model.Inventory;
 import com.dev.servlet.domain.model.Product;
 import com.dev.servlet.domain.model.enums.Status;
 import com.dev.servlet.infrastructure.persistence.dao.base.BaseDAO;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
-import org.hibernate.criterion.MatchMode;
 
-import javax.enterprise.context.RequestScoped;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.CriteriaUpdate;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.sql.ResultSet;
 import java.util.Collections;
 import java.util.List;
@@ -41,7 +40,7 @@ public class InventoryDAO extends BaseDAO<Inventory, String> {
         if (CollectionUtils.isEmpty(all)) {
             return Optional.empty();
         }
-        return Optional.of(all.get(0));
+        return Optional.of(all.getFirst());
     }
 
     @Override
@@ -55,7 +54,7 @@ public class InventoryDAO extends BaseDAO<Inventory, String> {
             predicate = cb.and(predicate, cb.equal(root.get(ID), inventory.getId()));
         } else if (inventory.getDescription() != null) {
             Expression<String> upper = cb.upper(root.get("description"));
-            Predicate like = cb.like(upper, MatchMode.ANYWHERE.toMatchString(inventory.getDescription().toUpperCase()));
+            Predicate like = cb.like(upper, "%" + inventory.getDescription().toUpperCase() + "%");
             predicate = cb.and(predicate, like);
         }
         if (inventory.getProduct() != null) {
@@ -65,7 +64,7 @@ public class InventoryDAO extends BaseDAO<Inventory, String> {
             } else {
                 if (inventory.getProduct().getName() != null) {
                     Expression<String> upper = cb.upper(root.get(PRODUCT).get("name"));
-                    pProduct = cb.and(pProduct, cb.like(upper, MatchMode.ANYWHERE.toMatchString(inventory.getProduct().getName().toUpperCase())));
+                    pProduct = cb.and(pProduct, cb.like(upper, "%" + inventory.getProduct().getName().toUpperCase() + "%"));
                 }
                 if (inventory.getProduct().getCategory() != null) {
                     Predicate pCategory = cb.equal(root.get(PRODUCT).get("category").get(ID), inventory.getProduct().getCategory().getId());
@@ -165,7 +164,7 @@ public class InventoryDAO extends BaseDAO<Inventory, String> {
         }
         if (filter.getDescription() != null) {
             Expression<String> upper = cb.upper(root.get("description"));
-            Predicate like = cb.like(upper, MatchMode.ANYWHERE.toMatchString(filter.getDescription().toUpperCase()));
+            Predicate like = cb.like(upper, "%" + filter.getDescription().toUpperCase() + "%");
             predicate = cb.and(predicate, like);
         }
         return predicate;

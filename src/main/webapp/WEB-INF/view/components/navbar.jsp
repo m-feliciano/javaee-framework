@@ -1,4 +1,4 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ include file="/WEB-INF/routes/category-routes.jspf" %>
 <%@ include file="/WEB-INF/routes/inventory-routes.jspf" %>
 <%@ include file="/WEB-INF/routes/product-routes.jspf" %>
@@ -89,33 +89,7 @@
     </div>
 </nav>
 
-<script>
-    // Mobile menu toggle
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggler = document.querySelector('.navbar-toggler');
-        const navbarNav = document.querySelector('.navbar-nav');
+<div id="alerts-container"
+     style="position: fixed; top: 70px; right: 20px; z-index: 9999; display:flex; flex-direction:column; gap:8px;"></div>
 
-        if (toggler) {
-            toggler.addEventListener('click', function() {
-                navbarNav.classList.toggle('show');
-            });
-        }
-
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', function(event) {
-            const isClickInside = document.querySelector('.navbar').contains(event.target);
-            if (!isClickInside && navbarNav.classList.contains('show')) {
-                navbarNav.classList.remove('show');
-            }
-        });
-
-        // Active link highlighting
-        const currentPath = window.location.pathname;
-        document.querySelectorAll('.nav-link').forEach(link => {
-            if (link.getAttribute('href') && currentPath.includes(link.getAttribute('href'))) {
-                link.classList.add('active');
-            }
-        });
-    });
-</script>
-
+<script src="<c:url value='/resources/js/navbar.js'/>"></script>

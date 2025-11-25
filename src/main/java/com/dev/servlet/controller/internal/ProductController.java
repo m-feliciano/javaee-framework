@@ -2,8 +2,6 @@ package com.dev.servlet.controller.internal;
 
 import com.dev.servlet.controller.ProductControllerApi;
 import com.dev.servlet.controller.base.BaseController;
-import com.dev.servlet.core.annotation.Authorization;
-import com.dev.servlet.core.annotation.Property;
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.mapper.ProductMapper;
 import com.dev.servlet.core.response.HttpResponse;
@@ -19,18 +17,19 @@ import com.dev.servlet.infrastructure.persistence.IPageRequest;
 import com.dev.servlet.infrastructure.persistence.IPageable;
 import com.dev.servlet.service.ICategoryService;
 import com.dev.servlet.service.IProductService;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 @NoArgsConstructor
 @Slf4j
@@ -100,7 +99,7 @@ public class ProductController extends BaseController implements ProductControll
 
     @SneakyThrows
     public IHttpResponse<Void> scrape(String auth, String environment, String url) {
-        Optional<List<ProductResponse>> response = productService.scrape(url, environment, auth);
+        productService.scrapeAsync(url, environment, auth);
         return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
     }
 

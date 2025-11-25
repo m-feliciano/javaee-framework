@@ -8,9 +8,6 @@ import com.dev.servlet.domain.model.Inventory;
 import com.dev.servlet.domain.model.Product;
 import com.dev.servlet.domain.model.User;
 import com.dev.servlet.domain.model.enums.Status;
-import com.dev.servlet.service.AuditService;
-import com.dev.servlet.service.IBusinessService;
-import com.dev.servlet.service.IProductService;
 import com.dev.servlet.domain.request.ProductRequest;
 import com.dev.servlet.domain.response.ProductResponse;
 import com.dev.servlet.infrastructure.external.webscrape.WebScrapeServiceRegistry;
@@ -19,20 +16,25 @@ import com.dev.servlet.infrastructure.external.webscrape.transfer.ProductWebScra
 import com.dev.servlet.infrastructure.persistence.IPageRequest;
 import com.dev.servlet.infrastructure.persistence.IPageable;
 import com.dev.servlet.infrastructure.persistence.dao.ProductDAO;
+import com.dev.servlet.service.AuditService;
+import com.dev.servlet.service.IBusinessService;
+import com.dev.servlet.service.IProductService;
+import jakarta.enterprise.context.control.RequestContextController;
+import jakarta.enterprise.inject.Model;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.StopWatch;
 
-import javax.enterprise.inject.Model;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import static com.dev.servlet.core.util.ThrowableUtils.notFound;
@@ -43,19 +45,18 @@ import static com.dev.servlet.core.util.ThrowableUtils.serviceError;
 @Model
 @Named("productService")
 public class ProductServiceImpl extends BaseServiceImpl<Product, String> implements IProductService {
-    public static final String CONFLIT_ERROR = "Product has inventory";
-
     @Inject
     private IBusinessService businessService;
-
     @Inject
     private ProductMapper productMapper;
-
     @Inject
     private WebScrapeServiceRegistry webScrapeServiceRegistry;
-
     @Inject
     private AuditService auditService;
+    @Inject
+    private AlertService alertService;
+    @Inject
+    private RequestContextController requestContextController;
 
     @Inject
     public ProductServiceImpl(ProductDAO dao) {
@@ -158,7 +159,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
 
             Inventory inventory = Inventory.builder().user(product.getUser()).product(product).build();
             if (businessService.hasInventory(inventory, auth)) {
-                throw serviceError(HttpServletResponse.SC_CONFLICT, CONFLIT_ERROR);
+                throw serviceError(HttpServletResponse.SC_CONFLICT, "Product has inventory");
             }
 
             super.delete(product);
@@ -178,7 +179,6 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
         return BigDecimal.ZERO;
     }
 
-    @Override
     @SneakyThrows
     public Optional<List<ProductResponse>> scrape(String url, String environment, String auth) {
         if (!"development".equals(environment)) {
@@ -224,6 +224,38 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
             auditService.auditFailure("product:scrape", auth, new AuditPayload<>(url, null));
             return Optional.empty();
         }
+    }
+
+    @Override
+    public CompletableFuture<Optional<List<ProductResponse>>> scrapeAsync(String url, String environment, String auth) {
+        final String userId = jwts.getUserId(auth);
+
+        CompletableFuture<Optional<List<ProductResponse>>> future = CompletableFuture.supplyAsync(() -> {
+            try {
+                // Enable the context for the async operation
+                requestContextController.activate();
+
+                Optional<List<ProductResponse>> response = scrape(url, environment, auth);
+                if (response.isPresent()) {
+                    alertService.publish(userId, "success", "Successfully scraped products. Check the product list.");
+                } else {
+                    alertService.publish(userId, "info", "No products were scraped from %s".formatted(url));
+                }
+                return response;
+
+            } catch (Exception e) {
+                log.error("Async web scraping failed for URL: {}", url, e);
+                alertService.publish(userId, "error", "Web scraping failed for %s: %s".formatted(url, e.getMessage()));
+                return Optional.empty();
+
+            } finally {
+                // Ensure the request context is deactivated after the async operation
+                requestContextController.deactivate();
+            }
+        });
+
+        alertService.publish(userId, "info", "Web scraping started. You will be notified once it's completed");
+        return future;
     }
 
     private static Product prepareProductToSave(Product product, User user) {

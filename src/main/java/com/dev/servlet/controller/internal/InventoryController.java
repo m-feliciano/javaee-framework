@@ -18,12 +18,12 @@ import com.dev.servlet.domain.response.ProductResponse;
 import com.dev.servlet.service.ICategoryService;
 import com.dev.servlet.service.IProductService;
 import com.dev.servlet.service.IStockService;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.Set;
 

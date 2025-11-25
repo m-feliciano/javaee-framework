@@ -6,23 +6,22 @@ import com.dev.servlet.domain.model.Category;
 import com.dev.servlet.domain.model.Product;
 import com.dev.servlet.domain.model.enums.Status;
 import com.dev.servlet.infrastructure.persistence.dao.base.BaseDAO;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.hibernate.Session;
-import org.hibernate.criterion.MatchMode;
 
-import javax.enterprise.context.RequestScoped;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.CriteriaUpdate;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Statement;
@@ -47,12 +46,12 @@ public class ProductDAO extends BaseDAO<Product, String> {
         } else {
             if (product.getName() != null) {
                 Expression<String> upper = criteriaBuilder.upper(root.get("name"));
-                Predicate like = criteriaBuilder.like(upper, MatchMode.START.toMatchString(product.getName().toUpperCase()));
+                Predicate like = criteriaBuilder.like(upper, product.getName().toUpperCase() + "%");
                 predicate = criteriaBuilder.and(predicate, like);
             }
             if (product.getDescription() != null) {
                 Expression<String> upper = criteriaBuilder.upper(root.get("description"));
-                Predicate like = criteriaBuilder.like(upper, MatchMode.ANYWHERE.toMatchString(product.getDescription().toUpperCase()));
+                Predicate like = criteriaBuilder.like(upper, "%" + product.getDescription().toUpperCase() + "%");
                 predicate = criteriaBuilder.and(predicate, like);
             }
             if (product.getCategory() != null) {
@@ -62,7 +61,7 @@ public class ProductDAO extends BaseDAO<Product, String> {
                 } else {
                     if (product.getCategory().getName() != null) {
                         Expression<String> upper = criteriaBuilder.upper(join.get("name"));
-                        Predicate like = criteriaBuilder.like(upper, MatchMode.ANYWHERE.toMatchString(product.getCategory().getName().toUpperCase()));
+                        Predicate like = criteriaBuilder.like(upper, "" + product.getCategory().getName().toUpperCase() + "%");
                         predicate = criteriaBuilder.and(predicate, like);
                     }
                 }
@@ -76,7 +75,7 @@ public class ProductDAO extends BaseDAO<Product, String> {
         if (CollectionUtils.isEmpty(all)) {
             return Optional.empty();
         }
-        return Optional.ofNullable(all.get(0));
+        return Optional.ofNullable(all.getFirst());
     }
     @Override
     public List<Product> findAll(Product product) {
@@ -84,7 +83,7 @@ public class ProductDAO extends BaseDAO<Product, String> {
         CriteriaQuery<Product> query = cb.createQuery(Product.class).distinct(true);
         Root<Product> root = query.from(Product.class);
         Predicate predicate = buildDefaultFilter(product, cb, root);
-        javax.persistence.criteria.Order descId = cb.asc(root.get(ID));
+        jakarta.persistence.criteria.Order descId = cb.asc(root.get(ID));
         query.where(predicate).select(root).orderBy(descId);
         TypedQuery<Product> typedQuery = em.createQuery(query);
         List<Product> resultList = typedQuery.getResultList();

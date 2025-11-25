@@ -94,31 +94,30 @@ css/
 ```json
 {
   "schemaVersion": "1.0",
-  "event": "product:update",
-  "timestamp": "2025-11-06T23:45:12.345678Z",
-  "correlationId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  "outcome": "success",
-  "userId": "admin-001",
-  "httpMethod": "PUT",
-  "endpoint": "/api/v1/products/update/002b9d7d-f0bf-4aab-a83d-14e602666e63",
-  "executionTimeMs": 25,
+  "correlationId": "7b558145-e976-4536-bee1-b375026ee973",
+  "event": "product:find_by_id",
+  "outcome": "SUCCESS",
+  "timestamp": "2025-11-25T16:15:02.089861800Z",
+  "httpMethod": "GET",
+  "userId": "85f66ff4-6b90-4bb8-aa20-9b9ea78e2014",
+  "endpoint": "/api/v1/product/list/01148ae5-fc1b-4246-8817-e3bc5b4311dc",
   "payload": {
     "input": {
-      "id": "002b9d7d-f0bf-4aab-a83d-14e602666e63",
-      "name": "Product 2",
-      "price": 89.99
+      "id": "01148ae5-fc1b-4246-8817-e3bc5b4311dc"
     },
     "output": {
-      "id": "002b9d7d-f0bf-4aab-a83d-14e602666e63",
-      "name": "Product 2",
-      "price": 169.99
+      "id": "01148ae5-fc1b-4246-8817-e3bc5b4311dc",
+      "name": "Women's High Heel Sandals",
+      "description": "Step out in style with our Women's High Heel Sandals. These sandals feature a strappy design that adds a touch of elegance to any outfit. The comfortable footbed and sturdy heel make them perfect for a night out, while the buckle closure ensures a secure fit. Choose from black, red, nude, or silver to complement your wardrobe.",
+      "url": "https://www.web-scraping.dev/assets/products/women-sandals-beige-1.webp",
+      "status": "A",
+      "registerDate": 1763953200000,
+      "price": 59.99
     }
   },
-  "metadata": {
-    "ip": "192.168.1.100",
-    "userAgent": "Mozilla/5.0...",
-    "sessionId": "sess-xyz"
-  }
+  "ipAddress": "72.14.201.219",
+  "startedAt": "1764087302076",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
 }
 ```
 

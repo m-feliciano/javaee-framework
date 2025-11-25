@@ -1,6 +1,7 @@
 package com.dev.servlet.infrastructure.external.webscrape;
+
 import com.dev.servlet.infrastructure.external.webscrape.service.ProductWebScrapeApiClient;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
 

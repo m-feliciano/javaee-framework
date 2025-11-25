@@ -1,12 +1,11 @@
 package com.dev.servlet.adapter.internal;
 
 import com.dev.servlet.adapter.LogExecutionTime;
+import jakarta.interceptor.AroundInvoke;
+import jakarta.interceptor.Interceptor;
+import jakarta.interceptor.InvocationContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.StopWatch;
-
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.Interceptor;
-import javax.interceptor.InvocationContext;
 
 @Slf4j
 @Interceptor

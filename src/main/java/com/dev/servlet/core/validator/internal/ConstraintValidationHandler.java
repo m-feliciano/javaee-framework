@@ -5,17 +5,17 @@ import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.util.CloneUtil;
 import com.dev.servlet.core.validator.ValidationHandler;
 import com.dev.servlet.domain.request.Request;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ConstraintValidationHandler implements ValidationHandler {
 
-    private static final ValidatorFactory factory = javax.validation.Validation.buildDefaultValidatorFactory();
+    private static final ValidatorFactory factory = jakarta.validation.Validation.buildDefaultValidatorFactory();
     private static final Validator validator = factory.getValidator();
 
     public void validate(RequestMapping mapping, Request request) throws ServiceException {

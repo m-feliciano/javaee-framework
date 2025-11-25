@@ -11,6 +11,7 @@ import com.dev.servlet.infrastructure.persistence.IPageable;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public interface IProductService {
     ProductResponse register(ProductRequest product, String auth) throws ServiceException;
@@ -23,7 +24,7 @@ public interface IProductService {
 
     BigDecimal calculateTotalPriceFor(IPageable<?> page, Product product);
 
-    Optional<List<ProductResponse>> scrape(String url, String environment, String auth);
+    CompletableFuture<Optional<List<ProductResponse>>> scrapeAsync(String url, String environment, String auth);
 
     <U> IPageable<U> getAllPageable(IPageRequest pageRequest, String auth, Mapper<Product, U> mapper);
 }

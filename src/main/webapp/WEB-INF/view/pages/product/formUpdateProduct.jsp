@@ -1,5 +1,5 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ page import="com.dev.servlet.core.response.IServletResponse" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 <%@ include file="/WEB-INF/routes/product-routes.jspf" %>

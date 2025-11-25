@@ -10,15 +10,16 @@ import com.dev.servlet.domain.request.UserCreateRequest;
 import com.dev.servlet.domain.request.UserRequest;
 import com.dev.servlet.domain.response.UserResponse;
 import com.dev.servlet.service.IUserService;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 @NoArgsConstructor
 @Singleton
 public class UserController extends BaseController implements UserControllerApi {
+
+    public static final String REDIRECT_AUTH_FORM = "redirect:/api/v1/auth/form";
 
     @Inject
     private IUserService userService;
@@ -41,7 +42,7 @@ public class UserController extends BaseController implements UserControllerApi 
     @Override
     public IHttpResponse<Void> register(UserCreateRequest user) {
         userService.register(user);
-        return newHttpResponse(201, "redirect:/api/v1/auth/form");
+        return newHttpResponse(201, REDIRECT_AUTH_FORM);
     }
 
     @SneakyThrows
@@ -49,7 +50,7 @@ public class UserController extends BaseController implements UserControllerApi 
     public IHttpResponse<Void> confirm(Query query) {
         String token = query.get("token");
         userService.confirmEmail(token);
-        return newHttpResponse(200, "redirect:/api/v1/auth/form");
+        return newHttpResponse(200, REDIRECT_AUTH_FORM);
     }
 
     @SneakyThrows
@@ -57,7 +58,7 @@ public class UserController extends BaseController implements UserControllerApi 
     public IHttpResponse<Void> changeEmail(Query query) {
         String token = query.get("token");
         userService.changeEmail(token);
-        return newHttpResponse(200, "redirect:/api/v1/auth/form");
+        return newHttpResponse(200, REDIRECT_AUTH_FORM);
     }
 
     @SneakyThrows

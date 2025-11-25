@@ -1,9 +1,11 @@
 package com.dev.servlet.infrastructure.security.wrapper;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import org.owasp.encoder.Encode;
+
 import java.util.HashMap;
 import java.util.Map;
-import org.owasp.encoder.Encode;
 
 public class XSSRequestWrapper extends HttpServletRequestWrapper {
     public XSSRequestWrapper(HttpServletRequest request) {

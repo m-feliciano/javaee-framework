@@ -5,16 +5,16 @@ import com.dev.servlet.domain.enumeration.MessageType;
 import com.dev.servlet.infrastructure.messaging.config.MessageConfig;
 import com.dev.servlet.infrastructure.messaging.factory.MessageFactory;
 import com.dev.servlet.infrastructure.messaging.interfaces.MessageService;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Named;
 import java.time.OffsetDateTime;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
@@ -27,38 +27,21 @@ import static com.dev.servlet.infrastructure.messaging.config.MessageConfig.EMAI
 @ApplicationScoped
 @Named("messageProducer")
 public class MessageProducer implements MessageService {
-    private ExecutorService executor;
     private MessageConfig.BrokerConfig config;
     private ClientSessionFactory factory;
-    // Track holders for shutdown
+    private ExecutorService executor;
     private final ConcurrentLinkedQueue<SessionProducerHolder> holders = new ConcurrentLinkedQueue<>();
-    // Thread-local holder for each thread
     private final ThreadLocal<SessionProducerHolder> threadLocalHolder = new ThreadLocal<>();
 
     @PostConstruct
     public void init() {
         this.config = MessageConfig.createBrokerConfig(EMAIL_EXCHANGE_QUEUE);
         this.factory = MessageFactory.createSessionFactory(config.brokerUrl());
-
-        this.executor = Executors.newFixedThreadPool(4, r -> {
-            Thread t = new Thread(r);
-            t.setName("msg-producer-" + t.getId());
-            return t;
-        });
+        this.executor = Executors.newVirtualThreadPerTaskExecutor();
     }
 
     @PreDestroy
     public void shutdown() {
-        executor.shutdown();
-        try {
-            if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
-                executor.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            log.error("Executor termination interrupted: {}", e.getMessage(), e);
-            executor.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
         // Close all holders
         holders.forEach(h -> {
             try {
@@ -67,6 +50,20 @@ public class MessageProducer implements MessageService {
                 log.warn("Failed to close SessionProducerHolder: {}", e.getMessage(), e);
             }
         });
+
+        // Shutdown executor
+        if (executor != null) {
+            executor.shutdown();
+            try {
+                if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                    executor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executor.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }
+
         // Close the factory
         if (factory != null) {
             try {

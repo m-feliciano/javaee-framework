@@ -3,27 +3,28 @@ package com.dev.servlet.service.internal;
 import com.dev.servlet.domain.enumeration.MessageType;
 import com.dev.servlet.infrastructure.messaging.Message;
 import com.dev.servlet.infrastructure.messaging.interfaces.MessageService;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
+import jakarta.mail.Authenticator;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.mail.Authenticator;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 @Slf4j
 @Singleton
@@ -51,11 +52,8 @@ public class EmailSenderImpl implements MessageService {
             smtpFrom = "no-reply@localhost";
         }
 
-        executor = Executors.newFixedThreadPool(4, r -> {
-            Thread t = new Thread(r);
-            t.setName("email-sender-" + t.getId());
-            return t;
-        });
+        ThreadFactory factory = Thread.ofVirtual().name("email-sender-%d").factory();
+        executor = Executors.newThreadPerTaskExecutor(factory);
 
         if (smtpHost != null && smtpPort != null) {
             executor.submit(() -> {
@@ -149,10 +147,10 @@ public class EmailSenderImpl implements MessageService {
 
             log.debug("JavaMail Session created successfully");
 
-            javax.mail.Message message;
+            jakarta.mail.Message message;
             message = new MimeMessage(session);
             message.setFrom(new InternetAddress(smtpFrom));
-            message.setRecipients(javax.mail.Message.RecipientType.TO, InternetAddress.parse(to));
+            message.setRecipients(MimeMessage.RecipientType.TO, InternetAddress.parse(to));
             message.setSubject(subject);
             message.setSentDate(new Date());
 
@@ -247,8 +245,7 @@ public class EmailSenderImpl implements MessageService {
                 
                 If you have any questions or need assistance, feel free to reach out to our support team.
                 
-                Best regards,
-                The Team
+                Best regards
                 """;
     }
 
@@ -266,7 +263,7 @@ public class EmailSenderImpl implements MessageService {
                       <h2>Welcome to Our Service!</h2>
                       <p>We're excited to have you on board. Thank you for joining us!</p>
                       <p>If you have any questions or need assistance, feel free to reach out to our support team.</p>
-                      <p>Best regards,<br/>The Team</p>
+                      <p>Best regards</p>
                     </div>
                   </body>
                 </html>

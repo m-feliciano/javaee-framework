@@ -6,26 +6,27 @@ import com.dev.servlet.core.builder.HtmlTemplate;
 import com.dev.servlet.core.builder.RequestBuilder;
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.response.IHttpResponse;
+import com.dev.servlet.core.util.CloneUtil;
 import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.core.util.URIUtils;
 import com.dev.servlet.domain.model.User;
 import com.dev.servlet.domain.model.enums.RequestMethod;
-import com.dev.servlet.service.AuthCookieService;
-import com.dev.servlet.service.IUserService;
 import com.dev.servlet.domain.request.Request;
 import com.dev.servlet.domain.request.UserRequest;
 import com.dev.servlet.domain.response.UserResponse;
+import com.dev.servlet.service.AuthCookieService;
+import com.dev.servlet.service.IUserService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.interceptor.Interceptors;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.interceptor.Interceptors;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.text.MessageFormat;
 
@@ -130,6 +131,12 @@ public class ServletDispatcherImpl implements IServletDispatcher {
 
     private void processResponse(HttpServletRequest httpRequest, HttpServletResponse httpResponse, Request request, IHttpResponse<?> response) throws ServiceException {
         processResponseData(httpRequest, httpResponse, request, response);
+
+        if (response.json()) {
+            sendJsonResponse(httpResponse, response);
+            return;
+        }
+
         if (response.next() == null) return;
 
         String[] path = response.next().split(":");
@@ -148,6 +155,19 @@ public class ServletDispatcherImpl implements IServletDispatcher {
         } catch (Exception e) {
             String message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
             throw new ServiceException("Error processing httpRequest: " + message);
+        }
+    }
+
+    private void sendJsonResponse(HttpServletResponse httpResponse, IHttpResponse<?> response) throws ServiceException {
+        httpResponse.setContentType("application/json");
+        httpResponse.setCharacterEncoding("UTF-8");
+
+        try (PrintWriter writer = httpResponse.getWriter()) {
+            writer.write(String.valueOf(response.body()));
+            writer.flush();
+        } catch (Exception e) {
+            String message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
+            throw new ServiceException("Error writing JSON response: " + message);
         }
     }
 

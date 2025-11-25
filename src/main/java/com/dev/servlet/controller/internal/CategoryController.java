@@ -2,17 +2,16 @@ package com.dev.servlet.controller.internal;
 
 import com.dev.servlet.controller.CategoryControllerApi;
 import com.dev.servlet.controller.base.BaseController;
-import com.dev.servlet.core.annotation.Authorization;
 import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.domain.request.CategoryRequest;
 import com.dev.servlet.domain.response.CategoryResponse;
 import com.dev.servlet.service.ICategoryService;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Collection;
 
 @NoArgsConstructor

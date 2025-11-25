@@ -14,11 +14,11 @@ import com.dev.servlet.infrastructure.persistence.dao.InventoryDAO;
 import com.dev.servlet.service.AuditService;
 import com.dev.servlet.service.IBusinessService;
 import com.dev.servlet.service.IStockService;
+import jakarta.enterprise.inject.Model;
+import jakarta.inject.Inject;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.enterprise.inject.Model;
-import javax.inject.Inject;
 import java.util.List;
 
 import static com.dev.servlet.core.util.ThrowableUtils.notFound;
@@ -27,16 +27,12 @@ import static com.dev.servlet.core.util.ThrowableUtils.notFound;
 @NoArgsConstructor
 @Model
 public class StockServiceImpl extends BaseServiceImpl<Inventory, String> implements IStockService {
-
     @Inject
     private IBusinessService businessService;
-
     @Inject
     private InventoryMapper inventoryMapper;
-
     @Inject
     private AuditService auditService;
-
     @Inject
     private JwtUtil jwtUtil;
 

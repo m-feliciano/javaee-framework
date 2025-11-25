@@ -5,8 +5,7 @@ import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.core.util.EndpointParser;
 import com.dev.servlet.core.validator.ValidationHandler;
 import com.dev.servlet.domain.request.Request;
-
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 public record ApiVersionValidationHandler(EndpointParser endpoint) implements ValidationHandler {
 

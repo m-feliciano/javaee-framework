@@ -2,16 +2,15 @@ package com.dev.servlet.service.internal;
 
 import com.dev.servlet.core.exception.ServiceException;
 import com.dev.servlet.domain.model.Inventory;
+import com.dev.servlet.domain.request.ProductRequest;
+import com.dev.servlet.domain.response.ProductResponse;
 import com.dev.servlet.service.IBusinessService;
 import com.dev.servlet.service.IProductService;
 import com.dev.servlet.service.IStockService;
-import com.dev.servlet.domain.request.ProductRequest;
-import com.dev.servlet.domain.response.ProductResponse;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import lombok.NoArgsConstructor;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
 
 @Singleton
 @NoArgsConstructor

@@ -4,18 +4,18 @@ import com.dev.servlet.core.util.CollectionUtils;
 import com.dev.servlet.domain.model.User;
 import com.dev.servlet.domain.model.enums.Status;
 import com.dev.servlet.infrastructure.persistence.dao.base.BaseDAO;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.NoArgsConstructor;
 import org.hibernate.Session;
 
-import javax.enterprise.context.RequestScoped;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.CriteriaUpdate;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,7 +42,7 @@ public class UserDAO extends BaseDAO<User, String> {
         if (CollectionUtils.isEmpty(all)) {
             return Optional.empty();
         }
-        return Optional.ofNullable(all.get(0));
+        return Optional.ofNullable(all.getFirst());
     }
 
     @Override

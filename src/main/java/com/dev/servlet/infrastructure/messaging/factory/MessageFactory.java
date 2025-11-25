@@ -1,11 +1,10 @@
 package com.dev.servlet.infrastructure.messaging.factory;
 
+import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-
-import javax.inject.Singleton;
 
 @Slf4j
 @Singleton

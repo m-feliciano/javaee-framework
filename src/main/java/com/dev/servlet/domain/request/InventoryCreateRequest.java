@@ -1,8 +1,8 @@
 package com.dev.servlet.domain.request;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 public record InventoryCreateRequest(@NotNull Integer quantity,
                                      @Size(min = 3, max = 500, message = "Description must be between {min} and {max} characters") String description,

@@ -2,13 +2,13 @@ package com.dev.servlet.service.internal;
 
 import com.dev.servlet.core.mapper.Mapper;
 import com.dev.servlet.domain.model.UserActivityLog;
-import com.dev.servlet.service.UserActivityService;
 import com.dev.servlet.infrastructure.persistence.dao.UserActivityLogDAO;
+import com.dev.servlet.service.UserActivityService;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;

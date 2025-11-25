@@ -1,8 +1,7 @@
 package com.dev.servlet.domain.request;
 
+import jakarta.validation.constraints.Email;
 import org.hibernate.validator.constraints.Length;
-
-import javax.validation.constraints.Email;
 
 public record UserCreateRequest(@Email String login,
                                 @Length(min = 6,

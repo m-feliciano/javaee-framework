@@ -1,6 +1,6 @@
 <%@ page import="com.dev.servlet.core.response.IHttpResponse" %>
 <%@ page import="java.util.Map" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ include file="/WEB-INF/routes/health-routes.jspf" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>

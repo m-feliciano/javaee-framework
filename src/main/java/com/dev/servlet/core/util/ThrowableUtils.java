@@ -1,8 +1,8 @@
 package com.dev.servlet.core.util;
 import com.dev.servlet.core.exception.ServiceException;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.NoArgsConstructor;
 
-import javax.servlet.http.HttpServletResponse;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class ThrowableUtils {
