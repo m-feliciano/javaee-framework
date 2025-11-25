@@ -1,5 +1,5 @@
 <%@ page import="com.dev.servlet.core.response.IHttpResponse" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ include file="/WEB-INF/routes/inspect-routes.jspf" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>

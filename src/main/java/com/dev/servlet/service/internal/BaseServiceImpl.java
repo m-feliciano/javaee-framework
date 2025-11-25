@@ -8,13 +8,13 @@ import com.dev.servlet.infrastructure.persistence.dao.base.BaseDAO;
 import com.dev.servlet.infrastructure.persistence.internal.PageResponse;
 import com.dev.servlet.infrastructure.persistence.repository.ICrudRepository;
 import com.dev.servlet.infrastructure.persistence.repository.IPagination;
+import jakarta.inject.Inject;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.inject.Inject;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;

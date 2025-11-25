@@ -21,15 +21,15 @@ import com.dev.servlet.infrastructure.persistence.dao.ConfirmationTokenDAO;
 import com.dev.servlet.infrastructure.persistence.dao.UserDAO;
 import com.dev.servlet.service.AuditService;
 import com.dev.servlet.service.IUserService;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.Model;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.Model;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -43,19 +43,16 @@ import static com.dev.servlet.core.util.ThrowableUtils.serviceError;
 public class UserServiceImpl extends BaseServiceImpl<User, String> implements IUserService {
 
     private static final String CACHE_KEY = "userCacheKey";
-
     @Inject
     private UserMapper userMapper;
-
     @Inject
     private AuditService auditService;
-
+    @Inject
+    private AlertService alertService;
     @Inject
     private ConfirmationTokenDAO confirmationTokenDAO;
-
     @Inject
     private Instance<MessageService> messageSenderInstance;
-
     @Inject
     private Instance<MessageProducer> emailProducerInstance;
 
@@ -161,7 +158,8 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
         if (emailUnavailable) {
             auditService.auditWarning("user:update", auth,
                     new AuditPayload<>(userRequest.forAudit(), null));
-            throw serviceError(HttpServletResponse.SC_FORBIDDEN, "Email already in use.");
+            alertService.publish(jwts.getUserId(auth), "warning", "The email address is already in use.");
+            return this.getById(userRequest, auth);
         }
 
         UserResponse entity = this.getById(userRequest, auth);
@@ -196,6 +194,10 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
             String info = "Email change requested for userId: " + user.getId();
             auditService.auditInfo("user:email-change-confirmation", auth,
                     new AuditPayload<>(userRequest.forAudit(), info));
+
+            alertService.publish(user.getId(), "info", "A confirmation email has been sent to your new email address.");
+        } else {
+            alertService.publish(user.getId(), "success", "Your profile has been updated successfully.");
         }
 
         UserResponse response = userMapper.toResponse(user);
@@ -272,6 +274,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
         CacheUtils.setObject(user.getId(), CACHE_KEY, response);
 
         auditService.auditSuccess("user:resend_confirmation", null, new AuditPayload<>(userId, response));
+        alertService.publish(userId, "info", "A new confirmation email has been sent to your email address.");
     }
 
     @Override
@@ -301,6 +304,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
             CacheUtils.setObject(user.getId(), CACHE_KEY, response);
 
             auditService.auditSuccess("user:change_email", null, new AuditPayload<>(token, response));
+            alertService.publish(userId, "success", "Your email has been changed successfully.");
         });
     }
 

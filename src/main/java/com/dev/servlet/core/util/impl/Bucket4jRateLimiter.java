@@ -1,16 +1,16 @@
 package com.dev.servlet.core.util.impl;
 
-import com.dev.servlet.core.util.RateLimiter;
 import com.dev.servlet.core.util.Properties;
+import com.dev.servlet.core.util.RateLimiter;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.BucketConfiguration;
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Singleton;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,9 +30,9 @@ public class Bucket4jRateLimiter implements RateLimiter {
 
     @PostConstruct
     public void init() {
-        this.capacity = Properties.getOrDefault("rate.limit.capacity", 20L);
-        this.refillTokens = Properties.getOrDefault("rate.limit.refill.tokens", 20L);
-        this.refillPeriodSeconds = Properties.getOrDefault("rate.limit.refill.period.seconds", 60L);
+        this.capacity = Properties.getOrDefault("rate_limit.capacity", 30L);
+        this.refillTokens = Properties.getOrDefault("rate_limit.refill.tokens", 30L);
+        this.refillPeriodSeconds = Properties.getOrDefault("rate_limit.refill.period_seconds", 60L);
 
         Bandwidth limit = Bandwidth.builder()
                 .capacity(capacity)

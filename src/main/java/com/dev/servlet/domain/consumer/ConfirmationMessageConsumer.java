@@ -2,11 +2,11 @@ package com.dev.servlet.domain.consumer;
 
 import com.dev.servlet.infrastructure.messaging.Message;
 import com.dev.servlet.infrastructure.messaging.interfaces.MessageService;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
 import java.util.function.Consumer;
 
 @Slf4j

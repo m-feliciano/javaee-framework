@@ -3,12 +3,11 @@ package com.dev.servlet.infrastructure.security;
 import com.dev.servlet.adapter.IServletDispatcher;
 import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.service.AuthService;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.BeforeEach;
-
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

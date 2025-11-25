@@ -1,17 +1,18 @@
+// java
 package com.dev.servlet.config;
 
+import jakarta.annotation.PreDestroy;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.inject.Disposes;
+import jakarta.enterprise.inject.Produces;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 
-import javax.annotation.PreDestroy;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.RequestScoped;
-import javax.enterprise.inject.Disposes;
-import javax.enterprise.inject.Produces;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +27,6 @@ public class EntityManagerProducer {
     private static final String POSTGRES_USER = "POSTGRES_USER";
     private static final String POSTGRES_PASSWORD = "POSTGRES_PASSWORD";
     private static final String ORG_POSTGRESQL_DRIVER = "org.postgresql.Driver";
-    private static final String ORG_HIBERNATE_DIALECT = "org.hibernate.dialect.PostgreSQL82Dialect";
 
     private EntityManagerFactory factory;
 
@@ -40,6 +40,12 @@ public class EntityManagerProducer {
             log.error("[SEVERE] Failed to create EntityManagerFactory: {}", e.getMessage(), e);
             throw e;
         }
+    }
+
+    public static EntityManagerFactory createEntityManagerFactory(String servletpu) {
+        Map<String, Object> props = new HashMap<>();
+        loadProps(props);
+        return Persistence.createEntityManagerFactory(servletpu, props);
     }
 
     @Produces
@@ -60,7 +66,7 @@ public class EntityManagerProducer {
     }
 
     public void close(@Disposes EntityManager em) {
-        if (em.isOpen()) {
+        if (em != null && em.isOpen()) {
             em.close();
         }
     }
@@ -72,12 +78,11 @@ public class EntityManagerProducer {
         String dbUser = System.getenv(POSTGRES_USER);
         String dbPassword = System.getenv(POSTGRES_PASSWORD);
 
-        String databaseUrl = String.format("jdbc:postgresql://%s:%s/%s?useSSL=false", dbHost, dbPort, dbName);
+        String databaseUrl = "jdbc:postgresql://%s:%s/%s?useSSL=false".formatted(dbHost, dbPort, dbName);
 
         props.put("jakarta.persistence.jdbc.url", databaseUrl);
         props.put("jakarta.persistence.jdbc.user", dbUser);
         props.put("jakarta.persistence.jdbc.password", dbPassword);
         props.put("jakarta.persistence.jdbc.driver", ORG_POSTGRESQL_DRIVER);
-        props.put("hibernate.dialect", ORG_HIBERNATE_DIALECT);
     }
 }

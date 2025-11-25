@@ -39,23 +39,27 @@
             <pattern>%msg%n</pattern> <!-- JSON direto, sem metadata -->
         </encoder>
     </appender>
+    <appender name="AUDIT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${user.dir}/logs/audit.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/audit.%d{yyyy-MM-dd}.log</fileNamePattern>
+<!--            <maxHistory>90</maxHistory>-->
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
 
-    <!-- Logger específico para Auditoria -->
     <logger name="com.dev.servlet.service.internal.AuditServiceImpl" level="INFO" additivity="true">
         <appender-ref ref="AUDIT"/>
     </logger>
-
-    <!-- Logger para LogExecutionTimeInterceptor (DEBUG em dev, INFO em prod) -->
     <logger name="com.dev.servlet.adapter.internal.LogExecutionTimeInterceptor" level="INFO"/>
-
-    <!-- Logger para ServletDispatcherImpl -->
-    <logger name="com.dev.servlet.adapter.internal.ServletDispatcherImpl" level="INFO"/>
-
-    <!-- Logger para Hibernate (reduzir verbosidade) -->
+    <logger name="com.dev.servlet.adapter.internal.ServletDispatcherImpl" level="WARN"/>
     <logger name="org.hibernate" level="WARN"/>
-    <logger name="org.hibernate.SQL" level="OFF"/> <!-- Opcional: ver queries -->
-    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="OFF"/> <!-- Opcional: ver parâmetros -->
-    <logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="WARN"/> <!-- Session Metrics -->
+    <logger name="org.hibernate.SQL" level="OFF"/>
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="OFF"/>
+    <logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="WARN"/>
 
     <logger name="io.netty" level="WARN"/>
     <logger name="org.apache.activemq" level="WARN"/>
@@ -70,7 +74,7 @@
     <logger name="com.mchange" level="WARN"/>
     <logger name="org.apache.commons" level="ERROR"/>
     <!-- Root Logger -->
-    <root level="DEBUG">
+    <root level="WARN">
         <appender-ref ref="FILE"/>
         <appender-ref ref="CONSOLE"/>
     </root>

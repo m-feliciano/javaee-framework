@@ -6,12 +6,12 @@ import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.response.IServletResponse;
 import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.domain.records.KeyPair;
+import jakarta.inject.Inject;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.inject.Inject;
 import java.util.Set;
 
 import static com.dev.servlet.core.util.ClassUtil.findControllerOnInterfaceRecursive;
@@ -80,6 +80,10 @@ public abstract class BaseController extends BaseRouterController {
             @Override
             public String next() {
                 return next;
+            }
+            @Override
+            public boolean json() {
+                return false;
             }
         };
     }

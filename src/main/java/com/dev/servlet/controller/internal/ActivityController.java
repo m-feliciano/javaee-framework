@@ -2,7 +2,6 @@ package com.dev.servlet.controller.internal;
 
 import com.dev.servlet.controller.ActivityControllerApi;
 import com.dev.servlet.controller.base.BaseController;
-import com.dev.servlet.core.annotation.Authorization;
 import com.dev.servlet.core.mapper.ActivityMapper;
 import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
@@ -18,11 +17,11 @@ import com.dev.servlet.infrastructure.persistence.IPageRequest;
 import com.dev.servlet.infrastructure.persistence.IPageable;
 import com.dev.servlet.infrastructure.persistence.internal.PageRequest;
 import com.dev.servlet.service.UserActivityService;
+import jakarta.inject.Inject;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 
-import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
 

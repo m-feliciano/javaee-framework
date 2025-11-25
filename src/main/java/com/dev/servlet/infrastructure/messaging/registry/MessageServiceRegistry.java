@@ -5,9 +5,9 @@ import com.dev.servlet.domain.consumer.ConfirmationMessageConsumer;
 import com.dev.servlet.domain.consumer.WelcomeMessageConsumer;
 import com.dev.servlet.domain.enumeration.MessageType;
 import com.dev.servlet.infrastructure.messaging.Message;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;

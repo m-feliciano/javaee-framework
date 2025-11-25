@@ -2,17 +2,16 @@ package com.dev.servlet.infrastructure.persistence.dao;
 
 import com.dev.servlet.domain.model.UserActivityLog;
 import com.dev.servlet.infrastructure.persistence.dao.base.BaseDAO;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.criterion.MatchMode;
 
-import javax.enterprise.context.RequestScoped;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -40,7 +39,7 @@ public class UserActivityLogDAO extends BaseDAO<UserActivityLog, String> {
         }
         if (filter.getAction() != null) {
             Expression<String> upper = cb.upper(root.get("action"));
-            Predicate like = cb.like(upper, MatchMode.ANYWHERE.toMatchString(filter.getAction().toUpperCase()));
+            Predicate like = cb.like(upper, "%" + filter.getAction().toUpperCase() + "%");
             predicate = cb.and(predicate, like);
         }
         if (filter.getHttpStatusCode() != null) {

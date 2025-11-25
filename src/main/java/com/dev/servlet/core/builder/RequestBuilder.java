@@ -6,11 +6,11 @@ import com.dev.servlet.domain.records.KeyPair;
 import com.dev.servlet.domain.records.Query;
 import com.dev.servlet.domain.request.Request;
 import com.dev.servlet.infrastructure.persistence.IPageRequest;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Builder;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 import static com.dev.servlet.core.enums.ConstantUtils.ACCESS_TOKEN_COOKIE;

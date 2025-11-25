@@ -5,20 +5,19 @@ import com.dev.servlet.core.util.CollectionUtils;
 import com.dev.servlet.domain.model.Category;
 import com.dev.servlet.domain.model.enums.Status;
 import com.dev.servlet.infrastructure.persistence.dao.base.BaseDAO;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.persistence.Query;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
-import org.hibernate.criterion.MatchMode;
 
-import javax.enterprise.context.RequestScoped;
-import javax.persistence.Query;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.CriteriaUpdate;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.List;
@@ -39,7 +38,7 @@ public class CategoryDAO extends BaseDAO<Category, String> {
 
         if (category.getName() != null) {
             Expression<String> upper = cb.upper(root.get("name"));
-            Predicate like = cb.like(upper, MatchMode.ANYWHERE.toMatchString(category.getName().toUpperCase()));
+            Predicate like = cb.like(upper, "%" + category.getName().toUpperCase() + "%");
             predicate = cb.and(predicate, like);
         }
 
@@ -54,7 +53,7 @@ public class CategoryDAO extends BaseDAO<Category, String> {
         if (CollectionUtils.isEmpty(all)) {
             return Optional.empty();
         }
-        return Optional.ofNullable(all.get(0));
+        return Optional.ofNullable(all.getFirst());
     }
 
     @Override
@@ -116,7 +115,7 @@ public class CategoryDAO extends BaseDAO<Category, String> {
         predicate = cb.and(predicate, cb.equal(root.get(USER).get("id"), filter.getUser().getId()));
         if (filter.getName() != null) {
             Expression<String> upper = cb.upper(root.get("name"));
-            Predicate like = cb.like(upper, MatchMode.ANYWHERE.toMatchString(filter.getName().toUpperCase()));
+            Predicate like = cb.like(upper, "%" + filter.getName().toUpperCase() + "%");
             predicate = cb.and(predicate, like);
         }
         return predicate;

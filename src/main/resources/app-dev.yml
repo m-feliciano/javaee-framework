@@ -18,11 +18,11 @@ security:
 app:
   env: development
 rate_limit:
-  enabled: false
-  capacity: 20
+  enabled: true
+  capacity: 60          # max tokens (burst) per identifier
   refill:
-    tokens: 30
-    period_seconds: 60
+    tokens: 60          # tokens added each period (keep <= capacity)
+    period_seconds: 60  # period length in seconds
 cache:
   timeout_minutes: 120
 pagination:
@@ -33,3 +33,8 @@ pagination:
 homepage: "api/v1/product/list/?page=1&limit=5&sort=id&order=asc"
 loginPage: "/api/v1/auth/form"
 scrape_product_url: "https://web-scraping.dev/api/products?page=<page>&order=asc"
+
+concurrency:
+  email:
+    consumer:
+      threads: 2

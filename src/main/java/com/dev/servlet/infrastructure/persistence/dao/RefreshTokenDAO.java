@@ -2,15 +2,12 @@ package com.dev.servlet.infrastructure.persistence.dao;
 
 import com.dev.servlet.domain.model.RefreshToken;
 import com.dev.servlet.infrastructure.persistence.dao.base.BaseDAO;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.persistence.TypedQuery;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 
-import javax.enterprise.context.RequestScoped;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.util.Optional;
 
 @Slf4j

@@ -4,11 +4,11 @@ import com.dev.servlet.domain.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.crypto.SecretKey;
-import javax.inject.Singleton;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;

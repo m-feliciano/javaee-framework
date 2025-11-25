@@ -8,8 +8,8 @@ import com.dev.servlet.core.util.RoleGroup;
 import com.dev.servlet.core.validator.ValidationHandler;
 import com.dev.servlet.domain.model.enums.RoleType;
 import com.dev.servlet.domain.request.Request;
+import jakarta.servlet.http.HttpServletResponse;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;

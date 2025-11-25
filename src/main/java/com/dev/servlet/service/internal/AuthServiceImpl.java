@@ -17,12 +17,12 @@ import com.dev.servlet.infrastructure.persistence.dao.RefreshTokenDAO;
 import com.dev.servlet.service.AuditService;
 import com.dev.servlet.service.AuthService;
 import com.dev.servlet.service.IUserService;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import javax.servlet.http.HttpServletResponse;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 

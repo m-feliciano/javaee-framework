@@ -9,8 +9,8 @@ import com.dev.servlet.domain.model.enums.RoleType;
 import com.dev.servlet.service.internal.inspector.ControllerInfo;
 import com.dev.servlet.service.internal.inspector.MethodInfo;
 import com.dev.servlet.service.internal.inspector.ParamInfo;
+import jakarta.inject.Singleton;
 
-import javax.inject.Singleton;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;

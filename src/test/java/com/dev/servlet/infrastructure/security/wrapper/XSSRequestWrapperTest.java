@@ -1,19 +1,6 @@
 package com.dev.servlet.infrastructure.security.wrapper;
 
-import com.dev.servlet.infrastructure.security.wrapper.XSSRequestWrapper;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class XSSRequestWrapperTest {
 

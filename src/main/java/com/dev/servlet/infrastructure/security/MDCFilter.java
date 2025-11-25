@@ -1,14 +1,14 @@
 package com.dev.servlet.infrastructure.security;
 
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.NoArgsConstructor;
 import org.slf4j.MDC;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -23,7 +23,7 @@ public class MDCFilter implements Filter {
         MDC.put("endpoint", httpRequest.getRequestURI());
         MDC.put("ipAddress", getClientIpAddress(httpRequest));
         MDC.put("userAgent", httpRequest.getHeader("User-Agent"));
-        MDC.put("requestStartTime", String.valueOf(System.currentTimeMillis()));
+        MDC.put("startedAt", String.valueOf(System.currentTimeMillis()));
 
         try {
             chain.doFilter(servletRequest, servletResponse);

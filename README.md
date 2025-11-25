@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-A Java EE framework implementing Clean Architecture, and enterprise security standards.
+A Jakarta EE framework implementing Clean Architecture, and enterprise security standards.
 Built for high-performance, scalable web applications with comprehensive observability and cloud-native deployment capabilities.
 
 ## Table of Contents
@@ -36,21 +36,21 @@ Built for high-performance, scalable web applications with comprehensive observa
 
 ### Core Technologies
 
-| Component         | Technology          | Version |
-|-------------------|---------------------|---------|
-| **Runtime**       | Java SE             | 17 LTS  |
-| **Web Layer**     | Jakarta Servlet API | 4.0.1   |
-| **DI Container**  | Weld SE             | 2.4.8   |
-| **ORM**           | Hibernate           | 5.6.15  |
-| **Database**      | PostgreSQL JDBC     | 42.7.8  |
-| **Security**      | JJWT                | 0.12.3  |
-| **L2 Cache**      | Ehcache             | 3.9.11  |
-| **Testing**       | JUnit 5 + Mockito   | 5.10.2  |
-| **HTTP Client**   | OkHttp              | 4.12.0  |
-| **Serialization** | Jackson             | 2.19.0  |
-| **Logging**       | SLF4J + Logback     | 1.5.18  |
-| **Mapping**       | MapStruct           | 1.6.3   |
-| **Build**         | Maven               | 3.6+    |
+| Component         | Technology        | Version     |
+|-------------------|-------------------|-------------|
+| **Runtime**       | Java SE           | 17 LTS      |
+| **Web Layer**     | Jakarta EE        | 10          |
+| **DI Container**  | Weld SE           | 5.1.0.Final |
+| **ORM**           | Hibernate         | 5.6.15      |
+| **Database**      | PostgreSQL JDBC   | 42.7.8      |
+| **Security**      | JJWT              | 0.12.3      |
+| **L2 Cache**      | Ehcache           | 3.9.11      |
+| **Testing**       | JUnit 5 + Mockito |             |
+| **HTTP Client**   | OkHttp            | 4.12.0      |
+| **Serialization** | Jackson           | 2.19.0      |
+| **Logging**       | SLF4J + Logback   |             |
+| **Mapping**       | MapStruct         | 1.6.3       |
+| **Build**         | Maven             | 3.6+        |
 
 ---
 

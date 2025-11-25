@@ -2,6 +2,7 @@ package com.dev.servlet.controller;
 
 import com.dev.servlet.core.annotation.Controller;
 import com.dev.servlet.core.annotation.RequestMapping;
+import com.dev.servlet.core.response.HttpResponse;
 import com.dev.servlet.core.response.IHttpResponse;
 
 import java.util.Map;
@@ -19,6 +20,6 @@ public interface HealthControllerApi {
     IHttpResponse<Map<String, Object>> liveness();
 
     @RequestMapping(value = "/up", requestAuth = false)
-    IHttpResponse<Boolean> up();
+    HttpResponse<String> up();
 }
 

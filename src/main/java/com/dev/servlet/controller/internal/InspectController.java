@@ -7,10 +7,10 @@ import com.dev.servlet.core.response.IHttpResponse;
 import com.dev.servlet.core.util.CloneUtil;
 import com.dev.servlet.service.internal.ControllerIntrospectionService;
 import com.dev.servlet.service.internal.inspector.ControllerInfo;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NoArgsConstructor;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.List;
 
 @Singleton
