@@ -1,7 +1,6 @@
 package com.dev.servlet.infrastructure.messaging;
 
 import com.dev.servlet.core.util.CloneUtil;
-import com.dev.servlet.core.util.Properties;
 import com.dev.servlet.domain.enumeration.MessageType;
 import com.dev.servlet.infrastructure.messaging.config.MessageConfig;
 import com.dev.servlet.infrastructure.messaging.factory.MessageFactory;
@@ -23,8 +22,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.Duration;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 import static com.dev.servlet.infrastructure.messaging.config.MessageConfig.EMAIL_EXCHANGE_QUEUE;
@@ -36,8 +33,7 @@ public class MessageConsumer {
     private MessageConfig.BrokerConfig config;
     private ClientSessionFactory factory;
     private volatile boolean running = true;
-    private final List<Thread> consumerThreads = new CopyOnWriteArrayList<>();
-    private int threadCount;
+    private Thread consumerThread;
 
     @Inject
     private MessageServiceRegistry messageServiceRegistry;
@@ -45,26 +41,20 @@ public class MessageConsumer {
     public void onStartup(@Observes @Initialized(ApplicationScoped.class) Object init) {
         this.config = MessageConfig.createBrokerConfig(EMAIL_EXCHANGE_QUEUE);
         this.factory = MessageFactory.createSessionFactory(config.brokerUrl());
-        this.threadCount = Properties.getOrDefault("concurrency.email.threads.consumer", 2);
         startConsumerThread();
     }
 
     @PreDestroy
     public void shutdown() {
         running = false;
-        for (Thread t : consumerThreads) {
-            if (t != null) {
-                try {
-                    t.interrupt();
-                    t.join(Duration.ofSeconds(5));
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+        if (consumerThread != null) {
+            try {
+                consumerThread.interrupt();
+                consumerThread.join(Duration.ofSeconds(5));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         }
-
-        consumerThreads.clear();
-
         if (factory != null) {
             try {
                 factory.close();
@@ -75,70 +65,61 @@ public class MessageConsumer {
     }
 
     private void startConsumerThread() {
-        for (int i = 0; i < Math.max(1, threadCount); i++) {
-            final int idx = i;
+        consumerThread = Thread.startVirtualThread(() -> {
+            Thread.currentThread().setName("email-consumer");
+            log.info("EmailJmsConsumer: consumer thread started");
+            long backoffMillis = 1000;
+            final long maxBackoff = Duration.ofSeconds(30).toMillis();
 
-            Thread thread = Thread.startVirtualThread(() -> {
-                Thread.currentThread().setName("email-consumer-" + idx);
-                log.info("EmailJmsConsumer: consumer thread started [{}]", idx);
-                long backoffMillis = 1000;
-                final long maxBackoff = Duration.ofSeconds(30).toMillis();
+            while (running && !Thread.currentThread().isInterrupted()) {
+                try (ClientSession session = createSession()) {
+                    ensureQueue(session);
+                    session.start();
+                    log.info("EmailJmsConsumer: session started");
+                    backoffMillis = 1000;
 
-                while (running && !Thread.currentThread().isInterrupted()) {
-                    try (ClientSession session = createSession()) {
-                        ensureQueue(session);
-                        session.start();
-                        log.info("EmailJmsConsumer: session started [{}]", idx);
-                        backoffMillis = 1000;
-
-                        consumeMessages(session, (message) -> {
-                            try {
-                                MessageType messageType = message.type();
-                                if (messageType == null) {
-                                    log.warn("Received message with null type, skipping ID={}, to email={}", message.id(), message.toEmail());
-                                    return;
-                                }
-
-                                var consumer = messageServiceRegistry.getConsumer(messageType);
-                                if (consumer == null) {
-                                    log.warn("No consumer registered for message type {}, skipping", messageType);
-                                    return;
-                                }
-                                consumer.accept(message);
-
-                            } catch (Exception e) {
-                                log.error("Error in message consumer processing: {}", e.getMessage(), e);
-                                throw e;
+                    consumeMessages(session, (message) -> {
+                        try {
+                            MessageType messageType = message.type();
+                            if (messageType == null) {
+                                log.warn("Received message with null type, skipping ID={}, to email={}", message.id(), message.toEmail());
+                                return;
                             }
-                        });
+                            var consumer = messageServiceRegistry.getConsumer(messageType);
+                            if (consumer == null) {
+                                log.warn("No consumer registered for message type {}, skipping", messageType);
+                                return;
+                            }
+                            consumer.accept(message);
+                        } catch (Exception e) {
+                            log.error("Error in message consumer processing: {}", e.getMessage(), e);
+                            throw e;
+                        }
+                    });
+                } catch (InterruptedException ie) {
+                    log.info("Consumer thread interrupted, exiting");
+                    Thread.currentThread().interrupt();
+                    break;
+                } catch (Exception e) {
+                    log.error("Error in EmailJmsConsumer thread: {}", e.getMessage(), e);
+                    try {
+                        long sleep = Math.min(backoffMillis, maxBackoff);
+                        log.info("EmailJmsConsumer: backing off {} ms before retry", sleep);
+                        Thread.sleep(sleep);
+                        backoffMillis = Math.min(backoffMillis * 2, maxBackoff);
                     } catch (InterruptedException ie) {
-                        log.info("Consumer thread interrupted, exiting [{}]", idx);
                         Thread.currentThread().interrupt();
                         break;
-                    } catch (Exception e) {
-                        log.error("Error in EmailJmsConsumer thread: {}", e.getMessage(), e);
-                        try {
-                            long sleep = Math.min(backoffMillis, maxBackoff);
-                            log.info("EmailJmsConsumer: backing off {} ms before retry [{}]", sleep, idx);
-                            Thread.sleep(sleep);
-                            backoffMillis = Math.min(backoffMillis * 2, maxBackoff);
-                        } catch (InterruptedException ie) {
-                            Thread.currentThread().interrupt();
-                            break;
-                        }
                     }
                 }
-
-                log.info("EmailJmsConsumer: consumer thread stopped [{}]", idx);
-            });
-
-            consumerThreads.add(thread);
-        }
+            }
+            log.info("EmailJmsConsumer: consumer thread stopped");
+        });
     }
 
     private ClientSession createSession() throws Exception {
         ClientSession session = factory.createSession(
-                config.user(), config.pass(), false, true, false, false, 1);
+                config.user(), config.pass(), false, false, false, false, 1);
         log.info("EmailJmsConsumer: session created (user={})", config.user());
         return session;
     }
@@ -164,7 +145,7 @@ public class MessageConsumer {
                 if (clientMsg == null) continue;
 
                 try {
-                    ActiveMQBuffer buf = clientMsg.getBodyBuffer();
+                    ActiveMQBuffer buf = clientMsg.getDataBuffer();
                     if (!buf.readable()) {
                         log.warn("EmailJmsConsumer: received empty clientMsg, skipping");
                         commit(session, clientMsg);
@@ -193,7 +174,7 @@ public class MessageConsumer {
                     try {
                         then.accept(message);
                         commit(session, clientMsg);
-                        log.info("EmailJmsConsumer: clientMsg processed and committed for to email={}", message.toEmail());
+                        log.info("EmailJmsConsumer: clientMsg processed and committed for to email={}", message.toEmail() != null ? message.toEmail() : "null");
 
                     } catch (Exception procEx) {
                         log.error("Error processing clientMsg: {}", procEx.getMessage(), procEx);
@@ -219,7 +200,17 @@ public class MessageConsumer {
     }
 
     private static void commit(ClientSession session, ClientMessage message) throws ActiveMQException {
-        message.acknowledge();
-        session.commit();
+        try {
+            message.acknowledge();
+            session.commit();
+        } catch (ActiveMQException e) {
+            log.warn("Failed to commit after acknowledge, attempting rollback: {}", e.getMessage(), e);
+            try {
+                session.rollback();
+            } catch (Exception ex) {
+                log.warn("Rollback after failed commit failed: {}", ex.getMessage(), ex);
+            }
+            throw e;
+        }
     }
 }

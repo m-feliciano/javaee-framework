@@ -14,7 +14,7 @@ services:
       POSTGRES_PASSWORD: ${DOCKER_POSTGRES_PASSWORD}
       SECURITY_ENCRYPT_KEY: ${DOCKER_SECURITY_ENCRYPT_KEY}
       SECURITY_JWT_KEY: ${DOCKER_SECURITY_JWT_KEY}
-      JAVA_OPTS: "-Xms512m -Xmx1536m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -Dapp.config.file=app-dev.yml"
+      JAVA_OPTS: "-Xms512m -Xmx1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -Dapp.config.file=app-dev.yml"
       ACTIVEMQ_BROKER_URL: ${DOCKER_ACTIVEMQ_BROKER_URL}
       ARTEMIS_USER: ${DOCKER_ARTEMIS_USER}
       ARTEMIS_PASSWORD: ${DOCKER_ARTEMIS_PASSWORD}

@@ -27,7 +27,6 @@ public final class CacheUtils {
 
     private static final CacheManager cacheManager;
     private static final ConcurrentMap<String, Cache<String, Container>> tokenCaches = new ConcurrentHashMap<>();
-    private static final long EXPIRATION_MINUTES = TimeUnit.DAYS.toMinutes(1);
     private static final ScheduledExecutorService cleaner = Executors.newSingleThreadScheduledExecutor();
     private static final ConcurrentMap<String, Long> lastAccessMap = new ConcurrentHashMap<>();
     private static final long CACHE_IDLE_TIMEOUT_MINUTES;
@@ -60,9 +59,9 @@ public final class CacheUtils {
                 .newCacheConfigurationBuilder(
                         String.class,
                         Container.class,
-                        ResourcePoolsBuilder.heap(1000)
+                        ResourcePoolsBuilder.heap(5000)
                 )
-                .withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofMinutes(EXPIRATION_MINUTES)));
+                .withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofHours(2)));
     }
 
     public static <T> void set(String userId, String cacheName, Collection<T> collection) {

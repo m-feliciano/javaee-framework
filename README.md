@@ -1,4 +1,4 @@
-# Enterprise Java Web Framework
+# Java Web Framework
 
 [![Java](https://img.shields.io/badge/Java-17-007396)](https://www.oracle.com/java/)
 [![Maven](https://img.shields.io/badge/Maven-3.6+-C71A36)](https://maven.apache.org/)
@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-A Jakarta EE framework implementing Clean Architecture, and enterprise security standards.
+A lightweight Jakarta EE framework implementing Clean Architecture, and enterprise security standards.
 Built for high-performance, scalable web applications with comprehensive observability and cloud-native deployment capabilities.
 
 ## Table of Contents
@@ -38,7 +38,7 @@ Built for high-performance, scalable web applications with comprehensive observa
 
 | Component         | Technology        | Version     |
 |-------------------|-------------------|-------------|
-| **Runtime**       | Java SE           | 17 LTS      |
+| **Runtime**       | Java SE           | 21 LTS      |
 | **Web Layer**     | Jakarta EE        | 10          |
 | **DI Container**  | Weld SE           | 5.1.0.Final |
 | **ORM**           | Hibernate         | 5.6.15      |
@@ -79,14 +79,14 @@ accessibility compliance.
 
 ```bash
 # Required
-Java 17 LTS (OpenJDK or Oracle)
+Java 21 LTS
 Maven 3.6+
-PostgreSQL 12+
+SQL (PostgreSQL recommended)
 
 # Optional (for development)
 Docker & Docker Compose
 IntelliJ IDEA / Eclipse
-Postman / Insomnia
+Insomnia (Recommended)
 ```
 
 ### Quick Start
@@ -111,7 +111,7 @@ docker-compose logs -f app
 The framework follows Clean Architecture principles, organized into four main layers:
 
 - **Adapter Layer** (`adapter`): Handles external interfaces, including the custom MVC dispatcher (`ServletDispatcherImpl`), HTTP executors, and request/response adapters.
-- **Core Layer** (`core`): Contains framework internals, such as custom annotations (`@Controller`, `@RequestMapping`), utilities, validators, and response builders.
+- **Core Layer** (`core`): Contains framework internals, such as custom annotations (`@Controller`, `@RequestMapping`, `@Authorization`), utilities, validators, and response builders.
 - **Domain Layer** (`domain`): Entities, Transfers, and domain models.
 - **Service Layer** (`service`): Business logic, Includes audit services, authentication, and health monitoring.
 - **Infrastructure Layer** (`infrastructure`): External concerns like persistence (Hibernate), security filters (JWT, XSS), and caching (Ehcache).
@@ -122,8 +122,19 @@ Controllers extend `BaseRouterController`, using reflection to map HTTP requests
 
 ### Security & Observability
 
-JWT-based auth with refresh tokens, CSRF protection, and audit trails with correlation IDs. Health checks provide readiness/liveness probes. Multi-layer caching ensures performance.
+JWT-based auth with refresh/rotate tokens, CSRF protection, and audit trails with correlation IDs. Health checks provide readiness/liveness probes. Multi-layer caching ensures performance.
 
 ## License
 
 This project is licensed under the MIT License - see [LICENSE](LICENSE) for details.
+
+
+## Contributing
+Contributions are welcome! Please follow the guidelines below:
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Commit your changes with clear messages.
+4. Push to your fork and submit a pull request.
+5. Ensure all tests pass and add new tests as necessary.
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for more details.

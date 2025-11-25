@@ -11,6 +11,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -37,7 +38,10 @@ public class MessageProducer implements MessageService {
     public void init() {
         this.config = MessageConfig.createBrokerConfig(EMAIL_EXCHANGE_QUEUE);
         this.factory = MessageFactory.createSessionFactory(config.brokerUrl());
-        this.executor = Executors.newVirtualThreadPerTaskExecutor();
+        int threads = Math.max(2, Runtime.getRuntime().availableProcessors());
+        this.executor = Executors.newFixedThreadPool(threads);
+
+        log.info("MessageProducer initialized with {} threads", threads);
     }
 
     @PreDestroy
@@ -149,23 +153,34 @@ public class MessageProducer implements MessageService {
             String json = CloneUtil.toJson(message);
             bodyBuffer.writeString(json);
             producer.send(clientMessage);
-            session.commit();
+
+            try {
+                session.commit();
+            } catch (ActiveMQException e) {
+                log.warn("Failed to commit after send, attempting rollback: {}", e.getMessage(), e);
+                try {
+                    session.rollback();
+                } catch (Exception ex) {
+                    log.warn("Rollback after failed commit failed: {}", ex.getMessage(), ex);
+                }
+                throw e;
+            }
         }
 
         synchronized void close() {
             if (closed) return;
             closed = true;
             try {
-                if (session != null && !session.isClosed()) {
+                if (producer != null) {
                     try {
-                        session.close();
+                        producer.close();
                     } catch (Exception ignore) {
                     }
                 }
             } finally {
-                if (producer != null) {
+                if (session != null && !session.isClosed()) {
                     try {
-                        producer.close();
+                        session.close();
                     } catch (Exception ignore) {
                     }
                 }

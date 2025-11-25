@@ -1,4 +1,4 @@
-# Framework Java Web Empresarial
+# Framework Java Web
 
 [![Java](https://img.shields.io/badge/Java-17-007396)](https://www.oracle.com/java/)
 [![Maven](https://img.shields.io/badge/Maven-3.6+-C71A36)](https://maven.apache.org/)
@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-Um framework Java EE, implementando Clean Architecture e padrões avançados de segurança. 
+Um framework Java EE leve, implementando Clean Architecture e padrões avançados de segurança. 
 Projetado para aplicações web de alta performance e escalabilidade, com observabilidade completa e recursos para implantação em nuvem.
 
 ## Índice
@@ -36,21 +36,21 @@ Projetado para aplicações web de alta performance e escalabilidade, com observ
 
 ### Tecnologias Principais
 
-| Componente         | Tecnologia          | Versão |
-|--------------------|---------------------|--------|
-| **Runtime**        | Java SE             | 17 LTS |
-| **Camada Web**     | Jakarta Servlet API | 4.0.1  |
-| **DI Container**   | Weld SE             | 2.4.8  |
-| **ORM**            | Hibernate           | 5.6.15 |
-| **Banco de Dados** | PostgreSQL JDBC     | 42.7.8 |
-| **Segurança**      | JJWT                | 0.12.3 |
-| **Cache L2**       | Ehcache             | 3.9.11 |
-| **Testes**         | JUnit 5 + Mockito   | 5.10.2 |
-| **HTTP Client**    | OkHttp              | 4.12.0 |
-| **Serialização**   | Jackson             | 2.19.0 |
-| **Logging**        | SLF4J + Logback     | 1.5.18 |
-| **Mapeamento**     | MapStruct           | 1.6.3  |
-| **Build**          | Maven               | 3.6+   |
+| Component         | Technology        | Version     |
+|-------------------|-------------------|-------------|
+| **Runtime**       | Java SE           | 21 LTS      |
+| **Web Layer**     | Jakarta EE        | 10          |
+| **DI Container**  | Weld SE           | 5.1.0.Final |
+| **ORM**           | Hibernate         | 5.6.15      |
+| **Database**      | PostgreSQL JDBC   | 42.7.8      |
+| **Security**      | JJWT              | 0.12.3      |
+| **L2 Cache**      | Ehcache           | 3.9.11      |
+| **Testing**       | JUnit 5 + Mockito |             |
+| **HTTP Client**   | OkHttp            | 4.12.0      |
+| **Serialization** | Jackson           | 2.19.0      |
+| **Logging**       | SLF4J + Logback   |             |
+| **Mapping**       | MapStruct         | 1.6.3       |
+| **Build**         | Maven             | 3.6+        |
 
 ---
 
@@ -78,14 +78,14 @@ Interface moderna de nível empresarial, seguindo princípios do Material Design
 
 ```bash
 # Obrigatórios
-Java 17 LTS (OpenJDK ou Oracle)
+Java 21 LTS (OpenJDK ou Oracle)
 Maven 3.6+
-PostgreSQL 12+
+SQL (PostgreSQL recomendado)
 
 # Opcionais (para desenvolvimento)
 Docker & Docker Compose
 IntelliJ IDEA / Eclipse
-Postman / Insomnia
+Insomnia (Recomendado)
 ```
 
 ### Execução Rápida
@@ -111,7 +111,7 @@ O framework segue os princípios da Clean Architecture, organizado em quatro cam
 
 - **Camada Adapter** (`adapter`): Interfaces externas, incluindo o dispatcher MVC personalizado (`ServletDispatcherImpl`), executores HTTP e adaptadores de requisição/resposta.
 - **Camada Core** (`core`): Internos do framework, como anotações personalizadas (`@Controller`, `@RequestMapping`), utilitários, validadores e construtores de resposta.
-- **Camada Domain** (`domain`): Entidades, transfers e modelos de domínio.
+- **Camada Domain** (`domain`): Entidades, consumers, transfers e modelos de domínio.
 - **Camada Service** (`service`): Lógica de negócio, incluindo serviços de auditoria, autenticação e monitoramento de saúde.
 - **Camada Infrastructure** (`infrastructure`): Preocupações externas como persistência (Hibernate), filtros de segurança (JWT, XSS) e cache (Ehcache).
 
@@ -121,7 +121,7 @@ Controllers estendem `BaseRouterController`, usando reflexão para mapear requis
 
 ### Segurança & Observabilidade
 
-Autenticação baseada em JWT com refresh tokens, proteção CSRF e trilhas de auditoria com IDs de correlação. Health checks fornecem probes de readiness/liveness. O cache multi-camadas garante performance.
+Autenticação baseada em JWT com refresh/rotate tokens, proteção CSRF e trilhas de auditoria com IDs de correlação. Health checks fornecem probes de readiness/liveness. O cache multi-camadas garante performance.
 
 ## Licença
 

@@ -109,7 +109,7 @@ css/
       "id": "01148ae5-fc1b-4246-8817-e3bc5b4311dc",
       "name": "Women's High Heel Sandals",
       "description": "Step out in style with our Women's High Heel Sandals. These sandals feature a strappy design that adds a touch of elegance to any outfit. The comfortable footbed and sturdy heel make them perfect for a night out, while the buckle closure ensures a secure fit. Choose from black, red, nude, or silver to complement your wardrobe.",
-      "url": "https://www.web-scraping.dev/assets/products/women-sandals-beige-1.webp",
+      "url": "any-url-here",
       "status": "A",
       "registerDate": 1763953200000,
       "price": 59.99
@@ -179,8 +179,6 @@ css/
 #### Product View Implementation
 
 ```java
-
-@NoArgsConstructor
 @Singleton
 public class ProductController extends BaseController implements ProductControllerApi {
 
@@ -204,12 +202,6 @@ public interface ProductControllerApi {
     @RequestMapping("/new")
     IHttpResponse<Collection<CategoryResponse>> forward(@Authorization String auth);
 
-    @RequestMapping(value = "/edit/{id}", jsonType = ProductRequest.class)
-    IServletResponse edit(ProductRequest request, @Authorization String auth);
-
-    @RequestMapping(value = "/search")
-    IServletResponse search(Query query, IPageRequest pageRequest, @Authorization String auth);
-
     @RequestMapping(value = "/list", jsonType = ProductRequest.class)
     IServletResponse list(IPageRequest pageRequest, @Authorization String auth);
 
@@ -219,11 +211,10 @@ public interface ProductControllerApi {
     @RequestMapping(value = "/update/{id}", method = POST, jsonType = ProductRequest.class)
     IHttpResponse<Void> update(ProductRequest request, @Authorization String auth);
 
-    @RequestMapping(value = "/delete/{id}", method = POST, jsonType = ProductRequest.class)
-    IHttpResponse<Void> delete(ProductRequest filter, @Authorization String auth);
-
     @RequestMapping(value = "/scrape", method = GET)
-    IHttpResponse<Void> scrape(@Authorization String auth, @Property("app.env") String environment, @Property("scrape_product_url") String url);
+    IHttpResponse<Void> scrape(@Authorization String auth, 
+                               @Property("app.env") String environment, 
+                               @Property("scrape_product_url") String url);
 }
 ```
 
@@ -297,7 +288,6 @@ public class AuthServiceImpl implements AuthService {
 @Slf4j
 @NoArgsConstructor
 public class AuthFilter implements Filter {
-    // Dependencies are hidden to avoid excessive code length
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException {
@@ -342,8 +332,8 @@ public class AuthFilter implements Filter {
 
 The framework's MVC flow starts with the `ServletDispatcherImpl.dispatch()` method, which:
 
-1. Applies rate limiting using a Leaky Bucket algorithm.
-2. Builds a `Request` object from the `HttpServletRequest`.
+1. Applies rate limiting using a Leaky Bucket algorithm (Header: X-Rate-Limit).
+2. Builds a `Request` object from the `HttpServletRequest` (decoupling HttpServletRequest/Response).
 3. Calls `HttpExecutor.call()` to resolve the controller and invoke the method.
 4. Processes the response, sets headers (e.g., X-Correlation-ID), and forwards or redirects based on the `IHttpResponse.next()` value.
 
