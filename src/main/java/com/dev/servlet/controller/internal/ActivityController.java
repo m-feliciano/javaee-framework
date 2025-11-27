@@ -18,6 +18,7 @@ import com.dev.servlet.infrastructure.persistence.IPageable;
 import com.dev.servlet.infrastructure.persistence.internal.PageRequest;
 import com.dev.servlet.service.UserActivityService;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -28,6 +29,7 @@ import java.util.List;
 import static com.dev.servlet.core.util.DateUtil.YYYY_MM_DD;
 
 @Slf4j
+@Singleton
 @NoArgsConstructor
 public class ActivityController extends BaseController implements ActivityControllerApi {
 

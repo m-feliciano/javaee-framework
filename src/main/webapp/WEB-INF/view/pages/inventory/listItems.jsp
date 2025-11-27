@@ -1,5 +1,5 @@
 <%@ page import="com.dev.servlet.core.response.IServletResponse" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ include file="/WEB-INF/routes/inventory-routes.jspf" %>
@@ -43,8 +43,6 @@
                     <tbody>
 
                     <c:forEach items="${ items }" var="inventory">
-                        <fmt:formatNumber value="${ inventory.getProduct().getPrice() * inventory.getQuantity() }"
-                                          type="currency" minFractionDigits="2" var="parsedPrice"/>
                         <c:set var="total"
                                value="${total + inventory.getProduct().getPrice() * inventory.getQuantity()}"/>
 
@@ -57,7 +55,7 @@
                             </td>
                             <td class="w-10">${ inventory.quantity }</td>
                             <td class="w-25"><c:out value="${inventory.description}" escapeXml="true"/></td>
-                            <td class="w-10">${ parsedPrice }</td>
+                            <td class="w-10">${  inventory.getProduct().priceFormatted }</td>
                             <td class="w-10">
                                 <a href="${baseLink}${version}${listInventory}/${inventory.id}"
                                    class="btn btn-auto btn-primary">

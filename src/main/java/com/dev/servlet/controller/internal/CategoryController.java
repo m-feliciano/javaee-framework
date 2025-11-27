@@ -32,7 +32,7 @@ public class CategoryController extends BaseController implements CategoryContro
     }
 
     @SneakyThrows
-    public IHttpResponse<CategoryResponse> edit(CategoryRequest category, String auth) {
+    public IHttpResponse<CategoryResponse> details(CategoryRequest category, String auth) {
         CategoryResponse response = categoryService.getCategoryDetail(category, auth);
         return okHttpResponse(response, forwardTo("formUpdateCategory"));
     }

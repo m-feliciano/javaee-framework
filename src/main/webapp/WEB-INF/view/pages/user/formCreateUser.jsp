@@ -24,7 +24,6 @@
                 <label for="inputConfirmPassword" class="form-label">Confirm password</label>
                 <input type="password" id="inputConfirmPassword" name="confirmPassword" class="form-control"
                        placeholder="Confirm" required
-                <%--                                                                       pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"--%>
                        minlength="6">
             </div>
             <c:if test="${not empty error or not empty info}">

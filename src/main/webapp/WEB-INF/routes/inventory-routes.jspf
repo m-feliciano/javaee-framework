@@ -3,7 +3,7 @@
 
 <c:set value="inventory" var="inventoryLink"/>
 <c:url value="/${inventoryLink}/new" var="newItem"/>
-<c:url value="/${inventoryLink}/edit" var="editItem"/>
+<c:url value="/${inventoryLink}/details" var="editItem"/>
 
 <c:url value="/${inventoryLink}/create" var="createItem"/>
 <c:url value="/${inventoryLink}/update" var="updateItem"/>

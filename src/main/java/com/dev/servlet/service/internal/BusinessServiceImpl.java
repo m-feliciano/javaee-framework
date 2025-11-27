@@ -31,6 +31,6 @@ public class BusinessServiceImpl implements IBusinessService {
     @Override
     public ProductResponse getProductDetail(String id, String auth) throws ServiceException {
         ProductRequest request = ProductRequest.builder().id(id).build();
-        return productService.getProductDetail(request, auth);
+        return productService.findById(request, auth);
     }
 }

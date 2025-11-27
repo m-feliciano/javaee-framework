@@ -22,8 +22,11 @@ public interface UserControllerApi {
     @RequestMapping(value = "/delete/{id}", roles = RoleType.ADMIN, method = POST, jsonType = UserRequest.class)
     IHttpResponse<Void> delete(UserRequest user, @Authorization String auth);
 
+    @RequestMapping(value = "/list/{id}", jsonType = UserRequest.class)
+    IHttpResponse<UserResponse> findById(UserRequest user, @Authorization String auth);
+
     @RequestMapping(requestAuth = false, value = "/registerUser", method = POST, jsonType = UserCreateRequest.class)
-    IHttpResponse<Void> register(UserCreateRequest user);
+    IHttpResponse<UserResponse> register(UserCreateRequest user);
 
     @RequestMapping(requestAuth = false, value = "/confirm")
     IHttpResponse<Void> confirm(Query query);
@@ -33,7 +36,4 @@ public interface UserControllerApi {
 
     @RequestMapping(requestAuth = false, value = "/resend-confirmation", method = POST)
     IHttpResponse<Void> resendConfirmation(User user);
-
-    @RequestMapping(value = "/list/{id}", jsonType = UserRequest.class)
-    IHttpResponse<UserResponse> getUserDetail(UserRequest user, @Authorization String auth);
 }

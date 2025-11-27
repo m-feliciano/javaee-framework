@@ -3,10 +3,11 @@
 
 <c:set value="product" var="productLink"/>
 <c:url value="/${productLink}/new" var="newProduct"/>
-<c:url value="/${productLink}/edit" var="editProduct"/>
+<c:url value="/${productLink}/details" var="editProduct"/>
 
 <c:url value="/${productLink}/create" var="createProduct"/>
 <c:url value="/${productLink}/update" var="updateProduct"/>
 <c:url value="/${productLink}/delete" var="deleteProduct"/>
 <c:url value="/${productLink}/list" var="listProduct"/>
 <c:url value="/${productLink}/search" var="searchProduct"/>
+<c:url value="/${productLink}/scrape" var="scrapeProduct"/>

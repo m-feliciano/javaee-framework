@@ -23,7 +23,6 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.hibernate.Session;
 
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.List;
@@ -119,7 +118,7 @@ public class ProductDAO extends BaseDAO<Product, String> {
                     ps.setString(2, product.getName());
                     ps.setString(3, product.getDescription());
                     ps.setString(4, product.getUrl());
-                    ps.setDate(5, new Date(product.getRegisterDate().getTime()));
+                    ps.setDate(5, java.sql.Date.valueOf(product.getRegisterDate()));
                     ps.setBigDecimal(6, product.getPrice());
                     ps.setString(7, product.getUser().getId());
                     ps.setString(8, Status.ACTIVE.getValue());

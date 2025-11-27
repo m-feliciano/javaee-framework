@@ -9,7 +9,6 @@
             .replace(/>/g, '&gt;');
     }
 
-    // prettify JSON string into HTML lines with classes
     function jsonToHtmlLines(jsonStr) {
         try {
             const obj = JSON.parse(jsonStr);
@@ -25,7 +24,6 @@
                 return '<span class="line">' + out + '</span>';
             }).join('');
         } catch (e) {
-            // fallback: escape and show raw string
             return '<span class="line">' + escapeHtml(jsonStr) + '</span>';
         }
     }
@@ -40,7 +38,6 @@
             prettyStr = JSON.stringify(obj, null, 2);
             prettyHtml = jsonToHtmlLines(prettyStr);
         } catch (e) {
-            // keep rawText
             prettyHtml = '<span class="line">' + escapeHtml(rawText) + '</span>';
         }
 
@@ -57,14 +54,12 @@
         }
     }
 
-    // sizing: make the raw-container height fill the available viewport space so page doesn't scroll
     function resizeRawContainer() {
         const container = document.getElementById('raw-container');
         if (!container) return;
 
         const actionBar = document.querySelector('.action-bar');
         const actionBarBottom = actionBar ? actionBar.getBoundingClientRect().bottom : 0;
-        // leave some breathing room at bottom (footer / padding)
         const bottomPadding = 32;
 
         const available = Math.max(200, Math.floor(window.innerHeight - actionBarBottom - bottomPadding));
@@ -75,13 +70,11 @@
             pre.style.maxHeight = '100%';
             pre.style.overflow = 'auto';
 
-            // recompute after content changes (e.g., toggling views)
             const obs = new MutationObserver(() => resizeRawContainer());
             obs.observe(pre, {childList: true, subtree: true});
         }
     }
 
-    // initial sizing
     resizeRawContainer();
     window.addEventListener('resize', resizeRawContainer);
 })();

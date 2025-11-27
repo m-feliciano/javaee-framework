@@ -13,7 +13,6 @@ security:
   cookie:
     secure: true
     path: "/"
-    domain: ""
     samesite: Lax
 app:
   env: production

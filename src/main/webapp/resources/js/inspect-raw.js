@@ -1,7 +1,6 @@
 (function () {
     'use strict';
 
-    // show toast
     function showToast(message, type = 'success') {
         const toastEl = document.getElementById('toast');
         if (!toastEl) return;
@@ -13,20 +12,24 @@
         }, 2000);
     }
 
-    // copy button
+    const rawJson = document.getElementById('rawJson');
     const copyBtn = document.getElementById('copyBtn');
+
     if (copyBtn) {
         copyBtn.addEventListener('click', function () {
-            const toCopy = prettyStr;
-            if (!toCopy) return showToast('No JSON to copy', 'warn');
+            const obj = JSON.parse(rawJson.textContent || rawJson.innerText);
+            const toCopy = JSON.stringify(obj, null, 2);
+            if (!toCopy)
+                return showToast('No JSON to copy', 'warn');
+
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(toCopy).then(function () {
-                    showToast('JSON copied to clipboard!', 'success');
-                }, function (err) {
-                    showToast('Failed to copy text', 'warn');
-                });
+                navigator.clipboard.writeText(toCopy)
+                    .then(function () {
+                        showToast('JSON copied to clipboard!', 'success');
+                    }, function (err) {
+                        showToast('Failed to copy text', 'warn');
+                    });
             } else {
-                // fallback
                 try {
                     const textarea = document.createElement('textarea');
                     textarea.value = toCopy;
@@ -42,14 +45,12 @@
         });
     }
 
-    // download link
     const downloadLink = document.getElementById('downloadLink');
     if (downloadLink) {
         downloadLink.addEventListener('click', function () {
-            const raw = prettyStr || rawText || '';
+            const raw = rawJson.textContent || rawJson.innerText;
             const blob = new Blob([raw], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            this.href = url;
+            this.href = URL.createObjectURL(blob);
         });
     }
 })();

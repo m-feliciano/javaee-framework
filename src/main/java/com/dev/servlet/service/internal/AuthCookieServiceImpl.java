@@ -43,9 +43,9 @@ public class AuthCookieServiceImpl implements AuthCookieService {
 
     @PostConstruct
     public void init() {
+        this.cookieDomain = Properties.getEnvOrDefault("DOMAIN", null);
         this.isSecure = Properties.getOrDefault("security.cookie.secure", true);
         this.cookiePath = Properties.getOrDefault("security.cookie.path", "/");
-        this.cookieDomain = Properties.get("security.cookie.domain");
         this.sameSite = Properties.getOrDefault("security.cookie.samesite", "Lax");
 
         log.info("[AuthCookieService] initialized [secure={}, path={}, domain={}, sameSite={}]",

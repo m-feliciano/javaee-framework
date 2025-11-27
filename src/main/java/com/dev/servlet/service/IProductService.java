@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 public interface IProductService {
     ProductResponse register(ProductRequest product, String auth) throws ServiceException;
 
-    ProductResponse getProductDetail(ProductRequest product, String auth) throws ServiceException;
+    ProductResponse findById(ProductRequest product, String auth) throws ServiceException;
 
     ProductResponse update(ProductRequest product, String auth) throws ServiceException;
 
@@ -24,7 +24,7 @@ public interface IProductService {
 
     BigDecimal calculateTotalPriceFor(IPageable<?> page, Product product);
 
-    CompletableFuture<Optional<List<ProductResponse>>> scrapeAsync(String url, String environment, String auth);
+    CompletableFuture<List<ProductResponse>> scrapeAsync(String url, String environment, String auth);
 
     <U> IPageable<U> getAllPageable(IPageRequest pageRequest, String auth, Mapper<Product, U> mapper);
 }

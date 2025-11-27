@@ -1,17 +1,16 @@
 <%@ page import="com.dev.servlet.core.response.IHttpResponse" %>
-<!DOCTYPE html>
+<%@ include file="/WEB-INF/fragments/head-loginform.jspf" %>
 
 <%
     request.setAttribute("error", ((IHttpResponse<?>) request.getAttribute("response")).error());
     request.setAttribute("user", ((IHttpResponse<?>) request.getAttribute("response")).body());
 %>
 
+<!DOCTYPE html>
 <html lang="en">
-<%@ include file="/WEB-INF/fragments/head-loginform.jspf" %>
 <body>
 <div class="login-page">
     <div class="login-container">
-        <!-- Header -->
         <div class="login-header">
             <div class="login-logo">
                 <i class="bi bi-shield-lock-fill"></i>
@@ -26,18 +25,26 @@
                     <i class="bi bi-envelope-exclamation-fill"></i>
                     <div class="alert-content" style="display:inline-block; margin-left:8px;">
                         Your account is not confirmed. Check your inbox for the confirmation link.
-                        <form method="post" action="${baseLink}${version}/user/resend-confirmation" class="csrf-form" style="display:inline;margin-left:8px;">
-                            <input type="hidden" name="id" value="${user.id}" />
+                        <form method="post" action="${baseLink}${version}/user/resend-confirmation" class="csrf-form"
+                              style="display:inline;margin-left:8px;">
+                            <input type="hidden" name="id" value="${user.id}"/>
                             <button type="submit" class="btn btn-link p-0">Resend confirmation email</button>
                         </form>
                     </div>
                 </div>
             </c:if>
 
-            <c:if test="${not empty error or not empty info}">
+            <c:if test="${not empty error}">
                 <div class="alert-login ${not empty error ? 'alert-danger' : 'alert-success'}">
                     <i class="bi ${not empty error ? 'bi-exclamation-circle-fill' : 'bi-check-circle-fill'}"></i>
-                    <span><c:out value="${error != null ? error : info}"/></span>
+                    <span><c:out value="${error}"/></span>
+                </div>
+            </c:if>
+
+            <c:if test="${not empty user and user.created}">
+                <div class="alert-login alert-success">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Your account has been created successfully. Please check your email to confirm your account.
                 </div>
             </c:if>
 
@@ -85,19 +92,17 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-login">
-                    <span class="btn-text">
-                        <i class="bi bi-box-arrow-in-right"></i>
-                        Sign In
-                    </span>
+                        <span class="btn-text">
+                            <i class="bi bi-box-arrow-in-right"></i>
+                            Sign In
+                        </span>
                     <span class="btn-loading-spinner" style="display: none;">
-                        <i class="bi bi-arrow-repeat"></i>
-                        Signing in...
-                    </span>
+                            <i class="bi bi-arrow-repeat"></i>
+                            Signing in...
+                        </span>
                 </button>
             </form>
         </div>
-
-        <!-- Footer -->
         <div class="login-footer">
             <p>Don't have an account?
                 <a href="${baseLink}${version}${registerPage}">Sign up here</a>
@@ -105,7 +110,7 @@
         </div>
     </div>
 </div>
-
+</body>
 <script>
     function onLoginSubmit(form) {
         const submitBtn = form.querySelector('button[type="submit"]');
@@ -150,5 +155,4 @@
         });
     }
 </script>
-</body>
 </html>

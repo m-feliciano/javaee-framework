@@ -1,4 +1,3 @@
-<!-- html -->
 <%@ include file="/WEB-INF/routes/inventory-routes.jspf" %>
 <%@ page import="com.dev.servlet.core.response.IHttpResponse" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
@@ -65,5 +64,5 @@
         </c:if>
     </div>
 </div>
-<!-- footer -->
+
 <jsp:include page="/WEB-INF/view/components/footer.jsp"/>

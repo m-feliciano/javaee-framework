@@ -1,4 +1,3 @@
-// IIFE: Immediately Invoked Function Expression
 (function () {
     document.addEventListener('DOMContentLoaded', function () {
         const backButtons = document.querySelector('#backButton');

@@ -12,7 +12,7 @@ html {
 }
 
 body {
-    font-family: var(--font-family-primary);
+    font-family: var(--font-family-primary), serif;
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-normal);
     line-height: var(--line-height-normal);
@@ -436,6 +436,13 @@ textarea.form-control {
     vertical-align: bottom;
 }
 
+@media (prefers-color-scheme: dark) {
+    .table thead th {
+        background-color: #0d1117 !important;
+        color: #e6edf3 !important;
+    }
+}
+
 .table tbody td,
 .table tbody th {
     padding: var(--spacing-4) var(--spacing-3);
@@ -541,7 +548,6 @@ img {
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
     line-height: 1;
-    color: var(--white);
     text-align: center;
     white-space: nowrap;
     vertical-align: baseline;
@@ -738,15 +744,6 @@ img {
     color: var(--text-muted);
     text-align: left;
     font-size: var(--font-size-sm);
-}
-.thead-dark {
-    background-color: var(--gray-800);
-    color: var(--white);
-}
-
-.thead-dark th {
-    background-color: var(--gray-800);
-    color: var(--white);
 }
 .nav-items {
     display: flex;

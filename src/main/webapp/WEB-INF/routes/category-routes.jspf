@@ -3,7 +3,7 @@
 
 <c:set value="category" var="categoryLink"/>
 <c:url value="/${categoryLink}/new" var="newCategory"/>
-<c:url value="/${categoryLink}/edit" var="editCategory"/>
+<c:url value="/${categoryLink}/details" var="editCategory"/>
 
 <c:url value="/${categoryLink}/create" var="createCategory"/>
 <c:url value="/${categoryLink}/update" var="updateCategory"/>

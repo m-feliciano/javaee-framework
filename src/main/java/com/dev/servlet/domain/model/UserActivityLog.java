@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -63,7 +63,7 @@ public class UserActivityLog {
     @Column(name = "http_method", length = 10)
     private String httpMethod;
 
-    @Column(name = "endpoint", length = 255)
+    @Column(name = "endpoint")
     private String endpoint;
 
     @Column(name = "ip_address", length = 45)
@@ -76,7 +76,7 @@ public class UserActivityLog {
     private Long executionTimeMs;
 
     @Column(name = "timestamp", nullable = false)
-    private Date timestamp;
+    private LocalDateTime timestamp;
 
     @Column(name = "user_agent", length = 500)
     private String userAgent;

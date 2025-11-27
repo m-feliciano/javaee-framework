@@ -1,7 +1,7 @@
 <%@ page import="com.dev.servlet.core.response.IHttpResponse" %>
 <%@ page import="java.util.Map" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ include file="/WEB-INF/routes/health-routes.jspf" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
@@ -36,7 +36,6 @@
 <title>System Health</title>
 
 <div class="main">
-    <!-- Page Header -->
     <div class="action-bar">
         <div class="action-bar-title">
             <h1><i class="bi bi-heart-pulse-fill"></i> System Health</h1>
@@ -50,7 +49,6 @@
         </div>
     </div>
 
-    <!-- Main Status Card -->
     <div class="card" style="margin-bottom: var(--spacing-6);">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center" style="flex-wrap: wrap; gap: var(--spacing-4);">
@@ -82,9 +80,7 @@
         </div>
     </div>
 
-    <!-- Stats Grid -->
     <div class="stats-grid" style="margin-bottom: var(--spacing-6);">
-        <!-- System Info Card -->
         <div class="stat-card info">
             <div class="stat-header">
                 <span class="stat-title"><i class="bi bi-info-circle-fill"></i> System Info</span>
@@ -122,7 +118,6 @@
             </div>
         </div>
 
-        <!-- Components Card -->
         <div class="stat-card ${isUp ? 'success' : 'danger'}">
             <div class="stat-header">
                 <span class="stat-title"><i class="bi bi-puzzle-fill"></i> Components</span>
@@ -160,7 +155,6 @@
         </div>
     </div>
 
-    <!-- Memory Metrics -->
     <c:if test="${not empty memory}">
         <%
             @SuppressWarnings("unchecked")
@@ -192,7 +186,6 @@
                     </div>
                 </div>
 
-                <!-- Progress Bar -->
                 <div style="margin-top: var(--spacing-4);">
                     <div class="progress">
                         <div class="progress-bar ${usagePercent > 90 ? 'danger' : usagePercent > 70 ? 'warning' : 'success'}"
@@ -225,7 +218,6 @@
         </div>
     </c:if>
 
-    <!-- API Endpoints -->
     <div class="card">
         <div class="card-header">
             <h3><i class="bi bi-link-45deg"></i> Health Check Endpoints</h3>
@@ -280,9 +272,7 @@
 </div>
 
 <script>
-    setTimeout(function () {
-        location.reload();
-    }, 10000);
+    setTimeout(() => location.reload(), 10000);
 </script>
 
 <jsp:include page="/WEB-INF/view/components/footer.jsp"/>

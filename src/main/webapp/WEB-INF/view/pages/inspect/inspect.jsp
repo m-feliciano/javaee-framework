@@ -1,9 +1,9 @@
 <%@ page import="com.dev.servlet.core.response.IHttpResponse" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="tag" tagdir="/WEB-INF/tags" %>
 <%@ include file="/WEB-INF/routes/inspect-routes.jspf" %>
+<%@ include file="/WEB-INF/routes/product-routes.jspf" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
-
-<link rel="stylesheet" href="<c:url value='/resources/css/inspect.css'/>"/>
 
 <%
     request.setAttribute("controllersList", ((IHttpResponse<?>) request.getAttribute("response")).body());
@@ -63,12 +63,25 @@
                                         data-http="<c:out value="${m.httpMethod()}"/>"
                                         data-auth="<c:out value="${m.requireAuth()}"/>">
 
-                                        <td data-label="Path"><code class="path"><c:out value="${m.path()}"/></code>
+                                        <td data-label="Path">
+                                            <code class="path"><c:out value="${m.path()}"/></code>
+
+                                            <c:if test="${\"/scrape\".equals(m.path())}">
+                                                <form action="${baseLink}${version}${scrapeProduct}" method="post"
+                                                      class="d-inline ms-2 csrf-form">
+                                                    <button type="submit"
+                                                            class="btn btn-sm btn-outline-primary"
+                                                            title="Will trigger a product data scrape from external source">
+                                                        <i class="bi bi-arrow-clockwise"></i> Scrape
+                                                    </button>
+                                                </form>
+                                                <small class="text-muted"><i> [development only]</i></small>
+                                            </c:if>
                                         </td>
-                                        <td data-label="HTTP"><span class="badge bg-light text-dark"><c:out
-                                                value="${m.httpMethod()}"/></span></td>
-                                        <td data-label="JSON Type"><span class="badge bg-info json-type"><c:out
-                                                value="${m.jsonType()}"/></span></td>
+                                        <td data-label="HTTP"><span class="badge bg-light text-dark">
+                                            <c:out value="${m.httpMethod()}"/></span></td>
+                                        <td data-label="JSON Type"><span class="badge bg-info json-type">
+                                            <c:out value="${m.jsonType()}"/></span></td>
                                         <td data-label="Auth">
                                             <c:choose>
                                                 <c:when test="${m.requireAuth()}">
@@ -93,7 +106,8 @@
                                             </c:forEach>
                                         </td>
                                         <td data-label="Return"><code class="return-type"><c:out
-                                                value="${m.responseType()}"/></code></td>
+                                                value="${m.responseType()}"/></code>
+                                        </td>
                                     </tr>
                                 </c:forEach>
                                 </tbody>
@@ -106,5 +120,6 @@
     </div>
 </div>
 
-<script src="<c:url value='/resources/js/inspect.js'/>"></script>
+<c:set var="inspectJsUrl"><tag:assetPath name="inspect.js"/></c:set>
+<script src="${inspectJsUrl}" defer></script>
 <jsp:include page="/WEB-INF/view/components/footer.jsp"/>

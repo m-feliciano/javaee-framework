@@ -5,7 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,7 +19,7 @@ public final class ProductResponse {
     private String description;
     private String url;
     private String status;
-    private Date registerDate;
+    private LocalDate registerDate;
     private BigDecimal price;
     private CategoryResponse category;
 
@@ -29,5 +32,14 @@ public final class ProductResponse {
     public ProductResponse(String id, String name, BigDecimal price, String url) {
         this(id, name, price);
         this.url = url;
+    }
+
+    public String getRegisterDateFormatted() {
+        return registerDate != null ? registerDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
+    }
+
+    public String getPriceFormatted() {
+        if (price == null) return "";
+        return NumberFormat.getCurrencyInstance(Locale.getDefault()).format(price);
     }
 }

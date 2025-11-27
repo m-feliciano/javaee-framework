@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.Duration;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import static com.dev.servlet.infrastructure.messaging.config.MessageConfig.EMAIL_EXCHANGE_QUEUE;
@@ -65,56 +66,61 @@ public class MessageConsumer {
     }
 
     private void startConsumerThread() {
-        consumerThread = Thread.startVirtualThread(() -> {
-            Thread.currentThread().setName("email-consumer");
-            log.info("EmailJmsConsumer: consumer thread started");
-            long backoffMillis = 1000;
-            final long maxBackoff = Duration.ofSeconds(30).toMillis();
+        consumerThread = Thread.ofVirtual()
+                .name("email-consumer")
+                .start(() -> {
+                    log.info("EmailJmsConsumer: consumer thread started");
+                    long backoffMillis = 1000;
+                    final long maxBackoff = Duration.ofSeconds(30).toMillis();
 
-            while (running && !Thread.currentThread().isInterrupted()) {
-                try (ClientSession session = createSession()) {
-                    ensureQueue(session);
-                    session.start();
-                    log.info("EmailJmsConsumer: session started");
-                    backoffMillis = 1000;
+                    while (running && !Thread.currentThread().isInterrupted()) {
+                        try (ClientSession session = createSession()) {
+                            ensureQueue(session);
+                            session.start();
+                            log.info("EmailJmsConsumer: session started");
+                            backoffMillis = 1000;
 
-                    consumeMessages(session, (message) -> {
-                        try {
-                            MessageType messageType = message.type();
-                            if (messageType == null) {
-                                log.warn("Received message with null type, skipping ID={}, to email={}", message.id(), message.toEmail());
-                                return;
-                            }
-                            var consumer = messageServiceRegistry.getConsumer(messageType);
-                            if (consumer == null) {
-                                log.warn("No consumer registered for message type {}, skipping", messageType);
-                                return;
-                            }
-                            consumer.accept(message);
+                            consumeMessages(session, (message) -> {
+                                try {
+                                    MessageType messageType = message.type();
+                                    if (messageType == null) {
+                                        log.warn("Received message with null type, skipping ID={}, to email={}",
+                                                message.id(), message.toEmail());
+                                        return;
+                                    }
+                                    var consumer = messageServiceRegistry.getConsumer(messageType);
+                                    if (consumer == null) {
+                                        log.warn("No consumer registered for message type {}, skipping", messageType);
+                                        return;
+                                    }
+                                    consumer.accept(message);
+                                } catch (Exception e) {
+                                    log.error("Error in message consumer processing: {}", e.getMessage(), e);
+                                    throw e;
+                                }
+                            });
+                        } catch (InterruptedException ie) {
+                            log.info("Consumer thread interrupted, exiting");
+                            Thread.currentThread().interrupt();
+                            break;
                         } catch (Exception e) {
-                            log.error("Error in message consumer processing: {}", e.getMessage(), e);
-                            throw e;
+                            log.error("Error in EmailJmsConsumer thread: {}", e.getMessage(), e);
+                            try {
+                                long sleep = Math.min(backoffMillis, maxBackoff);
+                                log.info("EmailJmsConsumer: backing off {} ms before retry", sleep);
+                                // Wait before retrying
+                                Thread.sleep(sleep);
+                                // Exponential backoff
+                                backoffMillis = Math.min(backoffMillis * 2, maxBackoff);
+
+                            } catch (InterruptedException ie) {
+                                Thread.currentThread().interrupt();
+                                break;
+                            }
                         }
-                    });
-                } catch (InterruptedException ie) {
-                    log.info("Consumer thread interrupted, exiting");
-                    Thread.currentThread().interrupt();
-                    break;
-                } catch (Exception e) {
-                    log.error("Error in EmailJmsConsumer thread: {}", e.getMessage(), e);
-                    try {
-                        long sleep = Math.min(backoffMillis, maxBackoff);
-                        log.info("EmailJmsConsumer: backing off {} ms before retry", sleep);
-                        Thread.sleep(sleep);
-                        backoffMillis = Math.min(backoffMillis * 2, maxBackoff);
-                    } catch (InterruptedException ie) {
-                        Thread.currentThread().interrupt();
-                        break;
                     }
-                }
-            }
-            log.info("EmailJmsConsumer: consumer thread stopped");
-        });
+                    log.info("EmailJmsConsumer: consumer thread stopped");
+                });
     }
 
     private ClientSession createSession() throws Exception {
@@ -164,6 +170,7 @@ public class MessageConsumer {
                     Message message;
                     try {
                         message = CloneUtil.fromJson(body, Message.class);
+                        Objects.requireNonNull(message, "Deserialized message is null");
                     } catch (RuntimeException e) {
                         // invalid JSON / unknown enum - acknowledge and skip to avoid poison message loops
                         log.warn("Invalid message payload, sending to DLQ or skipping: {} - body={}", e.getMessage(), body);
@@ -174,7 +181,7 @@ public class MessageConsumer {
                     try {
                         then.accept(message);
                         commit(session, clientMsg);
-                        log.info("EmailJmsConsumer: clientMsg processed and committed for to email={}", message.toEmail() != null ? message.toEmail() : "null");
+                        log.info("EmailJmsConsumer: clientMsg processed and committed for to email={}", message.toEmail());
 
                     } catch (Exception procEx) {
                         log.error("Error processing clientMsg: {}", procEx.getMessage(), procEx);

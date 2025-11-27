@@ -1,6 +1,5 @@
 package com.dev.servlet.domain.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -8,8 +7,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,7 +19,7 @@ import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -49,10 +46,8 @@ public class Product {
     @Column(name = "url_img")
     private String url;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "register_date", updatable = false)
-    @Temporal(TemporalType.DATE)
-    private Date registerDate;
+    private LocalDate registerDate;
 
     @Column(name = "price", nullable = false)
     private BigDecimal price;

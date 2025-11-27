@@ -1,4 +1,4 @@
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ include file="/WEB-INF/routes/product-routes.jspf" %>
 <%@ page import="com.dev.servlet.core.response.IHttpResponse" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
@@ -6,9 +6,6 @@
 <%
     request.setAttribute("product", ((IHttpResponse<?>) request.getAttribute("response")).body());
 %>
-
-<fmt:formatNumber value="${product.price}" type="currency" minFractionDigits="2" var="parsedNumber"/>
-<fmt:formatDate value="${product.registerDate}" pattern="dd/MM/yyyy" var="stdDate"/>
 
 <title>Product: <c:out value='${ product.name }' escapeXml='true'/></title>
 
@@ -74,7 +71,7 @@
                         <div class="col-12 col-md-6" style="margin-bottom: var(--spacing-4);">
                             <label class="form-label"><strong>Register Date</strong></label>
                             <input type="text" class="form-control"
-                                   value="<c:out value='${ stdDate }' escapeXml='true'/>"
+                                   value="<c:out value='${ product.registerDateFormatted }' escapeXml='true'/>"
                                    readonly/>
                         </div>
                     </div>
@@ -89,7 +86,7 @@
                         <div class="col-12 col-md-6" style="margin-bottom: var(--spacing-4);">
                             <label class="form-label"><strong>Price</strong></label>
                             <input type="text" class="form-control"
-                                   value="${parsedNumber}"
+                                   value="${product.priceFormatted}"
                                    readonly
                                    style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: var(--success);"/>
                         </div>
@@ -111,7 +108,6 @@
                 </div>
             </div>
 
-            <!-- Description Card -->
             <div class="card">
                 <div class="card-header">
                     <h3><i class="bi bi-card-text"></i> Description</h3>
@@ -135,5 +131,5 @@
     </div>
 </div>
 
-<!-- footer -->
+
 <jsp:include page="/WEB-INF/view/components/footer.jsp"/>

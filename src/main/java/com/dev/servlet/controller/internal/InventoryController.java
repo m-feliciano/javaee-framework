@@ -71,13 +71,13 @@ public class InventoryController extends BaseController implements InventoryCont
     }
 
     @SneakyThrows
-    public IHttpResponse<InventoryResponse> getStockDetail(InventoryRequest request, String auth) {
+    public IHttpResponse<InventoryResponse> findById(InventoryRequest request, String auth) {
         InventoryResponse inventory = stockService.getStockDetail(request, auth);
         return okHttpResponse(inventory, forwardTo("formListItem"));
     }
 
     @SneakyThrows
-    public IHttpResponse<InventoryResponse> edit(InventoryRequest request, String auth) {
+    public IHttpResponse<InventoryResponse> details(InventoryRequest request, String auth) {
         InventoryResponse inventory = stockService.getStockDetail(request, auth);
         return okHttpResponse(inventory, forwardTo("formUpdateItem"));
     }
@@ -101,6 +101,6 @@ public class InventoryController extends BaseController implements InventoryCont
         if (query == null || !query.has("productId")) return null;
         String productId = query.get("productId");
         ProductRequest request = ProductRequest.builder().id(productId).build();
-        return productService.getProductDetail(request, auth);
+        return productService.findById(request, auth);
     }
 }

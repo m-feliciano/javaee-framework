@@ -1,0 +1,25 @@
+# In this EC2 profile, the database and broker data volumes are mapped to
+# directories located at /data/postgres and /data/broker respectively.
+# Before starting the containers with this profile, ensure these directories
+# exist and have the appropriate permissions.
+#
+# sudo mkdir -p /data/postgres
+# sudo mkdir -p /data/broker
+# sudo chown -R ec2-user:ec2-user /data
+
+profiles: [ "ec2" ]
+
+volumes:
+  db_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /data/postgres
+      o: bind
+
+  broker_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /data/broker
+      o: bind

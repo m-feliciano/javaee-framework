@@ -1,9 +1,17 @@
+# Docker Compose configuration for the application, PostgreSQL database, and ActiveMQ Artemis message broker.
+
+# AWS: To run with EC2 profile:
+# docker compose -f docker-compose.yml -f docker-compose-ec2.yml --profile ec2 up -d
+
+# Local: To run with a local profile:
+# docker compose --profile local up -d
+
 services:
   app:
     build:
       context: .
     env_file:
-      - ./docker.env
+      - ./.env
     ports:
       - "8080:8080"
     environment:
@@ -14,11 +22,11 @@ services:
       POSTGRES_PASSWORD: ${DOCKER_POSTGRES_PASSWORD}
       SECURITY_ENCRYPT_KEY: ${DOCKER_SECURITY_ENCRYPT_KEY}
       SECURITY_JWT_KEY: ${DOCKER_SECURITY_JWT_KEY}
-      JAVA_OPTS: "-Xms512m -Xmx1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -Dapp.config.file=app-dev.yml"
       ACTIVEMQ_BROKER_URL: ${DOCKER_ACTIVEMQ_BROKER_URL}
       ARTEMIS_USER: ${DOCKER_ARTEMIS_USER}
       ARTEMIS_PASSWORD: ${DOCKER_ARTEMIS_PASSWORD}
       ARTEMIS_ROLE: amq
+      JAVA_OPTS: "-Xms512m -Xmx1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -Dapp.config.file=app-dev.yml"
     depends_on:
       activemq:
         condition: service_healthy
@@ -36,7 +44,7 @@ services:
   db:
     image: postgres:15-alpine
     env_file:
-      - ./docker.env
+      - ./.env
     environment:
       POSTGRES_USER: ${DOCKER_POSTGRES_USER}
       POSTGRES_PASSWORD: ${DOCKER_POSTGRES_PASSWORD}
@@ -56,11 +64,11 @@ services:
   activemq:
     image: apache/activemq-artemis:2.44.0
     env_file:
-      - ./docker.env
+      - ./.env
     environment:
-      - ARTEMIS_USER=${DOCKER_ARTEMIS_USER}
-      - ARTEMIS_PASSWORD=${DOCKER_ARTEMIS_PASSWORD}
-      - ARTEMIS_ROLE=amq
+      ARTEMIS_USER: ${DOCKER_ARTEMIS_USER}
+      ARTEMIS_PASSWORD: ${DOCKER_ARTEMIS_PASSWORD}
+      ARTEMIS_ROLE: amq
     ports:
       - "61616:61616"
       - "8161:8161"
@@ -77,7 +85,9 @@ services:
 
 volumes:
   db_data:
+    driver: local
   broker_data:
+    driver: local
 
 networks:
   app_net:
