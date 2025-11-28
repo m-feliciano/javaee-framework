@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="tag" tagdir="/WEB-INF/tags" %>
 <%@ include file="/WEB-INF/routes/category-routes.jspf" %>
 <%@ include file="/WEB-INF/routes/inventory-routes.jspf" %>
 <%@ include file="/WEB-INF/routes/product-routes.jspf" %>
@@ -54,6 +55,22 @@
                     <span>Docs</span>
                 </a>
             </li>
+            <li class="nav-item dropdown" id="notification-root">
+                <a class="nav-link notification-toggle" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                    <i class="bi bi-bell" style="color: darkred"></i>
+                    <span class="notif-badge" style="display:none"></span>
+                </a>
+                <div class="dropdown-menu notifications-menu" id="notifications-menu" aria-label="Notifications">
+                    <div class="notifications-menu-inner">
+                        <div class="notifications-empty">No notifications</div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div style="padding:8px; display:flex; gap:8px; justify-content:space-between;">
+                        <button class="dropdown-item" id="mark-all-read-btn" type="button">Mark all read</button>
+                        <button class="dropdown-item" id="clear-notif-btn" type="button">Clear</button>
+                    </div>
+                </div>
+            </li>
 
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button">
@@ -88,8 +105,5 @@
         </ul>
     </div>
 </nav>
-
-<div id="alerts-container"
-     style="position: fixed; top: 70px; right: 20px; z-index: 9999; display:flex; flex-direction:column; gap:8px;"></div>
-
-<script src="<c:url value='/resources/js/navbar.js'/>"></script>
+<c:set var="navbarUrl"><tag:assetPath name="navbar.js"/></c:set>
+<script src="${navbarUrl}" defer></script>

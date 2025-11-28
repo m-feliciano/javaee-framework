@@ -18,14 +18,12 @@
                     e.stopPropagation();
                     navbarNav.classList.toggle('show');
 
-                    // Anima o ícone do hamburguer
                     const icon = this.querySelector('.navbar-toggler-icon');
                     icon.style.transform = navbarNav.classList.contains('show')
                         ? 'rotate(90deg)'
                         : 'rotate(0deg)';
                 });
 
-                // Fecha o menu ao clicar fora
                 document.addEventListener('click', function(e) {
                     const navbar = document.querySelector('.navbar');
                     if (!navbar.contains(e.target) && navbarNav.classList.contains('show')) {
@@ -36,7 +34,6 @@
                 });
             }
 
-            // Marca o link ativo baseado na URL atual
             this.highlightActiveLink();
         },
         highlightActiveLink: function() {
@@ -64,7 +61,6 @@
                         e.preventDefault();
                         e.stopPropagation();
 
-                        // Fecha outros dropdowns abertos
                         document.querySelectorAll('.dropdown-menu.show').forEach(m => {
                             if (m !== menu) m.classList.remove('show');
                         });
@@ -74,7 +70,6 @@
                 }
             });
 
-            // Fecha dropdown ao clicar fora
             document.addEventListener('click', function(e) {
                 if (!e.target.closest('.dropdown')) {
                     document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
@@ -84,7 +79,6 @@
             });
         },
         initModals: function() {
-            // Abre modal
             document.querySelectorAll('[data-modal-target]').forEach(trigger => {
                 trigger.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -96,7 +90,6 @@
                 });
             });
 
-            // Fecha modal
             document.querySelectorAll('.modal-close, [data-modal-close]').forEach(closer => {
                 closer.addEventListener('click', function() {
                     const modal = this.closest('.modal');
@@ -106,7 +99,7 @@
                 });
             });
 
-            // Fecha ao clicar no backdrop
+
             document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
                 backdrop.addEventListener('click', function() {
                     const modal = this.nextElementSibling;
@@ -116,7 +109,6 @@
                 });
             });
 
-            // Fecha com ESC
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     const openModal = document.querySelector('.modal.show');
@@ -182,7 +174,6 @@
 
             this.toastContainer.appendChild(toast);
 
-            // Remove após duração
             setTimeout(() => {
                 toast.style.animation = 'slideOutRight 0.3s ease-out';
                 setTimeout(() => toast.remove(), 300);
@@ -198,7 +189,6 @@
                     }
                 });
 
-                // Validação em tempo real
                 form.querySelectorAll('input, textarea, select').forEach(field => {
                     field.addEventListener('blur', function() {
                         DesignSystem.validateField(this);
@@ -231,13 +221,12 @@
             let isValid = true;
             let message = '';
 
-            // Required
+
             if (field.hasAttribute('required') && !value) {
                 isValid = false;
                 message = 'Este campo é obrigatório';
             }
 
-            // Email
             if (isValid && field.type === 'email' && value) {
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailRegex.test(value)) {
@@ -246,7 +235,6 @@
                 }
             }
 
-            // Min length
             if (isValid && field.hasAttribute('minlength')) {
                 const minLength = parseInt(field.getAttribute('minlength'));
                 if (value.length < minLength) {
@@ -255,7 +243,6 @@
                 }
             }
 
-            // Max length
             if (isValid && field.hasAttribute('maxlength')) {
                 const maxLength = parseInt(field.getAttribute('maxlength'));
                 if (value.length > maxLength) {
@@ -264,7 +251,6 @@
                 }
             }
 
-            // Pattern
             if (isValid && field.hasAttribute('pattern') && value) {
                 const pattern = new RegExp(field.getAttribute('pattern'));
                 if (!pattern.test(value)) {
@@ -273,7 +259,6 @@
                 }
             }
 
-            // Atualiza UI
             if (isValid) {
                 field.classList.remove('is-invalid');
                 const feedback = field.parentElement.querySelector('.invalid-feedback');
@@ -344,10 +329,8 @@
         }
     };
 
-    // Expõe para uso global
     window.DesignSystem = DesignSystem;
 
-    // Auto-inicializa quando o DOM está pronto
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => DesignSystem.init());
     } else {
@@ -356,7 +339,6 @@
 
 })(window, document);
 
-// Adiciona estilos de animação via JavaScript
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideInRight {

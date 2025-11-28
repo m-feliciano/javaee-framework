@@ -1,4 +1,4 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 
 <c:if test="${param.totalPages > 1}">
     <div class="pagination-container">
@@ -9,7 +9,6 @@
         </div>
 
         <ul class="pagination">
-            <!-- Previous Page -->
             <c:choose>
                 <c:when test="${param.currentPage > 1}">
                     <li class="page-item">
@@ -28,7 +27,6 @@
                 </c:otherwise>
             </c:choose>
 
-            <!-- First Page -->
             <c:if test="${param.currentPage > 3}">
                 <li class="page-item">
                     <a class="page-link"
@@ -43,7 +41,6 @@
                 </c:if>
             </c:if>
 
-            <!-- Pages around current -->
             <c:forEach begin="${param.currentPage - 2 < 1 ? 1 : param.currentPage - 2}"
                        end="${param.currentPage + 2 > param.totalPages ? param.totalPages : param.currentPage + 2}"
                        var="i">
@@ -64,7 +61,6 @@
                 </c:choose>
             </c:forEach>
 
-            <!-- Last Page -->
             <c:if test="${param.currentPage < param.totalPages - 2}">
                 <c:if test="${param.currentPage < param.totalPages - 3}">
                     <li class="page-item disabled">
@@ -79,7 +75,6 @@
                 </li>
             </c:if>
 
-            <!-- Next Page -->
             <c:choose>
                 <c:when test="${param.currentPage < param.totalPages}">
                     <li class="page-item">

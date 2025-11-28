@@ -107,6 +107,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
         sender.sendConfirmation(newUser.getCredentials().getLogin(), url);
 
         UserResponse response = userMapper.toResponse(newUser);
+        response.setCreated(true);
         CacheUtils.setObject(newUser.getId(), CACHE_KEY, response);
 
         auditService.auditSuccess("user:register", null, new AuditPayload<>(user, response));
@@ -208,7 +209,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
 
     @Override
     public UserResponse getById(UserRequest request, String auth) throws ServiceException {
-        log.info("User requested: {}", request.id());
+        log.debug("User requested: {}", request.id());
         return getUserResponse(request.id(), auth);
     }
 

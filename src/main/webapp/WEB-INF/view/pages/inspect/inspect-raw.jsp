@@ -1,13 +1,12 @@
 <%@ page import="com.dev.servlet.core.response.IHttpResponse" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="tag" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ include file="/WEB-INF/routes/inspect-routes.jspf" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <link rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.8.0/build/styles/atom-one-dark.min.css">
-<link rel="stylesheet" href="<c:url value='/resources/css/inspect.css'/>"/>
-
 <%
     request.setAttribute("rawJson", ((IHttpResponse<?>) request.getAttribute("response")).body());
 %>
@@ -40,13 +39,18 @@
     <div class="card" style="margin-top:16px;">
         <div id="raw-container">
                 <pre id="rawJson" class="raw-json"
-                     style="background: linear-gradient(180deg,#071025 0%,#08151c 60%); color: #cfe9ff; padding:18px 18px 18px 56px; border-radius:10px; box-shadow: inset 0 6px 18px rgba(2,6,23,0.6); border:1px solid rgba(255,255,255,0.04);"><c:out
-                        value="${rawJson}" escapeXml="true"/></pre>
+                     style="background: linear-gradient(180deg,#071025 0%,#08151c 60%); color: #cfe9ff; padding:18px 18px 18px 56px; border-radius:10px; box-shadow: inset 0 6px 18px rgba(2,6,23,0.6); border:1px solid rgba(255,255,255,0.04);">
+                    <c:out value="${rawJson}" escapeXml="true"/>
+                </pre>
         </div>
     </div>
 </div>
 
 <div id="toast" class="toast"></div>
-<script src="<c:url value='/resources/js/pretty-json.js'/>"></script>
-<script src="<c:url value='/resources/js/inspect-raw.js'/>"></script>
+
+<c:set var="inspectRawJsUrl"><tag:assetPath name="inspect-raw.js"/></c:set>
+<script src="${inspectRawJsUrl}" defer></script>
+<c:set var="prettyJsonJsUrl"><tag:assetPath name="pretty-json.js"/></c:set>
+<script src="${prettyJsonJsUrl}" defer></script>
+
 <jsp:include page="/WEB-INF/view/components/footer.jsp"/>

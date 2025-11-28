@@ -1,4 +1,4 @@
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ page import="com.dev.servlet.core.response.IServletResponse" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
@@ -9,8 +9,6 @@
     request.setAttribute("categories", servletResponse.getEntity("categories"));
     request.setAttribute("product", servletResponse.getEntity("product"));
 %>
-
-<fmt:formatDate value="${product.registerDate}" pattern="dd/MM/yyyy" var="stdDate"/>
 
 <div class="main">
     <form action="${baseLink}${version}${ updateProduct }/${product.id}" method="post" class="csrf-form">
@@ -26,7 +24,7 @@
                         <div class="col-md-6">
                             <label for="inputRegisterDate" class="form-label">REGISTER</label>
                             <input type="text" name="register" class="form-control text-right" id="inputRegisterDate"
-                                   value="${ stdDate }" required readonly/>
+                                   value="${ product.registerDateFormatted }" required readonly/>
                         </div>
                     </div>
                 </div>
@@ -38,6 +36,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="inputDescription" class="form-label">DESCRIPTION</label>
+                    <textarea name="description" class="form-control" id="inputDescription"
                     <textarea name="description" class="form-control" id="inputDescription"
                               placeholder="Simple Description" rows="6" cols="auto"
                               required>${product.description}</textarea>

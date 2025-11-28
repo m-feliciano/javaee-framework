@@ -14,7 +14,6 @@ import com.dev.servlet.infrastructure.persistence.IPageRequest;
 
 import java.util.Collection;
 
-import static com.dev.servlet.domain.model.enums.RequestMethod.GET;
 import static com.dev.servlet.domain.model.enums.RequestMethod.POST;
 
 @Controller("product")
@@ -26,8 +25,8 @@ public interface ProductControllerApi {
     @RequestMapping("/new")
     IHttpResponse<Collection<CategoryResponse>> forward(@Authorization String auth);
 
-    @RequestMapping(value = "/edit/{id}", jsonType = ProductRequest.class)
-    IServletResponse edit(ProductRequest request, @Authorization String auth);
+    @RequestMapping(value = "/details/{id}", jsonType = ProductRequest.class)
+    IServletResponse details(ProductRequest request, @Authorization String auth);
 
     @RequestMapping(value = "/search")
     IServletResponse search(Query query, IPageRequest pageRequest, @Authorization String auth);
@@ -36,7 +35,7 @@ public interface ProductControllerApi {
     IServletResponse list(IPageRequest pageRequest, @Authorization String auth);
 
     @RequestMapping(value = "/list/{id}", jsonType = ProductRequest.class)
-    IHttpResponse<ProductResponse> getProductDetail(ProductRequest request, @Authorization String auth);
+    IHttpResponse<ProductResponse> findById(ProductRequest request, @Authorization String auth);
 
     @RequestMapping(value = "/update/{id}", method = POST, jsonType = ProductRequest.class)
     IHttpResponse<Void> update(ProductRequest request, @Authorization String auth);
@@ -44,7 +43,9 @@ public interface ProductControllerApi {
     @RequestMapping(value = "/delete/{id}", method = POST, jsonType = ProductRequest.class)
     IHttpResponse<Void> delete(ProductRequest filter, @Authorization String auth);
 
-    @RequestMapping(value = "/scrape", method = GET)
-    IHttpResponse<Void> scrape(@Authorization String auth, @Property("app.env") String environment, @Property("scrape_product_url") String url);
+    @RequestMapping(value = "/scrape", method = POST)
+    IHttpResponse<Void> scrape(@Authorization String auth,
+                               @Property("app.env") String environment,
+                               @Property("scrape_product_url") String url);
 }
 

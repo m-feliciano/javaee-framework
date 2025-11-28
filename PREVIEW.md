@@ -49,7 +49,7 @@ css/
 ### Real-Time System Observability
 
 <p align="center">
-  <img src="images/health-dark.png" alt="Health Dashboard - Dark Mode" width="800">
+  <img src="images/health.png" alt="Health Dashboard - Lighthouse" width="800">
   <br>
   <em>Product view interface</em>
 </p>
@@ -63,12 +63,6 @@ css/
 ## Activity History & Audit Trail
 
 ### Audit Logging UI
-
-<p align="center">
-  <img src="images/timeline.png" alt="Timeline - Dark Mode" width="800">
-  <br>
-  <em>Timeline view with event filtering and correlation tracking</em>
-</p>
 
 <p align="center">
   <img src="images/history-view.png" alt="Timeline - Dark Mode" width="800">
@@ -206,12 +200,12 @@ public interface ProductControllerApi {
     IServletResponse list(IPageRequest pageRequest, @Authorization String auth);
 
     @RequestMapping(value = "/list/{id}", jsonType = ProductRequest.class)
-    IHttpResponse<ProductResponse> getProductDetail(ProductRequest request, @Authorization String auth);
+    IHttpResponse<ProductResponse> findById(ProductRequest request, @Authorization String auth);
 
     @RequestMapping(value = "/update/{id}", method = POST, jsonType = ProductRequest.class)
     IHttpResponse<Void> update(ProductRequest request, @Authorization String auth);
 
-    @RequestMapping(value = "/scrape", method = GET)
+    @RequestMapping(value = "/scrape", method = POST)
     IHttpResponse<Void> scrape(@Authorization String auth, 
                                @Property("app.env") String environment, 
                                @Property("scrape_product_url") String url);

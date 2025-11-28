@@ -96,12 +96,25 @@ Insomnia (Recommended)
 cp .env.example .env
 # Edit .env to set database credentials and other configurations
 
-# Build and run with Docker Compose
-docker-compose build -no-cache
-# Start services in detached mode
-docker-compose --env-file .env up -d --build
+# Build-Start services in detached mode
+docker-compose up -d --build
 # logs
 docker-compose logs -f app
+```
+
+### IDE Setup
+
+Import the project as a Maven project in your favorite IDE (IntelliJ IDEA, Eclipse, etc.). Ensure that your IDE is
+configured to use Java 21 LTS.
+
+```
+# For IntelliJ IDEA
+#File -> New -> Project from Existing Sources... -> Select pom.xml
+#Before running, add the maven command to your run configuration:
+mvn -DskipTests clean compile
+
+#It will build the project and download all dependencies (frontend and backend).
+#xThe frontend is also built using Maven, so no additional setup is required.
 ```
 
 ## Architecture

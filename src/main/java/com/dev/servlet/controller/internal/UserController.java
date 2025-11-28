@@ -18,8 +18,8 @@ import lombok.SneakyThrows;
 @NoArgsConstructor
 @Singleton
 public class UserController extends BaseController implements UserControllerApi {
-
-    public static final String REDIRECT_AUTH_FORM = "redirect:/api/v1/auth/form";
+    private static final String REDIRECT_AUTH_FORM = "redirect:/api/v1/auth/form";
+    private static final String FORM_LOGIN_FORM = "forward:pages/formLogin.jsp";
 
     @Inject
     private IUserService userService;
@@ -35,14 +35,14 @@ public class UserController extends BaseController implements UserControllerApi 
     @Override
     public IHttpResponse<Void> delete(UserRequest user, String auth) {
         userService.delete(user, auth);
-        return HttpResponse.<Void>next(forwardTo("formLogin")).build();
+        return HttpResponse.<Void>next(FORM_LOGIN_FORM).build();
     }
 
     @SneakyThrows
     @Override
-    public IHttpResponse<Void> register(UserCreateRequest user) {
-        userService.register(user);
-        return newHttpResponse(201, REDIRECT_AUTH_FORM);
+    public IHttpResponse<UserResponse> register(UserCreateRequest user) {
+        UserResponse response = userService.register(user);
+        return newHttpResponse(201, response, FORM_LOGIN_FORM);
     }
 
     @SneakyThrows
@@ -65,12 +65,12 @@ public class UserController extends BaseController implements UserControllerApi 
     @Override
     public IHttpResponse<Void> resendConfirmation(User user) {
         userService.resendConfirmation(user.getId());
-        return HttpResponse.<Void>next("forward:pages/formLogin.jsp").build();
+        return HttpResponse.<Void>next(FORM_LOGIN_FORM).build();
     }
 
     @SneakyThrows
     @Override
-    public IHttpResponse<UserResponse> getUserDetail(UserRequest user, String auth) {
+    public IHttpResponse<UserResponse> findById(UserRequest user, String auth) {
         UserResponse response = userService.getUserDetail(user, auth);
         return okHttpResponse(response, forwardTo("formListUser"));
     }

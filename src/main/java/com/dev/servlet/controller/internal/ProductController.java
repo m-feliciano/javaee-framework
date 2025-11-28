@@ -26,10 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 @NoArgsConstructor
 @Slf4j
@@ -56,8 +53,8 @@ public class ProductController extends BaseController implements ProductControll
     }
 
     @SneakyThrows
-    public IServletResponse edit(ProductRequest request, String auth) {
-        ProductResponse response = this.getProductDetail(request, auth).body();
+    public IServletResponse details(ProductRequest request, String auth) {
+        ProductResponse response = this.findById(request, auth).body();
 
         Collection<CategoryResponse> categories = categoryService.list(null, auth);
         Set<KeyPair> body = Set.of(
@@ -80,8 +77,8 @@ public class ProductController extends BaseController implements ProductControll
     }
 
     @SneakyThrows
-    public IHttpResponse<ProductResponse> getProductDetail(ProductRequest request, String auth) {
-        ProductResponse product = productService.getProductDetail(request, auth);
+    public IHttpResponse<ProductResponse> findById(ProductRequest request, String auth) {
+        ProductResponse product = productService.findById(request, auth);
         return okHttpResponse(product, forwardTo("formListProduct"));
     }
 

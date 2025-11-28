@@ -17,20 +17,20 @@ public interface CategoryControllerApi {
     @RequestMapping(value = "/new")
     IHttpResponse<Void> forwardRegister();
 
-    @RequestMapping(value = "/delete/{id}", method = POST, jsonType = CategoryRequest.class)
-    IHttpResponse<Void> delete(CategoryRequest category, @Authorization String auth);
-
-    @RequestMapping(value = "/edit/{id}", jsonType = CategoryRequest.class)
-    IHttpResponse<CategoryResponse> edit(CategoryRequest category, @Authorization String auth);
-
     @RequestMapping(value = "/create", method = POST, jsonType = CategoryRequest.class)
     IHttpResponse<Void> register(CategoryRequest request, @Authorization String auth);
 
-    @RequestMapping(value = "/update/{id}", method = POST, jsonType = CategoryRequest.class)
-    IHttpResponse<Void> update(CategoryRequest category, @Authorization String auth);
-
     @RequestMapping(value = "/list", jsonType = CategoryRequest.class)
     IHttpResponse<Collection<CategoryResponse>> list(CategoryRequest category, @Authorization String auth);
+
+    @RequestMapping(value = "/delete/{id}", method = POST, jsonType = CategoryRequest.class)
+    IHttpResponse<Void> delete(CategoryRequest category, @Authorization String auth);
+
+    @RequestMapping(value = "/details/{id}", jsonType = CategoryRequest.class)
+    IHttpResponse<CategoryResponse> details(CategoryRequest category, @Authorization String auth);
+
+    @RequestMapping(value = "/update/{id}", method = POST, jsonType = CategoryRequest.class)
+    IHttpResponse<Void> update(CategoryRequest category, @Authorization String auth);
 
     @RequestMapping(value = "/list/{id}", jsonType = CategoryRequest.class)
     IHttpResponse<CategoryResponse> getCategoryDetail(CategoryRequest request, @Authorization String auth);

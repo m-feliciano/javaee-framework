@@ -1,7 +1,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ include file="/WEB-INF/routes/history-routes.jspf" %>
 
@@ -37,33 +37,28 @@
                 <c:if test="${not empty activity.executionTimeMs}">
                     <c:set var="totalTime" value="${totalTime + activity.executionTimeMs}"/>
                 </c:if>
-
-                <%-- Group by date for chart --%>
-                <fmt:formatDate value="${activity.timestamp}" pattern="dd/MM" var="activityDate"/>
-                <c:set var="currentCount" value="${dateCountMap[activityDate]}"/>
+                <c:set var="currentCount" value="${dateCountMap[activity.timestampFormatted]}"/>
                 <c:if test="${empty currentCount}">
                     <c:set var="currentCount" value="0"/>
                 </c:if>
-                <c:set target="${dateCountMap}" property="${activityDate}" value="${currentCount + 1}"/>
+                <c:set target="${dateCountMap}" property="${activity.timestampFormatted}" value="${currentCount + 1}"/>
 
-                <%-- Count by status --%>
                 <c:if test="${activity.status == 'SUCCESS'}">
-                    <c:set var="currentSuccess" value="${dateSuccessMap[activityDate]}"/>
+                    <c:set var="currentSuccess" value="${dateSuccessMap[activity.timestampFormatted]}"/>
                     <c:if test="${empty currentSuccess}">
                         <c:set var="currentSuccess" value="0"/>
                     </c:if>
-                    <c:set target="${dateSuccessMap}" property="${activityDate}" value="${currentSuccess + 1}"/>
+                    <c:set target="${dateSuccessMap}" property="${activity.timestampFormatted}" value="${currentSuccess + 1}"/>
                 </c:if>
                 <c:if test="${activity.status == 'FAILED'}">
-                    <c:set var="currentFailed" value="${dateFailedMap[activityDate]}"/>
+                    <c:set var="currentFailed" value="${dateFailedMap[activity.timestampFormatted]}"/>
                     <c:if test="${empty currentFailed}">
                         <c:set var="currentFailed" value="0"/>
                     </c:if>
-                    <c:set target="${dateFailedMap}" property="${activityDate}" value="${currentFailed + 1}"/>
+                    <c:set target="${dateFailedMap}" property="${activity.timestampFormatted}" value="${currentFailed + 1}"/>
                 </c:if>
             </c:forEach>
 
-            <!-- Activity Chart -->
             <div class="activity-chart-container">
                 <div class="chart-header">
                     <h3>
@@ -108,7 +103,7 @@
                                 </linearGradient>
                             </defs>
 
-                            <%-- Find max value for scaling --%>
+                            
                             <c:set var="maxCount" value="0"/>
                             <c:forEach items="${dateCountMap}" var="entry">
                                 <c:if test="${entry.value > maxCount}">
@@ -116,7 +111,7 @@
                                 </c:if>
                             </c:forEach>
 
-                            <%-- Build paths for all three lines --%>
+                            
                             <c:set var="pathDataTotal" value=""/>
                             <c:set var="areaDataTotal" value=""/>
                             <c:set var="pathDataSuccess" value=""/>
@@ -146,24 +141,19 @@
 
                                 <c:choose>
                                     <c:when test="${index == 0}">
-                                        <%-- Total line --%>
                                         <c:set var="pathDataTotal" value="M ${xPercent} ${heightPercentTotal}"/>
                                         <c:set var="areaDataTotal" value="M ${xPercent} 100 L ${xPercent} ${heightPercentTotal}"/>
-                                        <%-- Success line --%>
                                         <c:set var="pathDataSuccess" value="M ${xPercent} ${heightPercentSuccess}"/>
                                         <c:set var="areaDataSuccess" value="M ${xPercent} 100 L ${xPercent} ${heightPercentSuccess}"/>
-                                        <%-- Failed line --%>
                                         <c:set var="pathDataFailed" value="M ${xPercent} ${heightPercentFailed}"/>
                                         <c:set var="areaDataFailed" value="M ${xPercent} 100 L ${xPercent} ${heightPercentFailed}"/>
                                     </c:when>
                                     <c:otherwise>
-                                        <%-- Total line --%>
+                                        
                                         <c:set var="pathDataTotal" value="${pathDataTotal} L ${xPercent} ${heightPercentTotal}"/>
                                         <c:set var="areaDataTotal" value="${areaDataTotal} L ${xPercent} ${heightPercentTotal}"/>
-                                        <%-- Success line --%>
                                         <c:set var="pathDataSuccess" value="${pathDataSuccess} L ${xPercent} ${heightPercentSuccess}"/>
                                         <c:set var="areaDataSuccess" value="${areaDataSuccess} L ${xPercent} ${heightPercentSuccess}"/>
-                                        <%-- Failed line --%>
                                         <c:set var="pathDataFailed" value="${pathDataFailed} L ${xPercent} ${heightPercentFailed}"/>
                                         <c:set var="areaDataFailed" value="${areaDataFailed} L ${xPercent} ${heightPercentFailed}"/>
                                     </c:otherwise>
@@ -183,7 +173,6 @@
                             <path d="${pathDataFailed}" fill="none" stroke="#dc3545" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="2,2" opacity="0.9"></path>
                         </svg>
 
-                        <%-- Draw points for all three lines --%>
                         <c:set var="index" value="0"/>
                         <c:forEach items="${dateCountMap}" var="entry">
                             <c:set var="dateKey" value="${entry.key}"/>
@@ -202,7 +191,6 @@
                             <c:set var="heightPercentFailed" value="${(failedCountDay * 100) / maxCount}"/>
                             <c:set var="xPercent" value="${(index * 100) / (totalDates - 1)}"/>
 
-                            <%-- Total point (blue - solid line) --%>
                             <div class="chart-point-wrapper" style="left: ${xPercent}%; bottom: ${heightPercentTotal}%;">
                                 <div class="chart-point chart-point-total"
                                      data-value="${totalCount}"
@@ -211,7 +199,6 @@
                                 </div>
                             </div>
 
-                            <%-- Success point (green - dashed line) --%>
                             <c:if test="${successCountDay > 0}">
                                 <div class="chart-point-wrapper" style="left: ${xPercent}%; bottom: ${heightPercentSuccess}%;">
                                     <div class="chart-point chart-point-success"
@@ -222,7 +209,6 @@
                                 </div>
                             </c:if>
 
-                            <%-- Failed point (red - dotted line) --%>
                             <c:if test="${failedCountDay > 0}">
                                 <div class="chart-point-wrapper" style="left: ${xPercent}%; bottom: ${heightPercentFailed}%;">
                                     <div class="chart-point chart-point-failed"
@@ -233,7 +219,6 @@
                                 </div>
                             </c:if>
 
-                            <%-- Date label (only once per date) --%>
                             <div class="chart-date-label-wrapper" style="left: ${xPercent}%;">
                                 <span class="chart-date-label">${dateKey}</span>
                             </div>
@@ -244,7 +229,6 @@
                 </div>
             </div>
 
-            <!-- Timeline Statistics -->
             <div class="timeline-stats">
                 <div class="stat-card">
                     <div class="stat-icon stat-icon-primary">

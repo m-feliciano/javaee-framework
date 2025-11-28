@@ -4,6 +4,7 @@ import com.dev.servlet.core.annotation.Authorization;
 import com.dev.servlet.core.annotation.Controller;
 import com.dev.servlet.core.annotation.Property;
 import com.dev.servlet.core.annotation.RequestMapping;
+import com.dev.servlet.core.util.CacheUtils;
 import com.dev.servlet.core.util.ClassUtil;
 import com.dev.servlet.domain.model.enums.RoleType;
 import com.dev.servlet.service.internal.inspector.ControllerInfo;
@@ -23,9 +24,12 @@ public class ControllerIntrospectionService {
 
     public List<ControllerInfo> listControllers() {
         try {
+            List<ControllerInfo> controllers = CacheUtils.get("system", "controllers_info");
+            if (controllers != null) return controllers;
+
             List<Class<?>> classes = ClassUtil.scanPackage(CONTROLLERS_PACKAGE, Controller.class);
 
-            return classes.stream()
+            controllers = classes.stream()
                     .map(clz -> {
                         String base = clz.getAnnotation(Controller.class).value();
                         List<MethodInfo> methods = buildMethodInfos(clz);
@@ -33,6 +37,9 @@ public class ControllerIntrospectionService {
                     })
                     .parallel()
                     .toList();
+            CacheUtils.set("system", "controllers_info", controllers);
+            // calls it again to ensure caching works
+            return listControllers();
 
         } catch (Exception e) {
             throw new RuntimeException("Failed to inspect controllers", e);

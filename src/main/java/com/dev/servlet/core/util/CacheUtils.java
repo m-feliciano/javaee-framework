@@ -86,11 +86,11 @@ public final class CacheUtils {
         log.debug("Retrieved data for cacheName='{}': {}", cacheName, value != null ? "HIT" : "MISS");
         if (value != null) {
             Object data = value.data();
-            if (data instanceof Collection<?> valueCollection) {
-                return (List<T>) CloneUtil.cloneList(valueCollection);
+            if (data instanceof Collection<?> c && !c.isEmpty()) {
+                return (List<T>) CloneUtil.cloneList(c);
             }
         }
-        return Collections.emptyList();
+        return null;
     }
 
     @SuppressWarnings("unchecked")

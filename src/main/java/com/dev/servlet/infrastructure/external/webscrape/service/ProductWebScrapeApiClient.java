@@ -77,7 +77,6 @@ public class ProductWebScrapeApiClient extends ScrapeApiClient<List<ProductWebSc
                 responses.add(scrapingResponse);
                 pageTotal = scrapingResponse.getPageTotal();
             } catch (Exception e) {
-                log.error("Error fetching page {}: {}", page, e.getMessage(), e);
                 throw new ServiceException("Error fetching page " + page + ": " + e.getMessage());
             }
             page++;

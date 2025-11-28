@@ -1,14 +1,11 @@
 package com.dev.servlet.service.internal;
 
+import com.dev.servlet.core.util.CloneUtil;
 import com.dev.servlet.core.util.JwtUtil;
 import com.dev.servlet.domain.model.UserActivityLog;
 import com.dev.servlet.domain.model.enums.ActivityStatus;
 import com.dev.servlet.service.AuditService;
 import com.dev.servlet.service.UserActivityService;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import jakarta.enterprise.context.control.RequestContextController;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -17,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,12 +38,6 @@ public class AuditServiceImpl implements AuditService {
     private RequestContextController requestContextController;
 
     private static final Logger logger = LoggerFactory.getLogger(AuditServiceImpl.class);
-
-    private static final ObjectMapper mapper = new ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-            .setSerializationInclusion(JsonInclude.Include.NON_NULL);
-
     private final JwtUtil jwtUtil;
     private final UserActivityService activityService;
 
@@ -64,9 +55,7 @@ public class AuditServiceImpl implements AuditService {
         metadata.put("timestamp", Instant.now().toString());
         loadFromMdc(metadata);
 
-        Thread.ofVirtual()
-                .name("audit-logger-%d")
-                .start(() -> {
+        Thread.ofVirtual().start(() -> {
                     final String threadName = Thread.currentThread().getName();
                     try {
                         requestContextController.activate();
@@ -88,7 +77,7 @@ public class AuditServiceImpl implements AuditService {
                             logger.warn("[Thread: {}] Failed to serialize audit payload", threadName, e);
                         }
 
-                        logger.info(mapper.writeValueAsString(metadata));
+                        logger.info(CloneUtil.toJson(metadata));
 
                         if (userId != null && payload instanceof AuditPayload<?, ?> auditPayload) {
                             registerActivityLog(userId, outcome, auditPayload, metadata);
@@ -108,8 +97,8 @@ public class AuditServiceImpl implements AuditService {
                                      AuditPayload<?, ?> payload,
                                      HashMap<String, Object> metadata) {
         try {
-            String requestJson = payload.input() != null ? mapper.writeValueAsString(payload.input()) : null;
-            String responseJson = payload.output() != null ? mapper.writeValueAsString(payload.output()) : null;
+            String requestJson = CloneUtil.toJson(payload.input());
+            String responseJson = CloneUtil.toJson(payload.output());
 
             Long executionTimeMs = null;
             if (metadata.get("startedAt") != null) {
@@ -120,7 +109,7 @@ public class AuditServiceImpl implements AuditService {
                     .userId(userId)
                     .action(metadata.get("event").toString())
                     .status(outcome)
-                    .timestamp(new Date())
+                    .timestamp(LocalDateTime.now())
                     .executionTimeMs(executionTimeMs)
                     .requestPayload(requestJson)
                     .responsePayload(responseJson)

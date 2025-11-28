@@ -51,5 +51,5 @@
         </c:if>
     </div>
 </div>
-<!-- footer -->
+
 <jsp:include page="/WEB-INF/view/components/footer.jsp"/>

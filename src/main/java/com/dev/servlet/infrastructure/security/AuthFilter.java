@@ -60,7 +60,6 @@ public class AuthFilter implements Filter {
 
         boolean isAuthorized = isAuthorizedRequest(httpRequest);
         if (isAuthorized) {
-            auditService.auditSuccess("auth_filter:login", null, null);
             dispatcher.dispatch(httpRequest, httpResponse);
             return;
         }
@@ -77,7 +76,6 @@ public class AuthFilter implements Filter {
         boolean tokenValid = token != null && jwtUtil.validateToken(token);
         if (tokenValid) {
             log.debug("Valid token access [endpoint={}]", httpRequest.getRequestURI());
-            auditService.auditSuccess("auth_filter:valid_token", null, null);
             dispatcher.dispatch(httpRequest, httpResponse);
             return;
         }
@@ -86,8 +84,6 @@ public class AuthFilter implements Filter {
             try {
                 RefreshTokenResponse refreshTokenResponse = loginService.refreshToken(BEARER_PREFIX + refreshToken);
                 cookieService.setAuthCookies(httpResponse, refreshTokenResponse.token(), refreshTokenResponse.refreshToken());
-                auditService.auditSuccess("auth_filter:refresh_token", null, null);
-
                 httpResponse.setStatus(HttpServletResponse.SC_FOUND);
                 httpResponse.sendRedirect(httpRequest.getRequestURI());
                 return;

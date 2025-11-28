@@ -1,6 +1,7 @@
 <%@ page import="com.dev.servlet.core.response.IHttpResponse" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="tag" tagdir="/WEB-INF/tags" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
@@ -309,7 +310,6 @@
             </div>
         </div>
 
-        <!-- Request Payload Card -->
         <c:if test="${not empty activity.requestPayload}">
             <div class="card detail-card">
                 <div class="card-header bg-request">
@@ -350,7 +350,6 @@
             </div>
         </c:if>
 
-        <!-- Error Message Card -->
         <c:if test="${not empty activity.errorMessage}">
             <div class="card detail-card">
                 <div class="card-header bg-error">
@@ -372,6 +371,6 @@
     </div>
 </div>
 
-<script src="<c:url value='/resources/js/pretty-json.js'/>"></script>
+<c:set var="prettyJsonUrl"><tag:assetPath name="pretty-json.js"/></c:set>
+<script src="${prettyJsonUrl}" defer></script>
 <jsp:include page="/WEB-INF/view/components/footer.jsp"/>
-

@@ -1,4 +1,4 @@
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page import="com.dev.servlet.core.response.IServletResponse" %>
 <%@ include file="/WEB-INF/routes/product-routes.jspf" %>
@@ -46,10 +46,6 @@
                         </thead>
                         <tbody>
                         <c:forEach items="${ pageable.getContent() }" var="product">
-                            <fmt:formatNumber value="${product.price}" type="currency" minFractionDigits="2"
-                                              var="parsedPrice"/>
-                            <fmt:formatDate value="${product.registerDate}" pattern="dd/MM/yyyy" var="registerDate"/>
-
                             <tr>
                                 <th class="w-8" scope="row"><c:out value="${fn:substring(product.id, 0, 8)}" escapeXml="true"/></th>
                                 <td class="text-center w-20">
@@ -81,8 +77,8 @@
                                         </c:otherwise>
                                     </c:choose>
                                 </td>
-                                <td class="w-8">${ parsedPrice }</td>
-                                <td class="w-10">${ registerDate }</td>
+                                <td class="w-8">${ product.priceFormatted }</td>
+                                <td class="w-10">${product.registerDateFormatted}</td>
                                 <td class="w-19">
                                     <a href="${baseLink}${version}${ listProduct }/${ product.id }"
                                        class="btn btn-auto btn-primary">

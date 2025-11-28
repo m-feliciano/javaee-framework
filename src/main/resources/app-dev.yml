@@ -13,12 +13,11 @@ security:
   cookie:
     secure: false
     path: "/"
-    domain: ""
     samesite: Lax
 app:
   env: development
 rate_limit:
-  enabled: true
+  enabled: false
   capacity: 60          # max tokens (burst) per identifier
   refill:
     tokens: 60          # tokens added each period (keep <= capacity)

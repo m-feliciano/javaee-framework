@@ -36,14 +36,14 @@
             <maxHistory>90</maxHistory>
         </rollingPolicy>
         <encoder>
-            <pattern>%msg%n</pattern> <!-- JSON direto, sem metadata -->
+            <pattern>%msg%n</pattern>
         </encoder>
     </appender>
     <appender name="AUDIT" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${user.dir}/logs/audit.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>logs/audit.%d{yyyy-MM-dd}.log</fileNamePattern>
-<!--            <maxHistory>90</maxHistory>-->
+            <maxHistory>90</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%msg%n</pattern>
@@ -56,6 +56,7 @@
     </logger>
     <logger name="com.dev.servlet.adapter.internal.LogExecutionTimeInterceptor" level="INFO"/>
     <logger name="com.dev.servlet.adapter.internal.ServletDispatcherImpl" level="WARN"/>
+    <logger name="com.dev.servlet.core.util.CacheUtils" level="WARN"/>
     <logger name="org.hibernate" level="WARN"/>
     <logger name="org.hibernate.SQL" level="OFF"/>
     <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="OFF"/>
@@ -74,7 +75,7 @@
     <logger name="com.mchange" level="WARN"/>
     <logger name="org.apache.commons" level="ERROR"/>
     <!-- Root Logger -->
-    <root level="WARN">
+    <root level="INFO">
         <appender-ref ref="FILE"/>
         <appender-ref ref="CONSOLE"/>
     </root>

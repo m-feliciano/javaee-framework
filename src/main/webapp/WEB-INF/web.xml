@@ -5,21 +5,16 @@
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
                              https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
          version="6.0">
-
     <display-name>Servlet</display-name>
-
     <welcome-file-list>
         <welcome-file>view/pages/formLogin.jsp</welcome-file>
     </welcome-file-list>
-
     <listener>
         <listener-class>org.jboss.weld.environment.servlet.Listener</listener-class>
     </listener>
     <listener>
         <listener-class>com.dev.servlet.core.listener.ContextListener</listener-class>
     </listener>
-
-    <!-- filter chain order -->
     <filter>
         <filter-name>MDCFilter</filter-name>
         <filter-class>com.dev.servlet.infrastructure.security.MDCFilter</filter-class>
@@ -28,7 +23,6 @@
         <filter-name>MDCFilter</filter-name>
         <url-pattern>/api/*</url-pattern>
     </filter-mapping>
-
     <filter>
         <filter-name>RateLimitFilter</filter-name>
         <filter-class>com.dev.servlet.infrastructure.security.RateLimitFilter</filter-class>

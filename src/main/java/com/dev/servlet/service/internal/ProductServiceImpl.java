@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -103,7 +103,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
     public ProductResponse register(ProductRequest request, String auth) {
         try {
             Product product = productMapper.toProduct(request, jwts.getUserId(auth));
-            product.setRegisterDate(new Date());
+            product.setRegisterDate(LocalDate.now());
             product.setStatus(Status.ACTIVE.getValue());
             product = super.save(product);
             ProductResponse response = productMapper.toResponse(product);
@@ -116,7 +116,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
     }
 
     @Override
-    public ProductResponse getProductDetail(ProductRequest request, String auth) throws ServiceException {
+    public ProductResponse findById(ProductRequest request, String auth) throws ServiceException {
         try {
             Product product = productMapper.toProduct(request, jwts.getUserId(auth));
             product = findProduct(product);
@@ -227,31 +227,36 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
     }
 
     @Override
-    public CompletableFuture<Optional<List<ProductResponse>>> scrapeAsync(String url, String environment, String auth) {
+    public CompletableFuture<List<ProductResponse>> scrapeAsync(String url, String environment, String auth) {
         final String userId = jwts.getUserId(auth);
 
-        CompletableFuture<Optional<List<ProductResponse>>> future = CompletableFuture.supplyAsync(() -> {
+        CompletableFuture<List<ProductResponse>> future = CompletableFuture.supplyAsync(() -> {
             try {
                 // Enable the context for the async operation
                 requestContextController.activate();
 
                 Optional<List<ProductResponse>> response = scrape(url, environment, auth);
-                if (response.isPresent()) {
-                    alertService.publish(userId, "success", "Successfully scraped products. Check the product list.");
-                } else {
-                    alertService.publish(userId, "info", "No products were scraped from %s".formatted(url));
+                if (response.isEmpty()) {
+                    alertService.publish(userId, "info", "No products were scraped from the provided URL.");
+                    auditService.auditWarning("product:scrape_async", auth, new AuditPayload<>(url, null));
+                    return null;
                 }
-                return response;
+
+                alertService.publish(userId, "success", "Successfully scraped products. Check the product list.");
+                auditService.auditSuccess("product:scrape_async", auth, new AuditPayload<>(url, response.get()));
+                return response.get();
 
             } catch (Exception e) {
                 log.error("Async web scraping failed for URL: {}", url, e);
-                alertService.publish(userId, "error", "Web scraping failed for %s: %s".formatted(url, e.getMessage()));
-                return Optional.empty();
+                alertService.publish(userId, "error", e.getMessage());
+                auditService.auditFailure("product:scrape_async", auth, new AuditPayload<>(url, null));
 
             } finally {
                 // Ensure the request context is deactivated after the async operation
                 requestContextController.deactivate();
             }
+
+            return null;
         });
 
         alertService.publish(userId, "info", "Web scraping started. You will be notified once it's completed");
@@ -259,8 +264,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
     }
 
     private static Product prepareProductToSave(Product product, User user) {
-        Date now = new Date();
-        product.setRegisterDate(now);
+        product.setRegisterDate(LocalDate.now());
         product.setStatus(Status.ACTIVE.getValue());
         product.setUser(user);
         return product;

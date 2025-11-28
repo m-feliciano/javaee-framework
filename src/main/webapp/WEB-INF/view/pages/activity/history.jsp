@@ -1,6 +1,6 @@
 <%@ page import="com.dev.servlet.core.response.IHttpResponse" %>
 <%@ page import="java.util.List" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
@@ -186,8 +186,6 @@
                         </thead>
                         <tbody>
                         <c:forEach items="${pageable.content}" var="activity">
-                            <fmt:formatDate value="${activity.timestamp}" pattern="dd/MM/yyyy HH:mm:ss"
-                                            var="formattedTimestamp"/>
                             <tr>
                                 <td>
                                     <strong><c:out value="${activity.action}"/></strong>
@@ -225,7 +223,7 @@
                                             </span>
                                     </c:if>
                                 </td>
-                                <td class="activity-timestamp">${formattedTimestamp}</td>
+                                <td class="activity-timestamp">${activity.timestampFormatted}</td>
                                 <td>
                                     <c:if test="${not empty activity.executionTimeMs}">
                                         ${activity.executionTimeMs} ms

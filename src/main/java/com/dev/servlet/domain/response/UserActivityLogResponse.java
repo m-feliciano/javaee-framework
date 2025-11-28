@@ -4,7 +4,8 @@ import com.dev.servlet.domain.model.enums.ActivityStatus;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @Builder
@@ -25,6 +26,10 @@ public class UserActivityLogResponse {
     private String ipAddress;
     private String correlationId;
     private Long executionTimeMs;
-    private Date timestamp;
+    private LocalDate timestamp;
     private String userAgent;
+
+    public String getTimestampFormatted() {
+        return timestamp != null ? timestamp.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
+    }
 }

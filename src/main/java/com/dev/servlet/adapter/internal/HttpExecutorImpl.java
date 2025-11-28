@@ -22,7 +22,6 @@ public class HttpExecutorImpl<J> implements HttpExecutor<J> {
         try {
             return EndpointParser.of(endpoint);
         } catch (Exception e) {
-            log.error("Invalid endpoint [endpoint={}] - {}", endpoint, e.getMessage());
             throw new ServiceException(HttpServletResponse.SC_BAD_REQUEST, "Invalid endpoint: " + endpoint);
         }
     }
@@ -73,8 +72,6 @@ public class HttpExecutorImpl<J> implements HttpExecutor<J> {
             Objects.requireNonNull(controller);
             return controller;
         } catch (Exception e) {
-            log.error("🔌 Controller not found [endpoint={}, controller={}] - {}",
-                    parser.path(), parser.controller(), e.getMessage());
             throw new ServiceException(HttpServletResponse.SC_BAD_REQUEST, "Error resolving service endpoint: " + parser.path());
         }
     }

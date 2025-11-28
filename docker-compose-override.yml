@@ -1,0 +1,16 @@
+profiles: ["local"]
+
+volumes:
+  db_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data/postgres
+      o: bind
+
+  broker_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data/broker
+      o: bind

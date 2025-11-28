@@ -22,20 +22,20 @@ public interface InventoryControllerApi {
     @RequestMapping(value = "/create", method = POST, jsonType = InventoryCreateRequest.class)
     IHttpResponse<Void> create(InventoryCreateRequest request, @Authorization String auth);
 
-    @RequestMapping(value = "/delete/{id}", method = POST, jsonType = InventoryRequest.class)
-    IHttpResponse<Void> delete(InventoryRequest request, @Authorization String auth);
-
     @RequestMapping(value = "/list", jsonType = InventoryRequest.class)
     IServletResponse list(InventoryRequest request, @Authorization String auth);
 
     @RequestMapping(value = "/search")
     IServletResponse search(Query query, @Authorization String auth);
 
-    @RequestMapping(value = "/list/{id}", jsonType = InventoryRequest.class)
-    IHttpResponse<InventoryResponse> getStockDetail(InventoryRequest request, @Authorization String auth);
+    @RequestMapping(value = "/delete/{id}", method = POST, jsonType = InventoryRequest.class)
+    IHttpResponse<Void> delete(InventoryRequest request, @Authorization String auth);
 
-    @RequestMapping(value = "/edit/{id}", jsonType = InventoryRequest.class)
-    IHttpResponse<InventoryResponse> edit(InventoryRequest request, @Authorization String auth);
+    @RequestMapping(value = "/list/{id}", jsonType = InventoryRequest.class)
+    IHttpResponse<InventoryResponse> findById(InventoryRequest request, @Authorization String auth);
+
+    @RequestMapping(value = "/details/{id}", jsonType = InventoryRequest.class)
+    IHttpResponse<InventoryResponse> details(InventoryRequest request, @Authorization String auth);
 
     @RequestMapping(value = "/update/{id}", method = POST, jsonType = InventoryRequest.class)
     IHttpResponse<Void> update(InventoryRequest request, @Authorization String auth);

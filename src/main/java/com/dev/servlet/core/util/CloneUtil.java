@@ -1,13 +1,14 @@
 package com.dev.servlet.core.util;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -18,16 +19,17 @@ import java.util.List;
 public final class CloneUtil {
 
     private static final ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-            .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
-            .setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+
 
     public static <T> T forceClone(T object) {
         if (object == null) return null;
         String json = toJson(object);
-        Class<T> clazz = (Class<T>) object.getClass();
-        return fromJson(json, clazz);
+        return fromJson(json, (Class<T>) object.getClass());
     }
 
     public static <T> List<T> cloneList(Collection<T> objects) {
@@ -47,6 +49,7 @@ public final class CloneUtil {
 
     public static String toJson(Object object) {
         try {
+            if (object == null) return null;
             return objectMapper.writeValueAsString(object);
         } catch (Exception e) {
             log.error("Error serializing object to JSON: {}", e.getMessage());
