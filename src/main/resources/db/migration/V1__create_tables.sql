@@ -1,9 +1,7 @@
 create table tb_user
 (
-    id char(36) not null
-        primary key,
-    login      varchar(255)                              not null
-        unique,
+    id         char(36)                                  not null primary key,
+    login      varchar(255)                              not null unique,
     password   varchar(255)                              not null,
     status     varchar(1) default 'A'::character varying not null
         constraint tb_user_status_check
@@ -29,15 +27,13 @@ create index idx_user_created_at
 
 create table tb_category
 (
-    id      char(36) not null
-        primary key,
+    id         char(36)                                  not null primary key,
     name       varchar(255)                              not null,
     status     varchar(1) default 'A'::character varying not null
         constraint tb_category_status_check
             check ((status)::text = ANY
                    ((ARRAY ['A'::character varying, 'I'::character varying, 'X'::character varying])::text[])),
-    user_id char(36) not null
-        references tb_user,
+    user_id    char(36)                                  not null references tb_user,
     created_at timestamp  default CURRENT_TIMESTAMP      not null,
     updated_at timestamp  default CURRENT_TIMESTAMP      not null
 );
@@ -59,7 +55,7 @@ create index idx_category_created_at
 
 create table tb_product
 (
-    id          char(36) not null
+    id            char(36)                                  not null
         primary key,
     name          varchar(100)                              not null,
     description   text,
@@ -72,10 +68,8 @@ create table tb_product
         constraint tb_product_status_check
             check ((status)::text = ANY
                    ((ARRAY ['A'::character varying, 'I'::character varying, 'X'::character varying])::text[])),
-    user_id     char(36) not null
-        references tb_user,
-    category_id char(36)
-        references tb_category,
+    user_id       char(36)                                  not null references tb_user,
+    category_id   char(36) references tb_category,
     created_at    timestamp  default CURRENT_TIMESTAMP      not null,
     updated_at    timestamp  default CURRENT_TIMESTAMP      not null
 );
@@ -112,8 +106,7 @@ create index idx_product_created_at
 
 create table tb_inventory
 (
-    id         char(36) not null
-        primary key,
+    id          char(36)                                  not null primary key,
     quantity    integer                                   not null
         constraint tb_inventory_quantity_check
             check (quantity >= 0),
@@ -122,10 +115,8 @@ create table tb_inventory
         constraint tb_inventory_status_check
             check ((status)::text = ANY
                    ((ARRAY ['A'::character varying, 'I'::character varying, 'X'::character varying])::text[])),
-    user_id    char(36) not null
-        references tb_user,
-    product_id char(36)
-        references tb_product,
+    user_id     char(36)                                  not null references tb_user,
+    product_id  char(36) references tb_product,
     created_at  timestamp  default CURRENT_TIMESTAMP      not null,
     updated_at  timestamp  default CURRENT_TIMESTAMP      not null
 );
@@ -164,9 +155,9 @@ alter table tb_perfil
 
 create table user_perfis
 (
-    user_id char(36) not null
+    user_id   char(36) not null
         references tb_user,
-    perfil_id integer     not null
+    perfil_id integer  not null
         references tb_perfil,
     primary key (user_id, perfil_id)
 );
@@ -218,29 +209,29 @@ execute procedure update_updated_at_column();
 
 create table tb_user_activity_log
 (
-    id        char(36) not null
-        primary key,
-    user_id   char(36) not null,
-    action             varchar(100) not null,
-    entity_type        varchar(50),
-    entity_id char(36),
-    status             varchar(20)  not null,
-    request_payload    text,
-    response_payload   text,
-    error_message      text,
-    http_status_code   integer,
-    http_method        varchar(10),
-    endpoint           varchar(255),
-    ip_address         varchar(45),
-    correlation_id     varchar(50),
-    execution_time_ms  bigint,
-    timestamp          timestamp default CURRENT_TIMESTAMP not null,
-    user_agent         varchar(500),
+    id                char(36)                            not null primary key,
+    user_id           char(36)                            not null,
+    action            varchar(100)                        not null,
+    entity_type       varchar(50),
+    entity_id         char(36),
+    status            varchar(20)                         not null,
+    request_payload   text,
+    response_payload  text,
+    error_message     text,
+    http_status_code  integer,
+    http_method       varchar(10),
+    endpoint          varchar(255),
+    ip_address        varchar(45),
+    correlation_id    varchar(50),
+    execution_time_ms bigint,
+    timestamp         timestamp default CURRENT_TIMESTAMP not null,
+    user_agent        varchar(500),
     constraint fk_activity_log_user
         foreign key (user_id) references tb_user (id)
 );
 
-alter table tb_user_activity_log owner to postgres;
+alter table tb_user_activity_log
+    owner to postgres;
 
 create index idx_activity_log_user_id on tb_user_activity_log (user_id);
 create index idx_activity_log_timestamp on tb_user_activity_log (timestamp desc);
@@ -252,53 +243,55 @@ create index idx_activity_log_correlation_id on tb_user_activity_log (correlatio
 -- DADOS INICIAIS
 -- =====================================
 
-insert into tb_perfil (id, name) values (1, 'ADMIN');
-insert into tb_perfil (id, name) values (2, 'USER');
-insert into tb_perfil (id, name) values (3, 'MANAGER');
-insert into tb_perfil (id, name) values (4, 'GUEST');
+insert into tb_perfil (id, name)
+values (1, 'ADMIN');
+insert into tb_perfil (id, name)
+values (2, 'USER');
+insert into tb_perfil (id, name)
+values (3, 'MANAGER');
+insert into tb_perfil (id, name)
+values (4, 'GUEST');
 
 -- =====================================
 -- ÍNDICES OTIMIZADOS (UUID-compatíveis)
 -- =====================================
 
 -- TB_PRODUCT
-CREATE INDEX idx_product_user_status ON tb_product(user_id, status);
-CREATE INDEX idx_product_category_status ON tb_product(category_id, status);
-CREATE INDEX idx_product_name_status ON tb_product(name, status);
-CREATE INDEX idx_product_description_status ON tb_product(description, status);
-CREATE INDEX idx_product_composite ON tb_product(user_id, category_id, status);
+CREATE INDEX idx_product_user_status ON tb_product (user_id, status);
+CREATE INDEX idx_product_category_status ON tb_product (category_id, status);
+CREATE INDEX idx_product_name_status ON tb_product (name, status);
+CREATE INDEX idx_product_description_status ON tb_product (description, status);
+CREATE INDEX idx_product_composite ON tb_product (user_id, category_id, status);
 
 -- TB_CATEGORY
-CREATE INDEX idx_category_user_status ON tb_category(user_id, status);
-CREATE INDEX idx_category_name_user_status ON tb_category(name, user_id, status);
+CREATE INDEX idx_category_user_status ON tb_category (user_id, status);
+CREATE INDEX idx_category_name_user_status ON tb_category (name, user_id, status);
 
 -- TB_INVENTORY
-CREATE INDEX idx_inventory_user_status ON tb_inventory(user_id, status);
-CREATE INDEX idx_inventory_product_user_status ON tb_inventory(product_id, user_id, status);
-CREATE INDEX idx_inventory_description_status ON tb_inventory(description, status);
+CREATE INDEX idx_inventory_user_status ON tb_inventory (user_id, status);
+CREATE INDEX idx_inventory_product_user_status ON tb_inventory (product_id, user_id, status);
+CREATE INDEX idx_inventory_description_status ON tb_inventory (description, status);
 
 -- TB_USER
-CREATE INDEX idx_user_auth ON tb_user(login, password, status);
-CREATE INDEX idx_user_perfis_composite ON user_perfis(user_id, perfil_id);
+CREATE INDEX idx_user_auth ON tb_user (login, password, status);
+CREATE INDEX idx_user_perfis_composite ON user_perfis (user_id, perfil_id);
 
 -- TB_REFRESH_TOKEN
 create table tb_refresh_token
 (
-    id          char(36) not null
-        primary key,
-    token       text           not null
-        unique,
-    user_id     char(36) not null
-        references tb_user,
-    revoked     boolean        default false not null,
-    issued_at   timestamp      default CURRENT_TIMESTAMP not null,
-    expires_at  timestamp      not null,
+    id          char(36)                            not null primary key,
+    token       text                                not null unique,
+    user_id     char(36)                            not null references tb_user,
+    revoked     boolean   default false             not null,
+    issued_at   timestamp default CURRENT_TIMESTAMP not null,
+    expires_at  timestamp                           not null,
     replaced_by char(36),
     ip_address  varchar(45),
     user_agent  varchar(500)
 );
 
-alter table tb_refresh_token owner to postgres;
+alter table tb_refresh_token
+    owner to postgres;
 
 create index idx_refresh_token_user_id on tb_refresh_token (user_id);
 create index idx_refresh_token_not_revoked_id on tb_refresh_token (token, revoked);
@@ -308,16 +301,15 @@ create index idx_refresh_token_revoked on tb_refresh_token (revoked);
 
 CREATE TABLE tb_confirmation_token
 (
-    id      char(16) PRIMARY KEY,
-    token      varchar(255) NOT NULL,
-    user_id char(36) NOT NULL,
-    created_at timestamptz,
+    id         char(16) PRIMARY KEY,
+    token      text     NOT NULL,
+    user_id    char(36) NOT NULL,
+    created_at timestamptz, /* timestamp with time zone */
     expires_at timestamptz,
-    used    boolean DEFAULT false,
-    body    text
+    used       boolean DEFAULT false,
+    body       text
 );
 
--- Atualizar estatísticas
 ANALYZE tb_product;
 ANALYZE tb_category;
 ANALYZE tb_inventory;

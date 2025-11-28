@@ -8,14 +8,14 @@ import com.dev.servlet.infrastructure.messaging.Message;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 @Singleton
 public class MessageServiceRegistry {
 
-    private final Map<MessageType, Consumer<Message>> registry = new HashMap<>();
+    private final Map<MessageType, Consumer<Message>> registry = new ConcurrentHashMap<>();
 
     @Inject
     public MessageServiceRegistry(ConfirmationMessageConsumer confirmationMessageConsumer,
@@ -30,7 +30,7 @@ public class MessageServiceRegistry {
         return registry.get(type);
     }
 
-    public void registerService(MessageType type, Consumer<Message> consumer) {
+    private void registerService(MessageType type, Consumer<Message> consumer) {
         registry.put(type, consumer);
     }
 }

@@ -36,21 +36,22 @@ Built for high-performance, scalable web applications with comprehensive observa
 
 ### Core Technologies
 
-| Component         | Technology        | Version     |
-|-------------------|-------------------|-------------|
-| **Runtime**       | Java SE           | 21 LTS      |
-| **Web Layer**     | Jakarta EE        | 10          |
-| **DI Container**  | Weld SE           | 5.1.0.Final |
-| **ORM**           | Hibernate         | 5.6.15      |
-| **Database**      | PostgreSQL JDBC   | 42.7.8      |
-| **Security**      | JJWT              | 0.12.3      |
-| **L2 Cache**      | Ehcache           | 3.9.11      |
-| **Testing**       | JUnit 5 + Mockito |             |
-| **HTTP Client**   | OkHttp            | 4.12.0      |
-| **Serialization** | Jackson           | 2.19.0      |
-| **Logging**       | SLF4J + Logback   |             |
-| **Mapping**       | MapStruct         | 1.6.3       |
-| **Build**         | Maven             | 3.6+        |
+| Component         | Technology        | Version |
+|-------------------|-------------------|---------|
+| **Runtime**       | Java SE           | 21 LTS  |
+| **Web Layer**     | Jakarta EE        | 10      |
+| **DI Container**  | Weld SE           | 5.x.x   |
+| **Flyway**        | FlywayDB          | 11.x.x  |
+| **ORM**           | Hibernate         | 5.x.x   |
+| **Database**      | PostgreSQL JDBC   | 42.x.x  |
+| **Security**      | JJWT              | 0.12.x  |
+| **L2 Cache**      | Ehcache           | 3.x.x   |
+| **Testing**       | JUnit 5 + Mockito |         |
+| **HTTP Client**   | OkHttp            | 4.x.x   |
+| **Serialization** | Jackson           | 2.19.x  |
+| **Logging**       | SLF4J + Logback   |         |
+| **Mapping**       | MapStruct         | 1.6.3   |
+| **Build**         | Maven             | 3.6+    |
 
 ---
 

@@ -12,9 +12,6 @@
     <listener>
         <listener-class>org.jboss.weld.environment.servlet.Listener</listener-class>
     </listener>
-    <listener>
-        <listener-class>com.dev.servlet.core.listener.ContextListener</listener-class>
-    </listener>
     <filter>
         <filter-name>MDCFilter</filter-name>
         <filter-class>com.dev.servlet.infrastructure.security.MDCFilter</filter-class>
@@ -31,7 +28,6 @@
         <filter-name>RateLimitFilter</filter-name>
         <url-pattern>/api/*</url-pattern>
     </filter-mapping>
-
     <filter>
         <filter-name>SecurityPasswordEncryptionFilter</filter-name>
         <filter-class>com.dev.servlet.infrastructure.security.PasswordEncryptFilter</filter-class>
@@ -41,19 +37,19 @@
         <url-pattern>/api/*</url-pattern>
     </filter-mapping>
     <filter>
-        <filter-name>SecurityXSSFilter</filter-name>
-        <filter-class>com.dev.servlet.infrastructure.security.XSSFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>SecurityXSSFilter</filter-name>
-        <url-pattern>/api/*</url-pattern>
-    </filter-mapping>
-    <filter>
         <filter-name>CsrfFilter</filter-name>
         <filter-class>com.dev.servlet.infrastructure.security.CsrfFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>CsrfFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
+    </filter-mapping>
+    <filter>
+        <filter-name>SecurityXSSFilter</filter-name>
+        <filter-class>com.dev.servlet.infrastructure.security.XSSFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>SecurityXSSFilter</filter-name>
         <url-pattern>/api/*</url-pattern>
     </filter-mapping>
     <filter>

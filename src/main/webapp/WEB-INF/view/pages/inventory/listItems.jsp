@@ -70,8 +70,8 @@
                         </tr>
                     </c:forEach>
                     </tbody>
-                    <caption class="pb-0">${items.size()} records | <fmt:formatNumber
-                            value="${total}" type="currency" minFractionDigits="2"/></caption>
+                    <caption class="pb-0">${items.size()} records | <fmt:formatNumber value="${total}"
+                            type="currency" minFractionDigits="2" currencyCode="USD"/></caption>
                 </table>
             </div>
         </div>
