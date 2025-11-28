@@ -189,18 +189,21 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
 
         final User user = jwts.getUser(auth);
 
-        Optional<List<ProductWebScrapeDTO>> scrapeResponse = WebScrapeBuilder.<List<ProductWebScrapeDTO>>create()
+        Optional<List<ProductWebScrapeDTO>> optional = WebScrapeBuilder.<List<ProductWebScrapeDTO>>create()
                 .withServiceType("product")
                 .withUrl(url)
                 .withRegistry(webScrapeServiceRegistry)
+                .onErrorHandler(ex -> {
+                    auditService.auditFailure("product:scrape", auth, new AuditPayload<>(url, null));
+                    alertService.publish(user.getId(), "error", "Error during web scraping. See logs for details.");
+                })
                 .execute();
-        if (scrapeResponse.isEmpty()) {
-            log.warn("No products found in the web scrape response");
-            auditService.auditWarning("product:scrape", auth, new AuditPayload<>(url, null));
+
+        if (optional.isEmpty()) {
             return Optional.empty();
         }
 
-        List<ProductWebScrapeDTO> response = scrapeResponse.get();
+        List<ProductWebScrapeDTO> response = optional.get();
         log.info("Web scrape returned {} products", response.size());
 
         List<Product> products = response.stream()
@@ -209,19 +212,21 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
                 .toList();
         try {
             products = baseDAO.save(products);
-            List<ProductResponse> productResponses = products.stream().map(productMapper::toResponse).toList();
+            List<ProductResponse> responseList = products.stream().map(productMapper::toResponse).toList();
 
             auditService.auditSuccess("product:scrape", auth,
-                    new AuditPayload<>(url,
-                            productResponses,
-                            Map.of("products_scraped", productResponses.size()
+                    new AuditPayload<>(url, responseList,
+                            Map.of("products_scraped", responseList.size()
                             )));
 
-            return Optional.of(productResponses);
+            alertService.publish(user.getId(), "success",
+                    String.format("Successfully scraped %d products. Check the product list.", responseList.size()));
+            return Optional.of(responseList);
 
         } catch (Exception e) {
             log.error("Error saving scraped products", e);
             auditService.auditFailure("product:scrape", auth, new AuditPayload<>(url, null));
+            alertService.publish(user.getId(), "error", "Error while saving scraped products. See logs for details.");
             return Optional.empty();
         }
     }
@@ -236,27 +241,11 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, String> impleme
                 requestContextController.activate();
 
                 Optional<List<ProductResponse>> response = scrape(url, environment, auth);
-                if (response.isEmpty()) {
-                    alertService.publish(userId, "info", "No products were scraped from the provided URL.");
-                    auditService.auditWarning("product:scrape_async", auth, new AuditPayload<>(url, null));
-                    return null;
-                }
-
-                alertService.publish(userId, "success", "Successfully scraped products. Check the product list.");
-                auditService.auditSuccess("product:scrape_async", auth, new AuditPayload<>(url, response.get()));
-                return response.get();
-
-            } catch (Exception e) {
-                log.error("Async web scraping failed for URL: {}", url, e);
-                alertService.publish(userId, "error", e.getMessage());
-                auditService.auditFailure("product:scrape_async", auth, new AuditPayload<>(url, null));
-
+                return response.orElse(null);
             } finally {
                 // Ensure the request context is deactivated after the async operation
                 requestContextController.deactivate();
             }
-
-            return null;
         });
 
         alertService.publish(userId, "info", "Web scraping started. You will be notified once it's completed");

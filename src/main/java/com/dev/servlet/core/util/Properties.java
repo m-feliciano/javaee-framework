@@ -103,4 +103,26 @@ public class Properties {
             return value != null ? value : defaultValue;
         });
     }
+
+    public static java.util.Properties loadDatabaseProperties() {
+        String dbHost = System.getenv("DB_HOST");
+        String dbPort = System.getenv("DB_PORT");
+        String dbName = System.getenv("POSTGRES_DB");
+        String dbUser = System.getenv("POSTGRES_USER");
+        String dbPassword = System.getenv("POSTGRES_PASSWORD");
+
+        if (dbHost == null || dbPort == null || dbName == null || dbUser == null || dbPassword == null) {
+            throw new IllegalStateException("Database environment variables missing. " +
+                                            "Required: DB_HOST, DB_PORT, POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD");
+        }
+
+        String jdbcUrl = "jdbc:postgresql://%s:%s/%s".formatted(dbHost, dbPort, dbName);
+
+        java.util.Properties databaseProps = new java.util.Properties();
+        databaseProps.setProperty("jakarta.persistence.jdbc.url", jdbcUrl);
+        databaseProps.setProperty("jakarta.persistence.jdbc.user", dbUser);
+        databaseProps.setProperty("jakarta.persistence.jdbc.password", dbPassword);
+        databaseProps.setProperty("jakarta.persistence.jdbc.driver", "org.postgresql.Driver");
+        return databaseProps;
+    }
 }

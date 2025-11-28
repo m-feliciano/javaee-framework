@@ -8,10 +8,10 @@
         <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
 
         <properties>
-            <property name="hibernate.hbm2ddl.auto" value="update"/>
             <property name="hibernate.connection.autocommit" value="true"/>
             <property name="hibernate.generate_statistics" value="true"/>
             <property name="hibernate.session.events.log.LOG_QUERIES_SLOWER_THAN_MS" value="25"/>
+<!--            <property name="hibernate.hbm2ddl.auto" value="validate"/>-->
             <!--            <property name="hibernate.show_sql" value="true"/>-->
             <!--            <property name="hibernate.format_sql" value="true"/>-->
             <property name="hibernate.cache.use_query_cache" value="true"/>
