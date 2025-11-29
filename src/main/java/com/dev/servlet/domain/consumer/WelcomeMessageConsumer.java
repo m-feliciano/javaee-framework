@@ -20,7 +20,7 @@ public class WelcomeMessageConsumer implements Consumer<Message> {
     @Override
     public void accept(Message message) {
         log.info("WelcomeMessageConsumer received message for ID={}, to email={}", message.id(), message.toEmail());
-        messageService.sendWelcome(message.toEmail(), message.link());
-        log.info("Sending welcome to {} with link {}", message.toEmail(), message.link());
+        messageService.sendWelcome(message.toEmail());
+        log.info("Sending welcome to {}", message.toEmail());
     }
 }

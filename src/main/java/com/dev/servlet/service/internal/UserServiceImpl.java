@@ -142,9 +142,8 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements IU
             throw e;
         }
 
-        String url = this.baseUrl + "/api/v1/user/confirm?token=" + generateConfirmationToken(user, null);
         MessageService sender = messageSender();
-        sender.sendWelcome(user.getCredentials().getLogin(), url);
+        sender.sendWelcome(user.getCredentials().getLogin());
 
         UserResponse response = userMapper.toResponse(user);
         auditService.auditSuccess("user:confirm", null, new AuditPayload<>(token, response));

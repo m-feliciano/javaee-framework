@@ -171,6 +171,8 @@ public class MessageConsumer {
                     try {
                         message = CloneUtil.fromJson(body, Message.class);
                         Objects.requireNonNull(message, "Deserialized message is null");
+                        log.info("EmailJmsConsumer: deserialized message ID={} type={} to={}",
+                                message.id(), message.type(), message.toEmail());
                     } catch (RuntimeException e) {
                         // invalid JSON / unknown enum - acknowledge and skip to avoid poison message loops
                         log.warn("Invalid message payload, sending to DLQ or skipping: {} - body={}", e.getMessage(), body);
@@ -181,7 +183,7 @@ public class MessageConsumer {
                     try {
                         then.accept(message);
                         commit(session, clientMsg);
-                        log.info("EmailJmsConsumer: clientMsg processed and committed for to email={}", message.toEmail());
+                        log.info("EmailJmsConsumer: clientMsg processed and committed for message={}", message.id());
 
                     } catch (Exception procEx) {
                         log.error("Error processing clientMsg: {}", procEx.getMessage(), procEx);

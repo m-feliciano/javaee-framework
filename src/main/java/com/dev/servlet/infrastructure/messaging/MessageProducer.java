@@ -90,9 +90,9 @@ public class MessageProducer implements MessageService {
     }
 
     @Override
-    public void sendWelcome(String email, String link) {
+    public void sendWelcome(String email) {
         String createdAt = OffsetDateTime.now().toString();
-        send(new Message(MessageType.WELCOME, email, createdAt, link));
+        send(new Message(MessageType.WELCOME, email, createdAt, null));
     }
 
     private void enqueueMessage(Message message) {

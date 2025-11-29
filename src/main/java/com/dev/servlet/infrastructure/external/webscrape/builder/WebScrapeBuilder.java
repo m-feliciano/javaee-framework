@@ -1,12 +1,15 @@
 package com.dev.servlet.infrastructure.external.webscrape.builder;
+
 import com.dev.servlet.infrastructure.external.webscrape.WebScrapeRequest;
 import com.dev.servlet.infrastructure.external.webscrape.WebScrapeService;
 import com.dev.servlet.infrastructure.external.webscrape.WebScrapeServiceRegistry;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class WebScrapeBuilder<T> {
@@ -14,6 +17,8 @@ public class WebScrapeBuilder<T> {
     private String url;
     private Map<String, Object> params;
     private WebScrapeServiceRegistry registry;
+    private Consumer<Exception> exceptionHandler;
+
     public static <T> WebScrapeBuilder<T> create() {
         return new WebScrapeBuilder<>();
     }
@@ -38,12 +43,17 @@ public class WebScrapeBuilder<T> {
         return this;
     }
 
+    public WebScrapeBuilder<T> onErrorHandler(Consumer<Exception> handler) {
+        this.exceptionHandler = handler;
+        return this;
+    }
+
     public Optional<T> execute() throws Exception {
         Objects.requireNonNull(registry, "WebScrapeServiceRegistry must be set");
         Objects.requireNonNull(serviceType, "WebScrapeServiceType must be set");
         Objects.requireNonNull(url, "WebScrape URL must be set");
         WebScrapeRequest request = new WebScrapeRequest(serviceType, url, params);
         WebScrapeService<T> service = new WebScrapeService<>(registry);
-        return service.run(request);
+        return service.execute(request, exceptionHandler);
     }
 }

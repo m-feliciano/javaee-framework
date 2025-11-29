@@ -70,7 +70,7 @@ public class EmailSenderImpl implements MessageService {
     public void send(Message message) {
         MessageType messageType = MessageType.of(message.type().type);
         switch (messageType) {
-            case WELCOME -> sendWelcome(message.toEmail(), message.link());
+            case WELCOME -> sendWelcome(message.toEmail());
             case CONFIRMATION -> sendConfirmation(message.toEmail(), message.link());
             case CHANGE_EMAIL -> sendChangeEmail(message.toEmail(), message.link());
             default -> log.warn("EmailSenderImpl: unknown message type '{}', skipping send.", message.type());
@@ -115,10 +115,10 @@ public class EmailSenderImpl implements MessageService {
     }
 
     @Override
-    public void sendWelcome(String email, String link) {
+    public void sendWelcome(String email) {
         final String subject = "Welcome!";
         if (!smtpPrecheck || smtpHost == null || smtpPort == null || smtpUser == null || smtpPass == null) {
-            log.info("[EMAIL-DRYRUN] To={} Subject={} Body={}", email, subject, link);
+            log.info("[EMAIL-DRYRUN] To={} Subject={}", email, subject);
             return;
         }
 
