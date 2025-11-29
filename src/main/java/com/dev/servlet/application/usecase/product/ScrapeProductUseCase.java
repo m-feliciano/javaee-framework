@@ -8,12 +8,12 @@ import com.dev.servlet.application.transfer.response.ProductResponse;
 import com.dev.servlet.domain.entity.Product;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
-import com.dev.servlet.infrastructure.persistence.repository.ProductRepository;
 import com.dev.servlet.infrastructure.alert.AlertService;
 import com.dev.servlet.infrastructure.audit.AuditPayload;
 import com.dev.servlet.infrastructure.external.webscrape.WebScrapeServiceRegistry;
 import com.dev.servlet.infrastructure.external.webscrape.builder.WebScrapeBuilder;
 import com.dev.servlet.infrastructure.external.webscrape.transfer.ProductWebScrapeDTO;
+import com.dev.servlet.infrastructure.persistence.repository.ProductRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.RequestContextController;
 import jakarta.inject.Inject;
@@ -82,8 +82,8 @@ public class ScrapeProductUseCase implements ScrapeProductUseCasePort {
                     .withRegistry(webScrapeServiceRegistry)
                     .onErrorHandler(ex -> {
                         auditPort.failure("product:scrape", auth, new AuditPayload<>(url, null));
-                        alertService.publish(user.getId(), "error", "Error during web scraping. See logs for details.");
-                        throw new RuntimeException(ex); // Rethrow to be caught below
+                        alertService.publish(user.getId(), "error", "Error during web scraping. Try again later.");
+                        throw new RuntimeException(ex);
                     })
                     .execute();
 
@@ -98,7 +98,6 @@ public class ScrapeProductUseCase implements ScrapeProductUseCasePort {
 
         List<ProductWebScrapeDTO> response = optional.get();
         log.debug("Scraped {} products from {}", response.size(), url);
-
 
         List<Product> products = response.stream()
                 .map(dto -> {

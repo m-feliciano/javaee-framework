@@ -27,7 +27,7 @@ public class ListProductUseCase implements ListProductUseCasePort {
     private AuditPort auditPort;
 
     @Override
-    public <U> IPageable<U> getAllPageable(IPageRequest payload, String auth, Mapper<Product, U> mapper) {
+    public <U> IPageable<U> getAllPageable(IPageRequest payload, Mapper<Product, U> mapper) {
         log.debug("ListProductUseCase: fetching products pageable with payload {}", payload);
 
         StopWatch sw = new StopWatch();
@@ -35,7 +35,7 @@ public class ListProductUseCase implements ListProductUseCasePort {
             sw.start();
             IPageable<U> pageable = productRepository.getAllPageable(payload, mapper);
             sw.stop();
-            auditPort.success("product:list", auth, new AuditPayload<>(payload, pageable.getContent(), Map.of(
+            auditPort.success("product:list", null, new AuditPayload<>(payload, pageable.getContent(), Map.of(
                     "total_products", pageable.getTotalElements(),
                     "current_page", pageable.getCurrentPage(),
                     "page_size", pageable.getPageSize(),

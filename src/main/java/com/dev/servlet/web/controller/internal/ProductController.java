@@ -121,7 +121,7 @@ public class ProductController extends BaseController implements ProductControll
     private IServletResponse getServletResponse(IPageRequest pageRequest, String auth, Product product) throws ApplicationException {
         pageRequest.setFilter(product);
         IPageable<ProductResponse> page = listProductUseCasePort.getAllPageable(
-                pageRequest, auth, productMapper::toResponseWithoutCategory);
+                pageRequest, productMapper::toResponseWithoutCategory);
 
         BigDecimal price = productCalculatePriceUseCasePort.calculateTotalPriceFor(page, product);
         Collection<CategoryResponse> categories = listCategoryUseCasePort.list(null, auth);

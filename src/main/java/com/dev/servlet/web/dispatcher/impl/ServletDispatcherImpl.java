@@ -1,4 +1,4 @@
-package com.dev.servlet.web.dispatcher;
+package com.dev.servlet.web.dispatcher.impl;
 
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.port.in.auth.AuthCookieUseCasePort;
@@ -11,6 +11,8 @@ import com.dev.servlet.shared.util.URIUtils;
 import com.dev.servlet.web.Request;
 import com.dev.servlet.web.builder.HtmlTemplate;
 import com.dev.servlet.web.builder.RequestBuilder;
+import com.dev.servlet.web.dispatcher.HttpExecutor;
+import com.dev.servlet.web.dispatcher.IServletDispatcher;
 import com.dev.servlet.web.response.IHttpResponse;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
