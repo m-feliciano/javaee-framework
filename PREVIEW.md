@@ -173,17 +173,6 @@ css/
 #### Product View Implementation
 
 ```java
-@Singleton
-public class ProductController extends BaseController implements ProductControllerApi {
-
-    public IHttpResponse<Void> register(ProductRequest request, String auth) throws ServiceException {
-        ProductResponse product = productService.create(request, auth);
-        return newHttpResponse(201, redirectTo(product.getId()));
-    }
-}
-```
-
-```java
 /**
  * Note: if the interfaces have any @ injections, the framework will handle it automatically
  */
@@ -212,65 +201,94 @@ public interface ProductControllerApi {
 }
 ```
 
+```java
+@Singleton
+public class ProductController extends BaseController implements ProductControllerApi {
+
+    public IHttpResponse<Void> register(ProductRequest request, String auth) throws ServiceException {
+        ProductResponse product = productService.create(request, auth);
+        return newHttpResponse(201, redirectTo(product.getId()));
+    }
+}
+```
+
 #### Auth Service Implementation
 
 ```java
 
 @Slf4j
+@ApplicationScoped
 @NoArgsConstructor
-@Singleton
-public class AuthServiceImpl implements AuthService {
+public class LoginUseCase implements LoginUseCasePort {
+    private static final String EVENT_NAME = "user:login";
 
     @Inject
     private UserMapper userMapper;
     @Inject
-    private AuditService auditService;
+    private AuditPort auditPort;
     @Inject
-    private IUserService userService;
+    private GetUserUseCasePort userUseCasePort;
     @Inject
-    private JwtUtil jwtUtil;
+    private AuthenticationPort authenticationPort;
+    @Inject
+    private RefreshTokenRepository refreshTokenRepository;
 
     @Override
-    public RefreshTokenResponse refreshToken(String refreshToken) throws ServiceException {
-        if (!jwtUtil.validateToken(refreshToken)) {
-            auditService.auditFailure("auth:refresh_token", refreshToken, null);
-            throw new ServiceException("Invalid refresh token");
+    public IHttpResponse<UserResponse> login(LoginRequest request, String onSuccess) throws ApplicationException {
+        String login = request.login();
+        String password = request.password();
+
+        log.debug("LoginUseCase: attempting login for user {}", login);
+
+        try {
+            UserRequest userRequest = new UserRequest(login, password);
+
+            User user = userUseCasePort.get(userRequest).orElse(null);
+            if (user == null) {
+                auditPort.failure(EVENT_NAME, null, new AuditPayload<>(request, null));
+                throw new ApplicationException("Invalid login or password");
+            }
+
+            if (Status.PENDING.equals(user.getStatus())) {
+                auditPort.warning(EVENT_NAME, null, new AuditPayload<>(request, null));
+                UserResponse userResponse = UserResponse.builder()
+                        .id(user.getId())
+                        .unconfirmedEmail(true)
+                        .build();
+                return HttpResponse.ok(userResponse).next("forward:pages/formLogin.jsp").build();
+            }
+
+            UserResponse response = userMapper.toResponse(user);
+            String accessToken = authenticationPort.generateAccessToken(user);
+            String refreshJwt = authenticationPort.generateRefreshToken(user);
+            log.debug("LoginUseCase: generated access and refresh tokens for user {}", user.getId());
+
+            RefreshToken rt = RefreshToken.builder()
+                    .token(authenticationPort.stripBearerPrefix(refreshJwt))
+                    .user(user)
+                    .revoked(false)
+                    .issuedAt(Instant.now())
+                    .expiresAt(Instant.now().plusSeconds(TimeUnit.DAYS.toSeconds(30)))
+                    .build();
+            refreshTokenRepository.save(rt);
+            log.debug("LoginUseCase: user {} logged in successfully", user.getId());
+
+            response.setToken(accessToken);
+            response.setRefreshToken(refreshJwt);
+
+            auditPort.success(EVENT_NAME, response.getToken(), null);
+            return HttpResponse.ok(response).next(onSuccess).build();
+
+        } catch (Exception e) {
+            auditPort.warning(EVENT_NAME, null, new AuditPayload<>(request, null));
+
+            return HttpResponse.<UserResponse>newBuilder()
+                    .statusCode(HttpServletResponse.SC_UNAUTHORIZED)
+                    .error("Invalid login or password")
+                    .reasonText("Unauthorized")
+                    .next("forward:pages/formLogin.jsp")
+                    .build();
         }
-
-        String raw = jwtUtil.stripBearer(refreshToken);
-        var maybe = refreshTokenDAO.findByToken(raw);
-        if (maybe.isEmpty() || maybe.get().getExpiresAt() == null || maybe.get().getExpiresAt().isBefore(Instant.now())) {
-            auditService.auditFailure("auth:refresh_token", refreshToken, null);
-            throw new ServiceException("Refresh token is invalid or revoked");
-        }
-
-        RefreshToken old = maybe.get();
-        User user = jwtUtil.getUser(refreshToken);
-        UserResponse userResponse = userService.getById(new UserRequest(user.getId()), refreshToken);
-        user.setPerfis(userResponse.getPerfis());
-
-        String newAccessToken = jwtUtil.generateAccessToken(user);
-        String newRefreshJwt = jwtUtil.generateRefreshToken(user);
-
-        // rotate tokens
-        RefreshToken created = RefreshToken.builder()
-                .token(jwtUtil.stripBearer(newRefreshJwt))
-                .user(user)
-                .revoked(false)
-                .issuedAt(Instant.now())
-                .expiresAt(Instant.now().plusSeconds(java.util.concurrent.TimeUnit.DAYS.toSeconds(30)))
-                .replacedBy(null)
-                .build();
-        refreshTokenDAO.save(created);
-
-        old.setRevoked(true);
-        old.setReplacedBy(created.getId());
-        refreshTokenDAO.update(old);
-
-        CacheUtils.clearAll(user.getId());
-        var refreshTokenResponse = new RefreshTokenResponse(newAccessToken, newRefreshJwt);
-        auditService.auditSuccess("auth:refresh_token", refreshToken, null);
-        return refreshTokenResponse;
     }
 }
 ```
@@ -280,6 +298,7 @@ public class AuthServiceImpl implements AuthService {
 ```java
 
 @Slf4j
+@ApplicationScoped
 @NoArgsConstructor
 public class AuthFilter implements Filter {
 
@@ -294,29 +313,35 @@ public class AuthFilter implements Filter {
             return;
         }
 
-        String token = cookieService.getTokenFromCookie(httpRequest, cookieService.getAccessTokenCookieName());
-        String refreshToken = cookieService.getTokenFromCookie(httpRequest, cookieService.getRefreshTokenCookieName());
-
+        String token = authCookieUseCasePort.getTokenFromCookie(httpRequest, authCookieUseCasePort.getAccessTokenCookieName());
+        String refreshToken = authCookieUseCasePort.getTokenFromCookie(httpRequest, authCookieUseCasePort.getRefreshTokenCookieName());
         if (token == null && refreshToken == null) {
+            log.warn("No tokens found for: {}, redirecting to login page", httpRequest.getRequestURI());
             redirectToLogin(httpResponse);
             return;
         }
 
-        boolean tokenValid = token != null && jwtUtil.validateToken(token);
+        boolean tokenValid = token != null && authenticationPort.validateToken(token);
         if (tokenValid) {
+            log.debug("Valid token access [endpoint={}]", httpRequest.getRequestURI());
             dispatcher.dispatch(httpRequest, httpResponse);
             return;
         }
 
-        if (refreshToken != null && jwtUtil.validateToken(refreshToken)) {
-            RefreshTokenResponse refreshTokenResponse = loginService.refreshToken(BEARER_PREFIX + refreshToken);
-            cookieService.setAccessTokenCookie(httpResponse, refreshTokenResponse.token());
-            httpResponse.setStatus(HttpServletResponse.SC_FOUND);
-            httpResponse.sendRedirect(httpRequest.getRequestURI());
-            return;
+        if (refreshToken != null && authenticationPort.validateToken(refreshToken)) {
+            try {
+                RefreshTokenResponse refreshTokenResponse = refreshTokenUseCasePort.refreshToken(BEARER_PREFIX + refreshToken);
+                authCookieUseCasePort.setAuthCookies(httpResponse, refreshTokenResponse.token(), refreshTokenResponse.refreshToken());
+                httpResponse.setStatus(HttpServletResponse.SC_FOUND);
+                httpResponse.sendRedirect(httpRequest.getRequestURI());
+                return;
+            } catch (ApplicationException e) {
+                log.error("Failed to refresh token, redirecting to login page", e);
+            }
         }
 
-        cookieService.clearAuthCookies(httpResponse);
+        log.warn("Both tokens are invalid for: {}, redirecting to login page", httpRequest.getRequestURI());
+        authCookieUseCasePort.clearCookies(httpResponse);
         redirectToLogin(httpResponse);
     }
 }

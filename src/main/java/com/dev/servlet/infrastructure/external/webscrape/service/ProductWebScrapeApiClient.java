@@ -3,10 +3,10 @@ package com.dev.servlet.infrastructure.external.webscrape.service;
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.infrastructure.external.webscrape.WebScrapeRequest;
 import com.dev.servlet.infrastructure.external.webscrape.api.ScrapeApiClient;
-import com.dev.servlet.infrastructure.external.webscrape.data.VirtualFileUtils;
 import com.dev.servlet.infrastructure.external.webscrape.transfer.ProductWebScrapeDTO;
 import com.dev.servlet.infrastructure.external.webscrape.transfer.WebScrapingResponse;
 import com.dev.servlet.infrastructure.utils.CloneUtil;
+import com.dev.servlet.shared.util.VirtualFileUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Request;
@@ -73,10 +73,10 @@ public class ProductWebScrapeApiClient extends ScrapeApiClient<List<ProductWebSc
                 }
 
                 String responseBody = response.body().string();
-                TypeReference<WebScrapingResponse<ProductWebScrapeDTO>> typeReference = new TypeReference<>() {
-                };
+                scrapingResponse = objectMapper.readValue(responseBody,
+                        new TypeReference<WebScrapingResponse<ProductWebScrapeDTO>>() {
+                        });
 
-                scrapingResponse = objectMapper.readValue(responseBody, typeReference);
                 responses.add(scrapingResponse);
                 pageTotal = scrapingResponse.getPageTotal();
 

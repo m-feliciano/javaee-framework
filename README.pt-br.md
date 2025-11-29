@@ -1,9 +1,9 @@
-# Java Web Framework
+# Framework Backend Jakarta EE com Clean Architecture
 
 Framework web leve baseado em Jakarta EE, seguindo princípios de Clean Architecture.
 Focado em desempenho, segurança e estruturação clara de aplicações backend modernas.
 
-## Core Features
+## Funcionalidades Principais
 
 - Framework próprio, construído do zero com Servlets, CDI e anotações para controllers e rotas.
 - Segurança avançada: JWT com refresh/rotate, proteção CSRF e auditoria estruturada.
@@ -14,7 +14,7 @@ Focado em desempenho, segurança e estruturação clara de aplicações backend 
 - Observabilidade: logs com correlation IDs, métricas e health checks.
 - DTO Mapping com MapStruct.
 
-## Technology Stack
+## Stack Tecnológico
 
 - Java 21, Jakarta EE 10
 - Weld CDI, Hibernate, Ehcache
@@ -23,7 +23,13 @@ Focado em desempenho, segurança e estruturação clara de aplicações backend 
 - PostgreSQL, OkHttp
 - Maven 3.6+
 
-## Architecture
+### Migrações ao longo do tempo
+- Java -> 11 -> 17 -> 21
+- Javax EE -> Jakarta EE
+- Tomcat 9 -> 10
+- Hibernate 5 -> 6
+
+## Arquitetura (Pacotes)
 
 Estruturado sobre Clean Architecture:
 
@@ -41,18 +47,45 @@ O framework inclui seu próprio “mini MVC”: reflexão para mapear anotaçõe
 A aplicação de demonstração inclui uma interface moderna.
 
 ![Preview](images/product-list.png)
+Clique [aqui](PREVIEW.md) para ver mais.
 
-## Getting Started
+## Iniciando
 
+### Docker
+
+Primeiro, carregue as variáveis de ambiente padrão e customize o arquivo `.env` conforme necessário:
+
+```shell
 cp .env.example .env
-docker-compose up -d --build
+```
+
+### Execute com Docker:
+
+```shell
+# Há mais de um perfil Docker; aqui usamos o 'local' para desenvolvimento local
+docker compose --profile local up -d --build
 docker-compose logs -f app
+```
+
+### Execute localmente (sem Docker):
 
 Ou importe o projeto no IntelliJ/Eclipse e execute:
 
+```shell
 mvn -DskipTests clean compile
+mvn -DskipTests exec:java
+```
 
-## License
+### Executar imagem pronta do Docker
+
+Se preferir, pode executar a imagem Docker já construída:
+
+```shell
+# A imagem pode variar, verifique no Docker Hub por atualizações
+docker run -d -p 8080:8080 --env-file .env mfeliciano1/servlets-app:latest
+```
+
+## Licença
 
 MIT — ver arquivo LICENSE.
 

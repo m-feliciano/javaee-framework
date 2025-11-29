@@ -150,24 +150,25 @@ public class MessageConsumer {
                 if (clientMsg == null) continue;
 
                 try {
-                    ActiveMQBuffer buf = clientMsg.getDataBuffer();
-                    if (!buf.readable()) {
-                        log.warn("EmailJmsConsumer: received empty clientMsg, skipping");
-                        commit(session, clientMsg);
-                        continue;
-                    }
-
-                    String body = buf.readString();
-                    if (StringUtils.isBlank(body)) {
-                        log.warn("EmailJmsConsumer: received blank clientMsg, skipping");
-                        commit(session, clientMsg);
-                        continue;
-                    }
-
-                    log.debug("EmailJmsConsumer: received raw clientMsg: {}", body);
-
-                    Message message;
+                    Message message = null;
+                    String body = null;
                     try {
+                        ActiveMQBuffer buf = clientMsg.getDataBuffer();
+                        if (!buf.readable()) {
+                            log.warn("EmailJmsConsumer: received empty clientMsg, skipping");
+                            commit(session, clientMsg);
+                            continue;
+                        }
+
+                        body = buf.readString();
+                        if (StringUtils.isBlank(body)) {
+                            log.warn("EmailJmsConsumer: received blank clientMsg, skipping");
+                            commit(session, clientMsg);
+                            continue;
+                        }
+
+                        log.debug("EmailJmsConsumer: received raw clientMsg: {}", body);
+
                         message = CloneUtil.fromJson(body, Message.class);
                         Objects.requireNonNull(message, "Deserialized message is null");
                         log.info("EmailJmsConsumer: deserialized message ID={} type={} to={}",
@@ -184,14 +185,9 @@ public class MessageConsumer {
                         commit(session, clientMsg);
                         log.info("EmailJmsConsumer: clientMsg processed and committed for message={}", message.id());
 
-                    } catch (Exception procEx) {
-                        log.error("Error processing clientMsg: {}", procEx.getMessage(), procEx);
-                        try {
-                            session.rollback();
-                            log.info("EmailJmsConsumer: session rolled back");
-                        } catch (Exception se) {
-                            log.warn("Failed to rollback session: {}", se.getMessage(), se);
-                        }
+                    } catch (Exception e) {
+                        log.error("Error processing message ID={}, attempting rollback: {}", message.id(), e.getMessage(), e);
+                        throw e; // will be caught by outer catch to handle rollback
                     }
 
                 } catch (Exception e) {

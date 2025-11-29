@@ -18,12 +18,12 @@ public final class RequestValidator {
     private final List<ValidationHandler> handlers = new ArrayList<>();
 
     public RequestValidator(EndpointParser endpoint, AuthenticationPort authenticationPort) {
-            // The order matters
-            handlers.add(new ApiVersionValidationHandler(endpoint));
-            handlers.add(new MethodValidationHandler());
-            handlers.add(new AuthValidationHandler());
+        // The order of handlers is important
+        handlers.add(new ApiVersionValidationHandler(endpoint));
+        handlers.add(new MethodValidationHandler());
+        handlers.add(new AuthValidationHandler());
         handlers.add(new RoleValidationHandler(authenticationPort));
-            handlers.add(new ConstraintValidationHandler());
+        handlers.add(new ConstraintValidationHandler());
     }
 
     public void validate(RequestMapping mapping, Request request) throws ApplicationException {

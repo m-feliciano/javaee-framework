@@ -1,6 +1,5 @@
 package com.dev.servlet.infrastructure.persistence.repository;
 
-import com.dev.servlet.application.port.out.repository.BaseRepositoryPort;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
 import jakarta.enterprise.context.RequestScoped;
@@ -17,7 +16,7 @@ import java.util.List;
 
 @RequestScoped
 @NoArgsConstructor
-public class UserRepository extends BaseRepository<User, String> implements BaseRepositoryPort<User, String> {
+public class UserRepository extends BaseRepository<User, String> {
 
     public static final String CREDENTIALS = "credentials";
 

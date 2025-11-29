@@ -26,7 +26,6 @@ import java.math.BigDecimal;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -67,15 +66,6 @@ public class ProductRepository extends BaseRepository<Product, String> implement
             }
         }
         return predicate;
-    }
-
-    @Override
-    public Optional<Product> find(Product product) {
-        List<Product> all = findAll(product);
-        if (CollectionUtils.isEmpty(all)) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(all.getFirst());
     }
 
     @Override

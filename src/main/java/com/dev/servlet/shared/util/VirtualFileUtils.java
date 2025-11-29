@@ -1,4 +1,4 @@
-package com.dev.servlet.infrastructure.external.webscrape.data;
+package com.dev.servlet.shared.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

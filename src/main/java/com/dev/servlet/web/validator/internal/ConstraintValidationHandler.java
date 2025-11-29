@@ -19,13 +19,16 @@ public class ConstraintValidationHandler implements ValidationHandler {
 
     public void validate(RequestMapping mapping, Request request) throws ApplicationException {
         if (mapping.jsonType() == Void.class) return;
+
         Object payload = CloneUtil.fromJson(request.getJsonBody(), mapping.jsonType());
         Set<ConstraintViolation<Object>> violations = validator.validate(payload);
         if (violations.isEmpty()) return;
+
         String errors = violations.stream()
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.joining("; "))
                 .trim();
+
         throw new ApplicationException(HttpServletResponse.SC_BAD_REQUEST, errors);
     }
 }

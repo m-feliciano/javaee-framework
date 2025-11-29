@@ -17,11 +17,7 @@ public class Request {
     private Query query;
     private int retry;
 
-    public <T> Object getPayload(Class<T> clazz) {
-        return CloneUtil.fromJson(jsonBody, clazz);
-    }
-
-    public boolean contains(String logout) {
-        return endpoint != null && endpoint.contains(logout);
+    public boolean contains(String name) {
+        return endpoint != null && endpoint.contains(name);
     }
 }
