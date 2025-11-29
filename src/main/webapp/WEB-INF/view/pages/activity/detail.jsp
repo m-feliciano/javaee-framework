@@ -1,4 +1,4 @@
-<%@ page import="com.dev.servlet.core.response.IHttpResponse" %>
+<%@ page import="com.dev.servlet.web.response.IHttpResponse" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="tag" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
@@ -8,7 +8,7 @@
 <%@ include file="/WEB-INF/routes/history-routes.jspf" %>
 
 <%
-    IHttpResponse<?> httpResponse = (com.dev.servlet.core.response.IHttpResponse<?>) request.getAttribute("response");
+    IHttpResponse<?> httpResponse = (com.dev.servlet.web.response.IHttpResponse<?>) request.getAttribute("response");
     request.setAttribute("activity", httpResponse.body());
 %>
 

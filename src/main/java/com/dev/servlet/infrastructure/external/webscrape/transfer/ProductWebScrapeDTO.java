@@ -15,11 +15,9 @@ public class ProductWebScrapeDTO {
     @JsonProperty("title")
     private String name;
     private Double price;
-
     @JsonProperty("thumbnail")
     private String url;
     private String description;
-
     @JsonFormat(pattern = "yyyy-M-d")
     @JsonProperty("publish_date")
     private Date publishDate;

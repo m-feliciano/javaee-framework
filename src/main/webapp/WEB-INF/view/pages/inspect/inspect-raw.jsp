@@ -1,4 +1,4 @@
-<%@ page import="com.dev.servlet.core.response.IHttpResponse" %>
+<%@ page import="com.dev.servlet.web.response.IHttpResponse" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="tag" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>

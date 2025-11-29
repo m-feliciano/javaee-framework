@@ -1,12 +1,12 @@
 package com.dev.servlet.infrastructure.external.webscrape;
 
 import com.dev.servlet.infrastructure.external.webscrape.service.ProductWebScrapeApiClient;
-import jakarta.inject.Singleton;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Singleton
+@ApplicationScoped
 public class WebScrapeServiceRegistry {
     private final Map<String, IWebScrapeService<?>> registry = new ConcurrentHashMap<>();
 

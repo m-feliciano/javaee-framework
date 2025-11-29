@@ -1,9 +1,9 @@
 # Java Web Framework
 
-[![Java](https://img.shields.io/badge/Java-17-007396)](https://www.oracle.com/java/)
+[![Java](https://img.shields.io/badge/Java-21-007396)](https://www.oracle.com/java/)
 [![Maven](https://img.shields.io/badge/Maven-3.6+-C71A36)](https://maven.apache.org/)
-[![Servlets](https://img.shields.io/badge/Servlets-4.0.1-orange)](https://javaee.github.io/servlet-spec/)
-[![Hibernate](https://img.shields.io/badge/Hibernate-5.6.15-59666C)](https://hibernate.org/)
+[![Servlets](https://img.shields.io/badge/Servlets-6.0.0-orange)](https://javaee.github.io/servlet-spec/)
+[![Hibernate](https://img.shields.io/badge/Hibernate-6.2.11.Final-59666C)](https://hibernate.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
@@ -22,7 +22,7 @@ Built for high-performance, scalable web applications with comprehensive observa
 
 ### Enterprise-Grade Capabilities
 
-- **🏗️ Custom Framework**: Built from scratch using Servlet API 4.0 and CDI 1.2
+- **🏗️ Custom Framework**: Built from scratch using Jakarta EE and CDI
 - **🔐 Advanced Security**: JWT-based authentication, refresh token rotation, CSRF protection
 - **⚡ Multi-Layer Caching**: L1 (Hibernate), L2 (Ehcache), Application-level with TTL management
 - **🚦 Rate Limiting**: Leaky Bucket algorithm
@@ -122,13 +122,29 @@ mvn -DskipTests clean compile
 
 ### Clean Architecture Layers
 
-The framework follows Clean Architecture principles, organized into four main layers:
+This project follows Clean Architecture principles, ensuring a clear separation between business rules and external infrastructure. 
+The codebase is organized into four independent layers, each responsible for a specific type of concern.
 
-- **Adapter Layer** (`adapter`): Handles external interfaces, including the custom MVC dispatcher (`ServletDispatcherImpl`), HTTP executors, and request/response adapters.
-- **Core Layer** (`core`): Contains framework internals, such as custom annotations (`@Controller`, `@RequestMapping`, `@Authorization`), utilities, validators, and response builders.
-- **Domain Layer** (`domain`): Entities, Transfers, and domain models.
-- **Service Layer** (`service`): Business logic, Includes audit services, authentication, and health monitoring.
-- **Infrastructure Layer** (`infrastructure`): External concerns like persistence (Hibernate), security filters (JWT, XSS), and caching (Ehcache).
+1. Domain Layer (domain): Contains business entities, value objects, and domain services.
+2. Application Layer (application): The Application layer orchestrates the business flow.
+3. Infrastructure Layer (infrastructure): Handles data persistence, external services, and other technical details.
+4. Web Layer (web) Adaptadores de entrada (Port-In): Manages HTTP requests and responses.
+
+```mathematica
+     Web Layer
+         ↓
+   Application Layer
+         ↓
+      Domain Layer
+
+Infrastructure Layer → only implements the Application Ports.
+``` 
+- Domain depends on nothing.
+- Application depends only on Domain.
+- Web depends only on Application.
+- Infrastructure depends on Application, never the opposite.
+
+This guarantees testability, isolation, and long-term maintainability.
 
 ### Custom MVC Framework
 

@@ -1,0 +1,71 @@
+package com.dev.servlet.infrastructure.utils;
+
+import jakarta.enterprise.context.spi.CreationalContext;
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.CDI;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ClassUtils;
+
+import java.lang.annotation.Annotation;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+@Slf4j
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+public final class BeanUtil {
+    private static final String CONTROLLER_PACKAGE_NAME = "com.dev.servlet.web.controller.internal.";
+    private static final ConcurrentMap<String, Class<?>> services = new ConcurrentHashMap<>();
+
+    private static <T> T getBean(Class<T> beanType) {
+        DependencyResolver resolver = getResolver();
+        return resolver.resolve(beanType);
+    }
+
+    public static DependencyResolver getResolver() {
+        return ResolverHolder.resolver;
+    }
+
+    private static final class ResolverHolder {
+        private static final DependencyResolver resolver = new DependencyResolver();
+        private static final BeanManager beanManager = CDI.current().getBeanManager();
+    }
+
+    public static class DependencyResolver {
+        public <T> T resolve(Class<T> beanType) {
+            return resolve(beanType, new Annotation[0]);
+        }
+
+        @SuppressWarnings("unchecked")
+        public <T> T resolve(Class<T> beanType, Annotation... qualifiers) {
+            try {
+                BeanManager bm = ResolverHolder.beanManager;
+                Set<Bean<?>> beans = bm.getBeans(beanType, qualifiers);
+                if (beans.isEmpty()) {
+                    log.warn("No beans found for type: {}", beanType.getName());
+                    return null;
+                }
+                Bean<?> bean = bm.resolve(beans);
+                CreationalContext<?> ctx = bm.createCreationalContext(bean);
+                return (T) bm.getReference(bean, beanType, ctx);
+            } catch (Exception e) {
+                log.error("Failed to resolve bean: {}", beanType.getName(), e);
+                return null;
+            }
+        }
+
+        public Object getBean(String service) {
+            Class<?> beanType = services.computeIfAbsent(service, (data) -> {
+                try {
+                    return ClassUtils.getClass(CONTROLLER_PACKAGE_NAME + service);
+                } catch (Exception e) {
+                    log.error("Error resolving service: {}", service, e);
+                    return null;
+                }
+            });
+            return BeanUtil.getBean(beanType);
+        }
+    }
+}

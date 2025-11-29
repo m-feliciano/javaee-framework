@@ -1,10 +1,10 @@
 package com.dev.servlet.infrastructure.messaging;
 
-import com.dev.servlet.core.util.CloneUtil;
-import com.dev.servlet.domain.enumeration.MessageType;
+import com.dev.servlet.domain.enums.MessageType;
 import com.dev.servlet.infrastructure.messaging.config.MessageConfig;
 import com.dev.servlet.infrastructure.messaging.factory.MessageFactory;
 import com.dev.servlet.infrastructure.messaging.registry.MessageServiceRegistry;
+import com.dev.servlet.infrastructure.utils.CloneUtil;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Initialized;
@@ -35,7 +35,6 @@ public class MessageConsumer {
     private ClientSessionFactory factory;
     private volatile boolean running = true;
     private Thread consumerThread;
-
     @Inject
     private MessageServiceRegistry messageServiceRegistry;
 

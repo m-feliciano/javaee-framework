@@ -12,7 +12,6 @@ import java.nio.file.StandardOpenOption;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class VirtualFileUtils {
-
     public static Path createTempFile(String json, String filename) throws IOException {
         Path tmpDir = Paths.get(System.getProperty("java.io.tmpdir"));
         Path file = tmpDir.resolve(filename);

@@ -1,4 +1,4 @@
-<%@ page import="com.dev.servlet.core.response.IHttpResponse" %>
+<%@ page import="com.dev.servlet.web.response.IHttpResponse" %>
 <%@ include file="/WEB-INF/fragments/head-loginform.jspf" %>
 
 <%

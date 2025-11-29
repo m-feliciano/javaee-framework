@@ -8,7 +8,6 @@ local.properties
 .loadpath
 .recommenders
 *.env
-out/
 
 # External tool builders
 .externalToolBuilders/

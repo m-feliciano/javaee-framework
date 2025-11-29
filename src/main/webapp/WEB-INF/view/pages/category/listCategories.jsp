@@ -1,6 +1,6 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ include file="/WEB-INF/routes/category-routes.jspf" %>
-<%@ page import="com.dev.servlet.core.response.IHttpResponse" %>
+<%@ page import="com.dev.servlet.web.response.IHttpResponse" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <%

@@ -1,20 +1,21 @@
 package com.dev.servlet.infrastructure.messaging.registry;
 
-import com.dev.servlet.domain.consumer.ChangeEmailMessageConsumer;
-import com.dev.servlet.domain.consumer.ConfirmationMessageConsumer;
-import com.dev.servlet.domain.consumer.WelcomeMessageConsumer;
-import com.dev.servlet.domain.enumeration.MessageType;
+import com.dev.servlet.domain.enums.MessageType;
 import com.dev.servlet.infrastructure.messaging.Message;
+import com.dev.servlet.infrastructure.messaging.consumer.ChangeEmailMessageConsumer;
+import com.dev.servlet.infrastructure.messaging.consumer.ConfirmationMessageConsumer;
+import com.dev.servlet.infrastructure.messaging.consumer.WelcomeMessageConsumer;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
+import lombok.NoArgsConstructor;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-@Singleton
+@NoArgsConstructor
+@ApplicationScoped
 public class MessageServiceRegistry {
-
     private final Map<MessageType, Consumer<Message>> registry = new ConcurrentHashMap<>();
 
     @Inject

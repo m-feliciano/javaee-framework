@@ -1,6 +1,6 @@
 package com.dev.servlet.infrastructure.messaging;
 
-import com.dev.servlet.domain.enumeration.MessageType;
+import com.dev.servlet.domain.enums.MessageType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -11,7 +11,6 @@ public record Message(String id,
                       String toEmail,
                       String createdAt,
                       String link) {
-
     @JsonCreator
     public Message(@JsonProperty("id") String id,
                    @JsonProperty("type") MessageType type,
