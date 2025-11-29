@@ -1,170 +1,61 @@
 # Java Web Framework
 
-[![Java](https://img.shields.io/badge/Java-21-007396)](https://www.oracle.com/java/)
-[![Maven](https://img.shields.io/badge/Maven-3.6+-C71A36)](https://maven.apache.org/)
-[![Servlets](https://img.shields.io/badge/Servlets-6.0.0-orange)](https://javaee.github.io/servlet-spec/)
-[![Hibernate](https://img.shields.io/badge/Hibernate-6.2.11.Final-59666C)](https://hibernate.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-
-A lightweight Jakarta EE framework implementing Clean Architecture, and enterprise security standards.
-Built for high-performance, scalable web applications with comprehensive observability and cloud-native deployment capabilities.
-
-## Table of Contents
-
-- [Core Features](#core-features)
-- [Technology Stack](#technology-stack)
-- [Application Preview](#application-preview) → **[Full Gallery](PREVIEW.md)**
-- [Getting Started](#getting-started)
-- [License](#license)
+Lightweight Jakarta EE–based framework designed with Clean Architecture principles.
+Focused on performance, security, and a clear structure for modern backend applications.
 
 ## Core Features
 
-### Enterprise-Grade Capabilities
-
-- **🏗️ Custom Framework**: Built from scratch using Jakarta EE and CDI
-- **🔐 Advanced Security**: JWT-based authentication, refresh token rotation, CSRF protection
-- **⚡ Multi-Layer Caching**: L1 (Hibernate), L2 (Ehcache), Application-level with TTL management
-- **🚦 Rate Limiting**: Leaky Bucket algorithm
-- **📊 Health Monitoring**: Dashboard with metrics export
-- **🔍 Audit Trail**: Structured JSON logging with correlation IDs and trace context propagation
-- **🎯 Validation Framework**: JSR-303 compliant with custom annotations and composite validators
-- **🔄 DTO Mapping**: MapStruct-based object mapping with circular reference handling
-- **📦 Dependency Injection**: CDI with producer methods, qualifiers, and interceptors
+- Custom framework built from scratch using Servlets, CDI, and annotation-based controllers and routing.
+- Advanced security: JWT with refresh/rotate tokens, CSRF protection, and structured auditing.
+- Multi-layer caching: Hibernate L1/L2 + Ehcache.
+- Rate limiting using the Leaky Bucket algorithm.
+- Messaging with JMS/ActiveMQ for asynchronous events.
+- JSR-303 validation with custom annotations and composite validators.
+- Observability: correlation-ID logging, metrics, and health checks.
+- DTO mapping powered by MapStruct.
 
 ## Technology Stack
 
-### Core Technologies
-
-| Component         | Technology        | Version |
-|-------------------|-------------------|---------|
-| **Runtime**       | Java SE           | 21 LTS  |
-| **Web Layer**     | Jakarta EE        | 10      |
-| **DI Container**  | Weld SE           | 5.x.x   |
-| **Flyway**        | FlywayDB          | 11.x.x  |
-| **ORM**           | Hibernate         | 5.x.x   |
-| **Database**      | PostgreSQL JDBC   | 42.x.x  |
-| **Security**      | JJWT              | 0.12.x  |
-| **L2 Cache**      | Ehcache           | 3.x.x   |
-| **Testing**       | JUnit 5 + Mockito |         |
-| **HTTP Client**   | OkHttp            | 4.x.x   |
-| **Serialization** | Jackson           | 2.19.x  |
-| **Logging**       | SLF4J + Logback   |         |
-| **Mapping**       | MapStruct         | 1.6.3   |
-| **Build**         | Maven             | 3.6+    |
-
----
-
-## 📸 Application Preview
-
-> **[📱 View Full Gallery with Screenshots →](PREVIEW.md)**
-
-Modern, enterprise-grade UI implementing Material Design principles with full dark mode support and WCAG AAA
-accessibility compliance.
-
-### Quick Preview
-
-<p align="center">
-  <img src="images/product-list.png" alt="Product Management Interface" width="800">
-  <br>
-  <em>Data grid with server-side pagination, sorting, and filtering</em>
-</p>
-
-**[→ See full screenshot gallery and UI/UX documentation](PREVIEW.md)**
-
----
-
-## Getting Started
-
-### Prerequisites
-
-```bash
-# Required
-Java 21 LTS
-Maven 3.6+
-SQL (PostgreSQL recommended)
-
-# Optional (for development)
-Docker & Docker Compose
-IntelliJ IDEA / Eclipse
-Insomnia (Recommended)
-```
-
-### Quick Start
-
-```bash
-# Create a environment file
-cp .env.example .env
-# Edit .env to set database credentials and other configurations
-
-# Build-Start services in detached mode
-docker-compose up -d --build
-# logs
-docker-compose logs -f app
-```
-
-### IDE Setup
-
-Import the project as a Maven project in your favorite IDE (IntelliJ IDEA, Eclipse, etc.). Ensure that your IDE is
-configured to use Java 21 LTS.
-
-```
-# For IntelliJ IDEA
-#File -> New -> Project from Existing Sources... -> Select pom.xml
-#Before running, add the maven command to your run configuration:
-mvn -DskipTests clean compile
-
-#It will build the project and download all dependencies (frontend and backend).
-#xThe frontend is also built using Maven, so no additional setup is required.
-```
+- Java 21, Jakarta EE 10
+- Weld CDI, Hibernate, Ehcache
+- JJWT, Jackson, SLF4J/Logback
+- JUnit 5 + Mockito
+- PostgreSQL, OkHttp
+- Maven 3.6+
 
 ## Architecture
 
-### Clean Architecture Layers
+Built following Clean Architecture guidelines:
 
-This project follows Clean Architecture principles, ensuring a clear separation between business rules and external infrastructure. 
-The codebase is organized into four independent layers, each responsible for a specific type of concern.
+- Domain: entities, value objects, and business rules
+- Application: use cases and orchestration
+- Web: controllers, routing, and HTTP adaptation
+- Infrastructure: persistence, messaging, and external integrations
 
-1. Domain Layer (domain): Contains business entities, value objects, and domain services.
-2. Application Layer (application): The Application layer orchestrates the business flow.
-3. Infrastructure Layer (infrastructure): Handles data persistence, external services, and other technical details.
-4. Web Layer (web) Adaptadores de entrada (Port-In): Manages HTTP requests and responses.
+Each layer remains strictly independent — infrastructure never leaks into the domain.
 
-```mathematica
-     Web Layer
-         ↓
-   Application Layer
-         ↓
-      Domain Layer
+The framework includes its own lightweight MVC layer: annotation scanning, reflection-based routing, a middleware pipeline, and a central dispatcher to manage request flow.
 
-Infrastructure Layer → only implements the Application Ports.
-``` 
-- Domain depends on nothing.
-- Application depends only on Domain.
-- Web depends only on Application.
-- Infrastructure depends on Application, never the opposite.
+## Preview
 
-This guarantees testability, isolation, and long-term maintainability.
+The demo application includes a modern UI.
 
-### Custom MVC Framework
+![Preview](images/product-list.png)
 
-Controllers extend `BaseRouterController`, using reflection to map HTTP requests to annotated methods. The `ServletDispatcherImpl` processes requests via `HttpExecutor`, supporting retry logic, rate limiting, and error handling. Dependency injection is managed by CDI (Weld).
+## Getting Started
 
-### Security & Observability
+cp .env.example .env
+docker-compose up -d --build
+docker-compose logs -f app
 
-JWT-based auth with refresh/rotate tokens, CSRF protection, and audit trails with correlation IDs. Health checks provide readiness/liveness probes. Multi-layer caching ensures performance.
+Or import the project into IntelliJ/Eclipse and run:
+
+mvn -DskipTests clean compile
 
 ## License
 
-This project is licensed under the MIT License - see [LICENSE](LICENSE) for details.
-
+MIT — see the LICENSE file.
 
 ## Contributing
-Contributions are welcome! Please follow the guidelines below:
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Commit your changes with clear messages.
-4. Push to your fork and submit a pull request.
-5. Ensure all tests pass and add new tests as necessary.
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
+Contributions are welcome. See CONTRIBUTING.md for guidelines.
