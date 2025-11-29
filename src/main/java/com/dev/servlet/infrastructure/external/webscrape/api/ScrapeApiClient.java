@@ -3,6 +3,7 @@ import com.dev.servlet.infrastructure.external.webscrape.IWebScrapeService;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.OkHttpClient;
+
 import java.util.concurrent.TimeUnit;
 
 public abstract class ScrapeApiClient<TResponse> implements IWebScrapeService<TResponse> {

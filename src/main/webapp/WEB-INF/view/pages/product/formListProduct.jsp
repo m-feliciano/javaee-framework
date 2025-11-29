@@ -1,6 +1,6 @@
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ include file="/WEB-INF/routes/product-routes.jspf" %>
-<%@ page import="com.dev.servlet.core.response.IHttpResponse" %>
+<%@ page import="com.dev.servlet.web.response.IHttpResponse" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <%

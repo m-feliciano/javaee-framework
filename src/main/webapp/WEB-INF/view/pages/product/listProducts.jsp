@@ -1,6 +1,6 @@
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ page import="com.dev.servlet.core.response.IServletResponse" %>
+<%@ page import="com.dev.servlet.web.response.IServletResponse" %>
 <%@ include file="/WEB-INF/routes/product-routes.jspf" %>
 <%@ include file="/WEB-INF/routes/inventory-routes.jspf" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
@@ -110,7 +110,7 @@
                         </c:forEach>
                         </tbody>
                         <caption class="pb-0 caption">${pageable.getTotalElements()} records |
-                            <fmt:formatNumber value="${totalPrice}" type="currency" minFractionDigits="2"/></caption>
+                            <fmt:formatNumber value="${totalPrice}" type="currency" currencyCode="USD" minFractionDigits="2"/></caption>
                     </table>
                 </div>
             </div>

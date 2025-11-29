@@ -22,7 +22,7 @@ Projetado para aplicações web de alta performance e escalabilidade, com observ
 
 ### Capacidades Empresariais
 
-- **🏗️ Framework MVC Personalizado**: Desenvolvido do zero usando Servlet API 4.0 e CDI 1.2
+- **🏗️ Framework Personalizado**: Desenvolvido do zero usando Jakarta EE e CDI
 - **🔐 Segurança Avançada**: Autenticação baseada em JWT, rotação de refresh token, proteção CSRF
 - **⚡ Cache Multi-Camadas**: L1 (Hibernate), L2 (Ehcache), cache de aplicação com gerenciamento de TTL
 - **🚦 Limitação de Taxa**: Algoritmo Leaky Bucket
@@ -109,13 +109,13 @@ docker-compose logs -f app
 
 ### Camadas da Clean Architecture
 
-O framework segue os princípios da Clean Architecture, organizado em quatro camadas principais:
+Este projeto segue os princípios da Clean Architecture, garantindo uma separação nítida entre regras de negócio e infraestrutura externa.
+O código está organizado em quatro camadas independentes, cada uma responsável por um tipo específico de responsabilidade.
 
-- **Camada Adapter** (`adapter`): Interfaces externas, incluindo o dispatcher MVC personalizado (`ServletDispatcherImpl`), executores HTTP e adaptadores de requisição/resposta.
-- **Camada Core** (`core`): Internos do framework, como anotações personalizadas (`@Controller`, `@RequestMapping`), utilitários, validadores e construtores de resposta.
-- **Camada Domain** (`domain`): Entidades, consumers, transfers e modelos de domínio.
-- **Camada Service** (`service`): Lógica de negócio, incluindo serviços de auditoria, autenticação e monitoramento de saúde.
-- **Camada Infrastructure** (`infrastructure`): Preocupações externas como persistência (Hibernate), filtros de segurança (JWT, XSS) e cache (Ehcache).
+1. Domain Layer (domain): Contém as entidades de negócio, value objects e serviços de domínio.
+2. Application Layer (application): Orquestra o fluxo de negócio e coordena os casos de uso.
+3. Infrastructure Layer (infrastructure): Trata da persistência de dados, serviços externos e outros detalhes técnicos.
+4. Web Layer (web) – Adaptadores de Entrada (Port-In): Gerencia requisições e respostas HTTP.
 
 ### Framework MVC Personalizado
 

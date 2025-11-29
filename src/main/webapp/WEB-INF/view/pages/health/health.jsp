@@ -1,4 +1,4 @@
-<%@ page import="com.dev.servlet.core.response.IHttpResponse" %>
+<%@ page import="com.dev.servlet.web.response.IHttpResponse" %>
 <%@ page import="java.util.Map" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>

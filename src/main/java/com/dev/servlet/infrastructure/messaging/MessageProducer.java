@@ -1,10 +1,10 @@
 package com.dev.servlet.infrastructure.messaging;
 
-import com.dev.servlet.core.util.CloneUtil;
-import com.dev.servlet.domain.enumeration.MessageType;
+import com.dev.servlet.application.port.out.MessagePort;
+import com.dev.servlet.domain.enums.MessageType;
 import com.dev.servlet.infrastructure.messaging.config.MessageConfig;
 import com.dev.servlet.infrastructure.messaging.factory.MessageFactory;
-import com.dev.servlet.infrastructure.messaging.interfaces.MessageService;
+import com.dev.servlet.infrastructure.utils.CloneUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -27,7 +27,7 @@ import static com.dev.servlet.infrastructure.messaging.config.MessageConfig.EMAI
 @Slf4j
 @ApplicationScoped
 @Named("messageProducer")
-public class MessageProducer implements MessageService {
+public class MessageProducer implements MessagePort {
     private MessageConfig.BrokerConfig config;
     private ClientSessionFactory factory;
     private ExecutorService executor;

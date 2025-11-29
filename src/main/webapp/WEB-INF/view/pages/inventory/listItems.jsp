@@ -1,4 +1,4 @@
-<%@ page import="com.dev.servlet.core.response.IServletResponse" %>
+<%@ page import="com.dev.servlet.web.response.IServletResponse" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
