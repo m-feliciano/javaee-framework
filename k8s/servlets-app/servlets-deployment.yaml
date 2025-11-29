@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: servlets-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: servlets-app
+  template:
+    metadata:
+      labels:
+        app: servlets-app
+    spec:
+      containers:
+        - name: servlets-app
+          image: mfeliciano1/servlets-app:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_HOST
+              value: postgres
+            - name: MQ_HOST
+              value: activemq
+          envFrom:
+            - configMapRef:
+                name: servlets-config
+            - secretRef:
+                name: servlets-secret

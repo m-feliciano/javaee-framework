@@ -101,3 +101,5 @@ src/main/webapp/resources/dist/
 frontend/node_modules/
 .node/
 .pom
+
+secret.yaml

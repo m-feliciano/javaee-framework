@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: activemq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: activemq
+  template:
+    metadata:
+      labels:
+        app: activemq
+    spec:
+      containers:
+        - name: activemq
+          image: apache/activemq-artemis:2.44.0
+          ports:
+            - containerPort: 61616
+          envFrom:
+            - configMapRef:
+                name: servlets-config
+            - secretRef:
+                name: servlets-secret
