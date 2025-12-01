@@ -79,6 +79,19 @@ docker-compose -f docker-compose.demo.yml up -d
 
 Read the docker-compose file at `docker-compose.yml` to set up the PostgreSQL and ActiveMQ services.
 
+## Endpoints
+The application exposes some endpoints. Here are examples:
+- `POST /api/v1/auth/form` - Authenticate with username/password
+- `GET /api/v1/product/list` - List products
+- `POST /api/v1/health/live` - Liveness probe
+- `GET /api/v1/user/{id}` - Get user details
+
+The base URL is `http://localhost:8080` by default (local).
+
+Example of a complete url to list products: http://localhost:8080/api/v1/products
+
+If you want to see all available endpoints, check the Docs tab in the demo application UI or refer to the source code.
+
 ## License
 
 MIT — see the LICENSE file.
@@ -86,3 +99,12 @@ MIT — see the LICENSE file.
 ## Contributing
 
 Contributions are welcome. See CONTRIBUTING.md for guidelines.
+
+# Status Badges
+
+[//]: # ([![Build]&#40;https://github.com/m-feliciano/javaee-framework/actions/workflows/build.yml/badge.svg&#41;]&#40;...&#41;)
+[//]: # ([![Quality Gate]&#40;https://sonarcloud.io/api/project_badges/measure?project=m-feliciano_javaee-framework&metric=alert_status&#41;]&#40;...&#41;)
+![Java](https://img.shields.io/badge/Java-21-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Docker Pulls](https://img.shields.io/docker/pulls/mfeliciano1/servlets-app)
+[![Last Commit](https://img.shields.io/github/last-commit/m-feliciano/javaee-framework)](...)

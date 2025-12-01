@@ -53,6 +53,20 @@ Clique [aqui](PREVIEW.md) para ver mais.
 
 Veja o README.md
 
+## Endpoints
+
+O framework expõe alguns endpoints. Aqui estão exemplos:
+- `POST /api/v1/auth/form` - Autenticar com usuário/senha
+- `GET /api/v1/product/list` - Listar produtos
+- `POST /api/v1/health/live` - Liveness probe
+- `GET /api/v1/user/{id}` - Obter detalhes do usuário
+
+A URL base é `http://localhost:8080` por padrão (local).
+
+Exemplo de uma URL completa para listar produtos: http://localhost:8080/api/v1/products
+
+Se você quiser ver todos os endpoints disponíveis, verifique a aba Docs na interface da aplicação de demonstração ou consulte o código-fonte.
+
 ## Licença
 
 MIT — ver arquivo LICENSE.
@@ -60,3 +74,11 @@ MIT — ver arquivo LICENSE.
 ## Contribuições
 
 Pull requests são bem-vindos. Guia em CONTRIBUTING.md
+
+
+## Status Badges
+
+![Java](https://img.shields.io/badge/Java-21-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Docker Pulls](https://img.shields.io/docker/pulls/mfeliciano1/servlets-app)
+[![Last Commit](https://img.shields.io/github/last-commit/m-feliciano/javaee-framework)](...)
