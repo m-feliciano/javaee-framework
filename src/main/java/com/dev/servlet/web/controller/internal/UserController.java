@@ -7,6 +7,7 @@ import com.dev.servlet.application.port.in.user.RegisterUserUseCasePort;
 import com.dev.servlet.application.port.in.user.ResendConfirmationUseCasePort;
 import com.dev.servlet.application.port.in.user.UpdateUserUseCasePort;
 import com.dev.servlet.application.port.in.user.UserDetailsUseCasePort;
+import com.dev.servlet.application.port.out.AuditPort;
 import com.dev.servlet.application.transfer.request.ConfirmEmailRequest;
 import com.dev.servlet.application.transfer.request.ResendConfirmationRequest;
 import com.dev.servlet.application.transfer.request.UserCreateRequest;
@@ -43,6 +44,8 @@ public class UserController extends BaseController implements UserControllerApi 
     private ResendConfirmationUseCasePort resendConfirmationUseCase;
     @Inject
     private UserDetailsUseCasePort userDetailsUseCase;
+    @Inject
+    private AuditPort auditPort;
 
     @SneakyThrows
     @Override
@@ -61,8 +64,14 @@ public class UserController extends BaseController implements UserControllerApi 
     @SneakyThrows
     @Override
     public IHttpResponse<UserResponse> findById(UserRequest user, String auth) {
-        UserResponse response = userDetailsUseCase.get(user.id(), auth);
-        return okHttpResponse(response, forwardTo("formListUser"));
+        try {
+            UserResponse response = userDetailsUseCase.get(user.id(), auth);
+            auditPort.success(response.getId(), auth, "User details accessed.");
+            return okHttpResponse(response, forwardTo("formListUser"));
+        } catch (Exception e) {
+            auditPort.failure(user.id(), auth, "Failed to access user details.");
+            throw e;
+        }
     }
 
     @SneakyThrows

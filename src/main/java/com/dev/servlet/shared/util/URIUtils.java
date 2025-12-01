@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class URIUtils {
     private static final String DEFAULT_SORT_FIELD = "id";
-    private static final String DEFAULT_SORT_ORDER = "asc";
+    private static final String DEFAULT_SORT_ORDER = "desc";
     private static final int DEFAULT_MIN_PAGE_SIZE = 1;
     private static final int DEFAULT_INITIAL_PAGE = 1;
     private static final String PAGINATION_PAGE = "pagination.page";
@@ -97,7 +97,7 @@ public final class URIUtils {
         for (String param : query.split("&")) {
             String[] pair = param.split("=");
             if (pair.length == 2) {
-                queryParams.add(new KeyPair(pair[0], pair[DEFAULT_INITIAL_PAGE]));
+                queryParams.add(new KeyPair(pair[0], pair[1]));
             }
         }
         return queryParams;

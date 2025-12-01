@@ -1,11 +1,9 @@
 package com.dev.servlet.web.controller.internal;
 
-import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.mapper.ProductMapper;
 import com.dev.servlet.application.port.in.category.ListCategoryUseCasePort;
 import com.dev.servlet.application.port.in.product.DeleteProductUseCasePort;
-import com.dev.servlet.application.port.in.product.ListProductUseCasePort;
-import com.dev.servlet.application.port.in.product.ProductCalculatePriceUseCasePort;
+import com.dev.servlet.application.port.in.product.ListProductContainerUseCasePort;
 import com.dev.servlet.application.port.in.product.ProductDetailUseCasePort;
 import com.dev.servlet.application.port.in.product.RegisterProductUseCasePort;
 import com.dev.servlet.application.port.in.product.ScrapeProductUseCasePort;
@@ -18,7 +16,6 @@ import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.valueobject.KeyPair;
 import com.dev.servlet.domain.valueobject.Query;
 import com.dev.servlet.infrastructure.persistence.transfer.IPageRequest;
-import com.dev.servlet.infrastructure.persistence.transfer.IPageable;
 import com.dev.servlet.web.controller.ProductControllerApi;
 import com.dev.servlet.web.controller.internal.base.BaseController;
 import com.dev.servlet.web.response.HttpResponse;
@@ -30,9 +27,7 @@ import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
 @Slf4j
@@ -41,8 +36,6 @@ import java.util.Set;
 public class ProductController extends BaseController implements ProductControllerApi {
     @Inject
     private ProductDetailUseCasePort productDetailUseCasePort;
-    @Inject
-    private ListProductUseCasePort listProductUseCasePort;
     @Inject
     private DeleteProductUseCasePort deleteProductUseCasePort;
     @Inject
@@ -54,7 +47,7 @@ public class ProductController extends BaseController implements ProductControll
     @Inject
     private ListCategoryUseCasePort listCategoryUseCasePort;
     @Inject
-    private ProductCalculatePriceUseCasePort productCalculatePriceUseCasePort;
+    private ListProductContainerUseCasePort listProductContainerUseCasePort;
     @Inject
     private ProductMapper productMapper;
 
@@ -85,13 +78,15 @@ public class ProductController extends BaseController implements ProductControll
     public IServletResponse search(Query query, IPageRequest pageRequest, String auth) {
         User user = authenticationPort.extractUser(auth);
         Product product = productMapper.queryToProduct(query, user);
-        return getServletResponse(pageRequest, auth, product);
+        Set<KeyPair> container = listProductContainerUseCasePort.assembleContainerResponse(pageRequest, auth, product);
+        return newServletResponse(container, forwardTo("listProducts"));
     }
 
     @SneakyThrows
     public IServletResponse list(IPageRequest pageRequest, String auth) {
         Product product = productMapper.toProduct(null, authenticationPort.extractUserId(auth));
-        return getServletResponse(pageRequest, auth, product);
+        Set<KeyPair> container = listProductContainerUseCasePort.assembleContainerResponse(pageRequest, auth, product);
+        return newServletResponse(container, forwardTo("listProducts"));
     }
 
     @SneakyThrows
@@ -116,21 +111,5 @@ public class ProductController extends BaseController implements ProductControll
     public IHttpResponse<Void> scrape(String auth, String environment, String url) {
         scrapeProductUseCasePort.scrapeAsync(url, environment, auth);
         return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
-    }
-
-    private IServletResponse getServletResponse(IPageRequest pageRequest, String auth, Product product) throws ApplicationException {
-        pageRequest.setFilter(product);
-        IPageable<ProductResponse> page = listProductUseCasePort.getAllPageable(
-                pageRequest, productMapper::toResponseWithoutCategory);
-
-        BigDecimal price = productCalculatePriceUseCasePort.calculateTotalPriceFor(page, product);
-        Collection<CategoryResponse> categories = listCategoryUseCasePort.list(null, auth);
-        Set<KeyPair> container = new HashSet<>();
-
-        container.add(new KeyPair("pageable", page));
-        container.add(new KeyPair("totalPrice", price));
-        container.add(new KeyPair("categories", categories));
-
-        return newServletResponse(container, forwardTo("listProducts"));
     }
 }

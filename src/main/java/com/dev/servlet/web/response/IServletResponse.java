@@ -17,6 +17,11 @@ public interface IServletResponse extends IHttpResponse<Set<KeyPair>> {
     }
 
     @Override
+    default int statusCode() {
+        return 200;
+    }
+
+    @Override
     default String error() {
         return null;
     }
@@ -24,5 +29,10 @@ public interface IServletResponse extends IHttpResponse<Set<KeyPair>> {
     @Override
     default String reasonText() {
         return null;
+    }
+
+    @Override
+    default boolean json() {
+        return false;
     }
 }

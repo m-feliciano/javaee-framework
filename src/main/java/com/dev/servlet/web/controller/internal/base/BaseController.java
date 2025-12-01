@@ -69,11 +69,6 @@ public abstract class BaseController extends BaseRouterController {
     protected IServletResponse newServletResponse(Set<KeyPair> response, String next) {
         return new IServletResponse() {
             @Override
-            public int statusCode() {
-                return 200;
-            }
-
-            @Override
             public Set<KeyPair> body() {
                 return response;
             }
@@ -81,11 +76,6 @@ public abstract class BaseController extends BaseRouterController {
             @Override
             public String next() {
                 return next;
-            }
-
-            @Override
-            public boolean json() {
-                return false;
             }
         };
     }
