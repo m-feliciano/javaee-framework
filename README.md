@@ -53,36 +53,31 @@ Click [here](PREVIEW.md) to see more.
 
 First, load the default environment variables and customize the `.env` file as needed:
 
-```shell
+```bash
 cp .env.example .env
 ```
 
-### Run with Docker
+### Quickstart (Docker)
+
+Pull the demo `docker-compose` file and start the services:
 
 ```shell
-# There are more profiles available, check docker-compose.yml
-docker compose --profile local up -d --build
-# To view logs
-docker-compose logs -f app
+curl -O https://raw.githubusercontent.com/m-feliciano/javaee-framework/refs/heads/master/docker-compose.demo.yml
+docker compose -f docker-compose.demo.yml up -d 
 ```
 
-### Run Locally (IDE or Terminal)
+Note: You may provide your own `.env` file to override default settings if you want to use functionality like email
+sending.
 
-Import the project into your IDE or simply run:
+Run with Docker Compose:
 
 ```shell
-mvn -DskipTests clean compile
-mvn -DskipTests exec:java
+docker-compose -f docker-compose.demo.yml up -d
 ```
 
-### Use the Prebuilt Docker Image
+## To Set Up Services Manually
 
-If you want a docker-ready image, run:
-
-```shell
-# The image may vary, check Docker Hub for the latest version
-docker run -d -p 8080:8080 --env-file .env mfeliciano1/servlets-app:latest
-```
+Read the docker-compose file at `docker-compose.yml` to set up the PostgreSQL and ActiveMQ services.
 
 ## License
 

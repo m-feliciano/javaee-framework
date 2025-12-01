@@ -3,8 +3,8 @@ package com.dev.servlet.application.usecase.auth;
 import com.dev.servlet.application.port.in.auth.LogoutUseCasePort;
 import com.dev.servlet.application.port.out.AuditPort;
 import com.dev.servlet.application.port.out.AuthenticationPort;
-import com.dev.servlet.infrastructure.persistence.repository.RefreshTokenRepository;
 import com.dev.servlet.infrastructure.cache.CacheUtils;
+import com.dev.servlet.infrastructure.persistence.repository.RefreshTokenRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.NoArgsConstructor;
@@ -17,7 +17,7 @@ public class LogoutUseCase implements LogoutUseCasePort {
     @Inject
     private AuthenticationPort authenticationPort;
     @Inject
-    private RefreshTokenRepository refreshTokenDAO;
+    private RefreshTokenRepository repository;
     @Inject
     private AuditPort auditPort;
 
@@ -27,7 +27,7 @@ public class LogoutUseCase implements LogoutUseCasePort {
 
         try {
             String userId = authenticationPort.extractUserId(auth);
-            refreshTokenDAO.revokeAll(userId);
+            repository.revokeAll(userId);
             CacheUtils.clearAll(userId);
         } catch (Exception ignored) {
         }

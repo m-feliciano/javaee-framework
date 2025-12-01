@@ -104,9 +104,17 @@
             </form>
         </div>
         <div class="login-footer">
-            <p>Don't have an account?
-                <a href="${baseLink}${version}${registerPage}">Sign up here</a>
-            </p>
+            <c:if test="${demoMode}">
+                <p class="demo-mode-info">
+                    <i class="bi bi-info-circle-fill"></i>
+                    You are in Demo Mode. Use guest@guest / guest to log in
+                </p>
+            </c:if>
+            <c:if test="${not demoMode}">
+                <p>Don't have an account?
+                    <a href="${baseLink}${version}${registerPage}">Sign up here</a>
+                </p>
+            </c:if>
         </div>
     </div>
 </div>

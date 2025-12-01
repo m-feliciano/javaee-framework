@@ -9,8 +9,9 @@ import com.dev.servlet.application.transfer.request.CategoryRequest;
 import com.dev.servlet.application.transfer.response.CategoryResponse;
 import com.dev.servlet.domain.entity.Category;
 import com.dev.servlet.domain.entity.User;
-import com.dev.servlet.infrastructure.persistence.repository.CategoryRepository;
+import com.dev.servlet.domain.entity.enums.Status;
 import com.dev.servlet.infrastructure.audit.AuditPayload;
+import com.dev.servlet.infrastructure.persistence.repository.CategoryRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.NoArgsConstructor;
@@ -52,6 +53,7 @@ public class GetCategoryDetailUseCase implements GetCategoryDetailUseCasePort {
         Category category = Category.builder()
                 .id(categoryId)
                 .user(new User(userId))
+                .status(Status.ACTIVE.getValue())
                 .build();
         return categoryRepository.find(category)
                 .orElseThrow(() -> new ApplicationException("Category not found"));

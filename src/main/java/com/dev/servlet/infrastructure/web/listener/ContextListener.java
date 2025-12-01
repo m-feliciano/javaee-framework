@@ -13,11 +13,18 @@ import java.util.Collections;
 @Slf4j
 @WebListener
 public class ContextListener implements ServletContextListener {
+
     @Override
     public void contextInitialized(ServletContextEvent arg0) {
         ServletContext context = arg0.getServletContext();
         context.setAttribute("systemVersion", Properties.getOrDefault("system.version", "unknown"));
         context.setAttribute("environment", Properties.getOrDefault("app.env", "unknown"));
+
+        boolean demoMode = Properties.isDemoModeEnabled();
+        if (demoMode)
+            log.info("ContextListener: DEMO_MODE is enabled");
+        context.setAttribute("demoMode", demoMode);
+
         // Disable session tracking via URL rewriting
         context.setSessionTrackingModes(Collections.emptySet());
     }

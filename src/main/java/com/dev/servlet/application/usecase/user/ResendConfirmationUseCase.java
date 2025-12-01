@@ -2,6 +2,7 @@ package com.dev.servlet.application.usecase.user;
 
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.mapper.UserMapper;
+import com.dev.servlet.application.port.in.user.GenerateConfirmationTokenUseCasePort;
 import com.dev.servlet.application.port.in.user.ResendConfirmationUseCasePort;
 import com.dev.servlet.application.port.out.AuditPort;
 import com.dev.servlet.application.port.out.MessagePort;
@@ -10,11 +11,11 @@ import com.dev.servlet.application.transfer.response.UserResponse;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
 import com.dev.servlet.domain.enums.MessageType;
-import com.dev.servlet.infrastructure.persistence.repository.UserRepository;
 import com.dev.servlet.infrastructure.audit.AuditPayload;
 import com.dev.servlet.infrastructure.cache.CacheUtils;
 import com.dev.servlet.infrastructure.config.Properties;
 import com.dev.servlet.infrastructure.messaging.Message;
+import com.dev.servlet.infrastructure.persistence.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -41,7 +42,7 @@ public class ResendConfirmationUseCase implements ResendConfirmationUseCasePort 
     @Inject
     private AuditPort auditPort;
     @Inject
-    private GenerateConfirmationTokenUseCase generateConfirmationTokenUseCase;
+    private GenerateConfirmationTokenUseCasePort generateConfirmationTokenUseCasePort;
     private String baseUrl;
 
     @PostConstruct
@@ -71,7 +72,7 @@ public class ResendConfirmationUseCase implements ResendConfirmationUseCasePort 
             return;
         }
 
-        String token = generateConfirmationTokenUseCase.execute(user, null);
+        String token = generateConfirmationTokenUseCasePort.createTokenForUser(user, null);
         String link = baseUrl + "/api/v1/user/confirm?token=" + token;
         String email = user.getCredentials().getLogin();
         String createdAt = OffsetDateTime.now().toString();

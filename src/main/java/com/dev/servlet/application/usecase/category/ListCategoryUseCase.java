@@ -8,9 +8,9 @@ import com.dev.servlet.application.transfer.request.CategoryRequest;
 import com.dev.servlet.application.transfer.response.CategoryResponse;
 import com.dev.servlet.domain.entity.Category;
 import com.dev.servlet.domain.entity.User;
-import com.dev.servlet.infrastructure.persistence.repository.CategoryRepository;
 import com.dev.servlet.infrastructure.audit.AuditPayload;
 import com.dev.servlet.infrastructure.cache.CacheUtils;
+import com.dev.servlet.infrastructure.persistence.repository.CategoryRepository;
 import com.dev.servlet.shared.util.CollectionUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -41,7 +41,7 @@ public class ListCategoryUseCase implements ListCategoryUseCasePort {
 
         try {
             User user = authenticationPort.extractUser(token);
-            Collection<CategoryResponse> categories = getAll(user);
+            Collection<CategoryResponse> categories = findAll(user);
             if (request != null && request.name() != null) {
                 String lowerCase = request.name().toLowerCase();
                 categories = categories.stream()
@@ -57,8 +57,9 @@ public class ListCategoryUseCase implements ListCategoryUseCasePort {
         }
     }
 
-    private Collection<CategoryResponse> getAll(User user) {
+    private Collection<CategoryResponse> findAll(User user) {
         final String userId = user.getId();
+
         List<CategoryResponse> response = CacheUtils.get(userId, "categoryCacheKey");
         if (CollectionUtils.isEmpty(response)) {
             var categories = categoryRepository.findAll(new Category(user));
@@ -67,6 +68,7 @@ public class ListCategoryUseCase implements ListCategoryUseCasePort {
                 CacheUtils.set(userId, "categoryCacheKey", response);
             }
         }
+
         return response;
     }
 }

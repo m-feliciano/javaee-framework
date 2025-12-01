@@ -2,6 +2,7 @@ package com.dev.servlet.application.usecase.user;
 
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.mapper.UserMapper;
+import com.dev.servlet.application.port.in.user.GenerateConfirmationTokenUseCasePort;
 import com.dev.servlet.application.port.in.user.UpdateUserUseCasePort;
 import com.dev.servlet.application.port.in.user.UserDetailsUseCasePort;
 import com.dev.servlet.application.port.out.AuditPort;
@@ -13,12 +14,12 @@ import com.dev.servlet.domain.entity.Credentials;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
 import com.dev.servlet.domain.enums.MessageType;
-import com.dev.servlet.infrastructure.persistence.repository.UserRepository;
 import com.dev.servlet.infrastructure.alert.AlertService;
 import com.dev.servlet.infrastructure.audit.AuditPayload;
 import com.dev.servlet.infrastructure.cache.CacheUtils;
 import com.dev.servlet.infrastructure.config.Properties;
 import com.dev.servlet.infrastructure.messaging.Message;
+import com.dev.servlet.infrastructure.persistence.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -49,7 +50,7 @@ public class UpdateUserUseCase implements UpdateUserUseCasePort {
     @Inject
     private UserDetailsUseCasePort userDetailsUseCasePort;
     @Inject
-    private GenerateConfirmationTokenUseCase generateConfirmationTokenUseCase;
+    private GenerateConfirmationTokenUseCasePort generateConfirmationTokenUseCasePort;
     private String baseUrl;
 
     @PostConstruct
@@ -60,6 +61,12 @@ public class UpdateUserUseCase implements UpdateUserUseCasePort {
     public UserResponse update(UserRequest userRequest, String auth) throws ApplicationException {
         log.debug("UpdateUserUseCase: updating user with id {}", userRequest.id());
         String userId = authPort.extractUserId(auth);
+
+        if (Properties.isDemoModeEnabled()) {
+            log.warn("UpdateUserUseCase: update operation is not allowed in demo mode");
+            alertService.publish(userId, "warning", "Update operation is not allowed in demo mode.");
+            return userDetailsUseCasePort.get(userId, auth);
+        }
 
         final String email = userRequest.login().toLowerCase();
         boolean emailUnavailable = !isEmailAvailable(email, userMapper.toUser(userRequest));
@@ -95,7 +102,7 @@ public class UpdateUserUseCase implements UpdateUserUseCasePort {
         }
 
         if (!oldEmail.equals(email)) {
-            String token = generateConfirmationTokenUseCase.execute(user, email);
+            String token = generateConfirmationTokenUseCasePort.createTokenForUser(user, email);
             String link = this.baseUrl + "/api/v1/user/email-change-confirmation?token=" + token;
             String createdAt = OffsetDateTime.now().toString();
             messagePort.send(new Message(MessageType.CHANGE_EMAIL, email, createdAt, link));

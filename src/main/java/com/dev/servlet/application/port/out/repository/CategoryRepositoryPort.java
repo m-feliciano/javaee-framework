@@ -13,4 +13,6 @@ public interface CategoryRepositoryPort {
     void delete(Category category);
 
     List<Category> save(List<Category> categories);
+
+    void updateName(Category category);
 }

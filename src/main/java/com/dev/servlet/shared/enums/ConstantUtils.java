@@ -10,4 +10,6 @@ public final class ConstantUtils {
     public static final String CSRF_TOKEN_HEADER = "X-XSRF-TOKEN";
     public static final String BEARER_PREFIX = "Bearer ";
     public static final String LOGIN_PAGE = "loginPage";
+    public static final String DEMO_USER_LOGIN = "guest@guest";
+    public static final String DEMO_USER_PASSWORD = "guest";
 }

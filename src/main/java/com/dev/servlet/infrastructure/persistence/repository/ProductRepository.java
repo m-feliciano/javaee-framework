@@ -36,22 +36,27 @@ public class ProductRepository extends BaseRepository<Product, String> implement
 
     private Predicate buildDefaultFilter(Product product, CriteriaBuilder criteriaBuilder, Root<Product> root) {
         Predicate predicate = criteriaBuilder.notEqual(root.get(STATUS), Status.DELETED.getValue());
+
         if (product.getUser() != null) {
             predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get(USER).get("id"), product.getUser().getId()));
         }
+
         if (product.getId() != null) {
             predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get(ID), product.getId()));
+
         } else {
             if (product.getName() != null) {
                 Expression<String> upper = criteriaBuilder.upper(root.get("name"));
                 Predicate like = criteriaBuilder.like(upper, product.getName().toUpperCase() + "%");
                 predicate = criteriaBuilder.and(predicate, like);
             }
+
             if (product.getDescription() != null) {
                 Expression<String> upper = criteriaBuilder.upper(root.get("description"));
                 Predicate like = criteriaBuilder.like(upper, "%" + product.getDescription().toUpperCase() + "%");
                 predicate = criteriaBuilder.and(predicate, like);
             }
+
             if (product.getCategory() != null) {
                 Join<Product, Category> join = root.join("category", JoinType.INNER);
                 if (product.getCategory().getId() != null) {
@@ -65,6 +70,7 @@ public class ProductRepository extends BaseRepository<Product, String> implement
                 }
             }
         }
+
         return predicate;
     }
 
@@ -74,13 +80,16 @@ public class ProductRepository extends BaseRepository<Product, String> implement
         CriteriaQuery<Product> query = cb.createQuery(Product.class).distinct(true);
         Root<Product> root = query.from(Product.class);
         Predicate predicate = buildDefaultFilter(product, cb, root);
+
         jakarta.persistence.criteria.Order descId = cb.asc(root.get(ID));
         query.where(predicate).select(root).orderBy(descId);
         TypedQuery<Product> typedQuery = em.createQuery(query);
+
         List<Product> resultList = typedQuery.getResultList();
         if (!CollectionUtils.isEmpty(resultList)) {
             return resultList;
         }
+
         return Collections.emptyList();
     }
 
@@ -159,6 +168,7 @@ public class ProductRepository extends BaseRepository<Product, String> implement
         CriteriaQuery<BigDecimal> query = builder.createQuery(BigDecimal.class);
         Root<Product> root = query.from(Product.class);
         Predicate predicate = buildDefaultFilter(filter, builder, root);
+
         query.where(predicate).select(builder.sum(root.get("price")));
         BigDecimal totalPrice = em.createQuery(query).getSingleResult();
         return ObjectUtils.getIfNull(totalPrice, BigDecimal.ZERO);

@@ -24,6 +24,20 @@
                 </c:if>
             </div>
         </div>
+        <!-- demo mode banner -->
+        <c:if test="${demoMode}">
+            <div class="footer-demo-mode-banner" style="margin-top: var(--spacing-6);
+                padding: var(--spacing-4);
+                background-color: var(--yellow-100);
+                border: 1px solid var(--yellow-300);
+                border-radius: var(--border-radius-md);
+                color: var(--yellow-800);
+                text-align: center;
+                font-size: var(--font-size-sm);">
+                <i class="bi bi-exclamation-triangle-fill" style="margin-right: var(--spacing-2);"></i>
+                You are currently using the application in <strong>Demo Mode</strong>. Some features may be limited or disabled.
+            </div>
+        </c:if>
     </div>
 </footer>
 

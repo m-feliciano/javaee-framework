@@ -2,9 +2,12 @@ package com.dev.servlet.application.usecase.user;
 
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.mapper.UserMapper;
+import com.dev.servlet.application.port.in.user.GenerateConfirmationTokenUseCasePort;
 import com.dev.servlet.application.port.in.user.RegisterUserUseCasePort;
+import com.dev.servlet.application.port.in.user.UserDemoModeUseCasePort;
 import com.dev.servlet.application.port.out.AuditPort;
 import com.dev.servlet.application.port.out.MessagePort;
+import com.dev.servlet.application.transfer.request.LoginRequest;
 import com.dev.servlet.application.transfer.request.UserCreateRequest;
 import com.dev.servlet.application.transfer.response.UserResponse;
 import com.dev.servlet.domain.entity.Credentials;
@@ -17,6 +20,7 @@ import com.dev.servlet.infrastructure.config.Properties;
 import com.dev.servlet.infrastructure.persistence.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,13 +29,13 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
+import static com.dev.servlet.shared.enums.ConstantUtils.DEMO_USER_LOGIN;
 import static com.dev.servlet.shared.util.ThrowableUtils.serviceError;
 
 @Slf4j
 @ApplicationScoped
 @NoArgsConstructor
 public class RegisterUserUseCase implements RegisterUserUseCasePort {
-    private static final String CACHE_KEY = "userCacheKey";
     @Inject
     private UserRepository userRepository;
     @Inject
@@ -42,7 +46,11 @@ public class RegisterUserUseCase implements RegisterUserUseCasePort {
     @Named("messageProducer")
     private MessagePort messagePort;
     @Inject
-    private GenerateConfirmationTokenUseCase generateConfirmationTokenUseCase;
+    private GenerateConfirmationTokenUseCasePort generateConfirmationTokenUseCasePort;
+    // Only for demo purposes
+    @Inject
+    private Instance<UserDemoModeUseCasePort> demoModeUseCasePortInstance;
+
     private String baseUrl;
 
     @PostConstruct
@@ -52,6 +60,13 @@ public class RegisterUserUseCase implements RegisterUserUseCasePort {
 
     public UserResponse register(UserCreateRequest userReq) throws ApplicationException {
         log.debug("RegisterUserUseCase: registering user with login {}", userReq.login());
+
+        if (Properties.isDemoModeEnabled()) {
+            log.debug("RegisterUserUseCase: demo mode is enabled, only {} user can be registered", DEMO_USER_LOGIN);
+            UserDemoModeUseCasePort instance = demoModeUseCasePortInstance.get();
+            User user = instance.validateCredentials(new LoginRequest(userReq.login(), userReq.password()));
+            return userMapper.toResponse(user);
+        }
 
         boolean passwordError = userReq.password() == null || !userReq.password().equals(userReq.confirmPassword());
         if (passwordError) {
@@ -83,13 +98,13 @@ public class RegisterUserUseCase implements RegisterUserUseCasePort {
         newUser = userRepository.save(newUser);
         log.info("User registered: {}", newUser.getCredentials().getLogin());
 
-        String token = generateConfirmationTokenUseCase.execute(newUser, null);
+        String token = generateConfirmationTokenUseCasePort.createTokenForUser(newUser, null);
         String url = this.baseUrl + "/api/v1/user/confirm?token=" + token;
         messagePort.sendConfirmation(newUser.getCredentials().getLogin(), url);
 
         UserResponse response = userMapper.toResponse(newUser);
         response.setCreated(true);
-        CacheUtils.setObject(newUser.getId(), CACHE_KEY, response);
+        CacheUtils.setObject(newUser.getId(), "userCacheKey", response);
         auditPort.success("user:register", null, new AuditPayload<>(userReq, response));
         return response;
     }

@@ -1,0 +1,66 @@
+# Docker Compose configuration for the application, PostgreSQL database, and ActiveMQ Artemis message broker.
+
+# Local: To run with a local profile:
+# docker compose -f docker-compose.local.yml up -d --build
+
+services:
+  app:
+    build:
+      context: .
+    container_name: servlets_app_local
+    restart: unless-stopped
+    env_file:
+      - ./.env.local
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      ACTIVEMQ_BROKER_URL: tcp://activemq:61616
+      ARTEMIS_USER: ${LOCAL_ARTEMIS_USER}
+      ARTEMIS_PASSWORD: ${LOCAL_ARTEMIS_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+      activemq:
+        condition: service_healthy
+
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    env_file:
+      - ./.env.local
+    environment:
+      POSTGRES_USER: ${LOCAL_DB_USER}
+      POSTGRES_PASSWORD: ${LOCAL_DB_PASSWORD}
+      POSTGRES_DB: ${LOCAL_DB}
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${LOCAL_DB_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  activemq:
+    image: apache/activemq-artemis:2.44.0
+    restart: unless-stopped
+    env_file:
+      - ./.env.local
+    environment:
+      ARTEMIS_USER: ${LOCAL_ARTEMIS_USER}
+      ARTEMIS_PASSWORD: ${LOCAL_ARTEMIS_PASSWORD}
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+    volumes:
+      - ./data/broker:/var/lib/artemis/data
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8161" ]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+networks:
+  default:
+    driver: bridge

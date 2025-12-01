@@ -2,6 +2,7 @@ package com.dev.servlet.infrastructure.config;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.yaml.snakeyaml.Yaml;
 
@@ -118,5 +119,9 @@ public final class Properties {
         databaseProps.setProperty("jakarta.persistence.jdbc.password", dbPassword);
         databaseProps.setProperty("jakarta.persistence.jdbc.driver", "org.postgresql.Driver");
         return databaseProps;
+    }
+
+    public static boolean isDemoModeEnabled() {
+        return BooleanUtils.toBoolean(getEnvOrDefault("DEMO_MODE", "false"));
     }
 }
