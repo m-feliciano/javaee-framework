@@ -126,6 +126,9 @@
     --table-hover-bg: var(--gray-100);
     --navbar-bg: var(--white);
     --sidebar-bg: var(--gray-900);
+    --yellow-100: #fff9db;
+    --yellow-300: #ffec99;
+    --yellow-800: #f59f00;
 }
 @media (prefers-color-scheme: dark) {
     :root {

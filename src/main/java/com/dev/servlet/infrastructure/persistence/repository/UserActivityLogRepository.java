@@ -26,6 +26,7 @@ public class UserActivityLogRepository extends BaseRepository<UserActivityLog, S
         CriteriaQuery<UserActivityLog> cq = cb.createQuery(UserActivityLog.class);
         Root<UserActivityLog> root = cq.from(UserActivityLog.class);
         Predicate predicate = buildDefaultPredicateFor(object, cb, root);
+
         cq.where(predicate).orderBy(cb.desc(root.get("timestamp")));
         TypedQuery<UserActivityLog> query = em.createQuery(cq);
         return query.getResultList();
@@ -37,6 +38,7 @@ public class UserActivityLogRepository extends BaseRepository<UserActivityLog, S
         if (filter.getUserId() != null) {
             predicate = cb.and(predicate, cb.equal(root.get("userId"), filter.getUserId()));
         }
+
         if (filter.getAction() != null) {
             Expression<String> upper = cb.upper(root.get("action"));
             Predicate like = cb.like(upper, "%" + filter.getAction().toUpperCase() + "%");
@@ -48,6 +50,7 @@ public class UserActivityLogRepository extends BaseRepository<UserActivityLog, S
         if (filter.getStatus() != null) {
             predicate = cb.and(predicate, cb.equal(root.get("status"), filter.getStatus()));
         }
+
         return predicate;
     }
 

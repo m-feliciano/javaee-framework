@@ -4,6 +4,7 @@ import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.mapper.UserMapper;
 import com.dev.servlet.application.port.in.auth.LoginUseCasePort;
 import com.dev.servlet.application.port.in.user.GetUserUseCasePort;
+import com.dev.servlet.application.port.in.user.UserDemoModeUseCasePort;
 import com.dev.servlet.application.port.out.AuditPort;
 import com.dev.servlet.application.port.out.AuthenticationPort;
 import com.dev.servlet.application.transfer.request.LoginRequest;
@@ -13,6 +14,7 @@ import com.dev.servlet.domain.entity.RefreshToken;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
 import com.dev.servlet.infrastructure.audit.AuditPayload;
+import com.dev.servlet.infrastructure.config.Properties;
 import com.dev.servlet.infrastructure.persistence.repository.RefreshTokenRepository;
 import com.dev.servlet.web.response.HttpResponse;
 import com.dev.servlet.web.response.IHttpResponse;
@@ -38,28 +40,33 @@ public class LoginUseCase implements LoginUseCasePort {
     @Inject
     private GetUserUseCasePort userUseCasePort;
     @Inject
+    private UserDemoModeUseCasePort userDemoModeUseCasePort;
+    @Inject
     private AuthenticationPort authenticationPort;
     @Inject
     private RefreshTokenRepository refreshTokenRepository;
 
     @Override
-    public IHttpResponse<UserResponse> login(LoginRequest request, String onSuccess) throws ApplicationException {
-        String login = request.login();
-        String password = request.password();
+    public IHttpResponse<UserResponse> login(LoginRequest credentials, String onSuccess) throws ApplicationException {
+        final String login = credentials.login();
+        final String password = credentials.password();
 
         log.debug("LoginUseCase: attempting login for user {}", login);
 
         try {
-            UserRequest userRequest = new UserRequest(login, password);
-
-            User user = userUseCasePort.get(userRequest).orElse(null);
-            if (user == null) {
-                auditPort.failure(EVENT_NAME, null, new AuditPayload<>(request, null));
-                throw new ApplicationException("Invalid login or password");
+            if (Properties.isDemoModeEnabled()) {
+                log.debug("LoginUseCase: DEMO_MODE is enabled, bypassing authentication for user {}", login);
+                User demoUser = userDemoModeUseCasePort.validateCredentials(credentials);
+                UserResponse response = authenticate(demoUser);
+                return HttpResponse.ok(response).next(onSuccess).build();
             }
 
+            UserRequest userRequest = new UserRequest(login, password);
+            User user = userUseCasePort.get(userRequest).orElse(null);
+            if (user == null) throw new ApplicationException("Invalid login or password");
+
             if (Status.PENDING.equals(user.getStatus())) {
-                auditPort.warning(EVENT_NAME, null, new AuditPayload<>(request, null));
+                auditPort.warning(EVENT_NAME, null, new AuditPayload<>(credentials, null));
                 UserResponse userResponse = UserResponse.builder()
                         .id(user.getId())
                         .unconfirmedEmail(true)
@@ -67,29 +74,13 @@ public class LoginUseCase implements LoginUseCasePort {
                 return HttpResponse.ok(userResponse).next("forward:pages/formLogin.jsp").build();
             }
 
-            UserResponse response = userMapper.toResponse(user);
-            String accessToken = authenticationPort.generateAccessToken(user);
-            String refreshJwt = authenticationPort.generateRefreshToken(user);
-            log.debug("LoginUseCase: generated access and refresh tokens for user {}", user.getId());
-
-            RefreshToken rt = RefreshToken.builder()
-                    .token(authenticationPort.stripBearerPrefix(refreshJwt))
-                    .user(user)
-                    .revoked(false)
-                    .issuedAt(Instant.now())
-                    .expiresAt(Instant.now().plusSeconds(TimeUnit.DAYS.toSeconds(30)))
-                    .build();
-            refreshTokenRepository.save(rt);
-            log.debug("LoginUseCase: user {} logged in successfully", user.getId());
-
-            response.setToken(accessToken);
-            response.setRefreshToken(refreshJwt);
-
+            UserResponse response = authenticate(user);
             auditPort.success(EVENT_NAME, response.getToken(), null);
             return HttpResponse.ok(response).next(onSuccess).build();
 
         } catch (Exception e) {
-            auditPort.warning(EVENT_NAME, null, new AuditPayload<>(request, null));
+            log.error("LoginUseCase: login failed for user {}: {}", login, e.getMessage());
+            auditPort.warning(EVENT_NAME, null, new AuditPayload<>(credentials, null));
 
             return HttpResponse.<UserResponse>newBuilder()
                     .statusCode(HttpServletResponse.SC_UNAUTHORIZED)
@@ -98,5 +89,28 @@ public class LoginUseCase implements LoginUseCasePort {
                     .next("forward:pages/formLogin.jsp")
                     .build();
         }
+    }
+
+    private UserResponse authenticate(User user) throws ApplicationException {
+        log.debug("LoginUseCase: authenticating user {}", user.getId());
+
+        UserResponse response = userMapper.toResponse(user);
+        String accessToken = authenticationPort.generateAccessToken(user);
+        String refreshJwt = authenticationPort.generateRefreshToken(user);
+        log.debug("LoginUseCase: generated access and refresh tokens for user {}", user.getId());
+
+        RefreshToken rt = RefreshToken.builder()
+                .token(authenticationPort.stripBearerPrefix(refreshJwt))
+                .user(user)
+                .revoked(false)
+                .issuedAt(Instant.now())
+                .expiresAt(Instant.now().plusSeconds(TimeUnit.DAYS.toSeconds(30)))
+                .build();
+        refreshTokenRepository.save(rt);
+        log.debug("LoginUseCase: user {} logged in successfully", user.getId());
+
+        response.setToken(accessToken);
+        response.setRefreshToken(refreshJwt);
+        return response;
     }
 }

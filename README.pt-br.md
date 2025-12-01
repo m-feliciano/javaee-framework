@@ -51,39 +51,7 @@ Clique [aqui](PREVIEW.md) para ver mais.
 
 ## Iniciando
 
-### Docker
-
-Primeiro, carregue as variáveis de ambiente padrão e customize o arquivo `.env` conforme necessário:
-
-```shell
-cp .env.example .env
-```
-
-### Execute com Docker:
-
-```shell
-# Há mais de um perfil Docker; aqui usamos o 'local' para desenvolvimento local
-docker compose --profile local up -d --build
-docker-compose logs -f app
-```
-
-### Execute localmente (sem Docker):
-
-Ou importe o projeto no IntelliJ/Eclipse e execute:
-
-```shell
-mvn -DskipTests clean compile
-mvn -DskipTests exec:java
-```
-
-### Executar imagem pronta do Docker
-
-Se preferir, pode executar a imagem Docker já construída:
-
-```shell
-# A imagem pode variar, verifique no Docker Hub por atualizações
-docker run -d -p 8080:8080 --env-file .env mfeliciano1/servlets-app:latest
-```
+Veja o README.md
 
 ## Licença
 

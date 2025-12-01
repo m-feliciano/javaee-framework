@@ -60,6 +60,11 @@ public class Category {
         this.user = user;
     }
 
+    public Category(String id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     public void addProduct(Product product) {
         if (products == null)
             products = new ArrayList<>();

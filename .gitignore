@@ -102,3 +102,5 @@ frontend/node_modules/
 .pom
 
 secret.yaml
+*.local
+.env.*

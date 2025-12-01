@@ -10,6 +10,7 @@ import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
 import com.dev.servlet.infrastructure.alert.AlertService;
 import com.dev.servlet.infrastructure.audit.AuditPayload;
+import com.dev.servlet.infrastructure.config.Properties;
 import com.dev.servlet.infrastructure.external.webscrape.WebScrapeServiceRegistry;
 import com.dev.servlet.infrastructure.external.webscrape.builder.WebScrapeBuilder;
 import com.dev.servlet.infrastructure.external.webscrape.transfer.ProductWebScrapeDTO;
@@ -67,7 +68,8 @@ public class ScrapeProductUseCase implements ScrapeProductUseCasePort {
     private List<ProductResponse> scrape(String url, String environment, String auth) {
         final User user = authenticationPort.extractUser(auth);
 
-        if (!"development".equals(environment)) {
+        // Enable web scraping only in the development environment or demo mode
+        if (!"development".equals(environment) && !Properties.isDemoModeEnabled()) {
             log.warn("Web scraping is only allowed in development environment");
             alertService.publish(user.getId(), "warn",
                     "Web scraping is only allowed in development environment");

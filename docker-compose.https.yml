@@ -1,5 +1,6 @@
-services:
+# Docker Compose configuration for Nginx with Let's Encrypt SSL using Certbot
 
+services:
   nginx:
     image: nginx:latest
     ports:

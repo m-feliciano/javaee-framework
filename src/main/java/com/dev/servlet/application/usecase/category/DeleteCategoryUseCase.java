@@ -7,6 +7,7 @@ import com.dev.servlet.application.port.out.AuthenticationPort;
 import com.dev.servlet.application.transfer.request.CategoryRequest;
 import com.dev.servlet.application.transfer.response.CategoryResponse;
 import com.dev.servlet.domain.entity.Category;
+import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.infrastructure.audit.AuditPayload;
 import com.dev.servlet.infrastructure.cache.CacheUtils;
 import com.dev.servlet.infrastructure.persistence.repository.CategoryRepository;
@@ -36,9 +37,12 @@ public class DeleteCategoryUseCase implements DeleteCategoryUseCasePort {
 
         try {
             String userId = authenticationPort.extractUserId(auth);
-            CategoryResponse category = getCategoryDetailUseCase.get(request, auth);
+            CategoryResponse response = getCategoryDetailUseCase.get(request, auth);
 
-            categoryRepository.delete(new Category(category.getId()));
+            Category category = new Category(response.getId());
+            category.setUser(new User(userId));
+            categoryRepository.delete(category);
+
             CacheUtils.clear(userId, "categoryCacheKey");
             auditPort.success(EVENT_NAME, auth, new AuditPayload<>(request, null));
         } catch (Exception e) {

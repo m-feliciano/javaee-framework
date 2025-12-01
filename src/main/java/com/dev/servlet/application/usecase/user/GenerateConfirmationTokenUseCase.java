@@ -1,5 +1,6 @@
 package com.dev.servlet.application.usecase.user;
 
+import com.dev.servlet.application.port.in.user.GenerateConfirmationTokenUseCasePort;
 import com.dev.servlet.domain.entity.ConfirmationToken;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.infrastructure.persistence.repository.ConfirmationTokenRepository;
@@ -15,11 +16,11 @@ import java.util.UUID;
 @Slf4j
 @ApplicationScoped
 @NoArgsConstructor
-public class GenerateConfirmationTokenUseCase {
+public class GenerateConfirmationTokenUseCase implements GenerateConfirmationTokenUseCasePort {
     @Inject
-    private ConfirmationTokenRepository confirmationTokenDAO;
+    private ConfirmationTokenRepository repository;
 
-    public String execute(User user, Object body) {
+    public String createTokenForUser(User user, Object body) {
         log.debug("Generating confirmation token for user {}", user.getId());
 
         String token = UUID.randomUUID().toString();
@@ -32,7 +33,7 @@ public class GenerateConfirmationTokenUseCase {
                 .used(false)
                 .build();
 
-        confirmationTokenDAO.save(confirmationToken);
+        repository.save(confirmationToken);
         log.debug("Generated confirmation token for user {}: {}", user.getId(), token);
         return token;
     }

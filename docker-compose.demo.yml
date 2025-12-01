@@ -1,0 +1,81 @@
+# Docker Compose configuration for the application, PostgreSQL database, and ActiveMQ Artemis message broker.
+
+# Local: To run with a demo image (no build):
+# docker compose -f docker-compose.demo.yml up -d
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: demo_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: servlets_app_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - demo_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  activemq:
+    image: apache/activemq-artemis:2.44.0
+    container_name: demo_activemq
+    environment:
+      ARTEMIS_USER: artemis
+      ARTEMIS_PASSWORD: artemis
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+    volumes:
+      - demo_broker_data:/var/lib/artemis/data
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8161" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    image: mfeliciano1/servlets-app:latest
+    container_name: demo_servlets_app
+    depends_on:
+      db:
+        condition: service_healthy
+      activemq:
+        condition: service_healthy
+    environment:
+      JAVA_OPTS: "-Xms256m -Xmx512m -XX:+UseG1GC -XX:+UseStringDeduplication"
+      # === Banco de Dados ===
+      DB_HOST: db
+      DB_PORT: "5432"
+      POSTGRES_DB: servlets_app_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      DEMO_MODE: true
+
+      # === JWT & Crypto ===
+      SECURITY_ENCRYPT_KEY: ZW5jcnlwdC1zZWN1cmUtZW5jcnlwdGlvb2
+      SECURITY_JWT_KEY: c2VjdXJlLXNlY3JldC1rZXktZm9yLWRldmVsb3BtZW50LWVudmlyb25tZW50LTI1Ni11c2VkLW9ubHktZm9yLXRlc3RpbmctcHJvcG9zZXM
+
+      # === ActiveMQ ===
+      ACTIVEMQ_BROKER_URL: tcp://activemq:61616
+      ARTEMIS_USER: artemis
+      ARTEMIS_PASSWORD: artemis
+
+      # === SMTP (mock) ===
+      SMTP_HOST: smtp.example.com
+      SMTP_PORT: "587"
+      SMTP_USER: demo@example.com
+      SMTP_PASS: "demo123"
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+volumes:
+  demo_db_data:
+  demo_broker_data:

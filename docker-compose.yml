@@ -1,94 +1,39 @@
-# Docker Compose configuration for the application, PostgreSQL database, and ActiveMQ Artemis message broker.
+# Docker Compose configuration for the application connecting to AWS RDS and Amazon MQ.
 
 # AWS: To run with EC2 profile:
-# docker compose -f docker-compose.yml -f docker-compose-ec2.yml --profile ec2 up -d
-
-# Local: To run with a local profile:
-# docker compose --profile local up -d
+# docker compose -f docker-compose.yml up -d
 
 services:
   app:
-    build:
-      context: .
+    image: mfeliciano1/servlets-app:latest
+    container_name: servlets_app
+    restart: unless-stopped
     env_file:
       - ./.env
     ports:
       - "8080:8080"
     environment:
-      DB_HOST: ${DOCKER_DB_HOST}
-      DB_PORT: ${DOCKER_DB_PORT}
-      POSTGRES_DB: ${DOCKER_POSTGRES_DB}
-      POSTGRES_USER: ${DOCKER_POSTGRES_USER}
-      POSTGRES_PASSWORD: ${DOCKER_POSTGRES_PASSWORD}
-      SECURITY_ENCRYPT_KEY: ${DOCKER_SECURITY_ENCRYPT_KEY}
-      SECURITY_JWT_KEY: ${DOCKER_SECURITY_JWT_KEY}
-      ACTIVEMQ_BROKER_URL: ${DOCKER_ACTIVEMQ_BROKER_URL}
-      ARTEMIS_USER: ${DOCKER_ARTEMIS_USER}
-      ARTEMIS_PASSWORD: ${DOCKER_ARTEMIS_PASSWORD}
-      ARTEMIS_ROLE: amq
-      JAVA_OPTS: "-Xms512m -Xmx1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -Dapp.config.file=app-dev.yml"
-    depends_on:
-      activemq:
-        condition: service_healthy
-      db:
-        condition: service_healthy
-    restart: unless-stopped
+      # Database (AWS RDS)
+      DB_HOST: ${AWS_RDS_HOST}
+      DB_PORT: ${AWS_RDS_PORT}
+      POSTGRES_DB: ${AWS_RDS_DB}
+      POSTGRES_USER: ${AWS_RDS_USER}
+      POSTGRES_PASSWORD: ${AWS_RDS_PASSWORD}
+      # Amazon MQ (ActiveMQ)
+      ACTIVEMQ_BROKER_URL: ${AWS_ACTIVEMQ_BROKER_URL}
+      ARTEMIS_USER: ${AWS_ACTIVEMQ_USER}
+      ARTEMIS_PASSWORD: ${AWS_ACTIVEMQ_PASSWORD}
+      # Keys
+      SECURITY_ENCRYPT_KEY: ${SECURITY_ENCRYPT_KEY}
+      SECURITY_JWT_KEY: ${SECURITY_JWT_KEY}
+      JAVA_OPTS: "-Xms256m -Xmx512m -XX:+UseG1GC -XX:+UseStringDeduplication"
+
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/api/v1/health/up" ]
       interval: 30s
       timeout: 10s
       retries: 5
-    networks:
-      - app_net
-
-  db:
-    image: postgres:15-alpine
-    env_file:
-      - ./.env
-    environment:
-      POSTGRES_USER: ${DOCKER_POSTGRES_USER}
-      POSTGRES_PASSWORD: ${DOCKER_POSTGRES_PASSWORD}
-      POSTGRES_DB: ${DOCKER_POSTGRES_DB}
-    volumes:
-      - db_data:/var/lib/postgresql/data
-      - ./src/main/resources/META-INF/sql:/docker-entrypoint-initdb.d:ro
-    restart: unless-stopped
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DOCKER_POSTGRES_USER}" ]
-      interval: 10s
-      timeout: 5s
-      retries: 12
-    networks:
-      - app_net
-
-  activemq:
-    image: apache/activemq-artemis:2.44.0
-    env_file:
-      - ./.env
-    environment:
-      ARTEMIS_USER: ${DOCKER_ARTEMIS_USER}
-      ARTEMIS_PASSWORD: ${DOCKER_ARTEMIS_PASSWORD}
-      ARTEMIS_ROLE: amq
-    ports:
-      - "61616:61616"
-      - "8161:8161"
-    volumes:
-      - broker_data:/var/lib/artemis/data
-    restart: unless-stopped
-    networks:
-      - app_net
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8161" ]
-      interval: 5s
-      timeout: 5s
-      retries: 12
-
-volumes:
-  db_data:
-    driver: local
-  broker_data:
-    driver: local
 
 networks:
-  app_net:
+  default:
     driver: bridge

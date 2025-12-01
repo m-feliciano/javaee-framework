@@ -4,7 +4,6 @@ import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.port.out.repository.CategoryRepositoryPort;
 import com.dev.servlet.domain.entity.Category;
 import com.dev.servlet.domain.entity.enums.Status;
-import com.dev.servlet.shared.util.CollectionUtils;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -20,7 +19,6 @@ import org.hibernate.Session;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
@@ -43,15 +41,6 @@ public class CategoryRepository extends BaseRepository<Category, String> impleme
         Order desc = cb.asc(root.get(ID));
         cq.select(root).where(predicate).orderBy(desc);
         return em.createQuery(cq).getResultList();
-    }
-
-    @Override
-    public Optional<Category> find(Category category) {
-        List<Category> all = findAll(category);
-        if (CollectionUtils.isEmpty(all)) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(all.getFirst());
     }
 
     @Override
@@ -109,6 +98,22 @@ public class CategoryRepository extends BaseRepository<Category, String> impleme
             session.getTransaction().rollback();
         }
         return categories;
+    }
+
+    @Override
+    public void updateName(Category category) {
+        executeInTransaction(() -> {
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaUpdate<Category> cu = cb.createCriteriaUpdate(Category.class);
+            Root<Category> root = cu.from(Category.class);
+
+            cu.set("name", category.getName());
+            Predicate predicate = cb.equal(root.get(ID), category.getId());
+            cu.where(predicate);
+
+            em.createQuery(cu).executeUpdate();
+            return null;
+        });
     }
 
     @Override
