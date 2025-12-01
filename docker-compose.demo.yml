@@ -49,7 +49,7 @@ services:
       activemq:
         condition: service_healthy
     environment:
-      JAVA_OPTS: "-Xms256m -Xmx512m -XX:+UseG1GC -XX:+UseStringDeduplication"
+      JAVA_OPTS: "-Xms512m -Xmx1024m -XX:+UseG1GC -XX:+UseStringDeduplication"
       # === Banco de Dados ===
       DB_HOST: db
       DB_PORT: "5432"
