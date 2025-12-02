@@ -16,7 +16,7 @@ public class AuthCookieUseCase implements AuthCookieUseCasePort {
 
     @Override
     public String getTokenFromCookie(HttpServletRequest request, String cookieName) {
-        return authCookiePort.getTokenFromCookie(request, cookieName);
+        return authCookiePort.getTokenFromCookieArray(request.getCookies(), cookieName);
     }
 
     @Override

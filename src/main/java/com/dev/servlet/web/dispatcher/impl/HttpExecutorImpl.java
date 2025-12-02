@@ -28,9 +28,9 @@ public class HttpExecutorImpl<J> implements HttpExecutor<J> {
 
     private static BaseRouterController resolveController(EndpointParser parser) throws ApplicationException {
         try {
-            BaseRouterController controller = (BaseRouterController) BeanUtil.getResolver().getBean(parser.controller() + "Controller");
-            Objects.requireNonNull(controller);
-            return controller;
+            var routerController = (BaseRouterController) BeanUtil.getResolver().getBean(parser.controller() + "Controller");
+            Objects.requireNonNull(routerController);
+            return routerController;
         } catch (Exception e) {
             throw new ApplicationException(HttpServletResponse.SC_BAD_REQUEST, "Error resolving service endpoint: " + parser.path());
         }
@@ -51,12 +51,12 @@ public class HttpExecutorImpl<J> implements HttpExecutor<J> {
                     return response;
                 }
                 if (response.statusCode() >= 400 && response.statusCode() < 500) {
-                    log.warn("Client error [endpoint={}, status={}, error={}]", endpoint, response.statusCode(), response.error());
+                    log.warn("HttpExecutor: client error [endpoint={}, status={}, error={}]", endpoint, response.statusCode(), response.error());
                     return response;
                 }
-                log.error("Server error [endpoint={}, status={}, error={}, attempt={}/{}]", endpoint, response.statusCode(), response.error(), currentAttempt, maxRetries + 1);
+                log.error("HttpExecutor: server error [endpoint={}, status={}, error={}, attempt={}/{}]", endpoint, response.statusCode(), response.error(), currentAttempt, maxRetries + 1);
                 if (maxRetries <= 0) {
-                    log.warn("Ã°Å¸Å¡Â« Max retries exhausted [endpoint={}]", endpoint);
+                    log.warn("HttpExecutor: max retries exhausted [endpoint={}]", endpoint);
                     return response;
                 }
                 long waitTime = waitBeforeRetry(maxRetries);
@@ -64,7 +64,7 @@ public class HttpExecutorImpl<J> implements HttpExecutor<J> {
             } while (--maxRetries > 0);
             return response;
         } catch (Exception e) {
-            log.error("Ã°Å¸â€™Â¥ Unexpected error [endpoint={}]", endpoint, e);
+            log.error("HttpExecutor: unexpected error [endpoint={}]", endpoint, e);
             return handleException(e);
         }
     }

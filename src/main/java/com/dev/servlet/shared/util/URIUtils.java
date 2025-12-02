@@ -80,7 +80,8 @@ public final class URIUtils {
         try {
             String parameter = queryParams.getOrDefault("limit", String.valueOf(DEFAULT_MIN_PAGE_SIZE));
             int limit = Math.abs(Integer.parseInt(parameter));
-            return Math.max(limit, DEFAULT_MIN_PAGE_SIZE);
+            int maxPageSize = 100;
+            return Math.min(Math.max(limit, DEFAULT_MIN_PAGE_SIZE), maxPageSize);
         } catch (NumberFormatException e) {
             return DEFAULT_MIN_PAGE_SIZE;
         }
