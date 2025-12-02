@@ -1,7 +1,7 @@
 # Docker Compose configuration for the application, PostgreSQL database, and ActiveMQ Artemis message broker.
 
 # Local: To run with a local profile:
-# docker compose -f docker-compose.local.yml up -d --build
+# docker compose -f docker-compose.dev.yml --env-file .env.dev up -d --build
 
 services:
   app:
@@ -10,30 +10,43 @@ services:
     container_name: servlets_app_local
     restart: unless-stopped
     env_file:
-      - ./.env.local
+      - ./.env.dev
     ports:
       - "8080:8080"
     environment:
       DB_HOST: db
       DB_PORT: 5432
+      # ActiveMQ interno
       ACTIVEMQ_BROKER_URL: tcp://activemq:61616
       ARTEMIS_USER: ${LOCAL_ARTEMIS_USER}
       ARTEMIS_PASSWORD: ${LOCAL_ARTEMIS_PASSWORD}
+      POSTGRES_DB: ${LOCAL_DB_NAME}
+      POSTGRES_USER: ${LOCAL_DB_USER}
+      POSTGRES_PASSWORD: ${LOCAL_DB_PASSWORD}
+      JAVA_OPTS: "-Xms512m -Xmx1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -Dapp.config.file=app-dev.yml"
+      # Opcional: modo local
+      APP_MODE: local
     depends_on:
       db:
         condition: service_healthy
       activemq:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/api/v1/health/up" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   db:
     image: postgres:15-alpine
+    container_name: dev_postgres
     restart: unless-stopped
     env_file:
-      - ./.env.local
+      - ./.env.dev
     environment:
       POSTGRES_USER: ${LOCAL_DB_USER}
       POSTGRES_PASSWORD: ${LOCAL_DB_PASSWORD}
-      POSTGRES_DB: ${LOCAL_DB}
+      POSTGRES_DB: ${LOCAL_DB_NAME}
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
     healthcheck:
@@ -44,9 +57,10 @@ services:
 
   activemq:
     image: apache/activemq-artemis:2.44.0
+    container_name: dev_activemq
     restart: unless-stopped
     env_file:
-      - ./.env.local
+      - ./.env.dev
     environment:
       ARTEMIS_USER: ${LOCAL_ARTEMIS_USER}
       ARTEMIS_PASSWORD: ${LOCAL_ARTEMIS_PASSWORD}

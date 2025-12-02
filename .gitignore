@@ -104,3 +104,4 @@ frontend/node_modules/
 secret.yaml
 *.local
 .env.*
+data/

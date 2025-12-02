@@ -1,0 +1,39 @@
+# Docker Compose configuration for the application connecting to AWS RDS and Amazon MQ.
+
+# AWS: To run with the production profile with (Postgres + ActiveMQ + App):
+# docker compose --env-file .env.prod -f docker-compose.prod.yml up -d
+
+services:
+  app:
+    image: mfeliciano1/servlets-app:latest
+    container_name: servlets_app
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    ports:
+      - "8080:8080"
+    environment:
+      # Database (AWS RDS)
+      DB_HOST: ${AWS_RDS_HOST}
+      DB_PORT: ${AWS_RDS_PORT}
+      POSTGRES_DB: ${AWS_RDS_DB}
+      POSTGRES_USER: ${AWS_RDS_USER}
+      POSTGRES_PASSWORD: ${AWS_RDS_PASSWORD}
+      # Amazon MQ (ActiveMQ)
+      ACTIVEMQ_BROKER_URL: ${AWS_ACTIVEMQ_BROKER_URL}
+      ARTEMIS_USER: ${AWS_ACTIVEMQ_USER}
+      ARTEMIS_PASSWORD: ${AWS_ACTIVEMQ_PASSWORD}
+      # Keys
+      SECURITY_ENCRYPT_KEY: ${SECURITY_ENCRYPT_KEY}
+      SECURITY_JWT_KEY: ${SECURITY_JWT_KEY}
+      JAVA_OPTS: "-Xms256m -Xmx512m -XX:+UseG1GC -XX:+UseStringDeduplication"
+
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/api/v1/health/up" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+networks:
+  default:
+    driver: bridge

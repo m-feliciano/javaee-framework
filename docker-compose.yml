@@ -1,7 +1,9 @@
 # Docker Compose configuration for the application connecting to AWS RDS and Amazon MQ.
 
-# AWS: To run with EC2 profile:
+# AWS: To run with EC2 demo profile (Postgres + ActiveMQ + App):
 # docker compose -f docker-compose.yml up -d
+
+# EC2: ambiente otimizado com tudo em Docker (Postgres + ActiveMQ + App)
 
 services:
   app:
@@ -9,30 +11,69 @@ services:
     container_name: servlets_app
     restart: unless-stopped
     env_file:
-      - ./.env
+      - ./.env.ec2
     ports:
       - "8080:8080"
     environment:
-      # Database (AWS RDS)
-      DB_HOST: ${AWS_RDS_HOST}
-      DB_PORT: ${AWS_RDS_PORT}
-      POSTGRES_DB: ${AWS_RDS_DB}
-      POSTGRES_USER: ${AWS_RDS_USER}
-      POSTGRES_PASSWORD: ${AWS_RDS_PASSWORD}
-      # Amazon MQ (ActiveMQ)
-      ACTIVEMQ_BROKER_URL: ${AWS_ACTIVEMQ_BROKER_URL}
-      ARTEMIS_USER: ${AWS_ACTIVEMQ_USER}
-      ARTEMIS_PASSWORD: ${AWS_ACTIVEMQ_PASSWORD}
-      # Keys
+      DB_HOST: db
+      DB_PORT: 5432
+      POSTGRES_DB: ${EC2_DB}
+      POSTGRES_USER: ${EC2_DB_USER}
+      POSTGRES_PASSWORD: ${EC2_DB_PASSWORD}
+      ACTIVEMQ_BROKER_URL: tcp://activemq:61616
+      ARTEMIS_USER: ${EC2_ARTEMIS_USER}
+      ARTEMIS_PASSWORD: ${EC2_ARTEMIS_PASSWORD}
       SECURITY_ENCRYPT_KEY: ${SECURITY_ENCRYPT_KEY}
       SECURITY_JWT_KEY: ${SECURITY_JWT_KEY}
-      JAVA_OPTS: "-Xms256m -Xmx512m -XX:+UseG1GC -XX:+UseStringDeduplication"
-
+      JAVA_OPTS: "-Xms512m -Xmx1024m -XX:+UseG1GC -XX:+UseStringDeduplication"
+    depends_on:
+      db:
+        condition: service_healthy
+      activemq:
+        condition: service_healthy
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/api/v1/health/up" ]
       interval: 30s
       timeout: 10s
       retries: 5
+
+  db:
+    image: postgres:15-alpine
+    container_name: ec2_postgres
+    restart: unless-stopped
+    env_file:
+      - ./.env.ec2
+    environment:
+      POSTGRES_USER: ${EC2_DB_USER}
+      POSTGRES_PASSWORD: ${EC2_DB_PASSWORD}
+      POSTGRES_DB: ${EC2_DB}
+    volumes:
+      - /data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${EC2_DB_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  activemq:
+    image: apache/activemq-artemis:2.44.0
+    container_name: ec2_activemq
+    restart: unless-stopped
+    env_file:
+      - ./.env.ec2
+    environment:
+      ARTEMIS_USER: ${EC2_ARTEMIS_USER}
+      ARTEMIS_PASSWORD: ${EC2_ARTEMIS_PASSWORD}
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+    volumes:
+      - /data/broker:/var/lib/artemis/data
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8161" ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
 
 networks:
   default:
