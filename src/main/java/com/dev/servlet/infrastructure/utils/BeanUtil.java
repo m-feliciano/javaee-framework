@@ -1,15 +1,13 @@
 package com.dev.servlet.infrastructure.utils;
 
-import jakarta.enterprise.context.spi.CreationalContext;
-import jakarta.enterprise.inject.spi.Bean;
-import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.inject.spi.CDI;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ClassUtils;
 
 import java.lang.annotation.Annotation;
-import java.util.Set;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -17,20 +15,12 @@ import java.util.concurrent.ConcurrentMap;
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class BeanUtil {
     private static final String CONTROLLER_PACKAGE_NAME = "com.dev.servlet.web.controller.internal.";
-    private static final ConcurrentMap<String, Class<?>> services = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<String, Class<?>> classes = new ConcurrentHashMap<>();
+    @Getter
+    public static final DependencyResolver resolver = new DependencyResolver();
 
-    private static <T> T getBean(Class<T> beanType) {
-        DependencyResolver resolver = getResolver();
-        return resolver.resolve(beanType);
-    }
-
-    public static DependencyResolver getResolver() {
-        return ResolverHolder.resolver;
-    }
-
-    private static final class ResolverHolder {
-        private static final DependencyResolver resolver = new DependencyResolver();
-        private static final BeanManager beanManager = CDI.current().getBeanManager();
+    public static <T> T resolve(Class<T> clazz) {
+        return resolver.resolve(clazz);
     }
 
     public static class DependencyResolver {
@@ -38,34 +28,28 @@ public final class BeanUtil {
             return resolve(beanType, new Annotation[0]);
         }
 
-        @SuppressWarnings("unchecked")
         public <T> T resolve(Class<T> beanType, Annotation... qualifiers) {
+            if (beanType == null) throw new IllegalArgumentException("beanType must not be null");
             try {
-                BeanManager bm = ResolverHolder.beanManager;
-                Set<Bean<?>> beans = bm.getBeans(beanType, qualifiers);
-                if (beans.isEmpty()) {
-                    log.warn("No beans found for type: {}", beanType.getName());
-                    return null;
-                }
-                Bean<?> bean = bm.resolve(beans);
-                CreationalContext<?> ctx = bm.createCreationalContext(bean);
-                return (T) bm.getReference(bean, beanType, ctx);
+                return CDI.current().select(beanType,qualifiers).get();
             } catch (Exception e) {
                 log.error("Failed to resolve bean: {}", beanType.getName(), e);
                 return null;
             }
         }
 
-        public Object getBean(String service) {
-            Class<?> beanType = services.computeIfAbsent(service, (data) -> {
+        public Object getBean(String beanName) {
+            Class<?> clazz = classes.computeIfAbsent(beanName, (data) -> {
                 try {
-                    return ClassUtils.getClass(CONTROLLER_PACKAGE_NAME + service);
+                    return ClassUtils.getClass(CONTROLLER_PACKAGE_NAME + beanName);
                 } catch (Exception e) {
-                    log.error("Error resolving service: {}", service, e);
+                    log.error("Error resolving service: {}", beanName, e);
                     return null;
                 }
             });
-            return BeanUtil.getBean(beanType);
+
+            Objects.requireNonNull(clazz, "Bean type not found for name: " + beanName);
+            return resolve(clazz);
         }
     }
 }

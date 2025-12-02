@@ -16,7 +16,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static com.dev.servlet.shared.enums.ConstantUtils.ACCESS_TOKEN_COOKIE;
@@ -54,8 +57,7 @@ public class AuthCookieServiceAdapter implements AuthCookiePort {
     }
 
     @Override
-    public String getTokenFromCookie(HttpServletRequest request, String cookieName) {
-        Cookie[] cookies = request.getCookies();
+    public String getTokenFromCookieArray(Cookie[] cookies, String cookieName) {
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if (cookieName.equals(cookie.getName())) {
@@ -65,6 +67,12 @@ public class AuthCookieServiceAdapter implements AuthCookiePort {
             }
         }
         return null;
+    }
+
+    @Override
+    public String getTokenFromCookieList(List<String> cookiesList, String name) {
+        Cookie[] cookies = getCookies(cookiesList);
+        return getTokenFromCookieArray(cookies, name);
     }
 
     @Override
@@ -128,7 +136,7 @@ public class AuthCookieServiceAdapter implements AuthCookiePort {
 
     @Override
     public String getCsrfToken(HttpServletRequest request) {
-        return getTokenFromCookie(request, CSRF_TOKEN_COOKIE);
+        return getTokenFromCookieArray(request.getCookies(), CSRF_TOKEN_COOKIE);
     }
 
     @Override
@@ -208,5 +216,21 @@ public class AuthCookieServiceAdapter implements AuthCookiePort {
     }
 
     record CookieAuditInfo(String cookieName, int cookieMaxAge) {
+    }
+
+    private static Cookie[] getCookies(List<String> cookies) {
+        return cookies.stream()
+                .flatMap(header -> Arrays.stream(header.split(";")))
+                .map(String::trim)
+                .map(cookie -> {
+                    String[] parts = cookie.split("=", 2);
+                    if (parts.length == 2) {
+                        return new Cookie(parts[0], parts[1]);
+                    } else {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .toArray(Cookie[]::new);
     }
 }
