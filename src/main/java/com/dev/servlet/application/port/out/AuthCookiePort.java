@@ -1,10 +1,15 @@
 package com.dev.servlet.application.port.out;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.util.List;
+
 public interface AuthCookiePort {
-    String getTokenFromCookie(HttpServletRequest request, String name);
+    String getTokenFromCookieArray(Cookie[] cookies, String name);
+
+    String getTokenFromCookieList(List<String> cookies, String name);
 
     void setAccessTokenCookie(HttpServletResponse response, String token);
 

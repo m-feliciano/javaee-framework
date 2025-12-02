@@ -3,10 +3,8 @@
 
     const navbar = (() => {
         let alerts = new Map();
-        let pollInterval = null;
-        let pollMs = 6000;
-        let pollTimeout = 300;
         let inited = false;
+        let ws = null;
 
         const userName = (document.querySelector('.navbar-user .user-name')?.textContent || 'guest').trim();
         const alertsKey = `app_alerts_${userName}`;
@@ -17,36 +15,66 @@
 
         function loadLocal() {
             const raw = localStorage.getItem(alertsKey);
-            if (!raw) {
-                localStorage.setItem(alertsKey, encodeBase64([]));
-                return;
-            }
-
-            let list = null;
-            try {
-                const d = decodeBase64(raw);
-                if (Array.isArray(d)) {
-                    list = d;
-                }
-            } catch {
-            }
-
-            if (!list)
+            let list = [];
+            if (raw) {
                 try {
-                    const j = JSON.parse(raw);
-                    if (Array.isArray(j)) {
-                        list = j;
-                    }
+                    list = decodeBase64(raw)
                 } catch {
                 }
-            list = list || [];
+
+                if (!Array.isArray(list)) list = [];
+            }
+
             list.forEach(a => {
                 const id = a.id || cryptoRandomId();
                 alerts.set(id, {...a, id, read: !!a.read});
             });
         }
 
-        const persistLocal = () => localStorage.setItem(alertsKey, encodeBase64(alerts.values().toArray()));
+        const persistLocal = () => {
+            localStorage.setItem(alertsKey, encodeBase64([...alerts.values()]));
+        };
+
+        function pushAlerts(list) {
+            if (!list.length) return;
+
+            list.forEach(a => {
+                const id = a.id || (a.id = cryptoRandomId());
+                const old = alerts.get(id);
+                alerts.set(id, old ? {...a, read: old.read} : {...a, read: false});
+            });
+
+            persistLocal();
+            renderAll();
+        }
+
+        function connectWebSocket() {
+            const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+            const url = `${proto}://${location.host}/ws/alerts`;
+
+            ws = new WebSocket(url);
+
+            ws.onopen = () => console.log('WS connected');
+
+            ws.onmessage = ev => {
+                try {
+                    const alert = JSON.parse(ev.data);
+                    pushAlerts([alert]);
+                } catch (e) {
+                    console.error('Invalid WS payload', e);
+                }
+            };
+
+            ws.onclose = () => {
+                console.warn('WS closed, retry in 3s');
+                setTimeout(connectWebSocket, 3000);
+            };
+
+            ws.onerror = err => {
+                console.error('WS error', err);
+                ws.close();
+            };
+        }
 
         function renderAll() {
             const menuInner = document.querySelector('#notifications-menu .notifications-menu-inner');
@@ -108,17 +136,6 @@
             }
         }
 
-        function pushAlerts(list) {
-            if (!list.length) return;
-            list.forEach(a => {
-                const id = a.id || (a.id = cryptoRandomId());
-                const old = alerts.get(id);
-                alerts.set(id, old ? {...a, read: old.read} : {...a, read: false});
-            });
-            persistLocal();
-            renderAll();
-        }
-
         function clearLocal() {
             alerts.clear();
             persistLocal();
@@ -131,31 +148,6 @@
                 method: 'POST'
             }).catch(() => {
             });
-        }
-
-        function pollOnce() {
-            fetch(`${location.origin}/api/v1/alert/list`, {credentials: 'same-origin'})
-                .then(r => r.json())
-                .then(list => {
-                    if (!Array.isArray(list)) return;
-                    const newOnes = list.filter(a => !alerts.has(a.id));
-                    pushAlerts(newOnes);
-                }).catch(() => {
-            });
-        }
-
-        function startPolling(ms) {
-            stopPolling();
-            pollMs = ms || pollMs;
-            pollInterval = setInterval(pollOnce, pollMs);
-            setTimeout(pollOnce, pollTimeout);
-        }
-
-        function stopPolling() {
-            if (pollInterval) {
-                clearInterval(pollInterval);
-                pollInterval = null;
-            }
         }
 
         function initNavbarUI() {
@@ -214,14 +206,14 @@
             });
         }
 
-        function init(options) {
+        function init() {
             if (inited) return;
             inited = true;
             loadLocal();
             renderAll();
             initNavbarUI();
             bindNotificationButtons();
-            startPolling(options?.pollMs);
+            connectWebSocket();
         }
 
         return {init};
