@@ -1,5 +1,6 @@
 package com.dev.servlet.application.transfer.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,10 +35,12 @@ public final class ProductResponse {
         this.url = url;
     }
 
+    @JsonIgnore
     public String getRegisterDateFormatted() {
         return registerDate != null ? registerDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
     }
 
+    @JsonIgnore
     public String getPriceFormatted() {
         if (price == null) return "";
         return NumberFormat.getCurrencyInstance(Locale.getDefault()).format(price);

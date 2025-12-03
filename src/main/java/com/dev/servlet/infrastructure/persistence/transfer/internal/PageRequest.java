@@ -1,7 +1,7 @@
 package com.dev.servlet.infrastructure.persistence.transfer.internal;
 
-import com.dev.servlet.domain.valueobject.Sort;
 import com.dev.servlet.infrastructure.persistence.transfer.IPageRequest;
+import com.dev.servlet.shared.vo.Sort;
 import lombok.Builder;
 import lombok.Data;
 

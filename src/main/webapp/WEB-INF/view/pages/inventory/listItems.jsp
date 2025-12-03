@@ -1,7 +1,7 @@
-<%@ page import="com.dev.servlet.web.response.IServletResponse" %>
+<%@ page import="com.dev.servlet.adapter.in.web.dto.IServletResponse" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <%@ include file="/WEB-INF/routes/inventory-routes.jspf" %>
 <%@ include file="/WEB-INF/routes/product-routes.jspf" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
@@ -19,6 +19,7 @@
         <jsp:param name="placeholder" value="Search inventory"/>
         <jsp:param name="action" value="${baseLink}${version}${ searchInventory }"/>
         <jsp:param name="onclear" value="${baseLink}${version}${ listInventory }"/>
+        <jsp:param name="searchType" value="description"/>
         <jsp:param name="limit" value="20"/>
     </jsp:include>
 

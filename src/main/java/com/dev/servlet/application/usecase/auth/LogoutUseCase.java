@@ -1,10 +1,10 @@
 package com.dev.servlet.application.usecase.auth;
 
-import com.dev.servlet.application.port.in.auth.LogoutUseCasePort;
-import com.dev.servlet.application.port.out.AuditPort;
-import com.dev.servlet.application.port.out.AuthenticationPort;
-import com.dev.servlet.infrastructure.cache.CacheUtils;
-import com.dev.servlet.infrastructure.persistence.repository.RefreshTokenRepository;
+import com.dev.servlet.application.port.in.auth.LogoutPort;
+import com.dev.servlet.application.port.out.audit.AuditPort;
+import com.dev.servlet.application.port.out.cache.CachePort;
+import com.dev.servlet.application.port.out.refreshtoken.RefreshTokenRepositoryPort;
+import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.NoArgsConstructor;
@@ -13,13 +13,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @ApplicationScoped
 @NoArgsConstructor
-public class LogoutUseCase implements LogoutUseCasePort {
+public class LogoutUseCase implements LogoutPort {
     @Inject
     private AuthenticationPort authenticationPort;
     @Inject
-    private RefreshTokenRepository repository;
+    private RefreshTokenRepositoryPort repositoryPort;
     @Inject
     private AuditPort auditPort;
+    @Inject
+    private CachePort cachePort;
 
     @Override
     public void logout(String auth) {
@@ -27,8 +29,8 @@ public class LogoutUseCase implements LogoutUseCasePort {
 
         try {
             String userId = authenticationPort.extractUserId(auth);
-            repository.revokeAll(userId);
-            CacheUtils.clearAll(userId);
+            repositoryPort.revokeAll(userId);
+            cachePort.clearAll(userId);
         } catch (Exception ignored) {
         }
 

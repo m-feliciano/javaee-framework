@@ -14,7 +14,7 @@
     </listener>
     <filter>
         <filter-name>MDCFilter</filter-name>
-        <filter-class>com.dev.servlet.infrastructure.security.filter.MDCFilter</filter-class>
+        <filter-class>com.dev.servlet.adapter.in.web.filter.MDCFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>MDCFilter</filter-name>
@@ -22,7 +22,7 @@
     </filter-mapping>
     <filter>
         <filter-name>RateLimitFilter</filter-name>
-        <filter-class>com.dev.servlet.infrastructure.security.filter.RateLimitFilter</filter-class>
+        <filter-class>com.dev.servlet.adapter.in.web.filter.RateLimitFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>RateLimitFilter</filter-name>
@@ -30,7 +30,7 @@
     </filter-mapping>
     <filter>
         <filter-name>SecurityPasswordEncryptionFilter</filter-name>
-        <filter-class>com.dev.servlet.infrastructure.security.filter.PasswordEncryptFilter</filter-class>
+        <filter-class>com.dev.servlet.adapter.in.web.filter.PasswordEncryptFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>SecurityPasswordEncryptionFilter</filter-name>
@@ -38,7 +38,7 @@
     </filter-mapping>
     <filter>
         <filter-name>CsrfFilter</filter-name>
-        <filter-class>com.dev.servlet.infrastructure.security.filter.CsrfFilter</filter-class>
+        <filter-class>com.dev.servlet.adapter.in.web.filter.CsrfFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>CsrfFilter</filter-name>
@@ -46,7 +46,7 @@
     </filter-mapping>
     <filter>
         <filter-name>SecurityXSSFilter</filter-name>
-        <filter-class>com.dev.servlet.infrastructure.security.filter.XSSFilter</filter-class>
+        <filter-class>com.dev.servlet.adapter.in.web.filter.XSSFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>SecurityXSSFilter</filter-name>
@@ -54,7 +54,7 @@
     </filter-mapping>
     <filter>
         <filter-name>SecurityAuthFilter</filter-name>
-        <filter-class>com.dev.servlet.infrastructure.security.filter.AuthFilter</filter-class>
+        <filter-class>com.dev.servlet.adapter.in.web.filter.AuthFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>SecurityAuthFilter</filter-name>

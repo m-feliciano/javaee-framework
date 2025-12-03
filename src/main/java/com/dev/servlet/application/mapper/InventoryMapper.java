@@ -6,7 +6,7 @@ import com.dev.servlet.application.transfer.request.InventoryRequest;
 import com.dev.servlet.application.transfer.request.ProductRequest;
 import com.dev.servlet.application.transfer.response.InventoryResponse;
 import com.dev.servlet.domain.entity.Inventory;
-import com.dev.servlet.domain.valueobject.Query;
+import com.dev.servlet.shared.vo.Query;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;

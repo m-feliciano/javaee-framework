@@ -2,16 +2,16 @@ package com.dev.servlet.application.usecase.product;
 
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.mapper.ProductMapper;
-import com.dev.servlet.application.port.in.category.ListCategoryUseCasePort;
-import com.dev.servlet.application.port.in.product.ListProductContainerUseCasePort;
-import com.dev.servlet.application.port.in.product.ListProductUseCasePort;
-import com.dev.servlet.application.port.in.product.ProductCalculatePriceUseCasePort;
+import com.dev.servlet.application.port.in.category.ListCategoryPort;
+import com.dev.servlet.application.port.in.product.ListProductContainerPort;
+import com.dev.servlet.application.port.in.product.ListProductPort;
+import com.dev.servlet.application.port.in.product.ProductCalculatePricePort;
 import com.dev.servlet.application.transfer.response.CategoryResponse;
 import com.dev.servlet.application.transfer.response.ProductResponse;
 import com.dev.servlet.domain.entity.Product;
-import com.dev.servlet.domain.valueobject.KeyPair;
 import com.dev.servlet.infrastructure.persistence.transfer.IPageRequest;
 import com.dev.servlet.infrastructure.persistence.transfer.IPageable;
+import com.dev.servlet.shared.vo.KeyPair;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.NoArgsConstructor;
@@ -25,24 +25,24 @@ import java.util.Set;
 @Slf4j
 @ApplicationScoped
 @NoArgsConstructor
-public class ListProductContainerUseCase implements ListProductContainerUseCasePort {
+public class ListProductContainerUseCase implements ListProductContainerPort {
 
     @Inject
-    private ListProductUseCasePort listProductUseCasePort;
+    private ListProductPort listProductPort;
     @Inject
-    private ProductCalculatePriceUseCasePort productCalculatePriceUseCasePort;
+    private ProductCalculatePricePort productCalculatePricePort;
     @Inject
-    private ListCategoryUseCasePort listCategoryUseCasePort;
+    private ListCategoryPort listCategoryPort;
     @Inject
     private ProductMapper productMapper;
 
     public Set<KeyPair> assembleContainerResponse(IPageRequest pageRequest, String auth, Product product) throws ApplicationException {
         pageRequest.setFilter(product);
-        IPageable<ProductResponse> page = listProductUseCasePort.getAllPageable(
-                pageRequest, productMapper::toResponseWithoutCategory);
+        IPageable<ProductResponse> page = listProductPort.getAllPageable(
+                pageRequest, auth, productMapper::toResponseWithoutCategory);
 
-        BigDecimal price = productCalculatePriceUseCasePort.calculateTotalPriceFor(page, product);
-        Collection<CategoryResponse> categories = listCategoryUseCasePort.list(null, auth);
+        BigDecimal price = productCalculatePricePort.calculateTotalPriceFor(page, product);
+        Collection<CategoryResponse> categories = listCategoryPort.list(null, auth);
         Set<KeyPair> container = new HashSet<>();
 
         container.add(new KeyPair("pageable", page));

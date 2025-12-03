@@ -1,11 +1,11 @@
 package com.dev.servlet.application.usecase.stock;
 
-import com.dev.servlet.application.port.in.stock.HasInventoryUseCasePort;
-import com.dev.servlet.application.port.out.AuditPort;
-import com.dev.servlet.application.port.out.AuthenticationPort;
+import com.dev.servlet.application.port.in.stock.HasInventoryPort;
+import com.dev.servlet.application.port.out.audit.AuditPort;
+import com.dev.servlet.application.port.out.inventory.InventoryRepositoryPort;
+import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.domain.entity.Inventory;
-import com.dev.servlet.infrastructure.audit.AuditPayload;
-import com.dev.servlet.infrastructure.persistence.repository.InventoryRepository;
+import com.dev.servlet.shared.vo.AuditPayload;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.NoArgsConstructor;
@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @ApplicationScoped
 @NoArgsConstructor
-public class HasInventoryUseCase implements HasInventoryUseCasePort {
+public class HasInventoryUseCase implements HasInventoryPort {
     private static final String EVENT_NAME = "inventory:has_inventory";
 
     @Inject
@@ -22,7 +22,7 @@ public class HasInventoryUseCase implements HasInventoryUseCasePort {
     @Inject
     private AuthenticationPort authenticationPort;
     @Inject
-    private InventoryRepository inventoryRepository;
+    private InventoryRepositoryPort repositoryPort;
 
     @Override
     public boolean hasInventory(Inventory inventory, String auth) {
@@ -30,7 +30,7 @@ public class HasInventoryUseCase implements HasInventoryUseCasePort {
 
         try {
             inventory.setUser(authenticationPort.extractUser(auth));
-            boolean result = inventoryRepository.has(inventory);
+            boolean result = repositoryPort.has(inventory);
             auditPort.success(EVENT_NAME, auth, new AuditPayload<>(inventory, result));
             return result;
         } catch (Exception e) {

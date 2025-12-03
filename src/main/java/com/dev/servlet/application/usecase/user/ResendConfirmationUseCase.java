@@ -1,21 +1,21 @@
 package com.dev.servlet.application.usecase.user;
 
+import com.dev.servlet.adapter.out.messaging.Message;
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.mapper.UserMapper;
-import com.dev.servlet.application.port.in.user.GenerateConfirmationTokenUseCasePort;
-import com.dev.servlet.application.port.in.user.ResendConfirmationUseCasePort;
-import com.dev.servlet.application.port.out.AuditPort;
+import com.dev.servlet.application.port.in.user.GenerateConfirmationTokenPort;
+import com.dev.servlet.application.port.in.user.ResendConfirmationPort;
 import com.dev.servlet.application.port.out.MessagePort;
+import com.dev.servlet.application.port.out.audit.AuditPort;
+import com.dev.servlet.application.port.out.cache.CachePort;
+import com.dev.servlet.application.port.out.user.UserRepositoryPort;
 import com.dev.servlet.application.transfer.request.ResendConfirmationRequest;
 import com.dev.servlet.application.transfer.response.UserResponse;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
 import com.dev.servlet.domain.enums.MessageType;
-import com.dev.servlet.infrastructure.audit.AuditPayload;
-import com.dev.servlet.infrastructure.cache.CacheUtils;
 import com.dev.servlet.infrastructure.config.Properties;
-import com.dev.servlet.infrastructure.messaging.Message;
-import com.dev.servlet.infrastructure.persistence.repository.UserRepository;
+import com.dev.servlet.shared.vo.AuditPayload;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -30,10 +30,10 @@ import java.util.Optional;
 @Slf4j
 @ApplicationScoped
 @NoArgsConstructor
-public class ResendConfirmationUseCase implements ResendConfirmationUseCasePort {
+public class ResendConfirmationUseCase implements ResendConfirmationPort {
     private static final String CACHE_KEY = "userCacheKey";
     @Inject
-    private UserRepository userRepository;
+    private UserRepositoryPort repositoryPort;
     @Inject
     private UserMapper userMapper;
     @Inject
@@ -42,8 +42,10 @@ public class ResendConfirmationUseCase implements ResendConfirmationUseCasePort 
     @Inject
     private AuditPort auditPort;
     @Inject
-    private GenerateConfirmationTokenUseCasePort generateConfirmationTokenUseCasePort;
+    private GenerateConfirmationTokenPort generateConfirmationTokenPort;
     private String baseUrl;
+    @Inject
+    private CachePort cachePort;
 
     @PostConstruct
     public void init() {
@@ -60,7 +62,7 @@ public class ResendConfirmationUseCase implements ResendConfirmationUseCasePort 
             return;
         }
 
-        Optional<User> maybe = userRepository.findById(userId);
+        Optional<User> maybe = repositoryPort.findById(userId);
         if (maybe.isEmpty()) {
             log.warn("ResendConfirmationUseCase: unknown userId {}", userId);
             return;
@@ -72,7 +74,7 @@ public class ResendConfirmationUseCase implements ResendConfirmationUseCasePort 
             return;
         }
 
-        String token = generateConfirmationTokenUseCasePort.createTokenForUser(user, null);
+        String token = generateConfirmationTokenPort.createTokenForUser(user, null);
         String link = baseUrl + "/api/v1/user/confirm?token=" + token;
         String email = user.getCredentials().getLogin();
         String createdAt = OffsetDateTime.now().toString();
@@ -81,7 +83,7 @@ public class ResendConfirmationUseCase implements ResendConfirmationUseCasePort 
         messagePort.send(confirmation);
 
         UserResponse response = userMapper.toResponse(user);
-        CacheUtils.setObject(user.getId(), CACHE_KEY, response);
+        cachePort.setObject(user.getId(), CACHE_KEY, response);
         auditPort.success("user:resend_confirmation", null, new AuditPayload<>(userId, response));
     }
 }

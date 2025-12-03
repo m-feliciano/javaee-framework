@@ -1,6 +1,6 @@
 package com.dev.servlet.infrastructure.health.internal;
 
-import com.dev.servlet.infrastructure.cache.CacheUtils;
+import com.dev.servlet.application.port.out.cache.CachePort;
 import com.dev.servlet.infrastructure.config.Properties;
 import com.dev.servlet.infrastructure.health.HealthService;
 import jakarta.inject.Inject;
@@ -19,9 +19,10 @@ import java.util.Map;
 @NoArgsConstructor
 @Singleton
 public class HealthServiceImpl implements HealthService {
-
     @Inject
     private EntityManager entityManager;
+    @Inject
+    private CachePort cachePort;
 
     @Override
     public Map<String, Object> getHealthStatus() {
@@ -109,9 +110,9 @@ public class HealthServiceImpl implements HealthService {
     public boolean isCacheHealthy() {
         try {
             String testKey = "health_check_test";
-            CacheUtils.setObject(testKey, "health", "test_value");
-            String result = CacheUtils.getObject(testKey, "health");
-            CacheUtils.clear(testKey, "health");
+            cachePort.setObject(testKey, "health", "test_value");
+            String result = cachePort.getObject(testKey, "health");
+            cachePort.clear(testKey, "health");
 
             boolean healthy = "test_value".equals(result);
             log.debug("Cache health check: {}", healthy ? "PASSED" : "FAILED");

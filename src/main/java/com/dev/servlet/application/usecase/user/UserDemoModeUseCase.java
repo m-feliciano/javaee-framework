@@ -2,19 +2,19 @@ package com.dev.servlet.application.usecase.user;
 
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.mapper.UserMapper;
-import com.dev.servlet.application.port.in.user.UserDemoModeUseCasePort;
-import com.dev.servlet.application.port.out.AuditPort;
+import com.dev.servlet.application.port.in.user.UserDemoModePort;
+import com.dev.servlet.application.port.out.audit.AuditPort;
+import com.dev.servlet.application.port.out.cache.CachePort;
+import com.dev.servlet.application.port.out.user.UserRepositoryPort;
 import com.dev.servlet.application.transfer.request.LoginRequest;
 import com.dev.servlet.application.transfer.response.UserResponse;
 import com.dev.servlet.domain.entity.Credentials;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.RoleType;
 import com.dev.servlet.domain.entity.enums.Status;
-import com.dev.servlet.infrastructure.audit.AuditPayload;
-import com.dev.servlet.infrastructure.cache.CacheUtils;
 import com.dev.servlet.infrastructure.config.Properties;
-import com.dev.servlet.infrastructure.crypto.CryptoUtils;
-import com.dev.servlet.infrastructure.persistence.repository.UserRepository;
+import com.dev.servlet.infrastructure.utils.CryptoUtils;
+import com.dev.servlet.shared.vo.AuditPayload;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,20 +23,22 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
+import static com.dev.servlet.infrastructure.utils.ThrowableUtils.serviceError;
 import static com.dev.servlet.shared.enums.ConstantUtils.DEMO_USER_LOGIN;
 import static com.dev.servlet.shared.enums.ConstantUtils.DEMO_USER_PASSWORD;
-import static com.dev.servlet.shared.util.ThrowableUtils.serviceError;
 
 @Slf4j
 @ApplicationScoped
 @NoArgsConstructor
-public class UserDemoModeUseCase implements UserDemoModeUseCasePort {
+public class UserDemoModeUseCase implements UserDemoModePort {
     @Inject
-    private UserRepository userRepository;
+    private UserRepositoryPort repositoryPort;
     @Inject
     private UserMapper userMapper;
     @Inject
     private AuditPort auditPort;
+    @Inject
+    private CachePort cachePort;
 
     @Override
     public User validateCredentials(LoginRequest credentials) throws ApplicationException {
@@ -56,7 +58,7 @@ public class UserDemoModeUseCase implements UserDemoModeUseCasePort {
         }
 
         User user;
-        var maybeUser = userRepository.find(new User(credentials.login(), credentials.password()));
+        var maybeUser = repositoryPort.find(new User(credentials.login(), credentials.password()));
         if (maybeUser.isPresent()) {
             user = maybeUser.get();
             log.debug("UserDemoModeUseCase: DEMO_MODE - demo user {} found with id {}", credentials.login(), user.getId());
@@ -72,13 +74,13 @@ public class UserDemoModeUseCase implements UserDemoModeUseCasePort {
                     .perfis(List.of(RoleType.DEFAULT.getCode()))
                     .build();
 
-            user = userRepository.save(newUser);
+            user = repositoryPort.save(newUser);
             log.debug("LoginUseCase: DEMO_MODE - registered new guest user with id {}", user.getId());
         }
 
         log.debug("UserDemoModeUseCase: demo user {} validated successfully", credentials.login());
         UserResponse response = userMapper.toResponse(user);
-        CacheUtils.setObject(response.getId(), "userCacheKey", response);
+        cachePort.setObject(response.getId(), "userCacheKey", response);
         auditPort.success("user:demo_authenticate", null, new AuditPayload<>(credentials, response));
         return user;
     }

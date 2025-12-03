@@ -1,10 +1,11 @@
 package com.dev.servlet.infrastructure.persistence.repository;
 
 import com.dev.servlet.application.exception.ApplicationException;
-import com.dev.servlet.application.port.out.repository.InventoryRepositoryPort;
+import com.dev.servlet.application.port.out.inventory.InventoryRepositoryPort;
 import com.dev.servlet.domain.entity.Inventory;
 import com.dev.servlet.domain.entity.Product;
 import com.dev.servlet.domain.entity.enums.Status;
+import com.dev.servlet.infrastructure.persistence.repository.base.BaseRepository;
 import com.dev.servlet.shared.util.CollectionUtils;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.persistence.TypedQuery;
@@ -115,7 +116,7 @@ public class InventoryRepository extends BaseRepository<Inventory, String> imple
     }
 
     @Override
-    public List<Inventory> save(List<Inventory> inventories) throws ApplicationException {
+    public List<Inventory> saveAll(List<Inventory> inventories) throws ApplicationException {
         AtomicReference<String> errors = new AtomicReference<>();
         Session session = em.unwrap(Session.class);
         session.getTransaction().begin();

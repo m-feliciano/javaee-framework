@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentMap;
 @Slf4j
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class BeanUtil {
-    private static final String CONTROLLER_PACKAGE_NAME = "com.dev.servlet.web.controller.internal.";
+    private static final String CONTROLLER_PACKAGE_NAME = "com.dev.servlet.adapter.in.web.controller.internal.";
     private static final ConcurrentMap<String, Class<?>> classes = new ConcurrentHashMap<>();
     @Getter
     public static final DependencyResolver resolver = new DependencyResolver();

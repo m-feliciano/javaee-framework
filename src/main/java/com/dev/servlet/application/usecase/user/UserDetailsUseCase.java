@@ -2,30 +2,32 @@ package com.dev.servlet.application.usecase.user;
 
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.mapper.UserMapper;
-import com.dev.servlet.application.port.in.user.UserDetailsUseCasePort;
-import com.dev.servlet.application.port.out.AuthenticationPort;
+import com.dev.servlet.application.port.in.user.UserDetailsPort;
+import com.dev.servlet.application.port.out.cache.CachePort;
+import com.dev.servlet.application.port.out.security.AuthenticationPort;
+import com.dev.servlet.application.port.out.user.UserRepositoryPort;
 import com.dev.servlet.application.transfer.response.UserResponse;
-import com.dev.servlet.infrastructure.cache.CacheUtils;
-import com.dev.servlet.infrastructure.persistence.repository.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.dev.servlet.shared.util.ThrowableUtils.serviceError;
+import static com.dev.servlet.infrastructure.utils.ThrowableUtils.serviceError;
 
 @Slf4j
 @ApplicationScoped
 @NoArgsConstructor
-public class UserDetailsUseCase implements UserDetailsUseCasePort {
+public class UserDetailsUseCase implements UserDetailsPort {
     private static final String CACHE_KEY = "userCacheKey";
     @Inject
-    private UserRepository userRepository;
+    private UserRepositoryPort repositoryPort;
     @Inject
     private UserMapper userMapper;
     @Inject
     private AuthenticationPort authenticationPort;
+    @Inject
+    private CachePort cachePort;
 
     public UserResponse get(String userId, String auth) throws ApplicationException {
         log.debug("UserDetailsUseCase: getting user details with id {}", userId);
@@ -34,13 +36,13 @@ public class UserDetailsUseCase implements UserDetailsUseCasePort {
             throw serviceError(HttpServletResponse.SC_FORBIDDEN, "User not authorized.");
         }
 
-        UserResponse response = CacheUtils.getObject(userId, CACHE_KEY);
+        UserResponse response = cachePort.getObject(userId, CACHE_KEY);
         if (response != null) return response;
 
-        userRepository.findById(userId)
-                .ifPresent(u -> CacheUtils.setObject(userId, CACHE_KEY, userMapper.toResponse(u)));
+        repositoryPort.findById(userId)
+                .ifPresent(u -> cachePort.setObject(userId, CACHE_KEY, userMapper.toResponse(u)));
 
-        response = CacheUtils.getObject(userId, CACHE_KEY);
+        response = cachePort.getObject(userId, CACHE_KEY);
         return response;
     }
 }

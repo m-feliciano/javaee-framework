@@ -1,7 +1,7 @@
-<%@ page import="com.dev.servlet.web.response.IHttpResponse" %>
+<%@ page import="com.dev.servlet.adapter.in.web.dto.IHttpResponse" %>
 <%@ page import="java.util.List" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
@@ -251,6 +251,8 @@
                     <jsp:param name="pageSize" value="${pageable.getPageSize()}"/>
                     <jsp:param name="sort" value="${pageable.getSort().getField()}"/>
                     <jsp:param name="direction" value="${pageable.getSort().getDirection().getValue()}"/>
+                    <jsp:param name="k" value="${k}"/>
+                    <jsp:param name="q" value="${q}"/>
                 </jsp:include>
             </c:otherwise>
         </c:choose>

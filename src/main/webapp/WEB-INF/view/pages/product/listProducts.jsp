@@ -1,6 +1,6 @@
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ page import="com.dev.servlet.web.response.IServletResponse" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
+<%@ page import="com.dev.servlet.adapter.in.web.dto.IServletResponse" %>
 <%@ include file="/WEB-INF/routes/product-routes.jspf" %>
 <%@ include file="/WEB-INF/routes/inventory-routes.jspf" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
@@ -122,8 +122,8 @@
                 <jsp:param name="pageSize" value="${pageable.getPageSize()}"/>
                 <jsp:param name="sort" value="${pageable.getSort().getField()}"/>
                 <jsp:param name="direction" value="${pageable.getSort().getDirection().getValue()}"/>
-
-                <jsp:param name="href" value="${baseLink}${version}${listProduct}"/>
+                <jsp:param name="k" value="${k}"/>
+                <jsp:param name="q" value="${q}"/>
             </jsp:include>
         </div>
     </c:if>

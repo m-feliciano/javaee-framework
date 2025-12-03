@@ -1,4 +1,4 @@
-<%@ page import="com.dev.servlet.web.response.IHttpResponse" %>
+<%@ page import="com.dev.servlet.adapter.in.web.dto.IHttpResponse" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="tag" tagdir="/WEB-INF/tags" %>
 <%@ include file="/WEB-INF/routes/inspect-routes.jspf" %>

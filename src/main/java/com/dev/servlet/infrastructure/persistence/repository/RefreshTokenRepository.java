@@ -1,7 +1,8 @@
 package com.dev.servlet.infrastructure.persistence.repository;
 
-import com.dev.servlet.application.port.out.repository.RefreshTokenRepositoryPort;
+import com.dev.servlet.application.port.out.refreshtoken.RefreshTokenRepositoryPort;
 import com.dev.servlet.domain.entity.RefreshToken;
+import com.dev.servlet.infrastructure.persistence.repository.base.BaseRepository;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.persistence.TypedQuery;
 import lombok.NoArgsConstructor;

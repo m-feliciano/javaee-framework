@@ -2,15 +2,15 @@ package com.dev.servlet.application.usecase.product;
 
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.mapper.ProductMapper;
-import com.dev.servlet.application.port.in.product.RegisterProductUseCasePort;
-import com.dev.servlet.application.port.out.AuditPort;
-import com.dev.servlet.application.port.out.AuthenticationPort;
+import com.dev.servlet.application.port.in.product.RegisterProductPort;
+import com.dev.servlet.application.port.out.audit.AuditPort;
+import com.dev.servlet.application.port.out.product.ProductRepositoryPort;
+import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.application.transfer.request.ProductRequest;
 import com.dev.servlet.application.transfer.response.ProductResponse;
 import com.dev.servlet.domain.entity.Product;
 import com.dev.servlet.domain.entity.enums.Status;
-import com.dev.servlet.infrastructure.audit.AuditPayload;
-import com.dev.servlet.infrastructure.persistence.repository.ProductRepository;
+import com.dev.servlet.shared.vo.AuditPayload;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.NoArgsConstructor;
@@ -21,9 +21,9 @@ import java.time.LocalDate;
 @Slf4j
 @ApplicationScoped
 @NoArgsConstructor
-public class RegisterProductUseCase implements RegisterProductUseCasePort {
+public class RegisterProductUseCase implements RegisterProductPort {
     @Inject
-    private ProductRepository productRepository;
+    private ProductRepositoryPort repositoryPort;
     @Inject
     private ProductMapper productMapper;
     @Inject
@@ -37,7 +37,7 @@ public class RegisterProductUseCase implements RegisterProductUseCasePort {
             Product product = productMapper.toProduct(request, authenticationPort.extractUserId(auth));
             product.setRegisterDate(LocalDate.now());
             product.setStatus(Status.ACTIVE.getValue());
-            product = productRepository.save(product);
+            product = repositoryPort.save(product);
             ProductResponse response = productMapper.toResponse(product);
             auditPort.success("product:create", auth, new AuditPayload<>(request, response));
             return response;

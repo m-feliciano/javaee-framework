@@ -2,13 +2,14 @@ package com.dev.servlet.application.usecase.stock;
 
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.mapper.InventoryMapper;
-import com.dev.servlet.application.port.in.stock.ListInventoryUseCasePort;
-import com.dev.servlet.application.port.out.AuditPort;
-import com.dev.servlet.application.port.out.AuthenticationPort;
+import com.dev.servlet.application.port.in.stock.ListInventoryPort;
+import com.dev.servlet.application.port.out.audit.AuditPort;
+import com.dev.servlet.application.port.out.inventory.InventoryRepositoryPort;
+import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.application.transfer.request.InventoryRequest;
 import com.dev.servlet.application.transfer.response.InventoryResponse;
 import com.dev.servlet.domain.entity.Inventory;
-import com.dev.servlet.infrastructure.persistence.repository.InventoryRepository;
+import com.dev.servlet.domain.entity.User;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.NoArgsConstructor;
@@ -19,7 +20,7 @@ import java.util.List;
 @Slf4j
 @ApplicationScoped
 @NoArgsConstructor
-public class ListInventoryUseCase implements ListInventoryUseCasePort {
+public class ListInventoryUseCase implements ListInventoryPort {
     private static final String EVENT_NAME = "inventory:list";
 
     @Inject
@@ -29,7 +30,7 @@ public class ListInventoryUseCase implements ListInventoryUseCasePort {
     @Inject
     private AuthenticationPort authPort;
     @Inject
-    private InventoryRepository inventoryRepository;
+    private InventoryRepositoryPort repositoryPort;
 
     @Override
     public List<InventoryResponse> list(InventoryRequest request, String auth) throws ApplicationException {
@@ -37,8 +38,9 @@ public class ListInventoryUseCase implements ListInventoryUseCasePort {
 
         try {
             Inventory inventory = inventoryMapper.toInventory(request);
-            inventory.setUser(authPort.extractUser(auth));
-            List<Inventory> inventories = inventoryRepository.findAll(inventory);
+            User user = User.builder().id(authPort.extractUserId(auth)).build();
+            inventory.setUser(user);
+            List<Inventory> inventories = repositoryPort.findAll(inventory);
             List<InventoryResponse> responses = inventories.stream()
                     .map(inventoryMapper::toResponse)
                     .toList();

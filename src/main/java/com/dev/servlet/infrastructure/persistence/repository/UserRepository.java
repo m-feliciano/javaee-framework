@@ -1,7 +1,9 @@
 package com.dev.servlet.infrastructure.persistence.repository;
 
+import com.dev.servlet.application.port.out.user.UserRepositoryPort;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
+import com.dev.servlet.infrastructure.persistence.repository.base.BaseRepository;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -16,7 +18,7 @@ import java.util.List;
 
 @RequestScoped
 @NoArgsConstructor
-public class UserRepository extends BaseRepository<User, String> {
+public class UserRepository extends BaseRepository<User, String> implements UserRepositoryPort {
 
     public static final String CREDENTIALS = "credentials";
 
