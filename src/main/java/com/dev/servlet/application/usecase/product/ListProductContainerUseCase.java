@@ -4,8 +4,8 @@ import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.mapper.ProductMapper;
 import com.dev.servlet.application.port.in.category.ListCategoryPort;
 import com.dev.servlet.application.port.in.product.ListProductContainerPort;
-import com.dev.servlet.application.port.in.product.ListProductPort;
 import com.dev.servlet.application.port.in.product.ProductCalculatePricePort;
+import com.dev.servlet.application.port.out.product.ListProductPort;
 import com.dev.servlet.application.transfer.response.CategoryResponse;
 import com.dev.servlet.application.transfer.response.ProductResponse;
 import com.dev.servlet.domain.entity.Product;
@@ -14,7 +14,6 @@ import com.dev.servlet.infrastructure.persistence.transfer.IPageable;
 import com.dev.servlet.shared.vo.KeyPair;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
@@ -24,9 +23,7 @@ import java.util.Set;
 
 @Slf4j
 @ApplicationScoped
-@NoArgsConstructor
 public class ListProductContainerUseCase implements ListProductContainerPort {
-
     @Inject
     private ListProductPort listProductPort;
     @Inject

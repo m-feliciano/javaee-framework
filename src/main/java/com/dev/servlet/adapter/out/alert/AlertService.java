@@ -1,20 +1,20 @@
-package com.dev.servlet.adapter.in.alert;
+package com.dev.servlet.adapter.out.alert;
 
 import com.dev.servlet.adapter.in.ws.AlertWebSocket;
+import com.dev.servlet.application.port.out.alert.AlertPort;
+import com.dev.servlet.application.transfer.Alert;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 @ApplicationScoped
-public class AlertService {
+public class AlertService implements AlertPort {
 
     private static final Map<String, Deque<Alert>> store = new ConcurrentHashMap<>();
 
@@ -49,11 +49,5 @@ public class AlertService {
 
     public void clear(String userId) {
         store.remove(userId);
-    }
-
-    public record Alert(String id, String status, String message, String createdAt) {
-        public Alert(String status, String message) {
-            this(UUID.randomUUID().toString(), status, message, OffsetDateTime.now().toString());
-        }
     }
 }

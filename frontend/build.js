@@ -13,6 +13,10 @@ const pageScripts = new Set(
     ["csrf-util.js", "pretty-json.js", "inspect.js", "inspect-raw.js", "navbar.js", "design-system.js"]
 );
 
+if (fs.existsSync(outDir)) {
+    fs.rmSync(outDir, {recursive: true, force: true});
+}
+
 function ensureDir(dir) {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, {recursive: true});
 }

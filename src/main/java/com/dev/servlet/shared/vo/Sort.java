@@ -45,6 +45,14 @@ public class Sort implements Serializable {
         return this;
     }
 
+    @Override
+    public String toString() {
+        return "Sort{" +
+               "field='" + field + '\'' +
+               ", direction=" + direction.value +
+               '}';
+    }
+
     public enum Direction {
         ASC("asc"),
         DESC("desc"),
@@ -63,6 +71,11 @@ public class Sort implements Serializable {
                 }
             }
             return null;
+        }
+
+        @Override
+        public String toString() {
+            return this.value;
         }
     }
 }

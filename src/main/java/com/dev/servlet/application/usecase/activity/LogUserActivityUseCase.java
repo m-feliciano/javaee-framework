@@ -8,7 +8,6 @@ import com.dev.servlet.shared.util.CloneUtil;
 import com.dev.servlet.shared.vo.AuditPayload;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
@@ -16,7 +15,6 @@ import java.util.HashMap;
 
 @Slf4j
 @ApplicationScoped
-@NoArgsConstructor
 public class LogUserActivityUseCase implements LogUserActivityPort {
 
     @Inject

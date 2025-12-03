@@ -7,7 +7,6 @@ import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.shared.util.CloneUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.OffsetDateTime;
@@ -15,12 +14,11 @@ import java.util.UUID;
 
 @Slf4j
 @ApplicationScoped
-@NoArgsConstructor
 public class GenerateConfirmationTokenUseCase implements GenerateConfirmationTokenPort {
     @Inject
     private ConfirmationTokenRepositoryPort repositoryPort;
 
-    public String createTokenForUser(User user, Object body) {
+    public String generateFor(User user, Object body) {
         log.debug("Generating confirmation token for user {}", user.getId());
 
         String token = UUID.randomUUID().toString();

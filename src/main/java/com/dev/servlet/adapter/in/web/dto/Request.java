@@ -1,7 +1,7 @@
 package com.dev.servlet.adapter.in.web.dto;
 
-import com.dev.servlet.infrastructure.persistence.transfer.IPageRequest;
 import com.dev.servlet.shared.vo.Query;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Data;
 
@@ -10,11 +10,12 @@ import lombok.Data;
 public class Request {
     private String endpoint;
     private String method;
-    private String jsonBody;
-    private String token;
-    private IPageRequest pageRequest;
     private Query query;
-    private int retry;
+    private Integer retry;
+    @JsonIgnore
+    private String token;
+    @JsonIgnore
+    private String payload;
 
     public boolean contains(String name) {
         return endpoint != null && endpoint.contains(name);

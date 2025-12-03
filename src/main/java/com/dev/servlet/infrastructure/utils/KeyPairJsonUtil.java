@@ -1,5 +1,6 @@
 package com.dev.servlet.infrastructure.utils;
 
+import com.dev.servlet.shared.util.CloneUtil;
 import com.dev.servlet.shared.vo.KeyPair;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +12,6 @@ import java.util.Map;
 @Slf4j
 @SuppressWarnings("unchecked")
 public class KeyPairJsonUtil {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static String toJson(List<KeyPair> pairs) {
         Map<String, Object> root = new HashMap<>();
@@ -20,11 +20,12 @@ public class KeyPairJsonUtil {
         }
 
         try {
-            return objectMapper.writeValueAsString(root);
+            if (!root.isEmpty())
+                return CloneUtil.toJson(root);
         } catch (Exception e) {
             log.error("Error serializing KeyPair list to JSON: {}", e.getMessage());
-            return null;
         }
+        return null;
     }
 
     private static void insert(Map<String, Object> map, String[] keys, int idx, Object value) {

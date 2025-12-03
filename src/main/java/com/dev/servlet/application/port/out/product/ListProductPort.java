@@ -1,4 +1,4 @@
-package com.dev.servlet.application.port.in.product;
+package com.dev.servlet.application.port.out.product;
 
 import com.dev.servlet.application.mapper.Mapper;
 import com.dev.servlet.domain.entity.Product;

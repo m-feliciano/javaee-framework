@@ -44,6 +44,5 @@ public interface ProductControllerApi {
 
     @RequestMapping(value = "/scrape", method = POST)
     IHttpResponse<Void> scrape(@Authorization String auth,
-                               @Property("app.env") String environment,
                                @Property("scrape_product_url") String url);
 }

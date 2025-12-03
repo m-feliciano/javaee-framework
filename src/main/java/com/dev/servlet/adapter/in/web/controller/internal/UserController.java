@@ -11,7 +11,6 @@ import com.dev.servlet.application.port.in.user.RegisterUserPort;
 import com.dev.servlet.application.port.in.user.ResendConfirmationPort;
 import com.dev.servlet.application.port.in.user.UpdateUserPort;
 import com.dev.servlet.application.port.in.user.UserDetailsPort;
-import com.dev.servlet.application.port.out.audit.AuditPort;
 import com.dev.servlet.application.transfer.request.ConfirmEmailRequest;
 import com.dev.servlet.application.transfer.request.ResendConfirmationRequest;
 import com.dev.servlet.application.transfer.request.UserCreateRequest;
@@ -21,11 +20,9 @@ import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.shared.vo.Query;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 
 @ApplicationScoped
-@NoArgsConstructor
 public class UserController extends BaseController implements UserControllerApi {
     private static final String REDIRECT_AUTH_FORM = "redirect:/api/v1/auth/form";
     private static final String FORM_LOGIN_FORM = "forward:pages/formLogin.jsp";
@@ -44,8 +41,7 @@ public class UserController extends BaseController implements UserControllerApi 
     private ResendConfirmationPort resendConfirmationUseCase;
     @Inject
     private UserDetailsPort userDetailsUseCase;
-    @Inject
-    private AuditPort auditPort;
+
 
     @SneakyThrows
     @Override
@@ -64,14 +60,8 @@ public class UserController extends BaseController implements UserControllerApi 
     @SneakyThrows
     @Override
     public IHttpResponse<UserResponse> findById(UserRequest user, String auth) {
-        try {
-            UserResponse response = userDetailsUseCase.get(user.id(), auth);
-            auditPort.success(response.getId(), auth, "User details accessed.");
-            return okHttpResponse(response, forwardTo("formListUser"));
-        } catch (Exception e) {
-            auditPort.failure(user.id(), auth, "Failed to access user details.");
-            throw e;
-        }
+        UserResponse response = userDetailsUseCase.get(user.id(), auth);
+        return okHttpResponse(response, forwardTo("formListUser"));
     }
 
     @SneakyThrows

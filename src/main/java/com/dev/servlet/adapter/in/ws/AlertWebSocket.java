@@ -44,7 +44,7 @@ public class AlertWebSocket {
 
         sessions.put(userId, session);
 
-        log.info("AlertWebSocket: connection opened for user {}", userId);
+        log.debug("AlertWebSocket: connection opened for user {}", userId);
     }
 
     private String authenticateUserFromHandshake(HandshakeRequest req) {

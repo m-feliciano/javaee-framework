@@ -17,6 +17,7 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -127,20 +128,33 @@ public abstract class BaseRepository<T, ID> implements BaseRepositoryPort<T, ID>
     }
 
     public IPageable<T> getAllPageable(IPageRequest pageRequest) {
-        long totalCount = count(pageRequest);
-        List<T> resultSet = Collections.emptyList();
+        log.debug("BaseRepository: fetching pageable data: type={}, page={}, size={}, sort={}",
+                specialization.getSimpleName(),
+                pageRequest.getInitialPage(),
+                pageRequest.getPageSize(),
+                pageRequest.getSort().getField() + ":" + pageRequest.getSort().getDirection());
 
-        if (totalCount > pageRequest.getFirstResult()) {
-            resultSet = getPage(pageRequest);
+        StopWatch sw = new StopWatch();
+        sw.start();
+        try {
+            long totalCount = count(pageRequest);
+            List<T> resultSet = Collections.emptyList();
+
+            if (totalCount > pageRequest.getFirstResult()) {
+                resultSet = getPage(pageRequest);
+            }
+
+            return PageResponse.<T>builder()
+                    .content(resultSet)
+                    .totalElements(totalCount)
+                    .currentPage(pageRequest.getInitialPage())
+                    .pageSize(pageRequest.getPageSize())
+                    .sort(pageRequest.getSort())
+                    .build();
+        } finally {
+            sw.stop();
+            log.debug("BaseRepository: finished fetching pageable data in {} ms", sw.getTime());
         }
-
-        return PageResponse.<T>builder()
-                .content(resultSet)
-                .totalElements(totalCount)
-                .currentPage(pageRequest.getInitialPage())
-                .pageSize(pageRequest.getPageSize())
-                .sort(pageRequest.getSort())
-                .build();
     }
 
     public <U> IPageable<U> getAllPageable(IPageRequest pageRequest, Mapper<T, U> mapper) {

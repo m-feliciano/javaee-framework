@@ -11,8 +11,10 @@ import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.infrastructure.config.Properties;
 import com.dev.servlet.infrastructure.persistence.transfer.IPageRequest;
+import com.dev.servlet.infrastructure.utils.URIUtils;
 import com.dev.servlet.shared.util.CloneUtil;
 import com.dev.servlet.shared.vo.Query;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -22,6 +24,7 @@ import java.util.Set;
 import static com.dev.servlet.infrastructure.utils.ThrowableUtils.internalServerError;
 import static com.dev.servlet.shared.util.ClassUtil.findMethodsOnInterfaceRecursive;
 
+@Slf4j
 public abstract class BaseRouterController {
     private final static Map<String, Set<Method>> reflections = new java.util.concurrent.ConcurrentHashMap<>();
     protected AuthenticationPort authenticationPort;
@@ -71,21 +74,29 @@ public abstract class BaseRouterController {
         if (Request.class.isAssignableFrom(parameter.getType())) {
             return request;
         }
+
         if (Query.class.isAssignableFrom(parameter.getType())) {
             return request.getQuery();
         }
+
         if (IPageRequest.class.isAssignableFrom(parameter.getType())) {
-            return request.getPageRequest();
+            if (request.getQuery() == null) {
+                return URIUtils.buildPageRequest();
+            } else {
+                return URIUtils.getPageRequest(request.getQuery());
+            }
         }
+
         if (parameter.isAnnotationPresent(Authorization.class)) {
             return request.getToken();
         }
+
         if (parameter.isAnnotationPresent(Property.class)) {
-            String propertyKey = parameter.getAnnotation(Property.class).value();
-            return Properties.get(propertyKey);
+            Property property = parameter.getAnnotation(Property.class);
+            return Properties.get(property.value());
         }
 
-        return CloneUtil.fromJson(request.getJsonBody(), parameter.getType());
+        return CloneUtil.fromJson(request.getPayload(), parameter.getType());
     }
 
     private <U> IHttpResponse<U> invokeServiceMethod(Object instance, Method method, Object[] args) throws Exception {

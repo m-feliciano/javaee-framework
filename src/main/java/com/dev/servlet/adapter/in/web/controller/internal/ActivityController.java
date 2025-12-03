@@ -19,7 +19,6 @@ import com.dev.servlet.shared.vo.Query;
 import com.dev.servlet.shared.vo.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -31,7 +30,6 @@ import static com.dev.servlet.shared.util.DateUtil.YYYY_MM_DD;
 
 @Slf4j
 @ApplicationScoped
-@NoArgsConstructor
 public class ActivityController extends BaseController implements ActivityControllerApi {
     @Inject
     private GetActivityPageablePort activityPageableUseCase;

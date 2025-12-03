@@ -12,7 +12,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -20,7 +19,6 @@ import java.io.IOException;
 
 @Slf4j
 @ApplicationScoped
-@NoArgsConstructor
 public class RateLimitFilter implements Filter {
     @Inject
     private RateLimiter rateLimiter;

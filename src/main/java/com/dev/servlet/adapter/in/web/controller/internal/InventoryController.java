@@ -24,7 +24,6 @@ import com.dev.servlet.shared.vo.KeyPair;
 import com.dev.servlet.shared.vo.Query;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +32,6 @@ import java.util.Set;
 
 @Slf4j
 @ApplicationScoped
-@NoArgsConstructor
 public class InventoryController extends BaseController implements InventoryControllerApi {
     @Inject
     private InventoryMapper inventoryMapper;

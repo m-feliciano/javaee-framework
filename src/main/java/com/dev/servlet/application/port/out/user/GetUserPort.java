@@ -1,4 +1,4 @@
-package com.dev.servlet.application.port.in.user;
+package com.dev.servlet.application.port.out.user;
 
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.transfer.request.UserRequest;

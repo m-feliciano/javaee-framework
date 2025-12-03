@@ -1,5 +1,7 @@
 package com.dev.servlet.shared.util;
 
+import com.dev.servlet.infrastructure.persistence.transfer.IPageable;
+import com.dev.servlet.shared.vo.KeyPair;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,10 +10,15 @@ import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 
 @Slf4j
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
@@ -62,5 +69,50 @@ public final class CloneUtil {
             log.error("Error deserializing JSON to {}: {}", clazz.getName(), e.getMessage());
             throw new RuntimeException(e);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Object summarizeResponseBody(Object object) {
+        if (object instanceof IPageable<?> pageable) {
+            return pageableSummary().apply(pageable);
+        }
+
+        if (object instanceof Set<?> container && !container.isEmpty()) {
+            Set<Object> responseSet = new java.util.HashSet<>((Set<Object>) object);
+
+            Iterator<?> iterator = container.iterator();
+            Object element;
+            while (iterator.hasNext()) {
+                element = iterator.next();
+
+                if (element instanceof KeyPair(String key, Object value)) {
+                    if (value instanceof IPageable<?> pg) {
+                        responseSet.remove(element);
+                        responseSet.add(new KeyPair(key, pageableSummary().apply(pg)));
+
+                    } else if (value instanceof Collection<?> coll) {
+                        responseSet.remove(element);
+                        responseSet.add(new KeyPair(key, Map.of("total_elements", coll.size())));
+                    }
+
+                } else if (element instanceof Collection<?> coll) {
+                    responseSet.remove(element);
+                    responseSet.add(new KeyPair("collection", Map.of("total_elements", coll.size())));
+                }
+            }
+
+            return responseSet;
+        }
+
+        return object;
+    }
+
+    @NotNull
+    private static Function<IPageable<?>, Object> pageableSummary() {
+        return (IPageable<?> pageable) -> Map.of(
+                "total_elements", pageable.getTotalElements(),
+                "current_page", pageable.getCurrentPage(),
+                "page_size", pageable.getPageSize()
+        );
     }
 }

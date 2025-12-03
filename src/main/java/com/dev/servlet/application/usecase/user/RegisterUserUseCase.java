@@ -6,7 +6,6 @@ import com.dev.servlet.application.port.in.user.GenerateConfirmationTokenPort;
 import com.dev.servlet.application.port.in.user.RegisterUserPort;
 import com.dev.servlet.application.port.in.user.UserDemoModePort;
 import com.dev.servlet.application.port.out.MessagePort;
-import com.dev.servlet.application.port.out.audit.AuditPort;
 import com.dev.servlet.application.port.out.cache.CachePort;
 import com.dev.servlet.application.port.out.user.UserRepositoryPort;
 import com.dev.servlet.application.transfer.request.LoginRequest;
@@ -17,14 +16,12 @@ import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.RoleType;
 import com.dev.servlet.domain.entity.enums.Status;
 import com.dev.servlet.infrastructure.config.Properties;
-import com.dev.servlet.shared.vo.AuditPayload;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -34,14 +31,11 @@ import static com.dev.servlet.shared.enums.ConstantUtils.DEMO_USER_LOGIN;
 
 @Slf4j
 @ApplicationScoped
-@NoArgsConstructor
 public class RegisterUserUseCase implements RegisterUserPort {
     @Inject
     private UserRepositoryPort repositoryPort;
     @Inject
     private UserMapper userMapper;
-    @Inject
-    private AuditPort auditPort;
     @Inject
     @Named("messageProducer")
     private MessagePort messagePort;
@@ -72,7 +66,6 @@ public class RegisterUserUseCase implements RegisterUserPort {
 
         boolean passwordError = userReq.password() == null || !userReq.password().equals(userReq.confirmPassword());
         if (passwordError) {
-            auditPort.failure("user:register", null, new AuditPayload<>(userReq, null));
             throw serviceError(HttpServletResponse.SC_FORBIDDEN, "Passwords do not match.");
         }
 
@@ -84,7 +77,6 @@ public class RegisterUserUseCase implements RegisterUserPort {
         User userExists = repositoryPort.find(user).orElse(null);
         if (userExists != null) {
             log.warn("User already exists: {}", userExists.getCredentials().getLogin());
-            auditPort.failure("user:register", null, new AuditPayload<>(userReq, null));
             throw serviceError(HttpServletResponse.SC_FORBIDDEN, "Cannot register this user.");
         }
 
@@ -100,14 +92,13 @@ public class RegisterUserUseCase implements RegisterUserPort {
         newUser = repositoryPort.save(newUser);
         log.info("User registered: {}", newUser.getCredentials().getLogin());
 
-        String token = generateConfirmationTokenPort.createTokenForUser(newUser, null);
+        String token = generateConfirmationTokenPort.generateFor(newUser, null);
         String url = this.baseUrl + "/api/v1/user/confirm?token=" + token;
         messagePort.sendConfirmation(newUser.getCredentials().getLogin(), url);
 
         UserResponse response = userMapper.toResponse(newUser);
         response.setCreated(true);
         cachePort.setObject(newUser.getId(), "userCacheKey", response);
-        auditPort.success("user:register", null, new AuditPayload<>(userReq, response));
         return response;
     }
 }

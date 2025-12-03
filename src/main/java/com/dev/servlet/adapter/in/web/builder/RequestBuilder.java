@@ -1,7 +1,6 @@
 package com.dev.servlet.adapter.in.web.builder;
 
 import com.dev.servlet.adapter.in.web.dto.Request;
-import com.dev.servlet.infrastructure.persistence.transfer.IPageRequest;
 import com.dev.servlet.infrastructure.utils.KeyPairJsonUtil;
 import com.dev.servlet.infrastructure.utils.URIUtils;
 import com.dev.servlet.shared.vo.KeyPair;
@@ -23,9 +22,8 @@ public record RequestBuilder(HttpServletRequest servletRequest) {
         private String method;
         private String jsonBody;
         private String token;
-        private IPageRequest pageRequest;
         private Query query;
-        private int retry;
+        private Integer retry;
 
         public RequestCreator endpoint() {
             this.endpoint = servletRequest.getServletPath();
@@ -52,11 +50,6 @@ public record RequestBuilder(HttpServletRequest servletRequest) {
             return this;
         }
 
-        public RequestCreator pageRequest() {
-            this.pageRequest = URIUtils.getPageRequest(servletRequest);
-            return this;
-        }
-
         public RequestCreator query() {
             this.query = URIUtils.query(servletRequest);
             return this;
@@ -68,13 +61,13 @@ public record RequestBuilder(HttpServletRequest servletRequest) {
         }
 
         public RequestCreator complete() {
-            return this.endpoint().method().body().token().query().pageRequest();
+            return this.endpoint().method().body().token().query();
         }
 
         public Request build() {
             return Request.builder()
-                    .endpoint(endpoint).method(method).token(token).jsonBody(jsonBody)
-                    .pageRequest(pageRequest).query(query).retry(retry)
+                    .endpoint(endpoint).method(method).token(token).payload(jsonBody)
+                    .query(query).retry(retry)
                     .build();
         }
 

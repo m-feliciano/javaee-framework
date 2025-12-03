@@ -25,7 +25,7 @@ public interface ProductMapper {
 
     default Product queryToProduct(Query query, User user) {
         ProductRequest.ProductRequestBuilder builder = ProductRequest.builder();
-        query.queries().forEach((k, v) -> {
+        query.parameters().forEach((k, v) -> {
             if ("description".equals(k)) {
                 builder.description(v.trim());
             } else if ("name".equals(k)) {

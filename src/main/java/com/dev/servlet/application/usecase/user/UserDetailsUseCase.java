@@ -10,14 +10,12 @@ import com.dev.servlet.application.transfer.response.UserResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.dev.servlet.infrastructure.utils.ThrowableUtils.serviceError;
 
 @Slf4j
 @ApplicationScoped
-@NoArgsConstructor
 public class UserDetailsUseCase implements UserDetailsPort {
     private static final String CACHE_KEY = "userCacheKey";
     @Inject
