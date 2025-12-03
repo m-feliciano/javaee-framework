@@ -1,10 +1,10 @@
 package com.dev.servlet.application.usecase.user;
 
-import com.dev.servlet.application.port.in.user.GenerateConfirmationTokenUseCasePort;
+import com.dev.servlet.application.port.in.user.GenerateConfirmationTokenPort;
+import com.dev.servlet.application.port.out.confirmtoken.ConfirmationTokenRepositoryPort;
 import com.dev.servlet.domain.entity.ConfirmationToken;
 import com.dev.servlet.domain.entity.User;
-import com.dev.servlet.infrastructure.persistence.repository.ConfirmationTokenRepository;
-import com.dev.servlet.infrastructure.utils.CloneUtil;
+import com.dev.servlet.shared.util.CloneUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.NoArgsConstructor;
@@ -16,9 +16,9 @@ import java.util.UUID;
 @Slf4j
 @ApplicationScoped
 @NoArgsConstructor
-public class GenerateConfirmationTokenUseCase implements GenerateConfirmationTokenUseCasePort {
+public class GenerateConfirmationTokenUseCase implements GenerateConfirmationTokenPort {
     @Inject
-    private ConfirmationTokenRepository repository;
+    private ConfirmationTokenRepositoryPort repositoryPort;
 
     public String createTokenForUser(User user, Object body) {
         log.debug("Generating confirmation token for user {}", user.getId());
@@ -33,7 +33,7 @@ public class GenerateConfirmationTokenUseCase implements GenerateConfirmationTok
                 .used(false)
                 .build();
 
-        repository.save(confirmationToken);
+        repositoryPort.save(confirmationToken);
         log.debug("Generated confirmation token for user {}: {}", user.getId(), token);
         return token;
     }

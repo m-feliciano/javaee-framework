@@ -1,0 +1,24 @@
+package com.dev.servlet.adapter.out.external.webscrape.transfer;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.util.Date;
+
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProductWebScrapeDTO {
+    @JsonProperty("title")
+    private String name;
+    private Double price;
+    @JsonProperty("thumbnail")
+    private String url;
+    private String description;
+    @JsonFormat(pattern = "yyyy-M-d")
+    @JsonProperty("publish_date")
+    private Date publishDate;
+}

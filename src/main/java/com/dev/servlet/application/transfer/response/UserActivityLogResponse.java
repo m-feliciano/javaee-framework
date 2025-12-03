@@ -1,6 +1,7 @@
 package com.dev.servlet.application.transfer.response;
 
 import com.dev.servlet.domain.entity.enums.ActivityStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Data;
 
@@ -28,6 +29,7 @@ public class UserActivityLogResponse {
     private LocalDate timestamp;
     private String userAgent;
 
+    @JsonIgnore
     public String getTimestampFormatted() {
         return timestamp != null ? timestamp.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
     }

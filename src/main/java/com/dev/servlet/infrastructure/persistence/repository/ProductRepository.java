@@ -1,10 +1,11 @@
 package com.dev.servlet.infrastructure.persistence.repository;
 
 import com.dev.servlet.application.exception.ApplicationException;
-import com.dev.servlet.application.port.out.repository.ProductRepositoryPort;
+import com.dev.servlet.application.port.out.product.ProductRepositoryPort;
 import com.dev.servlet.domain.entity.Category;
 import com.dev.servlet.domain.entity.Product;
 import com.dev.servlet.domain.entity.enums.Status;
+import com.dev.servlet.infrastructure.persistence.repository.base.BaseRepository;
 import com.dev.servlet.shared.util.CollectionUtils;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.persistence.Query;

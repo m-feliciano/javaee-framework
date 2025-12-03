@@ -1,9 +1,10 @@
 package com.dev.servlet.infrastructure.persistence.repository;
 
 import com.dev.servlet.application.exception.ApplicationException;
-import com.dev.servlet.application.port.out.repository.CategoryRepositoryPort;
+import com.dev.servlet.application.port.out.category.CategoryRepositoryPort;
 import com.dev.servlet.domain.entity.Category;
 import com.dev.servlet.domain.entity.enums.Status;
+import com.dev.servlet.infrastructure.persistence.repository.base.BaseRepository;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -62,7 +63,7 @@ public class CategoryRepository extends BaseRepository<Category, String> impleme
     }
 
     @Override
-    public List<Category> save(List<Category> categories) throws ApplicationException {
+    public List<Category> saveAll(List<Category> categories) throws ApplicationException {
         AtomicReference<String> errors = new AtomicReference<>();
         Session session = em.unwrap(Session.class);
         session.getTransaction().begin();

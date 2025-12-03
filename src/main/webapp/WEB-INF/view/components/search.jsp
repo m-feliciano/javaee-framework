@@ -1,22 +1,18 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
 <div class="search-container">
     <form class="search-form" action="${param.action}" method="get">
         <div class="search-input-wrapper">
             <label class="form-label" for="searchQuery">Search</label>
             <div class="search-input">
-                <input type="text"
-                       id="searchQuery"
-                       name="q"
-                       class="form-control"
-                       placeholder="${param.placeholder}"
-                       value="${param.query}">
+                <input type="text" id="searchQuery" name="q" class="form-control" placeholder="${param.placeholder}"
+                       value="${q}">
                 <i class="bi bi-search"></i>
             </div>
         </div>
 
-        <c:if test="${not empty categories and categories != null}">
+        <c:if test="${not empty categories}">
             <div class="search-input-wrapper" style="max-width: 200px;">
                 <label class="form-label" for="searchCategory">Category</label>
                 <select id="searchCategory" name="category" class="form-control" onchange="this.form.submit()">

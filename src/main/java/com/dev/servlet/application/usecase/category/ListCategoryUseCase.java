@@ -1,17 +1,17 @@
 package com.dev.servlet.application.usecase.category;
 
 import com.dev.servlet.application.mapper.CategoryMapper;
-import com.dev.servlet.application.port.in.category.ListCategoryUseCasePort;
-import com.dev.servlet.application.port.out.AuditPort;
-import com.dev.servlet.application.port.out.AuthenticationPort;
+import com.dev.servlet.application.port.in.category.ListCategoryPort;
+import com.dev.servlet.application.port.out.audit.AuditPort;
+import com.dev.servlet.application.port.out.cache.CachePort;
+import com.dev.servlet.application.port.out.category.CategoryRepositoryPort;
+import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.application.transfer.request.CategoryRequest;
 import com.dev.servlet.application.transfer.response.CategoryResponse;
 import com.dev.servlet.domain.entity.Category;
 import com.dev.servlet.domain.entity.User;
-import com.dev.servlet.infrastructure.audit.AuditPayload;
-import com.dev.servlet.infrastructure.cache.CacheUtils;
-import com.dev.servlet.infrastructure.persistence.repository.CategoryRepository;
 import com.dev.servlet.shared.util.CollectionUtils;
+import com.dev.servlet.shared.vo.AuditPayload;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.NoArgsConstructor;
@@ -23,17 +23,19 @@ import java.util.List;
 @Slf4j
 @ApplicationScoped
 @NoArgsConstructor
-public class ListCategoryUseCase implements ListCategoryUseCasePort {
+public class ListCategoryUseCase implements ListCategoryPort {
     private static final String EVENT_NAME = "category:list";
 
     @Inject
     private CategoryMapper categoryMapper;
     @Inject
-    private CategoryRepository categoryRepository;
+    private CategoryRepositoryPort categoryRepositoryPort;
     @Inject
     private AuthenticationPort authenticationPort;
     @Inject
     private AuditPort auditPort;
+    @Inject
+    private CachePort cachePort;
 
     @Override
     public Collection<CategoryResponse> list(CategoryRequest request, String token) {
@@ -60,12 +62,12 @@ public class ListCategoryUseCase implements ListCategoryUseCasePort {
     private Collection<CategoryResponse> findAll(User user) {
         final String userId = user.getId();
 
-        List<CategoryResponse> response = CacheUtils.get(userId, "categoryCacheKey");
+        List<CategoryResponse> response = cachePort.get(userId, "categoryCacheKey");
         if (CollectionUtils.isEmpty(response)) {
-            var categories = categoryRepository.findAll(new Category(user));
+            var categories = categoryRepositoryPort.findAll(new Category(user));
             if (!CollectionUtils.isEmpty(categories)) {
                 response = categories.stream().map(categoryMapper::toResponse).toList();
-                CacheUtils.set(userId, "categoryCacheKey", response);
+                cachePort.set(userId, "categoryCacheKey", response);
             }
         }
 

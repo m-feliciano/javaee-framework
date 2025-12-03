@@ -219,7 +219,7 @@ public class ProductController extends BaseController implements ProductControll
 @Slf4j
 @ApplicationScoped
 @NoArgsConstructor
-public class LoginUseCase implements LoginUseCasePort {
+public class LoginUseCase implements LoginPort {
     private static final String EVENT_NAME = "user:login";
 
     @Inject
@@ -227,7 +227,7 @@ public class LoginUseCase implements LoginUseCasePort {
     @Inject
     private AuditPort auditPort;
     @Inject
-    private GetUserUseCasePort userUseCasePort;
+    private GetUserPort userPort;
     @Inject
     private AuthenticationPort authenticationPort;
     @Inject
@@ -243,7 +243,7 @@ public class LoginUseCase implements LoginUseCasePort {
         try {
             UserRequest userRequest = new UserRequest(login, password);
 
-            User user = userUseCasePort.get(userRequest).orElse(null);
+            User user = userPort.get(userRequest).orElse(null);
             if (user == null) {
                 auditPort.failure(EVENT_NAME, null, new AuditPayload<>(request, null));
                 throw new ApplicationException("Invalid login or password");
@@ -313,8 +313,8 @@ public class AuthFilter implements Filter {
             return;
         }
 
-        String token = authCookieUseCasePort.getTokenFromCookie(httpRequest, authCookieUseCasePort.getAccessTokenCookieName());
-        String refreshToken = authCookieUseCasePort.getTokenFromCookie(httpRequest, authCookieUseCasePort.getRefreshTokenCookieName());
+        String token = AuthCookiePort.getTokenFromCookie(httpRequest, AuthCookiePort.getAccessTokenCookieName());
+        String refreshToken = AuthCookiePort.getTokenFromCookie(httpRequest, AuthCookiePort.getRefreshTokenCookieName());
         if (token == null && refreshToken == null) {
             log.warn("No tokens found for: {}, redirecting to login page", httpRequest.getRequestURI());
             redirectToLogin(httpResponse);
@@ -330,8 +330,8 @@ public class AuthFilter implements Filter {
 
         if (refreshToken != null && authenticationPort.validateToken(refreshToken)) {
             try {
-                RefreshTokenResponse refreshTokenResponse = refreshTokenUseCasePort.refreshToken(BEARER_PREFIX + refreshToken);
-                authCookieUseCasePort.setAuthCookies(httpResponse, refreshTokenResponse.token(), refreshTokenResponse.refreshToken());
+                RefreshTokenResponse refreshTokenResponse = RefreshTokenPort.refreshToken(BEARER_PREFIX + refreshToken);
+                AuthCookiePort.setAuthCookies(httpResponse, refreshTokenResponse.token(), refreshTokenResponse.refreshToken());
                 httpResponse.setStatus(HttpServletResponse.SC_FOUND);
                 httpResponse.sendRedirect(httpRequest.getRequestURI());
                 return;
@@ -341,7 +341,7 @@ public class AuthFilter implements Filter {
         }
 
         log.warn("Both tokens are invalid for: {}, redirecting to login page", httpRequest.getRequestURI());
-        authCookieUseCasePort.clearCookies(httpResponse);
+        AuthCookiePort.clearCookies(httpResponse);
         redirectToLogin(httpResponse);
     }
 }
@@ -357,3 +357,138 @@ The framework's MVC flow starts with the `ServletDispatcherImpl.dispatch()` meth
 4. Processes the response, sets headers (e.g., X-Correlation-ID), and forwards or redirects based on the `IHttpResponse.next()` value.
 
 Controllers extend `BaseRouterController`, which uses reflection to map endpoints to methods annotated with `@RequestMapping`. Dependency injection is handled by CDI.
+
+
+### Package Structure
+
+```text
+C:.
+├───main
+│   ├───java
+│   │   └───com
+│   │       └───dev
+│   │           └───servlet
+│   │               ├───adapter
+│   │               │   ├───in
+│   │               │   │   ├───alert
+│   │               │   │   ├───messaging
+│   │               │   │   │   └───consumer
+│   │               │   │   ├───web
+│   │               │   │   │   ├───annotation
+│   │               │   │   │   ├───builder
+│   │               │   │   │   ├───controller
+│   │               │   │   │   │   └───internal
+│   │               │   │   │   │       └───base
+│   │               │   │   │   ├───dispatcher
+│   │               │   │   │   │   └───impl
+│   │               │   │   │   ├───dto
+│   │               │   │   │   ├───filter
+│   │               │   │   │   │   └───wrapper
+│   │               │   │   │   ├───introspection
+│   │               │   │   │   ├───listener
+│   │               │   │   │   ├───ratelimit
+│   │               │   │   │   │   └───internal
+│   │               │   │   │   ├───util
+│   │               │   │   │   ├───validator
+│   │               │   │   │   │   └───internal
+│   │               │   │   │   └───vo
+│   │               │   │   └───ws
+│   │               │   └───out
+│   │               │       ├───audit
+│   │               │       ├───cache
+│   │               │       ├───external
+│   │               │       │   └───webscrape
+│   │               │       │       ├───api
+│   │               │       │       ├───builder
+│   │               │       │       ├───service
+│   │               │       │       └───transfer
+│   │               │       ├───messaging
+│   │               │       │   ├───adapter
+│   │               │       │   ├───config
+│   │               │       │   ├───factory
+│   │               │       │   └───registry
+│   │               │       └───security
+│   │               ├───application
+│   │               │   ├───exception
+│   │               │   ├───mapper
+│   │               │   ├───port
+│   │               │   │   ├───contracts
+│   │               │   │   ├───in
+│   │               │   │   │   ├───activity
+│   │               │   │   │   ├───auth
+│   │               │   │   │   ├───category
+│   │               │   │   │   ├───product
+│   │               │   │   │   ├───stock
+│   │               │   │   │   └───user
+│   │               │   │   └───out
+│   │               │   │       ├───audit
+│   │               │   │       ├───cache
+│   │               │   │       ├───category
+│   │               │   │       ├───confirmtoken
+│   │               │   │       ├───inventory
+│   │               │   │       ├───product
+│   │               │   │       ├───refreshtoken
+│   │               │   │       ├───security
+│   │               │   │       └───user
+│   │               │   ├───transfer
+│   │               │   │   ├───request
+│   │               │   │   └───response
+│   │               │   └───usecase
+│   │               │       ├───activity
+│   │               │       ├───auth
+│   │               │       ├───category
+│   │               │       ├───product
+│   │               │       ├───stock
+│   │               │       └───user
+│   │               ├───domain
+│   │               │   ├───entity
+│   │               │   │   └───enums
+│   │               │   └───enums
+│   │               ├───infrastructure
+│   │               │   ├───config
+│   │               │   ├───health
+│   │               │   │   └───internal
+│   │               │   ├───migration
+│   │               │   ├───persistence
+│   │               │   │   ├───repository
+│   │               │   │   │   └───base
+│   │               │   │   └───transfer
+│   │               │   │       └───internal
+│   │               │   ├───security
+│   │               │   └───utils
+│   │               └───shared
+│   │                   ├───enums
+│   │                   ├───util
+│   │                   └───vo
+│   ├───resources
+│   │   ├───db
+│   │   │   └───migration
+│   │   ├───META-INF
+│   │   └───mockito-extensions
+│   └───webapp
+│       ├───META-INF
+│       ├───resources
+│       │   ├───assets
+│       │   │   └───images
+│       │   ├───css
+│       │   ├───dist
+│       │   └───js
+│       └───WEB-INF
+│           ├───classes
+│           │   └───META-INF
+│           ├───fragments
+│           ├───routes
+│           ├───tags
+│           └───view
+│               ├───components
+│               │   └───buttons
+│               └───pages
+│                   ├───activity
+│                   ├───category
+│                   ├───health
+│                   ├───inspect
+│                   ├───inventory
+│                   ├───product
+│                   └───user
+
+```

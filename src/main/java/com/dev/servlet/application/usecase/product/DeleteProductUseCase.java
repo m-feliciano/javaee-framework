@@ -2,16 +2,16 @@ package com.dev.servlet.application.usecase.product;
 
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.mapper.ProductMapper;
-import com.dev.servlet.application.port.in.product.DeleteProductUseCasePort;
-import com.dev.servlet.application.port.in.stock.HasInventoryUseCasePort;
-import com.dev.servlet.application.port.out.AuditPort;
-import com.dev.servlet.application.port.out.AuthenticationPort;
+import com.dev.servlet.application.port.in.product.DeleteProductPort;
+import com.dev.servlet.application.port.in.stock.HasInventoryPort;
+import com.dev.servlet.application.port.out.audit.AuditPort;
+import com.dev.servlet.application.port.out.product.ProductRepositoryPort;
+import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.application.transfer.request.ProductRequest;
 import com.dev.servlet.domain.entity.Inventory;
 import com.dev.servlet.domain.entity.Product;
 import com.dev.servlet.domain.entity.enums.Status;
-import com.dev.servlet.infrastructure.audit.AuditPayload;
-import com.dev.servlet.infrastructure.persistence.repository.ProductRepository;
+import com.dev.servlet.shared.vo.AuditPayload;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.NoArgsConstructor;
@@ -20,9 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @ApplicationScoped
 @NoArgsConstructor
-public class DeleteProductUseCase implements DeleteProductUseCasePort {
+public class DeleteProductUseCase implements DeleteProductPort {
     @Inject
-    private ProductRepository productRepository;
+    private ProductRepositoryPort repositoryPort;
     @Inject
     private ProductMapper productMapper;
     @Inject
@@ -30,7 +30,7 @@ public class DeleteProductUseCase implements DeleteProductUseCasePort {
     @Inject
     private AuditPort auditPort;
     @Inject
-    private HasInventoryUseCasePort hasInventoryUseCasePort;
+    private HasInventoryPort hasInventoryPort;
 
     @Override
     public void delete(ProductRequest request, String auth) throws ApplicationException {
@@ -38,10 +38,10 @@ public class DeleteProductUseCase implements DeleteProductUseCasePort {
         try {
             Product product = productMapper.toProduct(request, authenticationPort.extractUserId(auth));
             product.setStatus(Status.ACTIVE.getValue());
-            product = productRepository.find(product)
+            product = repositoryPort.find(product)
                     .orElseThrow(() -> new ApplicationException("Product not found"));
 
-            if (hasInventoryUseCasePort.hasInventory(
+            if (hasInventoryPort.hasInventory(
                     Inventory.builder()
                             .product(new Product(product.getId()))
                             .build()
@@ -49,7 +49,7 @@ public class DeleteProductUseCase implements DeleteProductUseCasePort {
                 throw new ApplicationException("Cannot delete product with existing inventory");
             }
 
-            productRepository.delete(product);
+            repositoryPort.delete(product);
 
             auditPort.success("product:delete", auth, new AuditPayload<>(request, null));
         } catch (Exception e) {

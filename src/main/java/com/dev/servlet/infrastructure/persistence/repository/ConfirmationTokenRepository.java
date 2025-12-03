@@ -1,8 +1,9 @@
 package com.dev.servlet.infrastructure.persistence.repository;
 
-import com.dev.servlet.application.port.out.repository.ConfirmationTokenRepositoryPort;
+import com.dev.servlet.application.port.out.confirmtoken.ConfirmationTokenRepositoryPort;
 import com.dev.servlet.domain.entity.ConfirmationToken;
-import jakarta.enterprise.inject.Model;
+import com.dev.servlet.infrastructure.persistence.repository.base.BaseRepository;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -12,7 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-@Model
+@RequestScoped
 public class ConfirmationTokenRepository extends BaseRepository<ConfirmationToken, String> implements ConfirmationTokenRepositoryPort {
 
     @Override

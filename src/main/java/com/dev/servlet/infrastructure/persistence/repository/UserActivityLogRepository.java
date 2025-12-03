@@ -1,7 +1,8 @@
 package com.dev.servlet.infrastructure.persistence.repository;
 
-import com.dev.servlet.application.port.out.repository.UserActivityLogRepositoryPort;
+import com.dev.servlet.application.port.out.activity.UserActivityLogRepositoryPort;
 import com.dev.servlet.domain.entity.UserActivityLog;
+import com.dev.servlet.infrastructure.persistence.repository.base.BaseRepository;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;

@@ -1,7 +1,7 @@
-<%@ page import="com.dev.servlet.web.response.IHttpResponse" %>
+<%@ page import="com.dev.servlet.adapter.in.web.dto.IHttpResponse" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="tag" tagdir="/WEB-INF/tags" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <%@ include file="/WEB-INF/routes/inspect-routes.jspf" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 

@@ -2,17 +2,17 @@ package com.dev.servlet.application.usecase.category;
 
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.mapper.CategoryMapper;
-import com.dev.servlet.application.port.in.category.RegisterCategoryUseCasePort;
-import com.dev.servlet.application.port.out.AuditPort;
-import com.dev.servlet.application.port.out.AuthenticationPort;
+import com.dev.servlet.application.port.in.category.RegisterCategoryPort;
+import com.dev.servlet.application.port.out.audit.AuditPort;
+import com.dev.servlet.application.port.out.cache.CachePort;
+import com.dev.servlet.application.port.out.category.CategoryRepositoryPort;
+import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.application.transfer.request.CategoryRequest;
 import com.dev.servlet.application.transfer.response.CategoryResponse;
 import com.dev.servlet.domain.entity.Category;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
-import com.dev.servlet.infrastructure.audit.AuditPayload;
-import com.dev.servlet.infrastructure.cache.CacheUtils;
-import com.dev.servlet.infrastructure.persistence.repository.CategoryRepository;
+import com.dev.servlet.shared.vo.AuditPayload;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.NoArgsConstructor;
@@ -21,17 +21,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @ApplicationScoped
 @NoArgsConstructor
-public class RegisterCategoryUseCase implements RegisterCategoryUseCasePort {
+public class RegisterCategoryUseCase implements RegisterCategoryPort {
     private static final String EVENT_NAME = "category:register";
-
     @Inject
     private CategoryMapper categoryMapper;
     @Inject
-    private CategoryRepository categoryRepository;
+    private CategoryRepositoryPort categoryRepositoryPort;
     @Inject
     private AuthenticationPort authenticationPort;
     @Inject
     private AuditPort auditPort;
+    @Inject
+    private CachePort cachePort;
 
     @Override
     public CategoryResponse register(CategoryRequest request, String auth) throws ApplicationException {
@@ -42,8 +43,8 @@ public class RegisterCategoryUseCase implements RegisterCategoryUseCasePort {
             Category category = categoryMapper.toCategory(request);
             category.setUser(user);
             category.setStatus(Status.ACTIVE.getValue());
-            category = categoryRepository.save(category);
-            CacheUtils.clear(user.getId(), "categoryCacheKey");
+            category = categoryRepositoryPort.save(category);
+            cachePort.clear(user.getId(), "categoryCacheKey");
 
             CategoryResponse response = categoryMapper.toResponse(category);
             auditPort.success(EVENT_NAME, auth, new AuditPayload<>(request, response));

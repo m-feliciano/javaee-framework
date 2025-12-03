@@ -1,6 +1,6 @@
 package com.dev.servlet.infrastructure.persistence.transfer;
 
-import com.dev.servlet.domain.valueobject.Sort;
+import com.dev.servlet.shared.vo.Sort;
 
 public interface ISorted {
     default Sort getSort() {

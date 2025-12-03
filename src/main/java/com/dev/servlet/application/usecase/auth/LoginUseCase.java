@@ -1,23 +1,23 @@
 package com.dev.servlet.application.usecase.auth;
 
+import com.dev.servlet.adapter.in.web.dto.HttpResponse;
+import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.mapper.UserMapper;
-import com.dev.servlet.application.port.in.auth.LoginUseCasePort;
-import com.dev.servlet.application.port.in.user.GetUserUseCasePort;
-import com.dev.servlet.application.port.in.user.UserDemoModeUseCasePort;
-import com.dev.servlet.application.port.out.AuditPort;
-import com.dev.servlet.application.port.out.AuthenticationPort;
+import com.dev.servlet.application.port.in.auth.LoginPort;
+import com.dev.servlet.application.port.in.user.GetUserPort;
+import com.dev.servlet.application.port.in.user.UserDemoModePort;
+import com.dev.servlet.application.port.out.audit.AuditPort;
+import com.dev.servlet.application.port.out.refreshtoken.RefreshTokenRepositoryPort;
+import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.application.transfer.request.LoginRequest;
 import com.dev.servlet.application.transfer.request.UserRequest;
 import com.dev.servlet.application.transfer.response.UserResponse;
 import com.dev.servlet.domain.entity.RefreshToken;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
-import com.dev.servlet.infrastructure.audit.AuditPayload;
 import com.dev.servlet.infrastructure.config.Properties;
-import com.dev.servlet.infrastructure.persistence.repository.RefreshTokenRepository;
-import com.dev.servlet.web.response.HttpResponse;
-import com.dev.servlet.web.response.IHttpResponse;
+import com.dev.servlet.shared.vo.AuditPayload;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @ApplicationScoped
 @NoArgsConstructor
-public class LoginUseCase implements LoginUseCasePort {
+public class LoginUseCase implements LoginPort {
     private static final String EVENT_NAME = "user:login";
 
     @Inject
@@ -38,13 +38,13 @@ public class LoginUseCase implements LoginUseCasePort {
     @Inject
     private AuditPort auditPort;
     @Inject
-    private GetUserUseCasePort userUseCasePort;
+    private GetUserPort userPort;
     @Inject
-    private UserDemoModeUseCasePort userDemoModeUseCasePort;
+    private UserDemoModePort userDemoModePort;
     @Inject
     private AuthenticationPort authenticationPort;
     @Inject
-    private RefreshTokenRepository refreshTokenRepository;
+    private RefreshTokenRepositoryPort refreshTokenRepositoryPort;
 
     @Override
     public IHttpResponse<UserResponse> login(LoginRequest credentials, String onSuccess) throws ApplicationException {
@@ -56,13 +56,13 @@ public class LoginUseCase implements LoginUseCasePort {
         try {
             if (Properties.isDemoModeEnabled()) {
                 log.debug("LoginUseCase: DEMO_MODE is enabled, bypassing authentication for user {}", login);
-                User demoUser = userDemoModeUseCasePort.validateCredentials(credentials);
+                User demoUser = userDemoModePort.validateCredentials(credentials);
                 UserResponse response = authenticate(demoUser);
                 return HttpResponse.ok(response).next(onSuccess).build();
             }
 
             UserRequest userRequest = new UserRequest(login, password);
-            User user = userUseCasePort.get(userRequest).orElse(null);
+            User user = userPort.get(userRequest).orElse(null);
             if (user == null) throw new ApplicationException("Invalid login or password");
 
             if (Status.PENDING.equals(user.getStatus())) {
@@ -106,7 +106,7 @@ public class LoginUseCase implements LoginUseCasePort {
                 .issuedAt(Instant.now())
                 .expiresAt(Instant.now().plusSeconds(TimeUnit.DAYS.toSeconds(30)))
                 .build();
-        refreshTokenRepository.save(rt);
+        refreshTokenRepositoryPort.save(rt);
         log.debug("LoginUseCase: user {} logged in successfully", user.getId());
 
         response.setToken(accessToken);

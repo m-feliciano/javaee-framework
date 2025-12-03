@@ -1,14 +1,14 @@
-<%@ page import="com.dev.servlet.web.response.IHttpResponse" %>
+<%@ page import="com.dev.servlet.adapter.in.web.dto.IHttpResponse" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="tag" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 <%@ include file="/WEB-INF/routes/history-routes.jspf" %>
 
 <%
-    IHttpResponse<?> httpResponse = (com.dev.servlet.web.response.IHttpResponse<?>) request.getAttribute("response");
+    IHttpResponse<?> httpResponse = (IHttpResponse<?>) request.getAttribute("response");
     request.setAttribute("activity", httpResponse.body());
 %>
 

@@ -1,20 +1,20 @@
 package com.dev.servlet.application.usecase.product;
 
+import com.dev.servlet.adapter.in.alert.AlertService;
+import com.dev.servlet.adapter.out.external.webscrape.WebScrapeServiceRegistry;
+import com.dev.servlet.adapter.out.external.webscrape.builder.WebScrapeBuilder;
+import com.dev.servlet.adapter.out.external.webscrape.transfer.ProductWebScrapeDTO;
 import com.dev.servlet.application.mapper.ProductMapper;
-import com.dev.servlet.application.port.in.product.ScrapeProductUseCasePort;
-import com.dev.servlet.application.port.out.AuditPort;
-import com.dev.servlet.application.port.out.AuthenticationPort;
+import com.dev.servlet.application.port.in.product.ScrapeProductPort;
+import com.dev.servlet.application.port.out.audit.AuditPort;
+import com.dev.servlet.application.port.out.product.ProductRepositoryPort;
+import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.application.transfer.response.ProductResponse;
 import com.dev.servlet.domain.entity.Product;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
-import com.dev.servlet.infrastructure.alert.AlertService;
-import com.dev.servlet.infrastructure.audit.AuditPayload;
 import com.dev.servlet.infrastructure.config.Properties;
-import com.dev.servlet.infrastructure.external.webscrape.WebScrapeServiceRegistry;
-import com.dev.servlet.infrastructure.external.webscrape.builder.WebScrapeBuilder;
-import com.dev.servlet.infrastructure.external.webscrape.transfer.ProductWebScrapeDTO;
-import com.dev.servlet.infrastructure.persistence.repository.ProductRepository;
+import com.dev.servlet.shared.vo.AuditPayload;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.RequestContextController;
 import jakarta.inject.Inject;
@@ -30,9 +30,9 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 @ApplicationScoped
 @NoArgsConstructor
-public class ScrapeProductUseCase implements ScrapeProductUseCasePort {
+public class ScrapeProductUseCase implements ScrapeProductPort {
     @Inject
-    private ProductRepository productRepository;
+    private ProductRepositoryPort repositoryPort;
     @Inject
     private AuthenticationPort authenticationPort;
     @Inject
@@ -112,7 +112,7 @@ public class ScrapeProductUseCase implements ScrapeProductUseCasePort {
                 })
                 .toList();
 
-        products = productRepository.saveAll(products);
+        products = repositoryPort.saveAll(products);
         log.debug("Scraped saved {} products to the database", products.size());
 
         List<ProductResponse> responseList = products.stream()

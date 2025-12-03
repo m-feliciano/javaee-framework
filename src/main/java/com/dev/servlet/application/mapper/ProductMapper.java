@@ -1,12 +1,12 @@
 package com.dev.servlet.application.mapper;
 
+import com.dev.servlet.adapter.out.external.webscrape.transfer.ProductWebScrapeDTO;
 import com.dev.servlet.application.transfer.request.CategoryRequest;
 import com.dev.servlet.application.transfer.request.ProductRequest;
 import com.dev.servlet.application.transfer.response.ProductResponse;
 import com.dev.servlet.domain.entity.Product;
 import com.dev.servlet.domain.entity.User;
-import com.dev.servlet.domain.valueobject.Query;
-import com.dev.servlet.infrastructure.external.webscrape.transfer.ProductWebScrapeDTO;
+import com.dev.servlet.shared.vo.Query;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;

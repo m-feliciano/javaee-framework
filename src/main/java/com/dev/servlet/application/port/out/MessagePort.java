@@ -1,6 +1,6 @@
 package com.dev.servlet.application.port.out;
 
-import com.dev.servlet.infrastructure.messaging.Message;
+import com.dev.servlet.adapter.out.messaging.Message;
 
 public interface MessagePort {
     void send(Message message);

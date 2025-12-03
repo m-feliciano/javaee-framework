@@ -2,16 +2,16 @@ package com.dev.servlet.application.usecase.category;
 
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.mapper.CategoryMapper;
-import com.dev.servlet.application.port.in.category.GetCategoryDetailUseCasePort;
-import com.dev.servlet.application.port.out.AuditPort;
-import com.dev.servlet.application.port.out.AuthenticationPort;
+import com.dev.servlet.application.port.in.category.GetCategoryDetailPort;
+import com.dev.servlet.application.port.out.audit.AuditPort;
+import com.dev.servlet.application.port.out.category.CategoryRepositoryPort;
+import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.application.transfer.request.CategoryRequest;
 import com.dev.servlet.application.transfer.response.CategoryResponse;
 import com.dev.servlet.domain.entity.Category;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
-import com.dev.servlet.infrastructure.audit.AuditPayload;
-import com.dev.servlet.infrastructure.persistence.repository.CategoryRepository;
+import com.dev.servlet.shared.vo.AuditPayload;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.NoArgsConstructor;
@@ -20,14 +20,14 @@ import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 @NoArgsConstructor
-public class GetCategoryDetailUseCase implements GetCategoryDetailUseCasePort {
+public class GetCategoryDetailUseCase implements GetCategoryDetailPort {
     private static final String EVENT_NAME = "category:get_by_id";
     private static final Logger log = LoggerFactory.getLogger(GetCategoryDetailUseCase.class);
 
     @Inject
     private CategoryMapper categoryMapper;
     @Inject
-    private CategoryRepository categoryRepository;
+    private CategoryRepositoryPort categoryRepositoryPort;
     @Inject
     private AuthenticationPort authenticationPort;
     @Inject
@@ -55,7 +55,7 @@ public class GetCategoryDetailUseCase implements GetCategoryDetailUseCasePort {
                 .user(new User(userId))
                 .status(Status.ACTIVE.getValue())
                 .build();
-        return categoryRepository.find(category)
+        return categoryRepositoryPort.find(category)
                 .orElseThrow(() -> new ApplicationException("Category not found"));
     }
 }

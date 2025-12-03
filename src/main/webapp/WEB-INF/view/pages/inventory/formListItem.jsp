@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/routes/inventory-routes.jspf" %>
-<%@ page import="com.dev.servlet.web.response.IHttpResponse" %>
+<%@ page import="com.dev.servlet.adapter.in.web.dto.IHttpResponse" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <%

@@ -37,6 +37,7 @@ Built the following Clean Architecture guidelines:
 - Application: use cases and orchestration
 - Web: controllers, routing, and HTTP adapters
 - Infrastructure: persistence, messaging, and external integrations
+- Adapters: Class implementations for interfaces defined in other layers
 
 Each layer remains strictly independent — infrastructure never leaks into the domain.
 
@@ -88,7 +89,7 @@ The application exposes some endpoints. Here are examples:
 
 The base URL is `http://localhost:8080` by default (local).
 
-Example of a complete url to list products: http://localhost:8080/api/v1/products
+Example of a complete url to list products: http://localhost:8080/api/v1/product/list
 
 If you want to see all available endpoints, check the Docs tab in the demo application UI or refer to the source code.
 
