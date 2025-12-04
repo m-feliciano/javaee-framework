@@ -35,25 +35,15 @@ public final class URIUtils {
         return Arrays.stream(array).skip(5).findFirst().orElse(null);
     }
 
-    public static IPageRequest getPageRequest(HttpServletRequest request) {
-        IPageRequest pageRequest;
-        if (hasQueryString(request)) {
-            Map<String, String> queryParams = filterQueryParameters(request);
-            pageRequest = createPageRequest(queryParams);
-        } else {
-            pageRequest = buildPagination();
-        }
-        return pageRequest;
+    public static IPageRequest getPageRequest(Query query) {
+        return createPageRequest(query.parameters());
     }
 
-    private static boolean hasQueryString(HttpServletRequest request) {
-        String queryString = request.getQueryString();
-        return queryString != null && !queryString.isEmpty();
-    }
+    public static Map<String, String> filterQueryParameters(String queryString) {
+        if (queryString == null || queryString.isEmpty()) return null;
 
-    public static Map<String, String> filterQueryParameters(HttpServletRequest request) {
         Map<String, String> queryParams = new HashMap<>();
-        List<KeyPair> params = parseQueryParams(request.getQueryString());
+        List<KeyPair> params = parseQueryParams(queryString);
         for (var param : params) {
             String parameterValue = ((String) param.value()).trim();
             String decoded = URLDecoder.decode(parameterValue, StandardCharsets.UTF_8);
@@ -106,7 +96,7 @@ public final class URIUtils {
         return queryParams;
     }
 
-    private static PageRequest buildPagination() {
+    public static PageRequest buildPageRequest() {
         int page = Properties.getOrDefault(PAGINATION_PAGE, DEFAULT_INITIAL_PAGE);
         int size = Properties.getOrDefault(PAGINATION_LIMIT, DEFAULT_MIN_PAGE_SIZE);
         String field = Properties.getOrDefault(PAGINATION_SORT, DEFAULT_SORT_FIELD);
@@ -139,9 +129,9 @@ public final class URIUtils {
     }
 
     public static Query query(HttpServletRequest servletRequest) {
-        if (!hasQueryString(servletRequest)) return null;
+        Map<String, String> queries = filterQueryParameters(servletRequest.getQueryString());
+        if (queries == null) return null;
 
-        Map<String, String> queries = filterQueryParameters(servletRequest);
         String field = queries.remove("k");
         String value = queries.remove("q");
         if (field != null && value != null) {
@@ -149,5 +139,10 @@ public final class URIUtils {
         }
 
         return new Query(queries);
+    }
+
+    public static boolean matchWildcard(String endpoint, String eventName) {
+        String regex = endpoint.replace("*", ".*");
+        return eventName.matches(regex);
     }
 }

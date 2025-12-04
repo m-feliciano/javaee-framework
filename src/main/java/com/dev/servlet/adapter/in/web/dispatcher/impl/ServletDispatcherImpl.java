@@ -8,12 +8,15 @@ import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.adapter.in.web.dto.Request;
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.port.in.user.UserDetailsPort;
+import com.dev.servlet.application.port.out.audit.AuditPort;
 import com.dev.servlet.application.port.out.security.AuthCookiePort;
 import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.application.transfer.response.UserResponse;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.RequestMethod;
 import com.dev.servlet.infrastructure.utils.URIUtils;
+import com.dev.servlet.shared.util.CloneUtil;
+import com.dev.servlet.shared.vo.AuditPayload;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
@@ -27,7 +30,9 @@ import org.slf4j.MDC;
 
 import java.io.PrintWriter;
 import java.text.MessageFormat;
+import java.util.List;
 
+import static com.dev.servlet.infrastructure.utils.URIUtils.matchWildcard;
 import static com.dev.servlet.shared.enums.ConstantUtils.BEARER_PREFIX;
 
 @Setter
@@ -35,7 +40,13 @@ import static com.dev.servlet.shared.enums.ConstantUtils.BEARER_PREFIX;
 @NoArgsConstructor
 @RequestScoped
 public class ServletDispatcherImpl implements IServletDispatcher {
-    public static final String LOGOUT = "logout";
+    private static final List<String> noAuditEndpoints = List.of(
+            "GET:/api/v1/inspect/*",
+            "GET:/api/v1/health/*",
+            "GET:/api/v1/activity/*",
+            "GET:/api/v1/alert/*"
+    );
+
     @Inject
     private AuthCookiePort authCookiePort;
     @Inject
@@ -44,9 +55,11 @@ public class ServletDispatcherImpl implements IServletDispatcher {
     private AuthenticationPort authenticationPort;
     @Inject
     private HttpExecutor<?> httpExecutor;
+    @Inject
+    private AuditPort auditPort;
 
     private static Request requestOf(HttpServletRequest httpServletRequest) {
-        return RequestBuilder.newBuilder().servletRequest(httpServletRequest).complete().retry(1).build();
+        return RequestBuilder.newBuilder().servletRequest(httpServletRequest).complete().build();
     }
 
     @Interceptors({LogExecutionTimeInterceptor.class})
@@ -70,13 +83,15 @@ public class ServletDispatcherImpl implements IServletDispatcher {
         }
     }
 
-    private void setRequestAttributes(HttpServletRequest httpRequest, IHttpResponse<?> response) {
+    private void handleRequestAttributes(HttpServletRequest httpRequest, IHttpResponse<?> response) {
         httpRequest.setAttribute("response", response);
 
         try {
-            var queries = URIUtils.filterQueryParameters(httpRequest);
-            httpRequest.setAttribute("q", queries.get("q"));
-            httpRequest.setAttribute("k", queries.get("k"));
+            var queries = URIUtils.filterQueryParameters(httpRequest.getQueryString());
+            if (queries != null) {
+                httpRequest.setAttribute("q", queries.get("q"));
+                httpRequest.setAttribute("k", queries.get("k"));
+            }
         } catch (Exception ignored) {
         }
 
@@ -98,7 +113,7 @@ public class ServletDispatcherImpl implements IServletDispatcher {
     private void processResponseData(HttpServletRequest httpRequest,
                                      HttpServletResponse httpResponse,
                                      Request request, IHttpResponse<?> response) {
-        log.debug("Response status: {}", response.statusCode());
+        log.trace("");
         if (RequestMethod.POST.isEquals(request.getMethod()) && response.body() instanceof UserResponse user) {
             if (user.hasToken()) {
                 authCookiePort.setAuthCookies(httpResponse, user.getToken(), user.getRefreshToken());
@@ -107,16 +122,17 @@ public class ServletDispatcherImpl implements IServletDispatcher {
 
         httpResponse.setHeader("X-Correlation-ID", MDC.get("correlationId"));
 
-        addUserToRequest(httpRequest);
-        setRequestAttributes(httpRequest, response);
+        logAuditEvent(request, response);
+        attachUserToRequest(httpRequest);
+        handleRequestAttributes(httpRequest, response);
         handleResponseErrors(httpRequest, httpResponse, response);
 
-        if (request.contains(LOGOUT)) {
+        if (request.contains("logout")) {
             authCookiePort.clearCookies(httpResponse);
         }
     }
 
-    private void addUserToRequest(HttpServletRequest httpRequest) {
+    private void attachUserToRequest(HttpServletRequest httpRequest) {
         try {
             String token = authCookiePort.getCookieFromArray(httpRequest.getCookies(), authCookiePort.getAccessTokenCookieName());
             if (StringUtils.isNotBlank(token)) {
@@ -180,9 +196,11 @@ public class ServletDispatcherImpl implements IServletDispatcher {
                 .message(message)
                 .image(image)
                 .build();
+
         httpResponse.setStatus(status);
         httpResponse.setContentType("text/html");
         httpResponse.setCharacterEncoding("UTF-8");
+
         try (PrintWriter writer = httpResponse.getWriter()) {
             writer.write(htmlErrorPage);
             writer.flush();
@@ -190,5 +208,22 @@ public class ServletDispatcherImpl implements IServletDispatcher {
             String cause = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
             log.error("Error writing response: {}", cause);
         }
+    }
+
+    private void logAuditEvent(Request request, IHttpResponse<?> response) {
+        final String eventName = "%s:%s".formatted(request.getMethod(), request.getEndpoint());
+
+        if (noAuditEndpoints.stream().noneMatch(edp -> matchWildcard(edp, eventName))) {
+            if (response.statusCode() >= 200 && response.statusCode() < 400) {
+                auditSuccess(eventName, request, response);
+            } else {
+                auditPort.failure(eventName, request.getToken(), new AuditPayload<>(request, response));
+            }
+        }
+    }
+
+    private void auditSuccess(String eventName, Request request, IHttpResponse<?> response) {
+        Object payload = CloneUtil.summarizeResponseBody(response.body());
+        auditPort.success(eventName, request.getToken(), new AuditPayload<>(request, payload));
     }
 }

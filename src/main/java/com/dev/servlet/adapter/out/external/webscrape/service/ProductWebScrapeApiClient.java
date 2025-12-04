@@ -6,7 +6,6 @@ import com.dev.servlet.adapter.out.external.webscrape.transfer.ProductWebScrapeD
 import com.dev.servlet.adapter.out.external.webscrape.transfer.WebScrapingResponse;
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.infrastructure.utils.VirtualFileUtils;
-import com.dev.servlet.shared.util.CloneUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Request;
@@ -17,34 +16,24 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class ProductWebScrapeApiClient extends ScrapeApiClient<List<ProductWebScrapeDTO>> {
-    public static final String WEB_SCRAPE_JSON_FILENAME = "product-web-scrape.json";
 
     @Override
-    public Optional<List<ProductWebScrapeDTO>> scrape(WebScrapeRequest scrapeRequest) throws Exception {
+    public Optional<List<ProductWebScrapeDTO>> scrape(WebScrapeRequest request) throws Exception {
         try {
-            final Path tempFile = VirtualFileUtils.readTempFile(WEB_SCRAPE_JSON_FILENAME);
-            if (tempFile != null) {
-                String content = Files.readString(tempFile);
-                List<ProductWebScrapeDTO> response = objectMapper.readValue(content, new TypeReference<>() {
-                });
-                log.debug("[Scraped] Loaded {} products from cached file: {}", response.size(), tempFile);
-                return Optional.of(response);
-            }
+            final Path tempFile = VirtualFileUtils.readResourceFile("/mock/product/webscrape.json");
+            String content = Files.readString(tempFile);
+            List<ProductWebScrapeDTO> response = objectMapper.readValue(content, new TypeReference<>() {
+            });
 
-            List<ProductWebScrapeDTO> response = fetchProductsFromScrapingApi(scrapeRequest).stream()
-                    .flatMap(r -> r.getContent().stream())
-                    .collect(Collectors.toList());
+            // Uncomment below to enable live scraping
+//            List<ProductWebScrapeDTO> response = fetchProductsFromScrapingApi(scrapeRequest).stream()
+//                    .flatMap(r -> r.getContent().stream())
+//                    .collect(Collectors.toList());
 
-            if (response.isEmpty()) return Optional.empty();
-
-            String json = CloneUtil.toJson(response);
-            final Path output = VirtualFileUtils.createTempFile(json, WEB_SCRAPE_JSON_FILENAME);
-            log.debug("[Scraped] {} products. Data saved to temporary file: {}", response.size(), output);
-
+            log.debug("[Scraped] Loaded {} products from cached file: {}", response.size(), tempFile);
             return Optional.of(response);
 
         } catch (Exception e) {

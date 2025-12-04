@@ -5,11 +5,10 @@ import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.mapper.UserMapper;
 import com.dev.servlet.application.port.in.auth.LoginPort;
-import com.dev.servlet.application.port.in.user.GetUserPort;
 import com.dev.servlet.application.port.in.user.UserDemoModePort;
-import com.dev.servlet.application.port.out.audit.AuditPort;
 import com.dev.servlet.application.port.out.refreshtoken.RefreshTokenRepositoryPort;
 import com.dev.servlet.application.port.out.security.AuthenticationPort;
+import com.dev.servlet.application.port.out.user.GetUserPort;
 import com.dev.servlet.application.transfer.request.LoginRequest;
 import com.dev.servlet.application.transfer.request.UserRequest;
 import com.dev.servlet.application.transfer.response.UserResponse;
@@ -17,11 +16,9 @@ import com.dev.servlet.domain.entity.RefreshToken;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
 import com.dev.servlet.infrastructure.config.Properties;
-import com.dev.servlet.shared.vo.AuditPayload;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
@@ -29,14 +26,9 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @ApplicationScoped
-@NoArgsConstructor
 public class LoginUseCase implements LoginPort {
-    private static final String EVENT_NAME = "user:login";
-
     @Inject
     private UserMapper userMapper;
-    @Inject
-    private AuditPort auditPort;
     @Inject
     private GetUserPort userPort;
     @Inject
@@ -52,7 +44,6 @@ public class LoginUseCase implements LoginPort {
         final String password = credentials.password();
 
         log.debug("LoginUseCase: attempting login for user {}", login);
-
         try {
             if (Properties.isDemoModeEnabled()) {
                 log.debug("LoginUseCase: DEMO_MODE is enabled, bypassing authentication for user {}", login);
@@ -61,12 +52,10 @@ public class LoginUseCase implements LoginPort {
                 return HttpResponse.ok(response).next(onSuccess).build();
             }
 
-            UserRequest userRequest = new UserRequest(login, password);
-            User user = userPort.get(userRequest).orElse(null);
-            if (user == null) throw new ApplicationException("Invalid login or password");
+            User user = userPort.get(new UserRequest(login, password))
+                    .orElseThrow(() -> new ApplicationException("Invalid login or password"));
 
             if (Status.PENDING.equals(user.getStatus())) {
-                auditPort.warning(EVENT_NAME, null, new AuditPayload<>(credentials, null));
                 UserResponse userResponse = UserResponse.builder()
                         .id(user.getId())
                         .unconfirmedEmail(true)
@@ -75,12 +64,10 @@ public class LoginUseCase implements LoginPort {
             }
 
             UserResponse response = authenticate(user);
-            auditPort.success(EVENT_NAME, response.getToken(), null);
             return HttpResponse.ok(response).next(onSuccess).build();
 
         } catch (Exception e) {
-            log.error("LoginUseCase: login failed for user {}: {}", login, e.getMessage());
-            auditPort.warning(EVENT_NAME, null, new AuditPayload<>(credentials, null));
+            log.warn("LoginUseCase: login failed for user {}: {}", login, e.getMessage());
 
             return HttpResponse.<UserResponse>newBuilder()
                     .statusCode(HttpServletResponse.SC_UNAUTHORIZED)

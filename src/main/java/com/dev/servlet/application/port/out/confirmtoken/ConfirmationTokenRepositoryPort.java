@@ -7,6 +7,8 @@ import java.util.Optional;
 public interface ConfirmationTokenRepositoryPort {
     Optional<ConfirmationToken> findByToken(String token);
 
-    ConfirmationToken save(ConfirmationToken confirmationToken);
+    ConfirmationToken save(ConfirmationToken ct);
+
+    ConfirmationToken update(ConfirmationToken ct);
 }
 

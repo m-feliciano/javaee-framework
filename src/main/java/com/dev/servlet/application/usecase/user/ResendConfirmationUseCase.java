@@ -6,7 +6,6 @@ import com.dev.servlet.application.mapper.UserMapper;
 import com.dev.servlet.application.port.in.user.GenerateConfirmationTokenPort;
 import com.dev.servlet.application.port.in.user.ResendConfirmationPort;
 import com.dev.servlet.application.port.out.MessagePort;
-import com.dev.servlet.application.port.out.audit.AuditPort;
 import com.dev.servlet.application.port.out.cache.CachePort;
 import com.dev.servlet.application.port.out.user.UserRepositoryPort;
 import com.dev.servlet.application.transfer.request.ResendConfirmationRequest;
@@ -15,12 +14,10 @@ import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
 import com.dev.servlet.domain.enums.MessageType;
 import com.dev.servlet.infrastructure.config.Properties;
-import com.dev.servlet.shared.vo.AuditPayload;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -29,7 +26,6 @@ import java.util.Optional;
 
 @Slf4j
 @ApplicationScoped
-@NoArgsConstructor
 public class ResendConfirmationUseCase implements ResendConfirmationPort {
     private static final String CACHE_KEY = "userCacheKey";
     @Inject
@@ -39,8 +35,6 @@ public class ResendConfirmationUseCase implements ResendConfirmationPort {
     @Inject
     @Named("messageProducer")
     private MessagePort messagePort;
-    @Inject
-    private AuditPort auditPort;
     @Inject
     private GenerateConfirmationTokenPort generateConfirmationTokenPort;
     private String baseUrl;
@@ -74,7 +68,7 @@ public class ResendConfirmationUseCase implements ResendConfirmationPort {
             return;
         }
 
-        String token = generateConfirmationTokenPort.createTokenForUser(user, null);
+        String token = generateConfirmationTokenPort.generateFor(user, null);
         String link = baseUrl + "/api/v1/user/confirm?token=" + token;
         String email = user.getCredentials().getLogin();
         String createdAt = OffsetDateTime.now().toString();
@@ -84,6 +78,5 @@ public class ResendConfirmationUseCase implements ResendConfirmationPort {
 
         UserResponse response = userMapper.toResponse(user);
         cachePort.setObject(user.getId(), CACHE_KEY, response);
-        auditPort.success("user:resend_confirmation", null, new AuditPayload<>(userId, response));
     }
 }

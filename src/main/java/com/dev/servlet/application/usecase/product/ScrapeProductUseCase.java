@@ -1,12 +1,11 @@
 package com.dev.servlet.application.usecase.product;
 
-import com.dev.servlet.adapter.in.alert.AlertService;
 import com.dev.servlet.adapter.out.external.webscrape.WebScrapeServiceRegistry;
 import com.dev.servlet.adapter.out.external.webscrape.builder.WebScrapeBuilder;
 import com.dev.servlet.adapter.out.external.webscrape.transfer.ProductWebScrapeDTO;
 import com.dev.servlet.application.mapper.ProductMapper;
 import com.dev.servlet.application.port.in.product.ScrapeProductPort;
-import com.dev.servlet.application.port.out.audit.AuditPort;
+import com.dev.servlet.application.port.out.alert.AlertPort;
 import com.dev.servlet.application.port.out.product.ProductRepositoryPort;
 import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.application.transfer.response.ProductResponse;
@@ -14,31 +13,25 @@ import com.dev.servlet.domain.entity.Product;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
 import com.dev.servlet.infrastructure.config.Properties;
-import com.dev.servlet.shared.vo.AuditPayload;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.RequestContextController;
 import jakarta.inject.Inject;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @ApplicationScoped
-@NoArgsConstructor
 public class ScrapeProductUseCase implements ScrapeProductPort {
     @Inject
     private ProductRepositoryPort repositoryPort;
     @Inject
     private AuthenticationPort authenticationPort;
     @Inject
-    private AuditPort auditPort;
-    @Inject
-    private AlertService alertService;
+    private AlertPort alertPort;
     @Inject
     private WebScrapeServiceRegistry webScrapeServiceRegistry;
     @Inject
@@ -47,31 +40,31 @@ public class ScrapeProductUseCase implements ScrapeProductPort {
     private ProductMapper productMapper;
 
     @Override
-    public CompletableFuture<List<ProductResponse>> scrapeAsync(String url, String environment, String auth) {
+    public CompletableFuture<List<ProductResponse>> scrapeAsync(String url, String auth) {
         final User user = authenticationPort.extractUser(auth);
 
         CompletableFuture<List<ProductResponse>> future = CompletableFuture
                 .supplyAsync(() -> {
                     requestContextController.activate();
                     try {
-                        return scrape(url, environment, auth);
+                        return scrape(url, auth);
                     } finally {
                         requestContextController.deactivate();
                     }
                 });
 
-        alertService.publish(user.getId(), "info",
+        alertPort.publish(user.getId(), "info",
                 "Web scraping started. You will be notified once it's completed");
         return future;
     }
 
-    private List<ProductResponse> scrape(String url, String environment, String auth) {
+    private List<ProductResponse> scrape(String url, String auth) {
         final User user = authenticationPort.extractUser(auth);
 
         // Enable web scraping only in the development environment or demo mode
-        if (!"development".equals(environment) && !Properties.isDemoModeEnabled()) {
+        if (!Properties.isDevelopmentMode() && !Properties.isDemoModeEnabled()) {
             log.warn("Web scraping is only allowed in development environment");
-            alertService.publish(user.getId(), "warn",
+            alertPort.publish(user.getId(), "warn",
                     "Web scraping is only allowed in development environment");
             return null;
         }
@@ -83,18 +76,18 @@ public class ScrapeProductUseCase implements ScrapeProductPort {
                     .withUrl(url)
                     .withRegistry(webScrapeServiceRegistry)
                     .onErrorHandler(ex -> {
-                        auditPort.failure("product:scrape", auth, new AuditPayload<>(url, null));
-                        alertService.publish(user.getId(), "error", "Error during web scraping. Try again later.");
+                        // do some stuff when an error occurs
                         throw new RuntimeException(ex);
                     })
                     .execute();
 
             if (optional.isEmpty()) {
-                alertService.publish(user.getId(), "error", "No products found during web scraping.");
+                alertPort.publish(user.getId(), "error", "No products found during web scraping.");
                 return null;
             }
 
         } catch (Exception ignored) {
+            alertPort.publish(user.getId(), "error", "Error during web scraping. Try again later.");
             return null;
         }
 
@@ -119,12 +112,8 @@ public class ScrapeProductUseCase implements ScrapeProductPort {
                 .map(p -> productMapper.toResponse(p))
                 .toList();
 
-        auditPort.success("product:scrape", auth,
-                new AuditPayload<>(url, responseList,
-                        Map.of("products_scraped", responseList.size())));
-
         String message = String.format("Successfully scraped %d products.", responseList.size());
-        alertService.publish(user.getId(), "success", message);
+        alertPort.publish(user.getId(), "success", message);
         return responseList;
     }
 }

@@ -7,14 +7,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.NoArgsConstructor;
 import org.slf4j.MDC;
 
 import java.io.IOException;
 import java.util.UUID;
 
 @ApplicationScoped
-@NoArgsConstructor
 public class MDCFilter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {

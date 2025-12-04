@@ -2,7 +2,6 @@ package com.dev.servlet.application.usecase.stock;
 
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.port.in.stock.DeleteInventoryPort;
-import com.dev.servlet.application.port.out.audit.AuditPort;
 import com.dev.servlet.application.port.out.inventory.InventoryRepositoryPort;
 import com.dev.servlet.application.transfer.request.InventoryRequest;
 import com.dev.servlet.domain.entity.Inventory;
@@ -16,22 +15,14 @@ import lombok.extern.slf4j.Slf4j;
 @ApplicationScoped
 public class DeleteInventoryUseCase implements DeleteInventoryPort {
     @Inject
-    private AuditPort auditPort;
-    @Inject
     private InventoryRepositoryPort repositoryPort;
 
     @Override
     public void delete(InventoryRequest request, String auth) throws ApplicationException {
         log.debug("DeleteInventoryUseCase: attempting to delete inventory with id {}", request.id());
 
-        try {
-            Inventory inventory = repositoryPort.findById(request.id())
-                    .orElseThrow(() -> new ApplicationException("Inventory not found"));
-            repositoryPort.delete(inventory);
-            auditPort.success("inventory:delete", auth, null);
-        } catch (Exception e) {
-            auditPort.failure("inventory:delete", auth, null);
-            throw e;
-        }
+        Inventory inventory = repositoryPort.findById(request.id())
+                .orElseThrow(() -> new ApplicationException("Inventory not found"));
+        repositoryPort.delete(inventory);
     }
 }

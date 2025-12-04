@@ -78,3 +78,7 @@ services:
 networks:
   default:
     driver: bridge
+
+# Comandos Docker individuais para referência:
+# docker run -d --name servlets-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=uma_senha_segura -e POSTGRES_DB=servletsdb -p 5432:5432 --restart unless-stopped postgres:15
+#docker run -d --name dev_activemq -e ARTEMIS_USER=artemis -e ARTEMIS_PASSWORD=artemis -p 61616:61616 -p 8161:8161 --restart unless-stopped apache/activemq-artemis:2.44.0

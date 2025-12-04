@@ -1,5 +1,6 @@
-package com.dev.servlet.adapter.out.messaging;
+package com.dev.servlet.adapter.out.messaging.producer;
 
+import com.dev.servlet.adapter.out.messaging.Message;
 import com.dev.servlet.adapter.out.messaging.config.MessageConfig;
 import com.dev.servlet.adapter.out.messaging.factory.MessageFactory;
 import com.dev.servlet.application.port.out.MessagePort;

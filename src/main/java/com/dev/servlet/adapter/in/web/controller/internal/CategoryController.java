@@ -13,13 +13,11 @@ import com.dev.servlet.application.transfer.request.CategoryRequest;
 import com.dev.servlet.application.transfer.response.CategoryResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 
 import java.util.Collection;
 
 @ApplicationScoped
-@NoArgsConstructor
 public class CategoryController extends BaseController implements CategoryControllerApi {
     @Inject
     private GetCategoryDetailPort detailPort;

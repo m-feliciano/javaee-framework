@@ -8,7 +8,6 @@ import io.github.bucket4j.BucketConfiguration;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
@@ -18,7 +17,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Getter
 @Slf4j
 @ApplicationScoped
-@NoArgsConstructor
 public class Bucket4jRateLimiter implements RateLimiter {
     private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
     private BucketConfiguration bucketConfiguration;

@@ -106,14 +106,14 @@ public class CacheAdapter implements CachePort {
     public void clear(String key, String cacheName) {
         Cache<String, Container> cache = getOrCreateCache(key);
         cache.remove(cacheName);
-        log.info("Cleared cache entry for userId='{}'", key);
+        log.debug("Cleared cache entry for userId='{}'", key);
     }
 
     public void clearAll(String key) {
         String cacheName = "cache_" + key;
         cacheManager.removeCache(cacheName);
         tokenCaches.remove(key);
-        log.info("Cleared all cache entries for userId='{}'", key);
+        log.debug("Cleared all cache entries for userId='{}'", key);
     }
 
     private static void cleanupUnusedCaches() {

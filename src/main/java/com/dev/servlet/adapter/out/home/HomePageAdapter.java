@@ -1,14 +1,13 @@
-package com.dev.servlet.application.usecase.auth;
+package com.dev.servlet.adapter.out.home;
 
 import com.dev.servlet.application.port.in.auth.HomePagePort;
 import jakarta.enterprise.context.ApplicationScoped;
-import lombok.NoArgsConstructor;
 
 @ApplicationScoped
-@NoArgsConstructor
-public class HomePageUseCase implements HomePagePort {
+public class HomePageAdapter implements HomePagePort {
     @Override
     public String homePage() {
+        // TODO Use property file to manage page paths
         return "redirect:/api/v1/auth/form";
     }
 }

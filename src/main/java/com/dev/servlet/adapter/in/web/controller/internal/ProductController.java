@@ -23,7 +23,6 @@ import com.dev.servlet.shared.vo.KeyPair;
 import com.dev.servlet.shared.vo.Query;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,7 +31,6 @@ import java.util.Set;
 
 @Slf4j
 @ApplicationScoped
-@NoArgsConstructor
 public class ProductController extends BaseController implements ProductControllerApi {
     @Inject
     private ProductDetailPort productDetailPort;
@@ -108,8 +106,8 @@ public class ProductController extends BaseController implements ProductControll
     }
 
     @SneakyThrows
-    public IHttpResponse<Void> scrape(String auth, String environment, String url) {
-        scrapeProductPort.scrapeAsync(url, environment, auth);
+    public IHttpResponse<Void> scrape(String auth, String url) {
+        scrapeProductPort.scrapeAsync(url, auth);
         return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
     }
 }

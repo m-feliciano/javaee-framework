@@ -195,18 +195,21 @@ public interface ProductControllerApi {
     IHttpResponse<Void> update(ProductRequest request, @Authorization String auth);
 
     @RequestMapping(value = "/scrape", method = POST)
-    IHttpResponse<Void> scrape(@Authorization String auth, 
-                               @Property("app.env") String environment, 
+    IHttpResponse<Void> scrape(@Authorization String auth,
+                               @Property("app.env") String environment,
                                @Property("scrape_product_url") String url);
 }
 ```
 
 ```java
-@Singleton
+@Slf4j
+@ApplicationScoped
 public class ProductController extends BaseController implements ProductControllerApi {
+    @Inject
+    private RegisterProductPort registerProductPort;
 
     public IHttpResponse<Void> register(ProductRequest request, String auth) throws ServiceException {
-        ProductResponse product = productService.create(request, auth);
+        ProductResponse product = registerProductPort.register(request, auth);
         return newHttpResponse(201, redirectTo(product.getId()));
     }
 }
@@ -218,39 +221,27 @@ public class ProductController extends BaseController implements ProductControll
 
 @Slf4j
 @ApplicationScoped
-@NoArgsConstructor
 public class LoginUseCase implements LoginPort {
-    private static final String EVENT_NAME = "user:login";
-
-    @Inject
-    private UserMapper userMapper;
-    @Inject
-    private AuditPort auditPort;
-    @Inject
-    private GetUserPort userPort;
-    @Inject
-    private AuthenticationPort authenticationPort;
-    @Inject
-    private RefreshTokenRepository refreshTokenRepository;
+    // Dependencies ommitted for brevity
 
     @Override
-    public IHttpResponse<UserResponse> login(LoginRequest request, String onSuccess) throws ApplicationException {
-        String login = request.login();
-        String password = request.password();
+    public IHttpResponse<UserResponse> login(LoginRequest credentials, String onSuccess) throws ApplicationException {
+        final String login = credentials.login();
+        final String password = credentials.password();
 
         log.debug("LoginUseCase: attempting login for user {}", login);
-
         try {
-            UserRequest userRequest = new UserRequest(login, password);
-
-            User user = userPort.get(userRequest).orElse(null);
-            if (user == null) {
-                auditPort.failure(EVENT_NAME, null, new AuditPayload<>(request, null));
-                throw new ApplicationException("Invalid login or password");
+            if (Properties.isDemoModeEnabled()) {
+                log.debug("LoginUseCase: DEMO_MODE is enabled, bypassing authentication for user {}", login);
+                User demoUser = userDemoModePort.validateCredentials(credentials);
+                UserResponse response = authenticate(demoUser);
+                return HttpResponse.ok(response).next(onSuccess).build();
             }
 
+            User user = userPort.get(new UserRequest(login, password))
+                    .orElseThrow(() -> new ApplicationException("Invalid login or password"));
+
             if (Status.PENDING.equals(user.getStatus())) {
-                auditPort.warning(EVENT_NAME, null, new AuditPayload<>(request, null));
                 UserResponse userResponse = UserResponse.builder()
                         .id(user.getId())
                         .unconfirmedEmail(true)
@@ -258,29 +249,11 @@ public class LoginUseCase implements LoginPort {
                 return HttpResponse.ok(userResponse).next("forward:pages/formLogin.jsp").build();
             }
 
-            UserResponse response = userMapper.toResponse(user);
-            String accessToken = authenticationPort.generateAccessToken(user);
-            String refreshJwt = authenticationPort.generateRefreshToken(user);
-            log.debug("LoginUseCase: generated access and refresh tokens for user {}", user.getId());
-
-            RefreshToken rt = RefreshToken.builder()
-                    .token(authenticationPort.stripBearerPrefix(refreshJwt))
-                    .user(user)
-                    .revoked(false)
-                    .issuedAt(Instant.now())
-                    .expiresAt(Instant.now().plusSeconds(TimeUnit.DAYS.toSeconds(30)))
-                    .build();
-            refreshTokenRepository.save(rt);
-            log.debug("LoginUseCase: user {} logged in successfully", user.getId());
-
-            response.setToken(accessToken);
-            response.setRefreshToken(refreshJwt);
-
-            auditPort.success(EVENT_NAME, response.getToken(), null);
+            UserResponse response = authenticate(user);
             return HttpResponse.ok(response).next(onSuccess).build();
 
         } catch (Exception e) {
-            auditPort.warning(EVENT_NAME, null, new AuditPayload<>(request, null));
+            log.warn("LoginUseCase: login failed for user {}: {}", login, e.getMessage());
 
             return HttpResponse.<UserResponse>newBuilder()
                     .statusCode(HttpServletResponse.SC_UNAUTHORIZED)
@@ -299,7 +272,6 @@ public class LoginUseCase implements LoginPort {
 
 @Slf4j
 @ApplicationScoped
-@NoArgsConstructor
 public class AuthFilter implements Filter {
 
     @Override
@@ -362,7 +334,6 @@ Controllers extend `BaseRouterController`, which uses reflection to map endpoint
 ### Package Structure
 
 ```text
-C:.
 ├───main
 │   ├───java
 │   │   └───com
@@ -370,7 +341,6 @@ C:.
 │   │           └───servlet
 │   │               ├───adapter
 │   │               │   ├───in
-│   │               │   │   ├───alert
 │   │               │   │   ├───messaging
 │   │               │   │   │   └───consumer
 │   │               │   │   ├───web
@@ -394,6 +364,8 @@ C:.
 │   │               │   │   │   └───vo
 │   │               │   │   └───ws
 │   │               │   └───out
+│   │               │       ├───activity
+│   │               │       ├───alert
 │   │               │       ├───audit
 │   │               │       ├───cache
 │   │               │       ├───external
@@ -402,17 +374,21 @@ C:.
 │   │               │       │       ├───builder
 │   │               │       │       ├───service
 │   │               │       │       └───transfer
+│   │               │       ├───home
+│   │               │       ├───inventory
 │   │               │       ├───messaging
 │   │               │       │   ├───adapter
 │   │               │       │   ├───config
 │   │               │       │   ├───factory
+│   │               │       │   ├───producer
 │   │               │       │   └───registry
-│   │               │       └───security
+│   │               │       ├───product
+│   │               │       ├───security
+│   │               │       └───user
 │   │               ├───application
 │   │               │   ├───exception
 │   │               │   ├───mapper
 │   │               │   ├───port
-│   │               │   │   ├───contracts
 │   │               │   │   ├───in
 │   │               │   │   │   ├───activity
 │   │               │   │   │   ├───auth
@@ -421,6 +397,8 @@ C:.
 │   │               │   │   │   ├───stock
 │   │               │   │   │   └───user
 │   │               │   │   └───out
+│   │               │   │       ├───activity
+│   │               │   │       ├───alert
 │   │               │   │       ├───audit
 │   │               │   │       ├───cache
 │   │               │   │       ├───category
@@ -454,7 +432,6 @@ C:.
 │   │               │   │   │   └───base
 │   │               │   │   └───transfer
 │   │               │   │       └───internal
-│   │               │   ├───security
 │   │               │   └───utils
 │   │               └───shared
 │   │                   ├───enums
@@ -490,5 +467,4 @@ C:.
 │                   ├───inventory
 │                   ├───product
 │                   └───user
-
 ```

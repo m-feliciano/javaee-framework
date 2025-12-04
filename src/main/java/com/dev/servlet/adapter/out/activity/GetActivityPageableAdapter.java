@@ -1,4 +1,4 @@
-package com.dev.servlet.application.usecase.activity;
+package com.dev.servlet.adapter.out.activity;
 
 import com.dev.servlet.application.mapper.Mapper;
 import com.dev.servlet.application.port.in.activity.GetActivityPageablePort;
@@ -8,13 +8,11 @@ import com.dev.servlet.infrastructure.persistence.transfer.IPageRequest;
 import com.dev.servlet.infrastructure.persistence.transfer.IPageable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
-@NoArgsConstructor
-public class GetActivityPageableUseCase implements GetActivityPageablePort {
+public class GetActivityPageableAdapter implements GetActivityPageablePort {
 
     @Inject
     private UserActivityLogRepositoryPort repositoryPort;

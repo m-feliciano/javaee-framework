@@ -3,7 +3,6 @@ package com.dev.servlet.application.usecase.auth;
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.port.in.auth.RefreshTokenPort;
 import com.dev.servlet.application.port.in.user.UserDetailsPort;
-import com.dev.servlet.application.port.out.audit.AuditPort;
 import com.dev.servlet.application.port.out.cache.CachePort;
 import com.dev.servlet.application.port.out.refreshtoken.RefreshTokenRepositoryPort;
 import com.dev.servlet.application.port.out.security.AuthenticationPort;
@@ -13,7 +12,6 @@ import com.dev.servlet.domain.entity.RefreshToken;
 import com.dev.servlet.domain.entity.User;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
@@ -21,14 +19,11 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @ApplicationScoped
-@NoArgsConstructor
 public class RefreshTokenUseCase implements RefreshTokenPort {
     @Inject
     private AuthenticationPort authenticationPort;
     @Inject
     private RefreshTokenRepositoryPort repositoryPort;
-    @Inject
-    private AuditPort auditPort;
     @Inject
     private UserDetailsPort userDetailsPort;
     @Inject
@@ -38,10 +33,7 @@ public class RefreshTokenUseCase implements RefreshTokenPort {
     public RefreshTokenResponse refreshToken(String refreshToken) throws ApplicationException {
         log.debug("RefreshTokenUseCase: refreshing token");
 
-        if (!authenticationPort.validateToken(refreshToken)) {
-            auditPort.failure("auth:refresh_token", refreshToken, null);
-            throw new ApplicationException("Invalid refresh token");
-        }
+        if (!authenticationPort.validateToken(refreshToken)) throw new ApplicationException("Invalid refresh token");
 
         RefreshToken old = validateRefreshToken(refreshToken);
         User user = authenticationPort.extractUser(refreshToken);
@@ -61,16 +53,13 @@ public class RefreshTokenUseCase implements RefreshTokenPort {
 
         cachePort.clearAll(user.getId());
 
-        var refreshTokenResponse = new RefreshTokenResponse(newAccessToken, newRefreshJwt);
-        auditPort.success("auth:refresh_token", refreshToken, null);
-        return refreshTokenResponse;
+        return new RefreshTokenResponse(newAccessToken, newRefreshJwt);
     }
 
     private RefreshToken validateRefreshToken(String refreshToken) {
         String raw = authenticationPort.stripBearerPrefix(refreshToken);
         var maybe = repositoryPort.findByToken(raw);
         if (maybe.isEmpty() || maybe.get().getExpiresAt() == null || maybe.get().getExpiresAt().isBefore(Instant.now())) {
-            auditPort.failure("auth:refresh_token", refreshToken, null);
             throw new ApplicationException("Refresh token is invalid or revoked");
         }
 

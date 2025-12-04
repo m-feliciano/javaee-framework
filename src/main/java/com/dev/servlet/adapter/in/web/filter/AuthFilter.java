@@ -4,7 +4,6 @@ import com.dev.servlet.adapter.in.web.dispatcher.IServletDispatcher;
 import com.dev.servlet.adapter.in.web.util.EndpointParser;
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.port.in.auth.RefreshTokenPort;
-import com.dev.servlet.application.port.out.audit.AuditPort;
 import com.dev.servlet.application.port.out.security.AuthCookiePort;
 import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.application.transfer.response.RefreshTokenResponse;
@@ -38,8 +37,6 @@ public class AuthFilter implements Filter {
 
     @Inject
     private AuthenticationPort authenticationPort;
-    @Inject
-    private AuditPort auditPort;
     @Inject
     private IServletDispatcher dispatcher;
     @Inject
@@ -98,7 +95,6 @@ public class AuthFilter implements Filter {
     }
 
     private void redirectToLogin(HttpServletResponse response) throws IOException {
-        auditPort.warning("auth_filter:redirect_login", null, null);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.sendRedirect(Properties.get(LOGIN_PAGE));
     }

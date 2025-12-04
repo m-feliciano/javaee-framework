@@ -25,7 +25,7 @@ public interface InventoryMapper {
     @Mapping(target = "product", expression = PRODUCT_RESPONSE_TEMPLATE)
     InventoryResponse toResponse(Inventory inventory);
 
-    Inventory toInventory(InventoryRequest inventoryResponse);
+    Inventory toInventory(InventoryRequest inventoryRequest);
 
     @Mapping(target = "product", expression = "java(new com.dev.servlet.domain.entity.Product(inventoryResponse.productId()))")
     Inventory createToInventory(InventoryCreateRequest inventoryResponse);
@@ -33,7 +33,7 @@ public interface InventoryMapper {
     default InventoryRequest queryToInventory(Query query) {
         InventoryRequest.InventoryRequestBuilder builder = InventoryRequest.builder();
         ProductRequest.ProductRequestBuilder productBuilder = ProductRequest.builder();
-        query.queries().forEach((k, v) -> {
+        query.parameters().forEach((k, v) -> {
             if ("product".equals(k)) {
                 productBuilder.id(v.trim());
             } else if ("name".equals(k)) {

@@ -6,5 +6,5 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface ScrapeProductPort {
-    CompletableFuture<List<ProductResponse>> scrapeAsync(String url, String environment, String auth);
+    CompletableFuture<List<ProductResponse>> scrapeAsync(String url, String auth);
 }

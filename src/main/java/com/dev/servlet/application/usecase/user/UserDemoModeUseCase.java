@@ -3,7 +3,6 @@ package com.dev.servlet.application.usecase.user;
 import com.dev.servlet.application.exception.ApplicationException;
 import com.dev.servlet.application.mapper.UserMapper;
 import com.dev.servlet.application.port.in.user.UserDemoModePort;
-import com.dev.servlet.application.port.out.audit.AuditPort;
 import com.dev.servlet.application.port.out.cache.CachePort;
 import com.dev.servlet.application.port.out.user.UserRepositoryPort;
 import com.dev.servlet.application.transfer.request.LoginRequest;
@@ -14,11 +13,9 @@ import com.dev.servlet.domain.entity.enums.RoleType;
 import com.dev.servlet.domain.entity.enums.Status;
 import com.dev.servlet.infrastructure.config.Properties;
 import com.dev.servlet.infrastructure.utils.CryptoUtils;
-import com.dev.servlet.shared.vo.AuditPayload;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -29,14 +26,11 @@ import static com.dev.servlet.shared.enums.ConstantUtils.DEMO_USER_PASSWORD;
 
 @Slf4j
 @ApplicationScoped
-@NoArgsConstructor
 public class UserDemoModeUseCase implements UserDemoModePort {
     @Inject
     private UserRepositoryPort repositoryPort;
     @Inject
     private UserMapper userMapper;
-    @Inject
-    private AuditPort auditPort;
     @Inject
     private CachePort cachePort;
 
@@ -46,14 +40,12 @@ public class UserDemoModeUseCase implements UserDemoModePort {
 
         if (!Properties.isDemoModeEnabled()) {
             log.error("[SEVERE] Attempt to authenticate demo user {} while DEMO_MODE is disabled", credentials.login());
-            auditPort.failure("user:demo_authenticate", null, new AuditPayload<>(credentials, null));
             throw serviceError(HttpServletResponse.SC_FORBIDDEN, "Demo mode is not enabled.");
         }
 
         if (!DEMO_USER_LOGIN.equalsIgnoreCase(credentials.login()) ||
             !CryptoUtils.encrypt(DEMO_USER_PASSWORD).equalsIgnoreCase(credentials.password())) {
             log.warn("Authentication attempt in demo mode with invalid credentials: {}", credentials.login());
-            auditPort.warning("user:demo_authenticate", null, new AuditPayload<>(credentials, null));
             throw serviceError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid demo user credentials.");
         }
 
@@ -81,7 +73,6 @@ public class UserDemoModeUseCase implements UserDemoModePort {
         log.debug("UserDemoModeUseCase: demo user {} validated successfully", credentials.login());
         UserResponse response = userMapper.toResponse(user);
         cachePort.setObject(response.getId(), "userCacheKey", response);
-        auditPort.success("user:demo_authenticate", null, new AuditPayload<>(credentials, response));
         return user;
     }
 }

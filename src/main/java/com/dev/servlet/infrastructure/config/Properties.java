@@ -124,4 +124,12 @@ public final class Properties {
     public static boolean isDemoModeEnabled() {
         return BooleanUtils.toBoolean(getEnvOrDefault("DEMO_MODE", "false"));
     }
+
+    private static boolean isProductionMode() {
+        return "production".equalsIgnoreCase(getOrDefault("app.env", "unknown"));
+    }
+
+    public static boolean isDevelopmentMode() {
+        return "development".equalsIgnoreCase(getOrDefault("app.env", "unknown"));
+    }
 }

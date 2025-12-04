@@ -10,7 +10,6 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ConstraintValidationHandler implements ValidationHandler {
@@ -18,10 +17,12 @@ public class ConstraintValidationHandler implements ValidationHandler {
     private static final Validator validator = factory.getValidator();
 
     public void validate(RequestMapping mapping, Request request) throws ApplicationException {
-        if (mapping.jsonType() == Void.class) return;
+        if (mapping.jsonType() == Void.class || request.getPayload() == null) {
+            return;
+        }
 
-        Object payload = CloneUtil.fromJson(request.getJsonBody(), mapping.jsonType());
-        Set<ConstraintViolation<Object>> violations = validator.validate(payload);
+        Object payload = CloneUtil.fromJson(request.getPayload(), mapping.jsonType());
+        var violations = validator.validate(payload);
         if (violations.isEmpty()) return;
 
         String errors = violations.stream()

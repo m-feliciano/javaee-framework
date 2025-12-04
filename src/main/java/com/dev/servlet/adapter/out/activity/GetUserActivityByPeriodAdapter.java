@@ -1,4 +1,4 @@
-package com.dev.servlet.application.usecase.activity;
+package com.dev.servlet.adapter.out.activity;
 
 import com.dev.servlet.application.mapper.Mapper;
 import com.dev.servlet.application.port.in.activity.GetUserActivityByPeriodPort;
@@ -6,7 +6,6 @@ import com.dev.servlet.application.port.out.activity.UserActivityLogRepositoryPo
 import com.dev.servlet.domain.entity.UserActivityLog;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
@@ -14,8 +13,7 @@ import java.util.List;
 
 @Slf4j
 @ApplicationScoped
-@NoArgsConstructor
-public class GetUserActivityByPeriodUseCase implements GetUserActivityByPeriodPort {
+public class GetUserActivityByPeriodAdapter implements GetUserActivityByPeriodPort {
 
     @Inject
     private UserActivityLogRepositoryPort repositoryPort;

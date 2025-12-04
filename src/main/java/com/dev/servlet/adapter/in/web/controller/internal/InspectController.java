@@ -9,12 +9,10 @@ import com.dev.servlet.adapter.in.web.vo.ControllerInfo;
 import com.dev.servlet.shared.util.CloneUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @ApplicationScoped
-@NoArgsConstructor
 public class InspectController extends BaseController implements InspectControllerApi {
     @Inject
     private ControllerIntrospectionService inspector;

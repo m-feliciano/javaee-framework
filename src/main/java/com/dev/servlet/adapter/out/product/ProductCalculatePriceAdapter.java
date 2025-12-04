@@ -1,9 +1,8 @@
-package com.dev.servlet.application.usecase.product;
+package com.dev.servlet.adapter.out.product;
 
 import com.dev.servlet.application.port.in.product.ProductCalculatePricePort;
 import com.dev.servlet.application.port.out.product.ProductRepositoryPort;
 import com.dev.servlet.domain.entity.Product;
-import com.dev.servlet.infrastructure.persistence.repository.ProductRepository;
 import com.dev.servlet.infrastructure.persistence.transfer.IPageable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -13,13 +12,9 @@ import java.math.BigDecimal;
 
 @Slf4j
 @ApplicationScoped
-public class ProductCalculatePriceUseCase implements ProductCalculatePricePort {
-    private final ProductRepositoryPort productRepositoryPort;
-
+public class ProductCalculatePriceAdapter implements ProductCalculatePricePort {
     @Inject
-    public ProductCalculatePriceUseCase(ProductRepository productRepositoryPort) {
-        this.productRepositoryPort = productRepositoryPort;
-    }
+    private ProductRepositoryPort productRepositoryPort;
 
     @Override
     public BigDecimal calculateTotalPriceFor(IPageable<?> page, Product product) {

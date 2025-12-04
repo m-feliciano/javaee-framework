@@ -20,12 +20,12 @@ public interface ActivityMapper {
 
     default UserActivityLog toFilter(String userId, Query query) {
         UserActivityLog filter = UserActivityLog.builder().userId(userId).build();
-        if (query.queries().get("status") != null) {
-            String status = query.queries().get("status").toUpperCase();
+        if (query.parameters().get("status") != null) {
+            String status = query.parameters().get("status").toUpperCase();
             filter.setStatus(ActivityStatus.valueOf(status));
         }
-        if (query.queries().get("name") != null) {
-            filter.setAction(query.queries().get("name"));
+        if (query.parameters().get("name") != null) {
+            filter.setAction(query.parameters().get("name"));
         }
 
         return filter;
