@@ -216,8 +216,9 @@
     }
 </style>
 
-<div class="main">
-    <div class="container-fluid">
+<div class="content">
+    <div class="main">
+        <div class="container-fluid">
         <div class="row mb-4 align-items-center">
             <div class="col-md-18">
                 <h2>
@@ -367,6 +368,7 @@
             <a href="${baseLink}${version}/activity/history" class="btn btn-secondary">
                 <i class="bi bi-arrow-left"></i> Back to History
             </a>
+        </div>
         </div>
     </div>
 </div>

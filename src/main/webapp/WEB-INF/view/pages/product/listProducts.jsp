@@ -14,7 +14,8 @@
 
 <title>Products</title>
 
-<div class="main">
+<div class="content">
+    <div class="main">
     <jsp:include page="/WEB-INF/view/components/search.jsp">
         <jsp:param name="placeholder" value="Search product"/>
         <jsp:param name="action" value="${baseLink}${version}${ searchProduct }"/>
@@ -132,6 +133,7 @@
         <a type="button" href="${baseLink}${version}${ newProduct }" class="btn btn-success">
             <i class="bi bi-plus-circle"></i> New
         </a>
+    </div>
     </div>
 </div>
 <jsp:include page="/WEB-INF/view/components/footer.jsp"/>

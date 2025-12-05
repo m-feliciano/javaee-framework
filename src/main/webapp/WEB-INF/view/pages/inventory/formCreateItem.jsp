@@ -6,7 +6,8 @@
     request.setAttribute("product", ((IHttpResponse<?>) request.getAttribute("response")).body());
 %>
 
-<div class="main" style="display: flex">
+<div class="content">
+    <div class="main" style="display: flex">
     <div style="width: 50%">
         <form action="${baseLink}${version}${ createItem }" method="post" class="csrf-form">
             <c:if test="${ not empty product and not empty product.id }">
@@ -49,6 +50,7 @@
             <img src="<c:out value='${product.url}' escapeXml='true'/>" alt="Product Image"
                  style="max-width: 300px; max-height: 300px;"/>
         </c:if>
+    </div>
     </div>
 </div>
 

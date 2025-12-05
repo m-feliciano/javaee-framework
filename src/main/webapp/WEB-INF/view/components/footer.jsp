@@ -1,6 +1,5 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="tag" tagdir="/WEB-INF/tags" %>
-</div>
 
 <footer class="footer">
     <div class="footer-content">

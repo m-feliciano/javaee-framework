@@ -1,6 +1,6 @@
 # Framework Backend Jakarta EE com Clean Architecture
 
-Framework web leve baseado em Jakarta EE, seguindo princípios de Clean Architecture.
+Framework web leve baseado em Jakarta, seguindo princípios de Clean Architecture.
 Focado em desempenho, segurança e estruturação clara de aplicações backend modernas.
 
 ## Funcionalidades Principais
@@ -16,7 +16,7 @@ Focado em desempenho, segurança e estruturação clara de aplicações backend 
 
 ## Stack Tecnológico
 
-- Java 21, Jakarta EE 10
+- Java 21, Jakarta
 - Weld CDI, Hibernate, Ehcache
 - JJWT, Jackson, SLF4J/Logback
 - JUnit 5 + Mockito
@@ -25,7 +25,7 @@ Focado em desempenho, segurança e estruturação clara de aplicações backend 
 
 ### Migrações ao longo do tempo
 - Java -> 11 -> 17 -> 21
-- Javax EE -> Jakarta EE
+- Javax -> Jakarta
 - Tomcat 9 -> 10
 - Hibernate 5 -> 6
 
@@ -56,9 +56,9 @@ Veja o README.md
 ## Endpoints
 
 O framework expõe alguns endpoints. Aqui estão exemplos:
-- `POST /api/v1/auth/form` - Autenticar com usuário/senha
+- `POST /api/v1/auth/login` - Autenticar com usuário/senha
 - `GET /api/v1/product/list` - Listar produtos
-- `POST /api/v1/health/live` - Liveness probe
+- `GET /api/v1/health/live` - Liveness probe
 - `GET /api/v1/user/{id}` - Obter detalhes do usuário
 
 A URL base é `http://localhost:8080` por padrão (local).

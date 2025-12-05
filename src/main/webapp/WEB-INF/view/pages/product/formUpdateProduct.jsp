@@ -10,7 +10,8 @@
     request.setAttribute("product", servletResponse.getEntity("product"));
 %>
 
-<div class="main">
+<div class="content">
+    <div class="main">
     <form action="${baseLink}${version}${ updateProduct }/${product.id}" method="post" class="csrf-form">
         <div class="row">
             <div class="col-md-6">
@@ -36,7 +37,6 @@
                 </div>
                 <div class="mb-3">
                     <label for="inputDescription" class="form-label">DESCRIPTION</label>
-                    <textarea name="description" class="form-control" id="inputDescription"
                     <textarea name="description" class="form-control" id="inputDescription"
                               placeholder="Simple Description" rows="6" cols="auto"
                               required>${product.description}</textarea>
@@ -90,6 +90,7 @@
             </div>
         </div>
     </form>
+    </div>
 </div>
 
 <jsp:include page="/WEB-INF/view/components/footer.jsp"/>

@@ -9,7 +9,8 @@
 
 <title>Categories</title>
 
-<div class="main">
+<div class="content">
+    <div class="main">
     <c:if test="${ empty categories }">
         <div class="d-flex flex-row-reverse mb20 mb-4">
             <a type="button" href="${baseLink}${version}${ newCategory }" class="btn btn btn-success">New</a>
@@ -56,6 +57,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </c:if>
 </div>
 <jsp:include page="/WEB-INF/view/components/footer.jsp"/>

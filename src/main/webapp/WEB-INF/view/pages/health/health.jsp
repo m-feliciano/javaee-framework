@@ -35,8 +35,9 @@
 
 <title>System Health</title>
 
-<div class="main">
-    <div class="action-bar">
+<div class="content">
+    <div class="main">
+        <div class="action-bar">
         <div class="action-bar-title">
             <h1><i class="bi bi-heart-pulse-fill"></i> System Health</h1>
             <p class="action-bar-subtitle">Real-time monitoring of application health and performance</p>
@@ -267,6 +268,7 @@
                     </tbody>
                 </table>
             </div>
+        </div>
         </div>
     </div>
 </div>

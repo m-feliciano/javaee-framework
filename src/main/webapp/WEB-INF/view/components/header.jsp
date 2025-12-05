@@ -48,5 +48,3 @@
 <body>
 
 <jsp:include page="/WEB-INF/view/components/navbar.jsp"/>
-
-<div class="content">
