@@ -6,7 +6,8 @@
     request.setAttribute("category", ((IHttpResponse<?>) request.getAttribute("response")).body());
 %>
 
-<div class="main">
+<div class="content">
+    <div class="main">
     <form action="${baseLink}${version}${updateCategory}/${category.id}" method="post" class="csrf-form">
         <div class="col-md-6">
             <div class="mb-3">
@@ -27,6 +28,7 @@
             </div>
         </div>
     </form>
+    </div>
 </div>
 
 <jsp:include page="/WEB-INF/view/components/footer.jsp"/>

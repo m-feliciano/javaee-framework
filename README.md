@@ -1,6 +1,6 @@
 # Java Web Framework with Clean Architecture Principles
 
-Lightweight Jakarta EE–based framework designed with Clean Architecture principles.
+Lightweight Jakarta–based framework designed with Clean Architecture principles.
 Focused on performance, security, and a clear structure for modern backend applications.
 
 ## Core Features
@@ -16,7 +16,7 @@ Focused on performance, security, and a clear structure for modern backend appli
 
 ## Technology Stack
 
-- Java 21, Jakarta EE 10
+- Java 21, Jakarta
 - Weld CDI, Hibernate, Ehcache
 - JJWT, Jackson, SLF4J/Logback
 - JUnit 5 + Mockito
@@ -25,7 +25,7 @@ Focused on performance, security, and a clear structure for modern backend appli
 
 ### Migrations over time
 - Java -> 11 -> 17 -> 21
-- Javax EE -> Jakarta EE
+- Javax -> Jakarta
 - Tomcat 9 -> 10
 - Hibernate 5 -> 6
 
@@ -82,9 +82,9 @@ Read the docker-compose file at `docker-compose.yml` to set up the PostgreSQL an
 
 ## Endpoints
 The application exposes some endpoints. Here are examples:
-- `POST /api/v1/auth/form` - Authenticate with username/password
+- `POST /api/v1/auth/login` - Authenticate with username/password
 - `GET /api/v1/product/list` - List products
-- `POST /api/v1/health/live` - Liveness probe
+- `GET /api/v1/health/live` - Liveness probe
 - `GET /api/v1/user/{id}` - Get user details
 
 The base URL is `http://localhost:8080` by default (local).

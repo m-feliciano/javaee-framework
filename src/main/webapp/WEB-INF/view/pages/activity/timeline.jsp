@@ -88,8 +88,9 @@
     }
 </style>
 
-<div class="main">
-    <div class="container-fluid">
+<div class="content">
+    <div class="main">
+        <div class="container-fluid">
         <div class="page-header">
             <h2>
                 <i class="bi bi-clock-history"></i>
@@ -142,6 +143,7 @@
         <jsp:include page="/WEB-INF/view/components/timeline.jsp">
             <jsp:param name="activities" value="${activities}"/>
         </jsp:include>
+        </div>
 
     </div>
 </div>

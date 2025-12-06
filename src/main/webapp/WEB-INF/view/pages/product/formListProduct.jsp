@@ -9,7 +9,8 @@
 
 <title>Product: <c:out value='${ product.name }' escapeXml='true'/></title>
 
-<div class="main">
+<div class="content">
+    <div class="main">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="${baseLink}${version}${listProduct}">Products</a></li>
@@ -128,6 +129,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
 </div>
 

@@ -13,8 +13,9 @@
 
 <title>Inspect - Raw</title>
 
-<div class="main">
-    <div class="action-bar"
+<div class="content">
+    <div class="main">
+        <div class="action-bar"
          style="background: linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02)); padding:12px; border-radius:8px;">
         <div class="action-bar-title">
             <h1><i class="bi bi-file-earmark-code-fill"></i> Inspect (Raw)</h1>
@@ -42,6 +43,7 @@
                      style="background: linear-gradient(180deg,#071025 0%,#08151c 60%); color: #cfe9ff; padding:18px 18px 18px 56px; border-radius:10px; box-shadow: inset 0 6px 18px rgba(2,6,23,0.6); border:1px solid rgba(255,255,255,0.04);">
                     <c:out value="${rawJson}" escapeXml="true"/>
                 </pre>
+        </div>
         </div>
     </div>
 </div>

@@ -11,8 +11,9 @@
 
 <title>Controller Inspector</title>
 
-<div class="main">
-    <div class="action-bar">
+<div class="content">
+    <div class="main">
+        <div class="action-bar">
         <div class="action-bar-title">
             <h1><i class="bi bi-diagram-3-fill"></i> Controller Inspector</h1>
             <p class="action-bar-subtitle">Available Endpoints</p>
@@ -116,6 +117,7 @@
                     </div>
                 </c:forEach>
             </div>
+        </div>
         </div>
     </div>
 </div>

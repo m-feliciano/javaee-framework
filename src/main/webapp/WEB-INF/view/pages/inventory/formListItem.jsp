@@ -6,7 +6,8 @@
     request.setAttribute("inventory", ((IHttpResponse<?>) request.getAttribute("response")).body());
 %>
 
-<div class="main" style="display: flex">
+<div class="content">
+    <div class="main" style="display: flex">
     <div style="width: 50%">
         <div>
             <div class="mb-3">
@@ -62,6 +63,7 @@
             <img src="<c:out value='${inventory.product.url}' escapeXml='true'/>" alt="Product Image"
                  style="max-width: 400px;"/>
         </c:if>
+    </div>
     </div>
 </div>
 

@@ -1,7 +1,8 @@
 <%@ include file="/WEB-INF/routes/user-routes.jspf" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
-<div class="main">
+<div class="content">
+    <div class="main">
     <form action="<c:out value='${baseLink}${version}${ updateUser }/${user.id}' escapeXml='true'/>" method="post" class="csrf-form">
         <div style="display: flex; margin: 60px 0;  gap: 30px; justify-content: center">
             <div>
@@ -42,6 +43,7 @@
             </div>
         </div>
     </form>
+    </div>
 </div>
 
 <jsp:include page="/WEB-INF/view/components/footer.jsp"/>

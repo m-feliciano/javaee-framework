@@ -118,8 +118,9 @@
     }
 </style>
 
-<div class="main">
-    <div class="container-fluid">
+<div class="content">
+    <div class="main">
+        <div class="container-fluid">
         <div class="page-header">
             <h2>
                 <i class="bi bi-clock-history"></i>
@@ -256,6 +257,7 @@
                 </jsp:include>
             </c:otherwise>
         </c:choose>
+        </div>
     </div>
 </div>
 
