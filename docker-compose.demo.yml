@@ -3,6 +3,10 @@
 # Local: To run with a demo image (no build):
 # docker compose -f docker-compose.demo.yml up -d
 
+# Build demo image:
+# docker build --build-arg MVN_PROFILE=prod -t mfeliciano1/servlets-app:demo .
+# docker push mfeliciano1/servlets-app:demo
+
 services:
   db:
     image: postgres:15-alpine
@@ -41,7 +45,7 @@ services:
       retries: 10
 
   app:
-    image: mfeliciano1/servlets-app:latest
+    image: mfeliciano1/servlets-app:demo
     container_name: demo_servlets_app
     depends_on:
       db:

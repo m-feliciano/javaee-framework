@@ -3,10 +3,16 @@
 # Local: To run with a local profile:
 # docker compose -f docker-compose.dev.yml --env-file .env.dev up -d --build
 
+# Build development image:
+# docker build -t servlets-app:dev .
+# docker push servlets-app:dev
+
 services:
   app:
     build:
       context: .
+      args:
+        MVN_PROFILE: dev
     container_name: servlets_app_local
     restart: unless-stopped
     env_file:
@@ -23,9 +29,7 @@ services:
       POSTGRES_DB: ${LOCAL_DB_NAME}
       POSTGRES_USER: ${LOCAL_DB_USER}
       POSTGRES_PASSWORD: ${LOCAL_DB_PASSWORD}
-      JAVA_OPTS: "-Xms512m -Xmx1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -Dapp.config.file=app-dev.yml"
-      # Opcional: modo local
-      APP_MODE: local
+      JAVA_OPTS: "-Xms512m -Xmx1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication"
     depends_on:
       db:
         condition: service_healthy
@@ -79,6 +83,6 @@ networks:
   default:
     driver: bridge
 
-# Comandos Docker individuais para referência:
+# Quick start PostgreSQL and ActiveMQ Artemis containers separately (optional):
 # docker run -d --name servlets-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=uma_senha_segura -e POSTGRES_DB=servletsdb -p 5432:5432 --restart unless-stopped postgres:15
 #docker run -d --name dev_activemq -e ARTEMIS_USER=artemis -e ARTEMIS_PASSWORD=artemis -p 61616:61616 -p 8161:8161 --restart unless-stopped apache/activemq-artemis:2.44.0

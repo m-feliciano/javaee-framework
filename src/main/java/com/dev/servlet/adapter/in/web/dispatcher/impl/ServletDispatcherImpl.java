@@ -1,5 +1,12 @@
 package com.dev.servlet.adapter.in.web.dispatcher.impl;
 
+import java.io.PrintWriter;
+import java.text.MessageFormat;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.MDC;
+
 import com.dev.servlet.adapter.in.web.builder.HtmlTemplate;
 import com.dev.servlet.adapter.in.web.builder.RequestBuilder;
 import com.dev.servlet.adapter.in.web.dispatcher.HttpExecutor;
@@ -15,8 +22,11 @@ import com.dev.servlet.application.transfer.response.UserResponse;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.RequestMethod;
 import com.dev.servlet.infrastructure.utils.URIUtils;
+import static com.dev.servlet.infrastructure.utils.URIUtils.matchWildcard;
+import static com.dev.servlet.shared.enums.ConstantUtils.BEARER_PREFIX;
 import com.dev.servlet.shared.util.CloneUtil;
 import com.dev.servlet.shared.vo.AuditPayload;
+
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
@@ -25,21 +35,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.MDC;
-
-import java.io.PrintWriter;
-import java.text.MessageFormat;
-import java.util.List;
-
-import static com.dev.servlet.infrastructure.utils.URIUtils.matchWildcard;
-import static com.dev.servlet.shared.enums.ConstantUtils.BEARER_PREFIX;
 
 @Setter
 @Slf4j
 @NoArgsConstructor
 @RequestScoped
 public class ServletDispatcherImpl implements IServletDispatcher {
+
     private static final List<String> noAuditEndpoints = List.of(
             "GET:/api/v1/inspect/*",
             "GET:/api/v1/health/*",
@@ -91,6 +93,7 @@ public class ServletDispatcherImpl implements IServletDispatcher {
             if (queries != null) {
                 httpRequest.setAttribute("q", queries.get("q"));
                 httpRequest.setAttribute("k", queries.get("k"));
+                httpRequest.setAttribute("ct", queries.get("ct"));
             }
         } catch (Exception ignored) {
         }
@@ -111,13 +114,12 @@ public class ServletDispatcherImpl implements IServletDispatcher {
     }
 
     private void processResponseData(HttpServletRequest httpRequest,
-                                     HttpServletResponse httpResponse,
-                                     Request request, IHttpResponse<?> response) {
+            HttpServletResponse httpResponse,
+            Request request, IHttpResponse<?> response) {
         log.trace("");
-        if (RequestMethod.POST.isEquals(request.getMethod()) && response.body() instanceof UserResponse user) {
-            if (user.hasToken()) {
-                authCookiePort.setAuthCookies(httpResponse, user.getToken(), user.getRefreshToken());
-            }
+        if (RequestMethod.POST.isEquals(request.getMethod())
+                && response.body() instanceof UserResponse user && user.hasToken()) {
+            authCookiePort.setAuthCookies(httpResponse, user.getToken(), user.getRefreshToken());
         }
 
         httpResponse.setHeader("X-Correlation-ID", MDC.get("correlationId"));

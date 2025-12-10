@@ -1,11 +1,5 @@
 package com.dev.servlet.infrastructure.config;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.ObjectUtils;
-import org.yaml.snakeyaml.Yaml;
-
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
@@ -14,6 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.yaml.snakeyaml.Yaml;
+
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Properties {
@@ -24,7 +25,9 @@ public final class Properties {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         URL url = loader.getResource("");
         Objects.requireNonNull(url, "Resource URL is null");
-        String propFileName = ObjectUtils.getIfNull(System.getProperty("app.config.file"), "app-prod.yml");
+
+        final String propFileName = ObjectUtils.getIfNull(System.getProperty("app.config.file"), "app.yml");
+
         try (InputStream in = loader.getResourceAsStream(propFileName)) {
             if (in == null) throw new RuntimeException("Config file not found: " + propFileName);
             Yaml yaml = new Yaml();
