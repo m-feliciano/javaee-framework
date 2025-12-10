@@ -80,6 +80,13 @@ docker-compose -f docker-compose.demo.yml up -d
 
 Read the docker-compose file at `docker-compose.yml` to set up the PostgreSQL and ActiveMQ services.
 
+### Build and Run Locally
+Build the application using Maven:
+
+```bash
+mvn clean package -Pdev # or -Pprod for production, depending on your environment
+```
+
 ## Endpoints
 The application exposes some endpoints. Here are examples:
 - `POST /api/v1/auth/login` - Authenticate with username/password

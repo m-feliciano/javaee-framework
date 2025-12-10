@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>servlets</groupId>
@@ -11,6 +12,21 @@
         <junit.jupiter.version>5.10.2</junit.jupiter.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <env>dev</env>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <env>prod</env>
+            </properties>
+        </profile>
+    </profiles>
+
     <dependencies>
         <!-- Hibernate & JPA -->
         <dependency>
@@ -270,18 +286,24 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>servlets</finalName> <!-- xml -->
+        <finalName>ROOT</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
+                 <excludes>
+                    <exclude>env/**</exclude>
+                </excludes>
+            </resource>
+            <!-- mvn clean package -Pdev -->
+           <resource>
+                <directory>src/main/resources/env/${env}</directory>
                 <includes>
-                    <include>**/*</include>
+                    <include>app.yml</include>
                 </includes>
             </resource>
         </resources>
         <plugins>
-            <!-- Compilador principal -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -310,14 +332,13 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
-            <!-- Plugin WAR -->
+            <!-- WAR plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.5.0</version>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
-                    <packagingExcludes></packagingExcludes>
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
@@ -325,7 +346,7 @@
                     </archive>
                 </configuration>
             </plugin>
-            <!-- JUnit 5 -->
+            <!-- JUnit -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -334,7 +355,7 @@
                     <useModulePath>false</useModulePath>
                 </configuration>
             </plugin>
-            <!-- Verifica versão mínima de JDK -->
+            <!-- Enforcer -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -350,7 +371,15 @@
                                 <requireJavaVersion>
                                     <version>[21,)</version>
                                 </requireJavaVersion>
+                                <requireActiveProfile>
+                                    <profiles>dev,prod</profiles>
+                                    <all>false</all>
+                                    <message>
+                                        É obrigatório informar um perfil: -Pdev ou -Pprod
+                                    </message>
+                                </requireActiveProfile>
                             </rules>
+                            <fail>true</fail>
                         </configuration>
                     </execution>
                 </executions>
@@ -395,35 +424,6 @@
                     </execution>
                 </executions>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.openrewrite.maven</groupId>-->
-<!--                <artifactId>rewrite-maven-plugin</artifactId>-->
-<!--                <version>6.24.0</version>-->
-
-<!--                <configuration>-->
-<!--                    <exportDatatables>true</exportDatatables>-->
-<!--                    <activeRecipes>-->
-<!--                        <recipe>org.openrewrite.java.migrate.UpgradeToJava21</recipe>-->
-<!--                    </activeRecipes>-->
-<!--                </configuration>-->
-
-<!--                <dependencies>-->
-<!--                    <dependency>-->
-<!--                        <groupId>org.openrewrite.recipe</groupId>-->
-<!--                        <artifactId>rewrite-migrate-java</artifactId>-->
-<!--                        <version>3.22.0</version>-->
-<!--                    </dependency>-->
-<!--                </dependencies>-->
-
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>run-on-demand</id>-->
-<!--                        <goals>-->
-<!--                            <goal>run</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
         </plugins>
     </build>
 </project>

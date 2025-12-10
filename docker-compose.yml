@@ -5,9 +5,13 @@
 
 # EC2: ambiente otimizado com tudo em Docker (Postgres + ActiveMQ + App)
 
+# Build EC2 image:
+# docker build --build-arg MVN_PROFILE=dev -t mfeliciano1/servlets-app:ec2 .
+# docker push mfeliciano1/servlets-app:ec2
+
 services:
   app:
-    image: mfeliciano1/servlets-app:latest
+    image: mfeliciano1/servlets-app:ec2
     container_name: servlets_app
     restart: unless-stopped
     env_file:

@@ -3,9 +3,13 @@
 # AWS: To run with the production profile with (Postgres + ActiveMQ + App):
 # docker compose --env-file .env.prod -f docker-compose.prod.yml up -d
 
+# build production image:
+# docker build --build-arg MVN_PROFILE=dev -t mfeliciano1/servlets-app:prod .
+# docker push mfeliciano1/servlets-app:prod
+
 services:
   app:
-    image: mfeliciano1/servlets-app:latest
+    image: mfeliciano1/servlets-app:prod
     container_name: servlets_app
     restart: unless-stopped
     env_file:
