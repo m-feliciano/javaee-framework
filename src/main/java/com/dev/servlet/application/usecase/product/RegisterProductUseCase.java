@@ -1,6 +1,6 @@
 package com.dev.servlet.application.usecase.product;
 
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.mapper.ProductMapper;
 import com.dev.servlet.application.port.in.product.RegisterProductPort;
 import com.dev.servlet.application.port.out.product.ProductRepositoryPort;
@@ -26,11 +26,11 @@ public class RegisterProductUseCase implements RegisterProductPort {
     private AuthenticationPort authenticationPort;
 
     @Override
-    public ProductResponse register(ProductRequest request, String auth) throws ApplicationException {
+    public ProductResponse register(ProductRequest request, String auth) throws AppException {
         Product product = productMapper.toProduct(request, authenticationPort.extractUserId(auth));
         product.setRegisterDate(LocalDate.now());
         product.setStatus(Status.ACTIVE.getValue());
         product = repositoryPort.save(product);
-        return productMapper.toResponse(product);
+        return new ProductResponse(product.getId());
     }
 }

@@ -6,6 +6,7 @@ import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -18,21 +19,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.util.List;
 
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@jakarta.persistence.Entity
+@Entity
 @Table(name = "tb_user")
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @ToString(exclude = "credentials")
 public class User {
     @Id
@@ -42,17 +39,22 @@ public class User {
     private String id;
     @Embedded
     private Credentials credentials;
+
+    @Setter
     @Column(name = "status")
     @ColumnTransformer(write = "UPPER(?)")
     private String status;
+
     @Column(name = "image_url")
     private String imgUrl;
     @Column(name = "config")
     private String config;
+
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "user_perfis", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "perfil_id")
     private List<Integer> perfis;
+
     @Transient
     @JsonIgnore
     private String token;
@@ -81,8 +83,10 @@ public class User {
     }
 
     public void setLogin(String login) {
-        if (credentials == null) credentials = new Credentials();
-        this.credentials.setLogin(login);
+        this.credentials = Credentials.builder()
+                .login(login)
+                .password(this.getPassword())
+                .build();
     }
 
     @JsonIgnore
@@ -91,7 +95,9 @@ public class User {
     }
 
     public void setPassword(String password) {
-        if (credentials == null) credentials = new Credentials();
-        this.credentials.setPassword(password);
+        this.credentials = Credentials.builder()
+                .login(this.getLogin())
+                .password(password)
+                .build();
     }
 }

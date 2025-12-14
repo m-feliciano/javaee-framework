@@ -1,10 +1,8 @@
 package com.dev.servlet.infrastructure.migration;
 
-import com.dev.servlet.infrastructure.config.EntityManagerProducer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Initialized;
 import jakarta.enterprise.event.Observes;
-import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.output.MigrateResult;
@@ -16,8 +14,6 @@ import static com.dev.servlet.infrastructure.config.Properties.loadDatabasePrope
 @Slf4j
 @ApplicationScoped
 public class FlywayMigrationService {
-    @Inject
-    private EntityManagerProducer emp;
 
     public void onStart(@Observes @Initialized(ApplicationScoped.class) Object init) {
         try {
@@ -28,11 +24,12 @@ public class FlywayMigrationService {
                             props.getProperty("jakarta.persistence.jdbc.user"),
                             props.getProperty("jakarta.persistence.jdbc.password")
                     )
+                    .connectRetries(10)
+                    .connectRetriesInterval(5)
                     .load()
                     .migrate();
             log.info("Database migration completed in {} ms with {} migrations applied",
                     result.getTotalMigrationTime(), result.migrations.size());
-            emp.setupEmFactory();
         } catch (Exception e) {
             log.error("Database migration failed: {}", e.getMessage(), e);
             throw e;

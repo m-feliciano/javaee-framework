@@ -6,26 +6,27 @@ import com.dev.servlet.adapter.in.web.dto.HttpResponse;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.adapter.in.web.dto.Request;
 import com.dev.servlet.adapter.in.web.util.EndpointParser;
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.infrastructure.utils.BeanUtil;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.Objects;
 
+import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+
 @Slf4j
 @NoArgsConstructor
 public class HttpExecutorImpl<J> implements HttpExecutor<J> {
 
-    private static BaseRouterController resolveController(EndpointParser parser) throws ApplicationException {
+    private static BaseRouterController resolveController(EndpointParser parser) throws AppException {
         try {
             var routerController = (BaseRouterController) BeanUtil.getResolver().getBean(parser.controller() + "Controller");
             Objects.requireNonNull(routerController);
             return routerController;
         } catch (Exception e) {
-            throw new ApplicationException(HttpServletResponse.SC_BAD_REQUEST,
+            throw new AppException(SC_BAD_REQUEST,
                     "Error resolving service endpoint: %s%s".formatted(parser.controller(), parser.path()));
         }
     }
@@ -70,12 +71,12 @@ public class HttpExecutorImpl<J> implements HttpExecutor<J> {
     private IHttpResponse<J> handleException(Exception ex) {
         log.error("HttpExecutor: Unhandled exception occurred: {}", ex.getMessage(), ex);
 
-        int code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+        int code = 500;
         String message = "An unexpected error occurred.";
-        if (ex instanceof ApplicationException exception) {
+        if (ex instanceof AppException exception) {
             code = exception.getCode();
             message = exception.getMessage();
-        } else if (ex.getCause() instanceof ApplicationException cause) {
+        } else if (ex.getCause() instanceof AppException cause) {
             code = cause.getCode();
             message = cause.getMessage();
         }

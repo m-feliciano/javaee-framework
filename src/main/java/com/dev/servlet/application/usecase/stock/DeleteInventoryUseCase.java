@@ -1,6 +1,6 @@
 package com.dev.servlet.application.usecase.stock;
 
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.in.stock.DeleteInventoryPort;
 import com.dev.servlet.application.port.out.inventory.InventoryRepositoryPort;
 import com.dev.servlet.application.transfer.request.InventoryRequest;
@@ -18,11 +18,10 @@ public class DeleteInventoryUseCase implements DeleteInventoryPort {
     private InventoryRepositoryPort repositoryPort;
 
     @Override
-    public void delete(InventoryRequest request, String auth) throws ApplicationException {
+    public void delete(InventoryRequest request, String auth) throws AppException {
         log.debug("DeleteInventoryUseCase: attempting to delete inventory with id {}", request.id());
 
-        Inventory inventory = repositoryPort.findById(request.id())
-                .orElseThrow(() -> new ApplicationException("Inventory not found"));
+        Inventory inventory = repositoryPort.findById(request.id()).orElseThrow(() -> new AppException("Inventory not found"));
         repositoryPort.delete(inventory);
     }
 }

@@ -1,9 +1,8 @@
 package com.dev.servlet.adapter.in.web.dispatcher;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
+import com.dev.servlet.adapter.in.web.dto.Request;
 
-@FunctionalInterface
 public interface IServletDispatcher {
-    void dispatch(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse);
+    IHttpResponse<?> dispatch(Request request);
 }

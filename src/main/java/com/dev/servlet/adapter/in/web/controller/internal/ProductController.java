@@ -7,12 +7,14 @@ import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.adapter.in.web.dto.IServletResponse;
 import com.dev.servlet.application.mapper.ProductMapper;
 import com.dev.servlet.application.port.in.category.ListCategoryPort;
+import com.dev.servlet.application.port.in.product.CreateProductWithThumbPort;
 import com.dev.servlet.application.port.in.product.DeleteProductPort;
 import com.dev.servlet.application.port.in.product.ListProductContainerPort;
 import com.dev.servlet.application.port.in.product.ProductDetailPort;
-import com.dev.servlet.application.port.in.product.RegisterProductPort;
 import com.dev.servlet.application.port.in.product.ScrapeProductPort;
 import com.dev.servlet.application.port.in.product.UpdateProductPort;
+import com.dev.servlet.application.port.in.product.UpdateProductThumbPort;
+import com.dev.servlet.application.transfer.request.FileUploadRequest;
 import com.dev.servlet.application.transfer.request.ProductRequest;
 import com.dev.servlet.application.transfer.response.CategoryResponse;
 import com.dev.servlet.application.transfer.response.ProductResponse;
@@ -39,7 +41,7 @@ public class ProductController extends BaseController implements ProductControll
     @Inject
     private UpdateProductPort updateProductPort;
     @Inject
-    private RegisterProductPort registerProductPort;
+    private CreateProductWithThumbPort createProductWithThumbPort;
     @Inject
     private ScrapeProductPort scrapeProductPort;
     @Inject
@@ -48,10 +50,12 @@ public class ProductController extends BaseController implements ProductControll
     private ListProductContainerPort listProductContainerPort;
     @Inject
     private ProductMapper productMapper;
+    @Inject
+    private UpdateProductThumbPort updateProductThumbPort;
 
     @SneakyThrows
     public IHttpResponse<Void> register(ProductRequest request, String auth) {
-        ProductResponse product = registerProductPort.register(request, auth);
+        ProductResponse product = createProductWithThumbPort.execute(request, auth);
         return newHttpResponse(201, redirectTo(product.getId()));
     }
 
@@ -109,5 +113,11 @@ public class ProductController extends BaseController implements ProductControll
     public IHttpResponse<Void> scrape(String auth, String url) {
         scrapeProductPort.scrapeAsync(url, auth);
         return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
+    }
+
+    @Override
+    public IHttpResponse<Void> upload(FileUploadRequest request, String auth) {
+        updateProductThumbPort.updateThumb(request, auth);
+        return newHttpResponse(204, redirectTo(request.id()));
     }
 }

@@ -1,55 +1,28 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<config xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-        xmlns='http://www.ehcache.org/v3'
-        xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.9.xsd">
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.ehcache.org/v3"
+        xsi:schemaLocation="
+        http://www.ehcache.org/v3
+        http://www.ehcache.org/schema/ehcache-core-3.9.xsd">
 
-    <cache-template name="default">
+    <cache-template name="entity-default">
         <expiry>
-            <ttl unit="seconds">600</ttl>
+            <ttl unit="minutes">30</ttl>
         </expiry>
         <heap unit="entries">5000</heap>
     </cache-template>
 
-    <cache alias="com.dev.servlet.domain.model.User" uses-template="default">
-        <expiry>
-            <ttl unit="seconds">600</ttl>
-        </expiry>
-        <heap unit="entries">1000</heap>
-    </cache>
-
-    <cache alias="com.dev.servlet.domain.model.Product" uses-template="default">
-        <expiry>
-            <ttl unit="seconds">600</ttl>
-        </expiry>
-        <heap unit="entries">2000</heap>
-    </cache>
-
-    <cache alias="com.dev.servlet.domain.model.Category" uses-template="default">
-        <expiry>
-            <ttl unit="seconds">3600</ttl>
-        </expiry>
-        <heap unit="entries">500</heap>
-    </cache>
-
-    <cache alias="com.dev.servlet.domain.model.Inventory" uses-template="default">
-        <expiry>
-            <ttl unit="seconds">300</ttl>
-        </expiry>
-        <heap unit="entries">1000</heap>
-    </cache>
-
     <cache alias="default-query-results-region">
         <expiry>
-            <ttl unit="seconds">600</ttl>
+            <ttl unit="minutes">10</ttl>
         </expiry>
-        <heap unit="entries">100</heap>
+        <heap unit="entries">5000</heap>
     </cache>
 
     <cache alias="default-update-timestamps-region">
         <expiry>
             <none/>
         </expiry>
-        <heap unit="entries">5000</heap>
+        <heap unit="entries">10000</heap>
     </cache>
 
 </config>

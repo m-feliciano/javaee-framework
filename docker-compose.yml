@@ -1,40 +1,43 @@
-# Docker Compose configuration for the application connecting to AWS RDS and Amazon MQ.
-
-# AWS: To run with EC2 demo profile (Postgres + ActiveMQ + App):
-# docker compose -f docker-compose.yml up -d
-
-# EC2: ambiente otimizado com tudo em Docker (Postgres + ActiveMQ + App)
-
-# Build EC2 image:
-# docker build --build-arg MVN_PROFILE=dev -t mfeliciano1/servlets-app:ec2 .
-# docker push mfeliciano1/servlets-app:ec2
+# Make sure to create a secrets file or use environment variables to store sensitive information:
+#
+#      POSTGRES_PASSWORD:
+#      POSTGRES_USER:
+#      ARTEMIS_USER:
+#      ARTEMIS_PASSWORD:
+#      SECURITY_JWT_KEY:
+#      PROVIDER_ACCESS_KEY:
+#      PROVIDER_SECRET_KEY:
 
 services:
   app:
     image: mfeliciano1/servlets-app:ec2
     container_name: servlets_app
     restart: unless-stopped
-    env_file:
-      - ./.env.ec2
     ports:
       - "8080:8080"
+
     environment:
       DB_HOST: db
       DB_PORT: 5432
       POSTGRES_DB: ${EC2_DB}
-      POSTGRES_USER: ${EC2_DB_USER}
-      POSTGRES_PASSWORD: ${EC2_DB_PASSWORD}
-      ACTIVEMQ_BROKER_URL: tcp://activemq:61616
-      ARTEMIS_USER: ${EC2_ARTEMIS_USER}
-      ARTEMIS_PASSWORD: ${EC2_ARTEMIS_PASSWORD}
-      SECURITY_ENCRYPT_KEY: ${SECURITY_ENCRYPT_KEY}
-      SECURITY_JWT_KEY: ${SECURITY_JWT_KEY}
+
+      ACTIVEMQ_BROKER_URL: tcp://activemq:61616?reconnectAttempts=-1&failoverAttempts=-1&retryInterval=2000&retryIntervalMultiplier=1.5&maxRetryInterval=60000
+
+      STORAGE_PROVIDER: s3
+
+      CLOUDFRONT_PRIVATE_KEY_PATH: /run/secrets/cloudfront_pk
+
       JAVA_OPTS: "-Xms512m -Xmx1024m -XX:+UseG1GC -XX:+UseStringDeduplication"
+
+    volumes:
+      - ./secrets/cloudfront-private-pkcs8.pem:/run/secrets/cloudfront_pk:ro
+
     depends_on:
       db:
         condition: service_healthy
       activemq:
         condition: service_healthy
+
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/api/v1/health/up" ]
       interval: 30s
@@ -45,14 +48,14 @@ services:
     image: postgres:15-alpine
     container_name: ec2_postgres
     restart: unless-stopped
-    env_file:
-      - ./.env.ec2
+
     environment:
-      POSTGRES_USER: ${EC2_DB_USER}
-      POSTGRES_PASSWORD: ${EC2_DB_PASSWORD}
       POSTGRES_DB: ${EC2_DB}
+
     volumes:
       - /data/postgres:/var/lib/postgresql/data
+      - ./secrets/postgres:/run/secrets:ro
+
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${EC2_DB_USER}" ]
       interval: 10s
@@ -63,16 +66,14 @@ services:
     image: apache/activemq-artemis:2.44.0
     container_name: ec2_activemq
     restart: unless-stopped
-    env_file:
-      - ./.env.ec2
-    environment:
-      ARTEMIS_USER: ${EC2_ARTEMIS_USER}
-      ARTEMIS_PASSWORD: ${EC2_ARTEMIS_PASSWORD}
     ports:
       - "61616:61616"
       - "8161:8161"
+
     volumes:
       - /data/broker:/var/lib/artemis/data
+      - ./secrets/activemq:/var/lib/artemis/etc:ro
+
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8161" ]
       interval: 10s

@@ -109,10 +109,12 @@ public class HealthServiceImpl implements HealthService {
     @Override
     public boolean isCacheHealthy() {
         try {
+            String namespace = "health";
             String testKey = "health_check_test";
-            cachePort.setObject(testKey, "health", "test_value");
-            String result = cachePort.getObject(testKey, "health");
-            cachePort.clear(testKey, "health");
+
+            cachePort.set(namespace, testKey, "test_value");
+            String result = cachePort.get(namespace, testKey);
+            cachePort.clear(namespace, testKey);
 
             boolean healthy = "test_value".equals(result);
             log.debug("Cache health check: {}", healthy ? "PASSED" : "FAILED");

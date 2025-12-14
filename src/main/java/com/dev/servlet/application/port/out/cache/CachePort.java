@@ -1,20 +1,17 @@
 package com.dev.servlet.application.port.out.cache;
 
-import java.util.Collection;
-import java.util.List;
+import java.time.Duration;
 
 public interface CachePort {
-    <T> void set(String key, String cacheName, Collection<T> collection);
+    void set(String namespace, String key, Object object);
 
-    <T> void setObject(String key, String cacheName, T object);
+    void set(String namespace, String key, Object object, Duration ttl);
 
-    <T> List<T> get(String key, String cacheName);
+    <T> T get(String namespace, String key);
 
-    <T> T getObject(String key, String cacheName);
-
-    void clear(String key, String cacheName);
+    void clear(String namespace, String key);
 
     void clearAll(String key);
 
-    void close();
+    void clearNamespace(String namespace);
 }

@@ -69,27 +69,35 @@ public class AuditAdapter implements AuditPort {
 
         Thread.ofVirtual().start(() -> {
             final String threadName = Thread.currentThread().getName();
+            log.debug("[Thread: {}] Logging audit event: {}", threadName, event);
+
             try {
                 requestContextController.activate();
-                log.debug("[Thread: {}] Logging audit event: {}", threadName, event);
+
                 String userId = null;
                 if (token != null && !token.isBlank()) {
                     try {
                         userId = authenticationPort.extractUserId(token);
                     } catch (Exception ignored) {
                     }
+
                     metadata.put("userId", userId);
                 }
+
                 try {
                     metadata.put("payload", payload);
                 } catch (Exception e) {
                     log.warn("[Thread: {}] Failed to serialize audit payload", threadName, e);
                 }
-                log.info(CloneUtil.toJson(metadata));
+
+                // [DEBUG only] log the metadata
+                log.debug(CloneUtil.toJson(metadata));
+
                 if (userId != null && payload instanceof AuditPayload<?, ?> auditPayload) {
                     userActivityPort.logActivity(userId, outcome, auditPayload, metadata);
                     log.debug("[Thread: {}] Activity log registered for userId: {}", threadName, userId);
                 }
+
             } catch (Exception e) {
                 log.error("[Thread: {}] Failed to log audit event", threadName, e);
             } finally {

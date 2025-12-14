@@ -15,7 +15,7 @@ const CsrfUtil = (function() {
         return headers;
     }
 
-    function injectTokenAndSubmit(form) {
+    const injectTokenAndSubmit = (form) => {
         const token = getToken();
         if (!token) {
             console.warn('CSRF token not found. Please refresh the page.');
@@ -36,12 +36,25 @@ const CsrfUtil = (function() {
 
     function attachToForms() {
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.csrf-form, .csrf-delete-form').forEach(form => {
-                form.addEventListener('submit', function(e) {
+            const regex = /^csrf.*form$/i;
+
+            document.querySelectorAll('form').forEach(function (form) {
+                const matches = Array.from(form.classList)
+                    .some(className => regex.test(className));
+
+                if (!matches) return;
+
+                form.addEventListener('submit', function (e) {
                     e.preventDefault();
 
                     if (this.classList.contains('csrf-delete-form')) {
                         if (!confirm('Are you sure you want to delete this item?')) {
+                            return;
+                        }
+                    }
+
+                    if (this.classList.contains('csrf-upload-form')) {
+                        if (!confirm('Are you sure you want to upload this file?')) {
                             return;
                         }
                     }

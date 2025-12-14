@@ -1,5 +1,6 @@
 package com.dev.servlet.infrastructure.utils;
 
+import com.dev.servlet.domain.vo.BinaryPayload;
 import com.dev.servlet.infrastructure.config.Properties;
 import com.dev.servlet.infrastructure.persistence.transfer.IPageRequest;
 import com.dev.servlet.infrastructure.persistence.transfer.internal.PageRequest;
@@ -7,9 +8,11 @@ import com.dev.servlet.shared.vo.KeyPair;
 import com.dev.servlet.shared.vo.Query;
 import com.dev.servlet.shared.vo.Sort;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 import lombok.NoArgsConstructor;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -17,7 +20,17 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static jakarta.servlet.http.HttpServletResponse.SC_CONFLICT;
+import static jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN;
+import static jakarta.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static jakarta.servlet.http.HttpServletResponse.SC_METHOD_NOT_ALLOWED;
+import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static jakarta.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
+import static jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class URIUtils {
@@ -31,7 +44,7 @@ public final class URIUtils {
     private static final String PAGINATION_ORDER = "pagination.order";
 
     public static String getResourceId(HttpServletRequest httpServletRequest) {
-        String[] array = httpServletRequest.getServletPath().split("/");
+        String[] array = httpServletRequest.getRequestURI().split("/");
         return Arrays.stream(array).skip(5).findFirst().orElse(null);
     }
 
@@ -101,29 +114,36 @@ public final class URIUtils {
         int size = Properties.getOrDefault(PAGINATION_LIMIT, DEFAULT_MIN_PAGE_SIZE);
         String field = Properties.getOrDefault(PAGINATION_SORT, DEFAULT_SORT_FIELD);
         String order = Properties.getOrDefault(PAGINATION_ORDER, DEFAULT_SORT_ORDER);
+
         Sort sort = Sort.by(field).direction(Sort.Direction.from(order));
         return PageRequest.builder().initialPage(page).pageSize(size).sort(sort).build();
     }
 
-    public static List<KeyPair> getParameters(HttpServletRequest httpServletRequest) {
-        return httpServletRequest.getParameterMap()
-                .entrySet().stream()
+    public static List<KeyPair> getParameters(HttpServletRequest req) {
+        Map<String, String[]> parameters = req.getParameterMap();
+        List<KeyPair> list = parameters.entrySet().stream()
                 .filter(r -> !r.getKey().startsWith("X-"))
                 .map(e -> new KeyPair(e.getKey(), e.getValue()[0]))
                 .collect(Collectors.toList());
+
+        if (req.getContentType() != null && req.getContentType().startsWith("multipart/form-data")) {
+            list.add(new KeyPair("payload", buildMultPartPayload(req)));
+        }
+
+        return list;
     }
 
     public static String getErrorMessage(int status) {
         return switch (status) {
-            case HttpServletResponse.SC_BAD_REQUEST -> "Bad Request";
-            case HttpServletResponse.SC_UNAUTHORIZED -> "Unauthorized";
-            case HttpServletResponse.SC_SERVICE_UNAVAILABLE -> "Service Unavailable";
-            case HttpServletResponse.SC_FORBIDDEN -> "Forbidden";
-            case HttpServletResponse.SC_NOT_FOUND -> "Not Found";
-            case HttpServletResponse.SC_METHOD_NOT_ALLOWED -> "Method Not Allowed";
-            case HttpServletResponse.SC_CONFLICT -> "Conflict";
+            case SC_BAD_REQUEST -> "Bad Request";
+            case SC_UNAUTHORIZED -> "Unauthorized";
+            case SC_SERVICE_UNAVAILABLE -> "Service Unavailable";
+            case SC_FORBIDDEN -> "Forbidden";
+            case SC_NOT_FOUND -> "Not Found";
+            case SC_METHOD_NOT_ALLOWED -> "Method Not Allowed";
+            case SC_CONFLICT -> "Conflict";
             case 429 -> "Too Many Requests";
-            case HttpServletResponse.SC_INTERNAL_SERVER_ERROR -> "Internal Server Error";
+            case SC_INTERNAL_SERVER_ERROR -> "Internal Server Error";
             default -> "Error";
         };
     }
@@ -144,5 +164,16 @@ public final class URIUtils {
     public static boolean matchWildcard(String endpoint, String eventName) {
         String regex = endpoint.replace("*", ".*");
         return eventName.matches(regex);
+    }
+
+    private static BinaryPayload buildMultPartPayload(HttpServletRequest req) {
+        try {
+            final Part part = req.getPart("file");
+            File tmp = File.createTempFile("upload_" + UUID.randomUUID().toString().substring(8), ".tmp");
+            FileUtils.copyInputStreamToFile(part.getInputStream(), tmp);
+            return new BinaryPayload(tmp.getAbsolutePath(), tmp.length(), part.getContentType());
+        } catch (Exception e) {
+            throw new RuntimeException("Error processing multipart form data: " + e.getMessage(), e);
+        }
     }
 }

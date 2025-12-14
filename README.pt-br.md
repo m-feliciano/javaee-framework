@@ -22,6 +22,8 @@ Focado em desempenho, segurança e estruturação clara de aplicações backend 
 - JUnit 5 + Mockito
 - PostgreSQL, OkHttp
 - Maven 3.6+
+- AWS SDK v2
+- Docker & Kubernetes
 
 ### Migrações ao longo do tempo
 - Java -> 11 -> 17 -> 21

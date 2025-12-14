@@ -5,7 +5,7 @@ import com.dev.servlet.adapter.in.web.controller.internal.base.BaseController;
 import com.dev.servlet.adapter.in.web.dto.HttpResponse;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.adapter.in.web.dto.IServletResponse;
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.mapper.InventoryMapper;
 import com.dev.servlet.application.port.in.category.ListCategoryPort;
 import com.dev.servlet.application.port.in.product.ProductDetailPort;
@@ -97,7 +97,7 @@ public class InventoryController extends BaseController implements InventoryCont
         return newHttpResponse(204, redirectTo(inventory.getId()));
     }
 
-    private IServletResponse getServletResponse(InventoryRequest request, String auth) throws ApplicationException {
+    private IServletResponse getServletResponse(InventoryRequest request, String auth) throws AppException {
         Collection<InventoryResponse> inventories = listInventoryPort.list(request, auth);
         Collection<CategoryResponse> categories = listCategoryPort.list(null, auth);
         Set<KeyPair> data = Set.of(
@@ -107,7 +107,7 @@ public class InventoryController extends BaseController implements InventoryCont
         return newServletResponse(data, forwardTo("listItems"));
     }
 
-    private ProductResponse loadProductDetails(Query query, String auth) throws ApplicationException {
+    private ProductResponse loadProductDetails(Query query, String auth) throws AppException {
         if (query == null || !query.has("productId")) return null;
         String productId = query.get("productId");
         ProductRequest request = ProductRequest.builder().id(productId).build();

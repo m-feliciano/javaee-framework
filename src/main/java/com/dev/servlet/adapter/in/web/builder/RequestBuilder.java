@@ -26,7 +26,7 @@ public record RequestBuilder(HttpServletRequest servletRequest) {
         private Integer retry;
 
         public RequestCreator endpoint() {
-            this.endpoint = servletRequest.getServletPath();
+            this.endpoint = servletRequest.getRequestURI();
             return this;
         }
 

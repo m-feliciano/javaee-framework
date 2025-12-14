@@ -11,8 +11,6 @@ public interface AuthCookiePort {
 
     String getCookieFromList(List<String> cookies, String cookieName);
 
-    void setAccessTokenCookie(HttpServletResponse response, String token);
-
     void clearCookies(HttpServletResponse response);
 
     void setAuthCookies(HttpServletResponse response, String accessToken, String refreshToken);
@@ -26,4 +24,6 @@ public interface AuthCookiePort {
     void ensureCsrfToken(HttpServletRequest request, HttpServletResponse response);
 
     boolean validateCsrfToken(HttpServletRequest request);
+
+    void addCdnCookies(HttpServletResponse httpResponse);
 }

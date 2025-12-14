@@ -17,8 +17,28 @@ spec:
           image: apache/activemq-artemis:2.44.0
           ports:
             - containerPort: 61616
+            - containerPort: 8161 # Console web do ActiveMQ
+
           envFrom:
             - configMapRef:
                 name: servlets-config
             - secretRef:
                 name: servlets-secret
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8161
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8161
+            initialDelaySeconds: 90
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3

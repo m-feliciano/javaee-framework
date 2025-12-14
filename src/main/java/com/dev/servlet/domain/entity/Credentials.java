@@ -8,13 +8,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.ColumnTransformer;
 
 @Embeddable
 @Builder
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreType
@@ -25,8 +23,4 @@ public class Credentials {
     @JsonIgnore
     @Column(name = "password")
     private String password;
-
-    public Credentials(String login) {
-        this.login = login;
-    }
 }

@@ -10,18 +10,15 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
-import lombok.Getter;
+import jakarta.jms.Connection;
+import jakarta.jms.ConnectionFactory;
+import jakarta.jms.DeliveryMode;
+import jakarta.jms.Destination;
+import jakarta.jms.Session;
+import jakarta.jms.TextMessage;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.client.ClientProducer;
-import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 
 import java.time.OffsetDateTime;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import static com.dev.servlet.adapter.out.messaging.config.MessageConfig.EMAIL_EXCHANGE_QUEUE;
 
@@ -29,162 +26,91 @@ import static com.dev.servlet.adapter.out.messaging.config.MessageConfig.EMAIL_E
 @ApplicationScoped
 @Named("messageProducer")
 public class MessageProducer implements MessagePort {
-    private MessageConfig.BrokerConfig config;
-    private ClientSessionFactory factory;
-    private ExecutorService executor;
-    private final ConcurrentLinkedQueue<SessionProducerHolder> holders = new ConcurrentLinkedQueue<>();
-    private final ThreadLocal<SessionProducerHolder> threadLocalHolder = new ThreadLocal<>();
+
+    private Connection connection;
+    private Session session;
+    private jakarta.jms.MessageProducer producer;
 
     @PostConstruct
     public void init() {
-        this.config = MessageConfig.createBrokerConfig(EMAIL_EXCHANGE_QUEUE);
-        this.factory = MessageFactory.createSessionFactory(config.brokerUrl());
-        int threads = Math.max(2, Runtime.getRuntime().availableProcessors());
-        this.executor = Executors.newFixedThreadPool(threads);
+        MessageConfig.BrokerConfig config = MessageConfig.createBrokerConfig(EMAIL_EXCHANGE_QUEUE);
 
-        log.info("MessageProducer initialized with {} threads", threads);
-    }
+        try {
+            ConnectionFactory factory = MessageFactory.createConnectionFactory(
+                    config.brokerUrl(),
+                    config.user(),
+                    config.pass()
+            );
 
-    @PreDestroy
-    public void shutdown() {
-        // Close all holders
-        holders.forEach(h -> {
-            try {
-                h.close();
-            } catch (Exception e) {
-                log.warn("Failed to close SessionProducerHolder: {}", e.getMessage(), e);
-            }
-        });
+            this.connection = factory.createConnection();
+            this.connection.start();
 
-        // Shutdown executor
-        if (executor != null) {
-            executor.shutdown();
-            try {
-                if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-                    executor.shutdownNow();
-                }
-            } catch (InterruptedException e) {
-                executor.shutdownNow();
-                Thread.currentThread().interrupt();
-            }
-        }
+            this.session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        // Close the factory
-        if (factory != null) {
-            try {
-                factory.close();
-            } catch (Exception e) {
-                log.warn("Failed to close ClientSessionFactory: {}", e.getMessage(), e);
-            }
+            Destination queue = session.createQueue(EMAIL_EXCHANGE_QUEUE);
+            this.producer = session.createProducer(queue);
+
+            this.producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+
+            log.info("JMS MessageProducer started for queue {}", EMAIL_EXCHANGE_QUEUE);
+
+        } catch (Exception e) {
+            log.error("Failed to start JMS MessageProducer", e);
+            throw new IllegalStateException("JMS producer startup failed", e);
         }
     }
 
     @Override
     public void send(Message message) {
-        executor.submit(() -> enqueueMessage(message));
-    }
-
-    @Override
-    public void sendConfirmation(String email, String link) {
-        String createdAt = OffsetDateTime.now().toString();
-        send(new Message(MessageType.CONFIRMATION, email, createdAt, link));
-    }
-
-    @Override
-    public void sendWelcome(String email) {
-        String createdAt = OffsetDateTime.now().toString();
-        send(new Message(MessageType.WELCOME, email, createdAt, null));
-    }
-
-    private void enqueueMessage(Message message) {
-        SessionProducerHolder holder = getOrCreateHolder();
         try {
-            holder.send(message);
-        } catch (Exception e) {
-            log.error("Failed to send email message to queue for email {}: {}", message.toEmail(), e.getMessage(), e);
-            try {
-                holder.close();
-            } catch (Exception ex) {
-                log.warn("Failed to close faulty holder: {}", ex.getMessage(), ex);
-            }
-            threadLocalHolder.remove();
-            holders.remove(holder);
-        }
-    }
+            log.info("Preparing to send message to queue {} for email={}", EMAIL_EXCHANGE_QUEUE, message.toEmail());
 
-    private SessionProducerHolder getOrCreateHolder() {
-        SessionProducerHolder holder = threadLocalHolder.get();
-        if (holder == null || holder.isClosed()) {
-            holder = createHolder();
-            threadLocalHolder.set(holder);
-            holders.add(holder);
-        }
-        return holder;
-    }
+            String json = CloneUtil.toJson(message);
+            TextMessage textMessage = session.createTextMessage(json);
+            producer.send(textMessage);
 
-    private SessionProducerHolder createHolder() {
-        try {
-            ClientSession session = factory.createSession(
-                    config.user(), config.pass(), false, false, false, false, 1);
-            ClientProducer producer = session.createProducer(config.queueName());
-            log.info("MessageProducer: created session/producer for thread {}", Thread.currentThread().getName());
-            return new SessionProducerHolder(session, producer);
+            log.info("Message sent to queue {} for email={}", EMAIL_EXCHANGE_QUEUE, message.toEmail());
 
         } catch (Exception e) {
-            log.error("Failed to create session/producer: {}", e.getMessage(), e);
+            log.error("Failed to send message to queue {}", EMAIL_EXCHANGE_QUEUE, e);
             throw new RuntimeException(e);
         }
     }
 
-    private static final class SessionProducerHolder {
-        private final ClientSession session;
-        private final ClientProducer producer;
-        @Getter
-        private volatile boolean closed = false;
+    @Override
+    public void sendConfirmation(String email, String link) {
+        send(new Message(
+                MessageType.CONFIRMATION,
+                email,
+                OffsetDateTime.now().toString(),
+                link
+        ));
+    }
 
-        SessionProducerHolder(ClientSession session, ClientProducer producer) {
-            this.session = session;
-            this.producer = producer;
-        }
+    @Override
+    public void sendWelcome(String email) {
+        send(new Message(
+                MessageType.WELCOME,
+                email,
+                OffsetDateTime.now().toString(),
+                null
+        ));
+    }
 
-        synchronized void send(Message message) throws Exception {
-            if (closed) throw new IllegalStateException("Holder closed");
-            var clientMessage = session.createMessage(true);
-            var bodyBuffer = clientMessage.getBodyBuffer();
-            String json = CloneUtil.toJson(message);
-            bodyBuffer.writeString(json);
-            producer.send(clientMessage);
+    @PreDestroy
+    public void shutdown() {
+        log.info("Shutting down JMS MessageProducer");
+        safeClose(producer);
+        safeClose(session);
+        safeClose(connection);
+    }
 
+    private void safeClose(AutoCloseable c) {
+        if (c != null) {
             try {
-                session.commit();
-            } catch (ActiveMQException e) {
-                log.warn("Failed to commit after send, attempting rollback: {}", e.getMessage(), e);
-                try {
-                    session.rollback();
-                } catch (Exception ex) {
-                    log.warn("Rollback after failed commit failed: {}", ex.getMessage(), ex);
-                }
-                throw e;
-            }
-        }
-
-        synchronized void close() {
-            if (closed) return;
-            closed = true;
-            try {
-                if (producer != null) {
-                    try {
-                        producer.close();
-                    } catch (Exception ignore) {
-                    }
-                }
-            } finally {
-                if (session != null && !session.isClosed()) {
-                    try {
-                        session.close();
-                    } catch (Exception ignore) {
-                    }
-                }
+                c.close();
+            } catch (Exception e) {
+                log.warn("Failed to close JMS resource: {}", e.getMessage());
             }
         }
     }

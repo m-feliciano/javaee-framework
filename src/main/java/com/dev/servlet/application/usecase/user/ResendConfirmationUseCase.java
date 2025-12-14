@@ -1,15 +1,12 @@
 package com.dev.servlet.application.usecase.user;
 
 import com.dev.servlet.adapter.out.messaging.Message;
-import com.dev.servlet.application.exception.ApplicationException;
-import com.dev.servlet.application.mapper.UserMapper;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.in.user.GenerateConfirmationTokenPort;
 import com.dev.servlet.application.port.in.user.ResendConfirmationPort;
 import com.dev.servlet.application.port.out.MessagePort;
-import com.dev.servlet.application.port.out.cache.CachePort;
 import com.dev.servlet.application.port.out.user.UserRepositoryPort;
 import com.dev.servlet.application.transfer.request.ResendConfirmationRequest;
-import com.dev.servlet.application.transfer.response.UserResponse;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
 import com.dev.servlet.domain.enums.MessageType;
@@ -27,19 +24,14 @@ import java.util.Optional;
 @Slf4j
 @ApplicationScoped
 public class ResendConfirmationUseCase implements ResendConfirmationPort {
-    private static final String CACHE_KEY = "userCacheKey";
     @Inject
     private UserRepositoryPort repositoryPort;
-    @Inject
-    private UserMapper userMapper;
     @Inject
     @Named("messageProducer")
     private MessagePort messagePort;
     @Inject
     private GenerateConfirmationTokenPort generateConfirmationTokenPort;
     private String baseUrl;
-    @Inject
-    private CachePort cachePort;
 
     @PostConstruct
     public void init() {
@@ -47,7 +39,7 @@ public class ResendConfirmationUseCase implements ResendConfirmationPort {
     }
 
     @Override
-    public void resend(ResendConfirmationRequest request) throws ApplicationException {
+    public void resend(ResendConfirmationRequest request) throws AppException {
         final String userId = request.userId();
         log.debug("ResendConfirmationUseCase: resending confirmation for userId {}", userId);
 
@@ -75,8 +67,5 @@ public class ResendConfirmationUseCase implements ResendConfirmationPort {
 
         Message confirmation = new Message(userId, MessageType.CONFIRMATION, email, createdAt, link);
         messagePort.send(confirmation);
-
-        UserResponse response = userMapper.toResponse(user);
-        cachePort.setObject(user.getId(), CACHE_KEY, response);
     }
 }

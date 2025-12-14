@@ -1,8 +1,7 @@
 package com.dev.servlet.adapter.in.web.filter;
 
-import com.dev.servlet.adapter.in.web.dispatcher.IServletDispatcher;
 import com.dev.servlet.adapter.in.web.util.EndpointParser;
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.in.auth.RefreshTokenPort;
 import com.dev.servlet.application.port.out.security.AuthCookiePort;
 import com.dev.servlet.application.port.out.security.AuthenticationPort;
@@ -13,15 +12,16 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -29,69 +29,67 @@ import java.util.Set;
 import static com.dev.servlet.shared.enums.ConstantUtils.BEARER_PREFIX;
 import static com.dev.servlet.shared.enums.ConstantUtils.LOGIN_PAGE;
 
-@Setter
 @Slf4j
 @ApplicationScoped
 public class AuthFilter implements Filter {
-    private Map<String, Set<String>> preAuthorized = new java.util.HashMap<>();
+
+    private final Map<String, Set<String>> preAuthorized = new HashMap<>();
 
     @Inject
     private AuthenticationPort authenticationPort;
     @Inject
-    private IServletDispatcher dispatcher;
-    @Inject
-    private RefreshTokenPort RefreshTokenPort;
+    private RefreshTokenPort refreshTokenPort;
     @Inject
     private AuthCookiePort authCookiePort;
 
     @PostConstruct
     public void init() {
-        String property = Properties.get("auth.authorized");
-        setupFilter(property);
+        setupFilter(Properties.get("auth.authorized"));
         log.info("Auth filter initialized with pre-authorized paths: {}", preAuthorized);
     }
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException {
-        HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
-        HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
-        boolean isAuthorized = isAuthorizedRequest(httpRequest);
-        if (isAuthorized) {
-            dispatcher.dispatch(httpRequest, httpResponse);
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+            throws IOException, ServletException {
+
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
+
+        if (isAuthorizedRequest(request)) {
+            chain.doFilter(req, res);
             return;
         }
 
-        Cookie[] cookies = httpRequest.getCookies();
+        Cookie[] cookies = request.getCookies();
         String token = authCookiePort.getCookieFromArray(cookies, authCookiePort.getAccessTokenCookieName());
         String refreshToken = authCookiePort.getCookieFromArray(cookies, authCookiePort.getRefreshTokenCookieName());
+
         if (token == null && refreshToken == null) {
-            log.warn("No tokens found for: {}, redirecting to login page", httpRequest.getRequestURI());
-            redirectToLogin(httpResponse);
+            log.warn("No tokens found for: {}", request.getRequestURI());
+            redirectToLogin(response);
             return;
         }
 
-        boolean tokenValid = token != null && authenticationPort.validateToken(token);
-        if (tokenValid) {
-            log.debug("Valid token access [endpoint={}]", httpRequest.getRequestURI());
-            dispatcher.dispatch(httpRequest, httpResponse);
+        if (token != null && authenticationPort.validateToken(token)) {
+            log.debug("Valid token access [endpoint={}]", request.getRequestURI());
+            chain.doFilter(req, res);
             return;
         }
 
         if (refreshToken != null && authenticationPort.validateToken(refreshToken)) {
             try {
-                RefreshTokenResponse refreshTokenResponse = RefreshTokenPort.refreshToken(BEARER_PREFIX + refreshToken);
-                authCookiePort.setAuthCookies(httpResponse, refreshTokenResponse.token(), refreshTokenResponse.refreshToken());
-                httpResponse.setStatus(HttpServletResponse.SC_FOUND);
-                httpResponse.sendRedirect(httpRequest.getRequestURI());
+                RefreshTokenResponse refresh = refreshTokenPort.refreshToken(BEARER_PREFIX + refreshToken);
+                authCookiePort.setAuthCookies(response, refresh.token(), refresh.refreshToken());
+                response.sendRedirect(request.getRequestURI());
                 return;
-            } catch (ApplicationException e) {
-                log.error("Failed to refresh token, redirecting to login page", e);
+            } catch (AppException e) {
+                log.error("Failed to refresh token", e);
             }
         }
 
-        log.warn("Both tokens are invalid for: {}, redirecting to login page", httpRequest.getRequestURI());
-        authCookiePort.clearCookies(httpResponse);
-        redirectToLogin(httpResponse);
+        log.warn("Invalid tokens for: {}", request.getRequestURI());
+        authCookiePort.clearCookies(response);
+        redirectToLogin(response);
     }
 
     private void redirectToLogin(HttpServletResponse response) throws IOException {
@@ -100,9 +98,11 @@ public class AuthFilter implements Filter {
     }
 
     private void setupFilter(String property) {
+        if (property == null) return;
+
         for (String entry : property.split(";")) {
             String[] parts = entry.split(":");
-            String controller = parts[0];
+            String controller = parts[0].toLowerCase();
             String[] endpoints = parts[1].split(",");
             preAuthorized.computeIfAbsent(controller, k -> new HashSet<>());
             for (String ep : endpoints) {
@@ -112,15 +112,15 @@ public class AuthFilter implements Filter {
     }
 
     private boolean isAuthorizedRequest(HttpServletRequest request) {
-        var parser = EndpointParser.of(request.getServletPath());
+        var parser = EndpointParser.of(request.getRequestURI());
         String controller = parser.controller();
         String path = parser.path();
-        if (path == null || controller == null) return false;
+        if (controller == null || path == null) return false;
+
         controller = controller.toLowerCase();
-        if (!preAuthorized.containsKey(controller)) {
-            return false;
-        }
-        var authorizations = preAuthorized.get(controller);
-        return authorizations.contains(path) || authorizations.contains("*");
+        var allowed = preAuthorized.get(controller);
+
+        return allowed != null &&
+               (allowed.contains(path) || allowed.contains("*"));
     }
 }

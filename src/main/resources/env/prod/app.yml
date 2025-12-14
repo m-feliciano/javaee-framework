@@ -1,34 +1,55 @@
 system:
-  version: 3.3.1
+  version: 3.4.0
   name: Product Management System
   date: 2025-12-02
   author: Marcelo Feliciano
+
 api:
-  version: v1
+  version: v2
+
+# Following pattern for defining permissions: module1:action1,action2;module2:action2
 auth:
   authorized: "auth:*;user:registerUser,confirm,resend-confirmation,email-change-confirmation;health:up"
+
 security:
-  encrypt:
-    algorithm: Blowfish
   cookie:
     secure: true
     path: "/"
     samesite: Lax
+  password:
+    memory_kb: 8192
+    iterations: 4
+    hash_length: 32
+    salt_length: 16
+    parallelism: 1
+
 app:
   env: production
+  domain:
+
 rate_limit:
   enabled: false
   capacity: 60          # max tokens (burst) per identifier
   refill:
     tokens: 60          # tokens added each period (keep <= capacity)
     period_seconds: 60  # period length in seconds
-cache:
-  timeout_minutes: 120
+
 pagination:
   page: 1
   limit: 5
   sort: id
   order: asc
+
 homepage: "api/v1/product/list/?page=1&limit=4&sort=registerDate&order=desc"
 loginPage: "/api/v1/auth/form"
 scrape_product_url: "https://web-scraping.dev/api/products?page=<page>&order=asc"
+
+s3:
+  bucket:
+    name:
+  region: us-east-1
+
+cdn:
+  domain:
+  protocol: https
+  keyPairId:

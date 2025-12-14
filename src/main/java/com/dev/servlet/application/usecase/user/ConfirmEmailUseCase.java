@@ -1,6 +1,6 @@
 package com.dev.servlet.application.usecase.user;
 
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.in.user.ConfirmEmailPort;
 import com.dev.servlet.application.port.out.MessagePort;
 import com.dev.servlet.application.port.out.cache.CachePort;
@@ -13,12 +13,12 @@ import com.dev.servlet.domain.entity.enums.Status;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.OffsetDateTime;
 
-import static com.dev.servlet.infrastructure.utils.ThrowableUtils.serviceError;
+import static jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN;
+import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 @Slf4j
 @ApplicationScoped
@@ -33,28 +33,28 @@ public class ConfirmEmailUseCase implements ConfirmEmailPort {
     @Inject
     private CachePort cachePort;
 
-    public void confirm(ConfirmEmailRequest token) throws ApplicationException {
+    public void confirm(ConfirmEmailRequest token) throws AppException {
         log.debug("ConfirmEmailUseCase: confirming email with token {}", token.token());
 
         ConfirmationToken ct = tokenRepositoryPort.findByToken(token.token())
-                .orElseThrow(() -> serviceError(HttpServletResponse.SC_NOT_FOUND, "Invalid token."));
+                .orElseThrow(() -> new AppException(SC_NOT_FOUND, "Invalid token."));
         if (ct.isUsed()) {
-            throw serviceError(HttpServletResponse.SC_FORBIDDEN, "Token already used.");
+            throw new AppException(SC_FORBIDDEN, "Token already used.");
         }
 
         if (ct.getExpiresAt() != null && ct.getExpiresAt().isBefore(OffsetDateTime.now())) {
-            throw serviceError(HttpServletResponse.SC_FORBIDDEN, "Token expired.");
+            throw new AppException(SC_FORBIDDEN, "Token expired.");
         }
 
         User user = repositoryPort.findById(ct.getUserId())
-                .orElseThrow(() -> serviceError(HttpServletResponse.SC_NOT_FOUND, "User not found."));
+                .orElseThrow(() -> new AppException(SC_NOT_FOUND, "User not found."));
         user.setStatus(Status.ACTIVE.getValue());
         user = repositoryPort.update(user);
 
         ct.setUsed(true);
         tokenRepositoryPort.update(ct);
 
-        cachePort.clear(user.getId(), "userCacheKey");
+        cachePort.clear("userCacheKey", user.getId());
         messagePort.sendWelcome(user.getCredentials().getLogin());
     }
 }

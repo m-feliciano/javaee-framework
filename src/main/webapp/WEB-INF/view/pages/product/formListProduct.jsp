@@ -40,16 +40,19 @@
             <div class="card">
                 <div class="card-body text-center">
                     <c:choose>
-                        <c:when test="${empty product.url}">
+                        <c:when test="${empty product.thumbUrl}">
                             <img src="<c:url value='/resources/assets/no_image_available.png'/>"
                                  class="img-fluid"
                                  alt="No available"/>
                         </c:when>
                         <c:otherwise>
-                            <img src="<c:out value='${product.url}' escapeXml='true'/>"
+                            <img src="${cdn}/${product.thumbUrl}"
                                  class="img-fluid"
                                  alt="<c:out value='Product ${product.name}' escapeXml='true'/>"
-                                 loading="lazy"/>
+                                 fetchpriority="high"
+                                 loading="lazy"
+                                 decoding="async"
+                            />
                         </c:otherwise>
                     </c:choose>
                 </div>
@@ -93,14 +96,14 @@
                         </div>
                     </div>
 
-                    <c:if test="${not empty product.url and not product.url eq ''}">
+                    <c:if test="${not empty product.thumbUrl and not product.thumbUrl eq ''}">
                         <div style="margin-bottom: var(--spacing-4);">
                             <label class="form-label"><strong>Image URL</strong></label>
                             <div class="d-flex gap-2">
                                 <input type="text" class="form-control"
-                                       value="<c:out value='${product.url}' escapeXml='true'/>"
+                                       value="<c:out value='${product.thumbUrl}' escapeXml='true'/>"
                                        readonly/>
-                                <a href="${product.url}" target="_blank" class="btn btn-secondary">
+                                <a href="${product.thumbUrl}" target="_blank" class="btn btn-secondary">
                                     <i class="bi bi-box-arrow-up-right"></i>
                                 </a>
                             </div>

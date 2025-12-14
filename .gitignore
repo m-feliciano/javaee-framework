@@ -8,6 +8,9 @@ local.properties
 .loadpath
 .recommenders
 *.env
+secrets/
+*.pem
+*.local
 
 # External tool builders
 .externalToolBuilders/

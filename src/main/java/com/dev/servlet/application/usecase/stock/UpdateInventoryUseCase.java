@@ -1,6 +1,6 @@
 package com.dev.servlet.application.usecase.stock;
 
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.mapper.InventoryMapper;
 import com.dev.servlet.application.port.in.stock.UpdateInventoryPort;
 import com.dev.servlet.application.port.out.inventory.InventoryRepositoryPort;
@@ -21,15 +21,14 @@ public class UpdateInventoryUseCase implements UpdateInventoryPort {
     private InventoryRepositoryPort repositoryPort;
 
     @Override
-    public InventoryResponse update(InventoryRequest request, String auth) throws ApplicationException {
+    public InventoryResponse update(InventoryRequest request, String auth) throws AppException {
         log.debug("UpdateInventoryUseCase: attempting to update inventory with id {}", request.id());
 
-        Inventory inventory = repositoryPort.findById(request.id())
-                .orElseThrow(() -> new ApplicationException("Inventory not found"));
+        Inventory inventory = repositoryPort.findById(request.id()).orElseThrow(() -> new AppException("Inventory not found"));
         inventory.setDescription(request.description());
         inventory.setQuantity(request.quantity());
         inventory.setStatus(Status.ACTIVE.getValue());
         repositoryPort.update(inventory);
-        return inventoryMapper.toResponse(inventory);
+        return new InventoryResponse(inventory.getId());
     }
 }

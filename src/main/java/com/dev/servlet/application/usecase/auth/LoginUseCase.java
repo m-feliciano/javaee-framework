@@ -2,7 +2,7 @@ package com.dev.servlet.application.usecase.auth;
 
 import com.dev.servlet.adapter.in.web.dto.HttpResponse;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.mapper.UserMapper;
 import com.dev.servlet.application.port.in.auth.LoginPort;
 import com.dev.servlet.application.port.in.user.UserDemoModePort;
@@ -16,6 +16,7 @@ import com.dev.servlet.domain.entity.RefreshToken;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
 import com.dev.servlet.infrastructure.config.Properties;
+import com.dev.servlet.infrastructure.utils.PasswordHasher;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletResponse;
@@ -39,11 +40,9 @@ public class LoginUseCase implements LoginPort {
     private RefreshTokenRepositoryPort refreshTokenRepositoryPort;
 
     @Override
-    public IHttpResponse<UserResponse> login(LoginRequest credentials, String onSuccess) throws ApplicationException {
+    public IHttpResponse<UserResponse> login(LoginRequest credentials, String onSuccess) throws AppException {
         final String login = credentials.login();
-        final String password = credentials.password();
 
-        log.debug("LoginUseCase: attempting login for user {}", login);
         try {
             if (Properties.isDemoModeEnabled()) {
                 log.debug("LoginUseCase: DEMO_MODE is enabled, bypassing authentication for user {}", login);
@@ -52,8 +51,11 @@ public class LoginUseCase implements LoginPort {
                 return HttpResponse.ok(response).next(onSuccess).build();
             }
 
-            User user = userPort.get(new UserRequest(login, password))
-                    .orElseThrow(() -> new ApplicationException("Invalid login or password"));
+            User user = userPort.get(new UserRequest(login, null))
+                    .orElseThrow(() -> new AppException("Invalid login or password"));
+
+            boolean verified = PasswordHasher.verify(credentials.password(), user.getCredentials().getPassword());
+            if (!verified) throw new AppException("Invalid login or password");
 
             if (Status.PENDING.equals(user.getStatus())) {
                 UserResponse userResponse = UserResponse.builder()
@@ -78,7 +80,7 @@ public class LoginUseCase implements LoginPort {
         }
     }
 
-    private UserResponse authenticate(User user) throws ApplicationException {
+    private UserResponse authenticate(User user) throws AppException {
         log.debug("LoginUseCase: authenticating user {}", user.getId());
 
         UserResponse response = userMapper.toResponse(user);

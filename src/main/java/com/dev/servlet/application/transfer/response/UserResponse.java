@@ -21,8 +21,8 @@ public final class UserResponse {
     private String token;
     @JsonIgnore
     private String refreshToken;
+    private List<Integer> roles;
     private String imgUrl;
-    private List<Integer> perfis;
     private Boolean unconfirmedEmail;
     private Boolean created;
 

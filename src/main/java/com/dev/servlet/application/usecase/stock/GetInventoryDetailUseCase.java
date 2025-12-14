@@ -1,6 +1,6 @@
 package com.dev.servlet.application.usecase.stock;
 
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.mapper.InventoryMapper;
 import com.dev.servlet.application.port.in.stock.GetInventoryDetailPort;
 import com.dev.servlet.application.port.out.inventory.InventoryRepositoryPort;
@@ -21,11 +21,11 @@ public class GetInventoryDetailUseCase implements GetInventoryDetailPort {
     private InventoryRepositoryPort repositoryPort;
 
     @Override
-    public InventoryResponse get(InventoryRequest request, String auth) throws ApplicationException {
+    public InventoryResponse get(InventoryRequest request, String auth) throws AppException {
         log.debug("GetInventoryDetailUseCase: attempting to get inventory detail with id {}", request.id());
 
         return repositoryPort.findById(request.id())
                 .map(inventoryMapper::toResponse)
-                .orElseThrow(() -> new ApplicationException("Inventory not found"));
+                .orElseThrow(() -> new AppException("Inventory not found"));
     }
 }

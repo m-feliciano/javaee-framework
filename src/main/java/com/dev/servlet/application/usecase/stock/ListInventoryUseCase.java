@@ -1,6 +1,6 @@
 package com.dev.servlet.application.usecase.stock;
 
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.mapper.InventoryMapper;
 import com.dev.servlet.application.port.in.stock.ListInventoryPort;
 import com.dev.servlet.application.port.out.inventory.InventoryRepositoryPort;
@@ -27,7 +27,7 @@ public class ListInventoryUseCase implements ListInventoryPort {
     private InventoryRepositoryPort repositoryPort;
 
     @Override
-    public List<InventoryResponse> list(InventoryRequest request, String auth) throws ApplicationException {
+    public List<InventoryResponse> list(InventoryRequest request, String auth) throws AppException {
         log.debug("ListInventoryUseCase: attempting to list inventories with filter {}", request);
         String userId = authPort.extractUserId(auth);
 

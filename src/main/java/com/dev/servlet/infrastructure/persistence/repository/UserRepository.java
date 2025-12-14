@@ -1,6 +1,7 @@
 package com.dev.servlet.infrastructure.persistence.repository;
 
 import com.dev.servlet.application.port.out.user.UserRepositoryPort;
+import com.dev.servlet.domain.entity.Credentials;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
 import com.dev.servlet.infrastructure.persistence.repository.base.BaseRepository;
@@ -56,16 +57,49 @@ public class UserRepository extends BaseRepository<User, String> implements User
                 cb.equal(root.get(STATUS), Status.PENDING.getValue())
         );
 
-        if (filter.getCredentials() != null) {
-            if (filter.getCredentials().getLogin() != null) {
-                predicate = cb.and(predicate,
-                        cb.equal(root.get(CREDENTIALS).get("login"), filter.getCredentials().getLogin()));
-            }
-            if (filter.getCredentials().getPassword() != null) {
-                predicate = cb.and(predicate,
-                        cb.equal(root.get(CREDENTIALS).get("password"), filter.getCredentials().getPassword()));
-            }
+        Credentials credentials = filter.getCredentials();
+        if (credentials == null || (credentials.getLogin() == null && credentials.getPassword() == null)) {
+            throw new IllegalArgumentException("At least one of login or password must be provided in credentials");
+        }
+
+        if (credentials.getLogin() != null) {
+            predicate = cb.and(predicate, cb.equal(root.get(CREDENTIALS).get("login"), credentials.getLogin()));
+        }
+
+        if (credentials.getPassword() != null) {
+            predicate = cb.and(predicate, cb.equal(root.get(CREDENTIALS).get("password"), credentials.getPassword()));
         }
         return predicate;
+    }
+
+
+    @Override
+    public void updateProfilePicture(String userId, String imgUrl) {
+        executeInTransaction(() -> {
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaUpdate<User> cu = cb.createCriteriaUpdate(User.class);
+            Root<User> root = cu.from(User.class);
+
+            cu.set("imgUrl", imgUrl);
+            cu.where(cb.equal(root.get(ID), userId));
+
+            em.createQuery(cu).executeUpdate();
+            return null;
+        });
+    }
+
+    @Override
+    public void updateCredentials(String userId, Credentials credentials) {
+        executeInTransaction(() -> {
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaUpdate<User> cu = cb.createCriteriaUpdate(User.class);
+            Root<User> root = cu.from(User.class);
+
+            cu.set(CREDENTIALS, credentials);
+            cu.where(cb.equal(root.get(ID), userId));
+
+            em.createQuery(cu).executeUpdate();
+            return null;
+        });
     }
 }

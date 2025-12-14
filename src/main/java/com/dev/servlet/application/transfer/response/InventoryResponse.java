@@ -9,4 +9,8 @@ public final class InventoryResponse {
     private String description;
     private String status;
     private ProductResponse product;
+
+    public InventoryResponse(String id) {
+        this.id = id;
+    }
 }

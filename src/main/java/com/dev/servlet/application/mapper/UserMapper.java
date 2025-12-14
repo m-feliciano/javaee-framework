@@ -11,6 +11,7 @@ import org.mapstruct.ReportingPolicy;
 public interface UserMapper {
     @Mapping(target = "login", source = "credentials.login")
     @Mapping(target = "password", source = "credentials.password")
+    @Mapping(target = "roles", source = "perfis")
     UserResponse toResponse(User user);
 
     User toUser(UserRequest userRequest);

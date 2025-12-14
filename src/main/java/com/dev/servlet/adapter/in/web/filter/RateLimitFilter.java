@@ -39,7 +39,7 @@ public class RateLimitFilter implements Filter {
         }
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-        String endpoint = httpRequest.getServletPath();
+        String endpoint = httpRequest.getRequestURI();
         String identifier = getClientIp(httpRequest);
         if (!rateLimiter.tryConsume(identifier, 1)) {
             long secondsUntilRefill = rateLimiter.getSecondsUntilRefill(identifier);
