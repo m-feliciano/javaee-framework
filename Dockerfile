@@ -11,7 +11,7 @@ COPY frontend ./frontend
 
 RUN mvn clean package -P${MVN_PROFILE} -DskipTests
 
-FROM tomcat:10.1.39-jre21-temurin
+FROM tomcat:10.1.50-jre21-temurin
 
 RUN rm -rf /usr/local/tomcat/webapps/*
 
