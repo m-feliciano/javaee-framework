@@ -3,7 +3,7 @@ package com.dev.servlet.application.usecase.product;
 import com.dev.servlet.adapter.out.external.webscrape.WebScrapeServiceRegistry;
 import com.dev.servlet.adapter.out.external.webscrape.builder.WebScrapeBuilder;
 import com.dev.servlet.adapter.out.external.webscrape.transfer.ProductWebScrapeDTO;
-import com.dev.servlet.adapter.out.storage.ImageService;
+import com.dev.servlet.adapter.out.image.ImageService;
 import com.dev.servlet.application.mapper.ProductMapper;
 import com.dev.servlet.application.port.in.product.ScrapeProductPort;
 import com.dev.servlet.application.port.out.alert.AlertPort;
@@ -15,13 +15,13 @@ import com.dev.servlet.domain.entity.Product;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
 import com.dev.servlet.infrastructure.config.Properties;
+import com.dev.servlet.infrastructure.http.FileHttpClient;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.RequestContextController;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.time.Duration;
@@ -56,6 +56,8 @@ public class ScrapeProductUseCase implements ScrapeProductPort {
     private StorageService storageService;
     @Inject
     private ImageService imageService;
+    @Inject
+    private FileHttpClient fileHttpClient;
 
     @Override
     public CompletableFuture<List<ProductResponse>> scrapeAsync(String url, String auth) {
@@ -160,20 +162,27 @@ public class ScrapeProductUseCase implements ScrapeProductPort {
             try {
                 future.get();
             } catch (Exception e) {
-                log.error("Error occurred while uploading product image", e);
+                log.warn("Error occurred while uploading product image", e);
             }
         }
     }
 
-    private String uploadImage(String sourceUrl, User user) throws IOException {
+    private String uploadImage(String sourceUrl, User user) {
         log.info("Processing image for product from URL: {}", sourceUrl);
-        InputStream pic = imageService.writePicture(imageService.getJpgImageFromUrl(sourceUrl), 800);
 
-        final String path = "private/users/" + user.getId() + "/products/" + UUID.randomUUID() + ".jpg";
-        log.info("Generating image URL for product image at path: {}", path);
+        try (InputStream download = fileHttpClient.download(sourceUrl);
+             InputStream pic = imageService.processToSquareJpg(download, 500)) {
 
-        URI uploadUrl = storageService.generateUploadUri(path, "image/jpeg", Duration.ofMinutes(1));
-        imageService.uploadImageToUrl(uploadUrl, pic, "image/jpeg");
-        return path;
+            final String path = "private/users/" + user.getId() + "/products/" + UUID.randomUUID() + ".jpg";
+            log.info("Generating image URL for product image at path: {}", path);
+
+            URI uri = storageService.generateUploadUri(path, "image/jpeg", Duration.ofMinutes(5));
+            fileHttpClient.upload(uri, pic, "image/jpeg");
+            return path;
+
+        } catch (Exception e) {
+            log.error("Failed to upload product image from URL: {}", sourceUrl, e);
+            return null;
+        }
     }
 }
