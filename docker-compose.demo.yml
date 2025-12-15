@@ -7,6 +7,9 @@
 # docker build --build-arg MVN_PROFILE=prod -t mfeliciano1/servlets-app:demo .
 # docker push mfeliciano1/servlets-app:demo
 
+# Note: This demo configuration uses a pre-built image and demo settings.
+# BUT it doesn't have s3 storage, CloudFront or SMTP integration.
+
 services:
   db:
     image: postgres:15-alpine
@@ -54,7 +57,7 @@ services:
         condition: service_healthy
     environment:
       JAVA_OPTS: "-Xms512m -Xmx1024m -XX:+UseG1GC -XX:+UseStringDeduplication"
-      # === Banco de Dados ===
+
       DB_HOST: db
       DB_PORT: "5432"
       POSTGRES_DB: servlets_app_db
@@ -62,16 +65,12 @@ services:
       POSTGRES_PASSWORD: postgres
       DEMO_MODE: true
 
-      # === JWT & Crypto ===
-      SECURITY_ENCRYPT_KEY: ZW5jcnlwdC1zZWN1cmUtZW5jcnlwdGlvb2
       SECURITY_JWT_KEY: c2VjdXJlLXNlY3JldC1rZXktZm9yLWRldmVsb3BtZW50LWVudmlyb25tZW50LTI1Ni11c2VkLW9ubHktZm9yLXRlc3RpbmctcHJvcG9zZXM
 
-      # === ActiveMQ ===
-      ACTIVEMQ_BROKER_URL: tcp://activemq:61616
+      ACTIVEMQ_BROKER_URL: tcp://activemq:61616?reconnectAttempts=-1&failoverAttempts=-1&retryInterval=2000&retryIntervalMultiplier=1.5&maxRetryInterval=60000
       ARTEMIS_USER: artemis
       ARTEMIS_PASSWORD: artemis
 
-      # === SMTP (mock) ===
       SMTP_HOST: smtp.example.com
       SMTP_PORT: "587"
       SMTP_USER: demo@example.com

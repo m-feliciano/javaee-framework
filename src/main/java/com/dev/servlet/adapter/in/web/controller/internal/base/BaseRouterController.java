@@ -7,7 +7,7 @@ import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.adapter.in.web.dto.Request;
 import com.dev.servlet.adapter.in.web.util.EndpointParser;
 import com.dev.servlet.adapter.in.web.validator.RequestValidator;
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.infrastructure.config.Properties;
 import com.dev.servlet.infrastructure.persistence.transfer.IPageRequest;
@@ -21,7 +21,6 @@ import java.lang.reflect.Parameter;
 import java.util.Map;
 import java.util.Set;
 
-import static com.dev.servlet.infrastructure.utils.ThrowableUtils.internalServerError;
 import static com.dev.servlet.shared.util.ClassUtil.findMethodsOnInterfaceRecursive;
 
 @Slf4j
@@ -58,7 +57,7 @@ public abstract class BaseRouterController {
         return invokeServiceMethod(this, method, args);
     }
 
-    private Method routeMappingFromEndpoint(String endpoint) throws ApplicationException {
+    private Method routeMappingFromEndpoint(String endpoint) throws AppException {
         Set<Method> methods = reflections.get(this.getClass().getName());
         for (Method method : methods) {
             RequestMapping mapping = method.getAnnotation(RequestMapping.class);
@@ -67,7 +66,7 @@ public abstract class BaseRouterController {
             }
         }
 
-        throw internalServerError("Endpoint not implemented: " + endpoint);
+        throw new AppException("Endpoint not implemented: " + endpoint);
     }
 
     private Object resolveArgument(Parameter parameter, Request request) {

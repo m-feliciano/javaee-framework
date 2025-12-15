@@ -4,6 +4,7 @@ import com.dev.servlet.adapter.in.web.annotation.Authorization;
 import com.dev.servlet.adapter.in.web.annotation.Controller;
 import com.dev.servlet.adapter.in.web.annotation.RequestMapping;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
+import com.dev.servlet.application.transfer.request.FileUploadRequest;
 import com.dev.servlet.application.transfer.request.UserCreateRequest;
 import com.dev.servlet.application.transfer.request.UserRequest;
 import com.dev.servlet.application.transfer.response.UserResponse;
@@ -35,4 +36,11 @@ public interface UserControllerApi {
 
     @RequestMapping(requestAuth = false, value = "/resend-confirmation", method = POST)
     IHttpResponse<Void> resendConfirmation(User user);
+
+    @RequestMapping(
+            value = "/upload-photo/{id}",
+            apiVersion = "v2",
+            method = POST,
+            jsonType = FileUploadRequest.class)
+    IHttpResponse<Void> updateProfilePicture(FileUploadRequest request, @Authorization String auth);
 }

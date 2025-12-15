@@ -1,6 +1,7 @@
 package com.dev.servlet.domain.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -26,10 +27,10 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@jakarta.persistence.Entity
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Entity
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Table(name = "tb_product")
-@ToString(exclude = {"user", "category"})
+@ToString(exclude = {"category", "owner"})
 public class Product {
     @Id
     @Column(name = "id", updatable = false)
@@ -41,7 +42,7 @@ public class Product {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
     @Column(name = "url_img")
-    private String url;
+    private String thumbUrl;
     @Column(name = "register_date", updatable = false)
     private LocalDate registerDate;
     @Column(name = "price", nullable = false)
@@ -51,7 +52,7 @@ public class Product {
     private String status;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private User owner;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;

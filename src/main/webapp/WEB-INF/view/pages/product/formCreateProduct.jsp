@@ -8,7 +8,8 @@
 
 <div class="content">
     <div class="main">
-    <form action="${baseLink}${version}${ createProduct }" method="post" class="csrf-form">
+        <form action="${baseLink}${version}${ createProduct }" method="post" class="csrf-form"
+              enctype="multipart/form-data">
         <div class="col-md-6">
             <div class="mb-3">
                 <label for="inputName" class="form-label">NAME</label>
@@ -42,8 +43,9 @@
                 </div>
             </div>
             <div class="mb-3">
-                <label for="inputURL" class="form-label">IMAGE</label>
-                <textarea name="url" class="form-control" id="inputURL" placeholder="URL"></textarea>
+                <div class="col-md-18">
+                    <input type="file" name="file" class="form-control" id="inputImage" accept="image/*"/>
+                </div>
             </div>
 
             <jsp:include page="/WEB-INF/view/components/buttons/backButton.jsp"/>

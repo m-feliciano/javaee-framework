@@ -4,8 +4,8 @@
 # docker compose -f docker-compose.dev.yml --env-file .env.dev up -d --build
 
 # Build development image:
-# docker build -t servlets-app:dev .
-# docker push servlets-app:dev
+# docker build --build-arg MVN_PROFILE=dev -t mfeliciano1/servlets-app:dev .
+# docker push mfeliciano1/servlets-app:dev
 
 services:
   app:
@@ -22,19 +22,32 @@ services:
     environment:
       DB_HOST: db
       DB_PORT: 5432
-      # ActiveMQ interno
-      ACTIVEMQ_BROKER_URL: tcp://activemq:61616
+
+      ACTIVEMQ_BROKER_URL: tcp://activemq:61616?reconnectAttempts=-1&failoverAttempts=-1&retryInterval=2000&retryIntervalMultiplier=1.5&maxRetryInterval=60000
       ARTEMIS_USER: ${LOCAL_ARTEMIS_USER}
       ARTEMIS_PASSWORD: ${LOCAL_ARTEMIS_PASSWORD}
+
       POSTGRES_DB: ${LOCAL_DB_NAME}
       POSTGRES_USER: ${LOCAL_DB_USER}
       POSTGRES_PASSWORD: ${LOCAL_DB_PASSWORD}
+
+      STORAGE_PROVIDER: s3
+      PROVIDER_ACCESS_KEY: ${PROVIDER_ACCESS_KEY}
+      PROVIDER_SECRET_KEY: ${PROVIDER_SECRET_KEY}
+
+      CLOUDFRONT_PRIVATE_KEY_PATH: /run/secrets/cloudfront_pk
+
       JAVA_OPTS: "-Xms512m -Xmx1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication"
+
+    volumes:
+      - ./secrets/cloudfront-private-pkcs8.pem:/run/secrets/cloudfront_pk:ro
+
     depends_on:
       db:
         condition: service_healthy
       activemq:
         condition: service_healthy
+
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/api/v1/health/up" ]
       interval: 30s
@@ -55,9 +68,9 @@ services:
       - ./data/postgres:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${LOCAL_DB_USER}" ]
-      interval: 10s
+      interval: 5s
       timeout: 5s
-      retries: 12
+      retries: 20
 
   activemq:
     image: apache/activemq-artemis:2.44.0
@@ -82,7 +95,3 @@ services:
 networks:
   default:
     driver: bridge
-
-# Quick start PostgreSQL and ActiveMQ Artemis containers separately (optional):
-# docker run -d --name servlets-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=uma_senha_segura -e POSTGRES_DB=servletsdb -p 5432:5432 --restart unless-stopped postgres:15
-#docker run -d --name dev_activemq -e ARTEMIS_USER=artemis -e ARTEMIS_PASSWORD=artemis -p 61616:61616 -p 8161:8161 --restart unless-stopped apache/activemq-artemis:2.44.0

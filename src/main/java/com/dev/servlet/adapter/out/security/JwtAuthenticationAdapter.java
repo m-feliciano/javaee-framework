@@ -75,9 +75,7 @@ public class JwtAuthenticationAdapter implements AuthenticationPort {
         return decode(token, claims -> {
             String userId = claims.get(USER, String.class);
             List<Integer> roles = (List<Integer>) claims.get(ROLES, List.class);
-            User user = new User(userId);
-            user.setPerfis(roles);
-            return user;
+            return User.builder().id(userId).perfis(roles).build();
         });
     }
 

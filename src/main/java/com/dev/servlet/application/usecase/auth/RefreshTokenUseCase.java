@@ -1,13 +1,11 @@
 package com.dev.servlet.application.usecase.auth;
 
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.in.auth.RefreshTokenPort;
-import com.dev.servlet.application.port.in.user.UserDetailsPort;
 import com.dev.servlet.application.port.out.cache.CachePort;
 import com.dev.servlet.application.port.out.refreshtoken.RefreshTokenRepositoryPort;
 import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.application.transfer.response.RefreshTokenResponse;
-import com.dev.servlet.application.transfer.response.UserResponse;
 import com.dev.servlet.domain.entity.RefreshToken;
 import com.dev.servlet.domain.entity.User;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -25,21 +23,17 @@ public class RefreshTokenUseCase implements RefreshTokenPort {
     @Inject
     private RefreshTokenRepositoryPort repositoryPort;
     @Inject
-    private UserDetailsPort userDetailsPort;
-    @Inject
     private CachePort cachePort;
 
     @Override
-    public RefreshTokenResponse refreshToken(String refreshToken) throws ApplicationException {
+    public RefreshTokenResponse refreshToken(String refreshToken) throws AppException {
         log.debug("RefreshTokenUseCase: refreshing token");
 
-        if (!authenticationPort.validateToken(refreshToken)) throw new ApplicationException("Invalid refresh token");
+        if (!authenticationPort.validateToken(refreshToken)) throw new AppException("Invalid refresh token");
 
         RefreshToken old = validateRefreshToken(refreshToken);
         User user = authenticationPort.extractUser(refreshToken);
-        UserResponse userResponse = userDetailsPort.get(user.getId(), refreshToken);
 
-        user.setPerfis(userResponse.getPerfis());
         String newAccessToken = authenticationPort.generateAccessToken(user);
         String newRefreshJwt = authenticationPort.generateRefreshToken(user);
 
@@ -60,7 +54,7 @@ public class RefreshTokenUseCase implements RefreshTokenPort {
         String raw = authenticationPort.stripBearerPrefix(refreshToken);
         var maybe = repositoryPort.findByToken(raw);
         if (maybe.isEmpty() || maybe.get().getExpiresAt() == null || maybe.get().getExpiresAt().isBefore(Instant.now())) {
-            throw new ApplicationException("Refresh token is invalid or revoked");
+            throw new AppException("Refresh token is invalid or revoked");
         }
 
         return maybe.get();

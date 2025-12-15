@@ -1,6 +1,6 @@
 package com.dev.servlet.application.usecase.stock;
 
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.mapper.InventoryMapper;
 import com.dev.servlet.application.port.in.product.ProductDetailPort;
 import com.dev.servlet.application.port.in.stock.RegisterInventoryPort;
@@ -30,7 +30,7 @@ public class RegisterInventoryUseCase implements RegisterInventoryPort {
     private ProductDetailPort productDetailPort;
 
     @Override
-    public InventoryResponse register(InventoryCreateRequest request, String auth) throws ApplicationException {
+    public InventoryResponse register(InventoryCreateRequest request, String auth) throws AppException {
         log.debug("RegisterInventoryUseCase: attempting to register inventory for product {}", request.productId());
 
         Inventory inventory = inventoryMapper.createToInventory(request);

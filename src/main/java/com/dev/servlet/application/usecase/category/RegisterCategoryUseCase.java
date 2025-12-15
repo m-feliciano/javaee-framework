@@ -1,6 +1,6 @@
 package com.dev.servlet.application.usecase.category;
 
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.mapper.CategoryMapper;
 import com.dev.servlet.application.port.in.category.RegisterCategoryPort;
 import com.dev.servlet.application.port.out.cache.CachePort;
@@ -28,7 +28,7 @@ public class RegisterCategoryUseCase implements RegisterCategoryPort {
     private CachePort cachePort;
 
     @Override
-    public CategoryResponse register(CategoryRequest request, String auth) throws ApplicationException {
+    public CategoryResponse register(CategoryRequest request, String auth) throws AppException {
         log.debug("RegisterCategoryUseCase called with request: {} and auth: {}", request, auth);
 
         User user = authenticationPort.extractUser(auth);
@@ -36,8 +36,8 @@ public class RegisterCategoryUseCase implements RegisterCategoryPort {
         category.setUser(user);
         category.setStatus(Status.ACTIVE.getValue());
         category = categoryRepositoryPort.save(category);
-        cachePort.clear(user.getId(), "categoryCacheKey");
 
-        return categoryMapper.toResponse(category);
+        cachePort.clear("categoryCacheKey", user.getId());
+        return new CategoryResponse(category.getId());
     }
 }

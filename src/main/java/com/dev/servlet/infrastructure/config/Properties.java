@@ -1,5 +1,11 @@
 package com.dev.servlet.infrastructure.config;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.yaml.snakeyaml.Yaml;
+
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
@@ -8,13 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.ObjectUtils;
-import org.yaml.snakeyaml.Yaml;
-
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Properties {
@@ -99,10 +98,12 @@ public final class Properties {
     }
 
     public static String getEnvOrDefault(String env, String defaultValue) {
-        return propertiesCache.computeIfAbsent(env, k -> {
-            String value = System.getenv(k);
-            return value != null ? value : defaultValue;
-        });
+        String getenv = System.getenv(env);
+        return ObjectUtils.getIfNull(getenv, defaultValue);
+    }
+
+    public static String getEnv(String env) {
+        return getEnvOrDefault(env, null);
     }
 
     public static java.util.Properties loadDatabaseProperties() {

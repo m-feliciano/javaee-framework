@@ -18,9 +18,10 @@ public interface ProductMapper {
     @Mapping(target = "category", ignore = true)
     ProductResponse toResponseWithoutCategory(Product product);
 
+    @Mapping(target = "thumbUrl", source = "url")
     Product scrapeToProduct(ProductWebScrapeDTO productWebScrapeDTO);
 
-    @Mapping(target = "user", expression = "java(new com.dev.servlet.domain.entity.User(userId))")
+    @Mapping(target = "owner", expression = "java(new com.dev.servlet.domain.entity.User(userId))")
     Product toProduct(ProductRequest product, String userId);
 
     default Product queryToProduct(Query query, User user) {

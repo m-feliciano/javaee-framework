@@ -1,6 +1,6 @@
 package com.dev.servlet.application.usecase.category;
 
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.in.category.DeleteCategoryPort;
 import com.dev.servlet.application.port.in.category.GetCategoryDetailPort;
 import com.dev.servlet.application.port.out.cache.CachePort;
@@ -28,7 +28,7 @@ public class DeleteCategoryUseCase implements DeleteCategoryPort {
     private CachePort cachePort;
 
     @Override
-    public void delete(CategoryRequest request, String auth) throws ApplicationException {
+    public void delete(CategoryRequest request, String auth) throws AppException {
         log.debug("DeleteCategoryUseCase called with request: {} and auth: {}", request, auth);
 
         String userId = authenticationPort.extractUserId(auth);
@@ -36,6 +36,7 @@ public class DeleteCategoryUseCase implements DeleteCategoryPort {
         Category category = new Category(response.getId());
         category.setUser(new User(userId));
         repositoryPort.delete(category);
-        cachePort.clear(userId, "categoryCacheKey");
+
+        cachePort.clear("categoryCacheKey", userId);
     }
 }

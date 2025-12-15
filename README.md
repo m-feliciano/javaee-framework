@@ -22,6 +22,8 @@ Focused on performance, security, and a clear structure for modern backend appli
 - JUnit 5 + Mockito
 - PostgreSQL, OkHttp
 - Maven 3.6+
+- AWS SDK v2
+- Docker & Kubernetes
 
 ### Migrations over time
 - Java -> 11 -> 17 -> 21
@@ -52,28 +54,18 @@ Click [here](PREVIEW.md) to see more.
 
 ## Getting Started
 
-First, load the default environment variables and customize the `.env` file as needed:
-
-```bash
-cp .env.example .env
-```
-
 ### Quickstart (Docker)
 
 Pull the demo `docker-compose` file and start the services:
 
 ```shell
 curl -O https://raw.githubusercontent.com/m-feliciano/javaee-framework/refs/heads/master/docker-compose.demo.yml
-docker compose -f docker-compose.demo.yml up -d 
 ```
 
-Note: You may provide your own `.env` file to override default settings if you want to use functionality like email
-sending.
-
-Run with Docker Compose:
+Run the demo application with Docker Compose:
 
 ```shell
-docker-compose -f docker-compose.demo.yml up -d
+docker compose -f docker-compose.demo.yml up -d
 ```
 
 ## To Set Up Services Manually
@@ -86,6 +78,9 @@ Build the application using Maven:
 ```bash
 mvn clean package -Pdev # or -Pprod for production, depending on your environment
 ```
+
+You may provide your own `.env` file to override default settings if you want to use functionality like email
+sending.
 
 ## Endpoints
 The application exposes some endpoints. Here are examples:

@@ -12,8 +12,6 @@ public interface InventoryRepositoryPort {
 
     void delete(Inventory inventory);
 
-    List<Inventory> saveAll(List<Inventory> inventories);
-
     boolean has(Inventory inventory);
 
     Optional<Inventory> findById(String id);

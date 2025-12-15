@@ -9,11 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Builder
 @AllArgsConstructor
-public class ApplicationException extends RuntimeException {
+public class AppException extends RuntimeException {
     private final int code;
     private final String message;
 
-    public ApplicationException(String message) {
+    public AppException(String message) {
         this(500, message);
         log.error(message);
     }

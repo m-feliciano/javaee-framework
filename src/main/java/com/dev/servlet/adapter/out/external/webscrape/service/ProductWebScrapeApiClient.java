@@ -4,8 +4,8 @@ import com.dev.servlet.adapter.out.external.webscrape.WebScrapeRequest;
 import com.dev.servlet.adapter.out.external.webscrape.api.ScrapeApiClient;
 import com.dev.servlet.adapter.out.external.webscrape.transfer.ProductWebScrapeDTO;
 import com.dev.servlet.adapter.out.external.webscrape.transfer.WebScrapingResponse;
-import com.dev.servlet.application.exception.ApplicationException;
-import com.dev.servlet.infrastructure.utils.VirtualFileUtils;
+import com.dev.servlet.application.exception.AppException;
+import com.dev.servlet.infrastructure.utils.FileUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Request;
@@ -23,7 +23,7 @@ public class ProductWebScrapeApiClient extends ScrapeApiClient<List<ProductWebSc
     @Override
     public Optional<List<ProductWebScrapeDTO>> scrape(WebScrapeRequest request) throws Exception {
         try {
-            final Path tempFile = VirtualFileUtils.readResourceFile("/mock/product/webscrape.json");
+            final Path tempFile = FileUtil.readResourceFile("/mock/product/webscrape.json");
             String content = Files.readString(tempFile);
             List<ProductWebScrapeDTO> response = objectMapper.readValue(content, new TypeReference<>() {
             });
@@ -38,13 +38,13 @@ public class ProductWebScrapeApiClient extends ScrapeApiClient<List<ProductWebSc
 
         } catch (Exception e) {
             log.error("Error scraping products: {}", e.getMessage(), e);
-            throw new ApplicationException("Error scraping products. See logs for details.");
+            throw new AppException("Error scraping products. See logs for details.");
         }
     }
 
-    private List<WebScrapingResponse<ProductWebScrapeDTO>> fetchProductsFromScrapingApi(WebScrapeRequest scrapeRequest) throws ApplicationException {
+    private List<WebScrapingResponse<ProductWebScrapeDTO>> fetchProductsFromScrapingApi(WebScrapeRequest scrapeRequest) throws AppException {
         if (scrapeRequest == null || scrapeRequest.url() == null) {
-            throw new ApplicationException("Scrape request or URL cannot be null.");
+            throw new AppException("Scrape request or URL cannot be null.");
         }
         List<WebScrapingResponse<ProductWebScrapeDTO>> responses = new ArrayList<>();
         WebScrapingResponse<ProductWebScrapeDTO> scrapingResponse;
@@ -58,7 +58,7 @@ public class ProductWebScrapeApiClient extends ScrapeApiClient<List<ProductWebSc
             try (Response response = client.newCall(request).execute()) {
                 if (!response.isSuccessful() || response.body() == null) {
                     log.error("Error retrieving page {}: {}", page, response.message());
-                    throw new ApplicationException(response.message());
+                    throw new AppException(response.message());
                 }
 
                 String responseBody = response.body().string();
@@ -70,7 +70,7 @@ public class ProductWebScrapeApiClient extends ScrapeApiClient<List<ProductWebSc
                 pageTotal = scrapingResponse.getPageTotal();
 
             } catch (Exception e) {
-                throw new ApplicationException("Error fetching page " + page + ": " + e.getMessage());
+                throw new AppException("Error fetching page " + page + ": " + e.getMessage());
             }
             page++;
 

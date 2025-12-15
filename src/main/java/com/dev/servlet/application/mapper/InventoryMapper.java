@@ -18,7 +18,7 @@ public interface InventoryMapper {
                 inventory.getProduct().getId(),
                 inventory.getProduct().getName(),
                                 inventory.getProduct().getPrice(),
-                                inventory.getProduct().getUrl()
+                                inventory.getProduct().getThumbUrl()
                 )
             )""";
 

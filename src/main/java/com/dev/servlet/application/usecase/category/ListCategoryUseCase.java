@@ -20,6 +20,8 @@ import java.util.List;
 @Slf4j
 @ApplicationScoped
 public class ListCategoryUseCase implements ListCategoryPort {
+    private static final String CACHE_NAMESPACE = "categoryCacheKey";
+
     @Inject
     private CategoryMapper categoryMapper;
     @Inject
@@ -47,12 +49,12 @@ public class ListCategoryUseCase implements ListCategoryPort {
     private Collection<CategoryResponse> findAll(User user) {
         final String userId = user.getId();
 
-        List<CategoryResponse> response = cachePort.get(userId, "categoryCacheKey");
+        List<CategoryResponse> response = cachePort.get(CACHE_NAMESPACE, userId);
         if (CollectionUtils.isEmpty(response)) {
             var categories = categoryRepositoryPort.findAll(new Category(user));
             if (!CollectionUtils.isEmpty(categories)) {
                 response = categories.stream().map(categoryMapper::toResponse).toList();
-                cachePort.set(userId, "categoryCacheKey", response);
+                cachePort.set(CACHE_NAMESPACE, userId, response);
             }
         }
 

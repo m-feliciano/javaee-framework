@@ -26,9 +26,13 @@ public class ControllerIntrospectionService {
     private CachePort cachePort;
 
     public List<ControllerInfo> listControllers() {
+        String namespace = "controllers_info";
+        String cacheKey = "system";
+
         try {
-            List<ControllerInfo> controllers = cachePort.get("system", "controllers_info");
+            List<ControllerInfo> controllers = cachePort.get(namespace, cacheKey);
             if (controllers != null) return controllers;
+
             List<Class<?>> classes = ClassUtil.scanPackage(CONTROLLERS_PACKAGE, Controller.class);
             controllers = classes.stream()
                     .map(clz -> {
@@ -38,9 +42,10 @@ public class ControllerIntrospectionService {
                     })
                     .parallel()
                     .toList();
-            cachePort.set("system", "controllers_info", controllers);
-            // calls it again to ensure caching works
-            return listControllers();
+
+            cachePort.set(namespace, cacheKey, controllers);
+
+            return listControllers();  // calls it again to ensure caching works
         } catch (Exception e) {
             throw new RuntimeException("Failed to inspect controllers", e);
         }

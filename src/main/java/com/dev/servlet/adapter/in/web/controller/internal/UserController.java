@@ -9,9 +9,11 @@ import com.dev.servlet.application.port.in.user.ConfirmEmailPort;
 import com.dev.servlet.application.port.in.user.DeleteUserPort;
 import com.dev.servlet.application.port.in.user.RegisterUserPort;
 import com.dev.servlet.application.port.in.user.ResendConfirmationPort;
+import com.dev.servlet.application.port.in.user.UpdateProfilePicturePort;
 import com.dev.servlet.application.port.in.user.UpdateUserPort;
 import com.dev.servlet.application.port.in.user.UserDetailsPort;
 import com.dev.servlet.application.transfer.request.ConfirmEmailRequest;
+import com.dev.servlet.application.transfer.request.FileUploadRequest;
 import com.dev.servlet.application.transfer.request.ResendConfirmationRequest;
 import com.dev.servlet.application.transfer.request.UserCreateRequest;
 import com.dev.servlet.application.transfer.request.UserRequest;
@@ -41,6 +43,8 @@ public class UserController extends BaseController implements UserControllerApi 
     private ResendConfirmationPort resendConfirmationUseCase;
     @Inject
     private UserDetailsPort userDetailsUseCase;
+    @Inject
+    private UpdateProfilePicturePort updateProfilePicturePort;
 
 
     @SneakyThrows
@@ -60,7 +64,7 @@ public class UserController extends BaseController implements UserControllerApi 
     @SneakyThrows
     @Override
     public IHttpResponse<UserResponse> findById(UserRequest user, String auth) {
-        UserResponse response = userDetailsUseCase.get(user.id(), auth);
+        UserResponse response = userDetailsUseCase.getDetail(user.id(), auth);
         return okHttpResponse(response, forwardTo("formListUser"));
     }
 
@@ -92,5 +96,12 @@ public class UserController extends BaseController implements UserControllerApi 
         ResendConfirmationRequest req = new ResendConfirmationRequest(user.getId());
         resendConfirmationUseCase.resend(req);
         return HttpResponse.<Void>next(FORM_LOGIN_FORM).build();
+    }
+
+    @SneakyThrows
+    @Override
+    public IHttpResponse<Void> updateProfilePicture(FileUploadRequest request, String auth) {
+        updateProfilePicturePort.updatePicture(request, auth);
+        return newHttpResponse(204, redirectTo(request.id()));
     }
 }

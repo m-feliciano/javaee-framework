@@ -1,6 +1,6 @@
 package com.dev.servlet.application.usecase.product;
 
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.mapper.ProductMapper;
 import com.dev.servlet.application.port.in.product.UpdateProductPort;
 import com.dev.servlet.application.port.out.product.ProductRepositoryPort;
@@ -24,17 +24,21 @@ public class UpdateProductUseCase implements UpdateProductPort {
     private AuthenticationPort authenticationPort;
 
     @Override
-    public ProductResponse update(ProductRequest request, String auth) throws ApplicationException {
+    public ProductResponse update(ProductRequest request, String auth) throws AppException {
         log.debug("UpdateProductUseCase: attempting to update product {}", request.id());
 
         Product product = productMapper.toProduct(request, authenticationPort.extractUserId(auth));
-        product = productRepositoryPort.find(product).orElseThrow(() -> new ApplicationException("Product not found"));
+        product = productRepositoryPort.find(product).orElseThrow(() -> new AppException("Product not found"));
         product.setName(request.name());
         product.setDescription(request.description());
         product.setPrice(request.price());
-        product.setUrl(request.url());
-        product.setCategory(Category.builder().id(request.category().id()).build());
+
+        product.setCategory(
+                Category.builder()
+                        .id(request.category().id())
+                        .build()
+        );
         productRepositoryPort.update(product);
-        return productMapper.toResponse(product);
+        return new ProductResponse(product.getId());
     }
 }

@@ -3,29 +3,43 @@ package com.dev.servlet.application.usecase.product;
 import com.dev.servlet.adapter.out.external.webscrape.WebScrapeServiceRegistry;
 import com.dev.servlet.adapter.out.external.webscrape.builder.WebScrapeBuilder;
 import com.dev.servlet.adapter.out.external.webscrape.transfer.ProductWebScrapeDTO;
+import com.dev.servlet.adapter.out.storage.ImageService;
 import com.dev.servlet.application.mapper.ProductMapper;
 import com.dev.servlet.application.port.in.product.ScrapeProductPort;
 import com.dev.servlet.application.port.out.alert.AlertPort;
 import com.dev.servlet.application.port.out.product.ProductRepositoryPort;
 import com.dev.servlet.application.port.out.security.AuthenticationPort;
+import com.dev.servlet.application.port.out.storage.StorageService;
 import com.dev.servlet.application.transfer.response.ProductResponse;
 import com.dev.servlet.domain.entity.Product;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
 import com.dev.servlet.infrastructure.config.Properties;
+import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.RequestContextController;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @Slf4j
 @ApplicationScoped
 public class ScrapeProductUseCase implements ScrapeProductPort {
+    private final ExecutorService executor = Executors.newFixedThreadPool(4);
+
     @Inject
     private ProductRepositoryPort repositoryPort;
     @Inject
@@ -38,6 +52,10 @@ public class ScrapeProductUseCase implements ScrapeProductPort {
     private RequestContextController requestContextController;
     @Inject
     private ProductMapper productMapper;
+    @Inject
+    private StorageService storageService;
+    @Inject
+    private ImageService imageService;
 
     @Override
     public CompletableFuture<List<ProductResponse>> scrapeAsync(String url, String auth) {
@@ -92,21 +110,23 @@ public class ScrapeProductUseCase implements ScrapeProductPort {
         }
 
         List<ProductWebScrapeDTO> response = optional.get();
-        log.debug("Scraped {} products from {}", response.size(), url);
+        log.info("Scraped {} products from {}", response.size(), url);
 
         List<Product> products = response.stream()
                 .map(dto -> {
-                    Product p = productMapper.scrapeToProduct(dto);
-                    p.setStatus(Status.ACTIVE.getValue());
-                    p.setUrl(p.getUrl());
-                    p.setRegisterDate(LocalDate.now());
-                    p.setUser(user);
-                    return p;
+                    Product prod = productMapper.scrapeToProduct(dto);
+                    prod.setStatus(Status.ACTIVE.getValue());
+                    prod.setRegisterDate(LocalDate.now());
+                    prod.setOwner(user);
+                    return prod;
                 })
                 .toList();
 
+        log.debug("Uploading {} product images to storage", products.size());
+        uploadImageToStorage(products, user);
+
         products = repositoryPort.saveAll(products);
-        log.debug("Scraped saved {} products to the database", products.size());
+        log.info("Scraped saved {} products to the database", products.size());
 
         List<ProductResponse> responseList = products.stream()
                 .map(p -> productMapper.toResponse(p))
@@ -115,5 +135,45 @@ public class ScrapeProductUseCase implements ScrapeProductPort {
         String message = String.format("Successfully scraped %d products.", responseList.size());
         alertPort.publish(user.getId(), "success", message);
         return responseList;
+    }
+
+    @PreDestroy
+    public void onDestroy() {
+        executor.shutdown();
+    }
+
+    private void uploadImageToStorage(List<Product> products, User user) {
+        List<Future<Void>> tasks = new ArrayList<>();
+
+        for (Product prod : products) {
+            if (prod.getThumbUrl() == null) continue;
+
+            Future<Void> future = executor.submit(() -> {
+                prod.setThumbUrl(uploadImage(prod.getThumbUrl(), user));
+                return null;
+            });
+
+            tasks.add(future);
+        }
+
+        for (Future<Void> future : tasks) {
+            try {
+                future.get();
+            } catch (Exception e) {
+                log.error("Error occurred while uploading product image", e);
+            }
+        }
+    }
+
+    private String uploadImage(String sourceUrl, User user) throws IOException {
+        log.info("Processing image for product from URL: {}", sourceUrl);
+        InputStream pic = imageService.writePicture(imageService.getJpgImageFromUrl(sourceUrl), 800);
+
+        final String path = "private/users/" + user.getId() + "/products/" + UUID.randomUUID() + ".jpg";
+        log.info("Generating image URL for product image at path: {}", path);
+
+        URI uploadUrl = storageService.generateUploadUri(path, "image/jpeg", Duration.ofMinutes(1));
+        imageService.uploadImageToUrl(uploadUrl, pic, "image/jpeg");
+        return path;
     }
 }

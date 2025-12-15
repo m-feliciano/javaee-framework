@@ -3,20 +3,21 @@ package com.dev.servlet.adapter.in.web.validator.internal;
 import com.dev.servlet.adapter.in.web.annotation.RequestMapping;
 import com.dev.servlet.adapter.in.web.dto.Request;
 import com.dev.servlet.adapter.in.web.validator.ValidationHandler;
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.shared.util.CloneUtil;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 
 import java.util.stream.Collectors;
 
+import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+
 public class ConstraintValidationHandler implements ValidationHandler {
     private static final ValidatorFactory factory = jakarta.validation.Validation.buildDefaultValidatorFactory();
     private static final Validator validator = factory.getValidator();
 
-    public void validate(RequestMapping mapping, Request request) throws ApplicationException {
+    public void validate(RequestMapping mapping, Request request) throws AppException {
         if (mapping.jsonType() == Void.class || request.getPayload() == null) {
             return;
         }
@@ -30,6 +31,6 @@ public class ConstraintValidationHandler implements ValidationHandler {
                 .collect(Collectors.joining("; "))
                 .trim();
 
-        throw new ApplicationException(HttpServletResponse.SC_BAD_REQUEST, errors);
+        throw new AppException(SC_BAD_REQUEST, errors);
     }
 }

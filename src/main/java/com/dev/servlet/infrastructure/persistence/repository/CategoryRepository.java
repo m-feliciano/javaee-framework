@@ -1,6 +1,6 @@
 package com.dev.servlet.infrastructure.persistence.repository;
 
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.out.category.CategoryRepositoryPort;
 import com.dev.servlet.domain.entity.Category;
 import com.dev.servlet.domain.entity.enums.Status;
@@ -63,7 +63,7 @@ public class CategoryRepository extends BaseRepository<Category, String> impleme
     }
 
     @Override
-    public List<Category> saveAll(List<Category> categories) throws ApplicationException {
+    public List<Category> saveAll(List<Category> categories) throws AppException {
         AtomicReference<String> errors = new AtomicReference<>();
         Session session = em.unwrap(Session.class);
         session.getTransaction().begin();
@@ -91,7 +91,7 @@ public class CategoryRepository extends BaseRepository<Category, String> impleme
             }
         });
         if (errors.get() != null) {
-            throw new ApplicationException(errors.get());
+            throw new AppException(errors.get());
         }
         try {
             session.getTransaction().commit();

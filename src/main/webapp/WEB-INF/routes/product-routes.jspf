@@ -11,3 +11,4 @@
 <c:url value="/${productLink}/list" var="listProduct"/>
 <c:url value="/${productLink}/search" var="searchProduct"/>
 <c:url value="/${productLink}/scrape" var="scrapeProduct"/>
+<c:url value="/${productLink}/upload-picture" var="uploadPicture"/>

@@ -18,11 +18,15 @@ public final class ProductResponse {
     private String id;
     private String name;
     private String description;
-    private String url;
+    private String thumbUrl;
     private String status;
     private LocalDate registerDate;
     private BigDecimal price;
     private CategoryResponse category;
+
+    public ProductResponse(String id) {
+        this.id = id;
+    }
 
     public ProductResponse(String id, String name, BigDecimal price) {
         this.id = id;
@@ -30,9 +34,9 @@ public final class ProductResponse {
         this.price = price;
     }
 
-    public ProductResponse(String id, String name, BigDecimal price, String url) {
+    public ProductResponse(String id, String name, BigDecimal price, String thumbUrl) {
         this(id, name, price);
-        this.url = url;
+        this.thumbUrl = thumbUrl;
     }
 
     @JsonIgnore

@@ -1,6 +1,6 @@
 package com.dev.servlet.application.usecase.category;
 
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.mapper.CategoryMapper;
 import com.dev.servlet.application.port.in.category.GetCategoryDetailPort;
 import com.dev.servlet.application.port.out.category.CategoryRepositoryPort;
@@ -25,7 +25,7 @@ public class GetCategoryDetailUseCase implements GetCategoryDetailPort {
     private AuthenticationPort authenticationPort;
 
     @Override
-    public CategoryResponse get(CategoryRequest request, String auth) throws ApplicationException {
+    public CategoryResponse get(CategoryRequest request, String auth) throws AppException {
         log.debug("GetCategoryDetailUseCase called with request: {} and auth: {}", request, auth);
 
         String userId = authenticationPort.extractUserId(auth);
@@ -33,13 +33,13 @@ public class GetCategoryDetailUseCase implements GetCategoryDetailPort {
         return categoryMapper.toResponse(category);
     }
 
-    private Category loadCategory(String categoryId, String userId) throws ApplicationException {
+    private Category loadCategory(String categoryId, String userId) throws AppException {
         Category category = Category.builder()
                 .id(categoryId)
                 .user(new User(userId))
                 .status(Status.ACTIVE.getValue())
                 .build();
         return categoryRepositoryPort.find(category)
-                .orElseThrow(() -> new ApplicationException("Category not found"));
+                .orElseThrow(() -> new AppException("Category not found"));
     }
 }

@@ -66,8 +66,7 @@ public abstract class BaseRepository<T, ID> implements BaseRepositoryPort<T, ID>
         Predicate predicate = buildDefaultPredicateFor(filter, cb, root);
         query.where(predicate).select(root);
         TypedQuery<T> typedQuery = em.createQuery(query);
-        List<T> result = typedQuery.setMaxResults(1).getResultList();
-        return result.isEmpty() ? Optional.empty() : Optional.of(result.getFirst());
+        return typedQuery.getResultStream().findFirst();
     }
 
     public T save(T object) {
@@ -107,9 +106,18 @@ public abstract class BaseRepository<T, ID> implements BaseRepositoryPort<T, ID>
         }
     }
 
+    /**
+     * Commits the current transaction and clears the EntityManager to detach all managed entities.
+     * In case of an exception during commit, it rolls back the transaction.
+     * Note: Do not attempt to use the EntityManager after this method is called, as it will be cleared.
+     *
+     * @throws RuntimeException if the commit fails
+     */
     protected void commitTransaction() {
         try {
-            em.getTransaction().commit();
+            em.flush(); // Flush changes to the database
+            em.getTransaction().commit(); // Commit the transaction
+            em.clear(); // Detach all managed entities
         } catch (Exception e) {
             log.error("Error committing transaction: {}", e.getMessage());
             rollbackTransaction();

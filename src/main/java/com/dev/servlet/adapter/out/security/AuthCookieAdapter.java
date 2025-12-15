@@ -1,6 +1,7 @@
 package com.dev.servlet.adapter.out.security;
 
 import com.dev.servlet.application.port.out.audit.AuditPort;
+import com.dev.servlet.application.port.out.cache.CachePort;
 import com.dev.servlet.application.port.out.security.AuthCookiePort;
 import com.dev.servlet.infrastructure.config.Properties;
 import com.dev.servlet.shared.vo.AuditPayload;
@@ -13,15 +14,17 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.security.SecureRandom;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import static com.dev.servlet.infrastructure.utils.CloudFrontCrypto.generateCloudFrontSignedCookies;
 import static com.dev.servlet.shared.enums.ConstantUtils.ACCESS_TOKEN_COOKIE;
 import static com.dev.servlet.shared.enums.ConstantUtils.CSRF_TOKEN_COOKIE;
 import static com.dev.servlet.shared.enums.ConstantUtils.CSRF_TOKEN_HEADER;
@@ -34,25 +37,32 @@ public class AuthCookieAdapter implements AuthCookiePort {
     private static final int ACCESS_TOKEN_MAX_AGE = Math.toIntExact(TimeUnit.DAYS.toSeconds(1));
     private static final int REFRESH_TOKEN_MAX_AGE = Math.toIntExact(TimeUnit.DAYS.toSeconds(30));
     private static final int CSRF_TOKEN_MAX_AGE = Math.toIntExact(TimeUnit.DAYS.toSeconds(1));
+
     private final SecureRandom secureRandom = new SecureRandom();
+    private boolean isSecure;
+    private String cookiePath;
+    private String domain;
+    private String sameSite;
+
     @Setter
     @Inject
     private AuditPort auditPort;
-    private boolean isSecure;
-    private String cookiePath;
-    private String cookieDomain;
-    private String sameSite;
+    @Inject
+    private CachePort cachePort;
 
     @PostConstruct
     public void init() {
-        this.cookieDomain = Properties.getEnvOrDefault("DOMAIN", null);
+        this.domain = Properties.get("app.domain");
+
         this.isSecure = Properties.getOrDefault("security.cookie.secure", true);
         this.cookiePath = Properties.getOrDefault("security.cookie.path", "/");
         this.sameSite = Properties.getOrDefault("security.cookie.samesite", "Lax");
+
         log.info("[AuthCookieService] initialized [secure={}, path={}, domain={}, sameSite={}]",
-                isSecure, cookiePath, cookieDomain, sameSite);
+                isSecure, cookiePath, domain, sameSite);
+
         if (!isSecure && "production".equalsIgnoreCase(Properties.get("app.env"))) {
-            log.warn("SECURITY WARNING: Cookie Secure flag is disabled in production environment!");
+            log.warn("[SEVERE] SECURITY WARNING: Cookie Secure flag is disabled in production environment!");
         }
     }
 
@@ -72,12 +82,6 @@ public class AuthCookieAdapter implements AuthCookiePort {
     public String getCookieFromList(List<String> cookiesList, String cookieName) {
         Cookie[] cookies = getCookies(cookiesList);
         return this.getCookieFromArray(cookies, cookieName);
-    }
-
-    @Override
-    public void setAccessTokenCookie(HttpServletResponse response, String token) {
-        setAuthCookies(response, token, null);
-        log.debug("Access token cookie set [maxAge={}s]", ACCESS_TOKEN_MAX_AGE);
     }
 
     @Override
@@ -114,23 +118,23 @@ public class AuthCookieAdapter implements AuthCookiePort {
         cookie.setSecure(isSecure);
         cookie.setPath(cookiePath);
         cookie.setMaxAge(maxAge);
-        if (StringUtils.isNotBlank(cookieDomain)) {
-            cookie.setDomain(cookieDomain);
-        }
+
+        if (StringUtils.isNotBlank(domain)) cookie.setDomain(domain);
+
         response.addCookie(cookie);
-        String cookieHeader = buildSecureCookieHeader(name, value, maxAge);
+        String cookieHeader = buildSecureCookieHeader(name, value, maxAge, cookiePath, sameSite);
         response.addHeader("Set-Cookie", cookieHeader);
         CookieAuditInfo auditInfo = new CookieAuditInfo(name, maxAge);
         auditPort.success("auth_cookie:set_cookie", null, new AuditPayload<>(auditInfo, cookieHeader));
     }
 
-    private String buildSecureCookieHeader(String name, String value, int maxAge) {
+    private String buildSecureCookieHeader(String name, String value, int maxAge, String path, String sameSite) {
         StringBuilder header = new StringBuilder();
         header.append(name).append("=").append(value);
-        header.append("; Path=").append(cookiePath);
+        header.append("; Path=").append(path);
         header.append("; Max-Age=").append(maxAge);
         header.append("; HttpOnly");
-        return buildHeader(header);
+        return buildHeader(header, domain, sameSite);
     }
 
     @Override
@@ -155,11 +159,13 @@ public class AuthCookieAdapter implements AuthCookiePort {
         if (StringUtils.isBlank(requestToken)) {
             requestToken = request.getParameter(CSRF_TOKEN_HEADER);
         }
+
         if (StringUtils.isBlank(cookieToken) || StringUtils.isBlank(requestToken)) {
             log.warn("Missing CSRF token [cookie={}, request={}]", cookieToken != null, requestToken != null);
             auditPort.failure("csrf:token_missing", null, null);
             return false;
         }
+
         boolean valid = cookieToken.equals(requestToken);
         if (!valid) {
             log.warn("CSRF token mismatch");
@@ -169,6 +175,40 @@ public class AuthCookieAdapter implements AuthCookiePort {
         }
         return valid;
     }
+
+    @Override
+    public void addCdnCookies(HttpServletResponse httpResponse) {
+        if (Properties.isDevelopmentMode() || Properties.isDemoModeEnabled()) {
+            log.debug("Development mode detected, skipping CDN cookies generation");
+            return;
+        }
+
+        try {
+            String namespace = "cdn:cookies";
+            String cdnCookiesKey = "cdn_cookies_key";
+
+            Map<String, String> cookies = cachePort.get(namespace, cdnCookiesKey);
+            if (cookies == null || cookies.isEmpty()) {
+                log.debug("No cached CDN cookies found, generating new ones");
+
+                cookies = generateCloudFrontSignedCookies();
+
+                Duration ttl = Duration.ofMinutes(15).minus(Duration.ofSeconds(30));
+                cachePort.set(namespace, cdnCookiesKey, cookies, ttl);
+            } else {
+                log.debug("Using cached CDN cookies");
+            }
+
+            int maxAge = -1;
+            String path = "/";
+            cookies.forEach((name, value)
+                    -> httpResponse.addHeader("Set-Cookie", buildSecureCookieHeader(name, value, maxAge, path, sameSite)));
+
+        } catch (Exception e) {
+            log.error("Error generating CloudFront signed cookies", e);
+        }
+    }
+
 
     private String generateCsrfToken() {
         byte[] bytes = new byte[32];
@@ -182,12 +222,13 @@ public class AuthCookieAdapter implements AuthCookiePort {
         cookie.setSecure(isSecure);
         cookie.setPath(cookiePath);
         cookie.setMaxAge(CSRF_TOKEN_MAX_AGE);
-        if (StringUtils.isNotBlank(cookieDomain)) {
-            cookie.setDomain(cookieDomain);
-        }
+
+        if (StringUtils.isNotBlank(domain)) cookie.setDomain(domain);
+
         response.addCookie(cookie);
         String cookieHeader = buildCsrfCookieHeader(token);
         response.addHeader("Set-Cookie", cookieHeader);
+
         CookieAuditInfo auditInfo = new CookieAuditInfo(CSRF_TOKEN_COOKIE, CSRF_TOKEN_MAX_AGE);
         auditPort.success("csrf:cookie_set", null, new AuditPayload<>(auditInfo, cookieHeader));
     }
@@ -197,20 +238,16 @@ public class AuthCookieAdapter implements AuthCookiePort {
         header.append(CSRF_TOKEN_COOKIE).append("=").append(token);
         header.append("; Path=").append(cookiePath);
         header.append("; Max-Age=").append(CSRF_TOKEN_MAX_AGE);
-        return buildHeader(header);
+        return buildHeader(header, domain, sameSite);
     }
 
-    @NotNull
-    private String buildHeader(StringBuilder header) {
-        if (isSecure) {
-            header.append("; Secure");
-        }
-        if (StringUtils.isNotBlank(cookieDomain)) {
-            header.append("; Domain=").append(cookieDomain);
-        }
-        if (StringUtils.isNotBlank(sameSite)) {
-            header.append("; SameSite=").append(sameSite);
-        }
+    private String buildHeader(StringBuilder header, String domain, String sameSite) {
+        if (isSecure) header.append("; Secure");
+
+        if (StringUtils.isNotBlank(domain)) header.append("; Domain=").append(domain);
+
+        if (StringUtils.isNotBlank(sameSite)) header.append("; SameSite=").append(sameSite);
+
         return header.toString();
     }
 

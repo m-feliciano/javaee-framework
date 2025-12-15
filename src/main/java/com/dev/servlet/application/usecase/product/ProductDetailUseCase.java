@@ -1,6 +1,6 @@
 package com.dev.servlet.application.usecase.product;
 
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.mapper.ProductMapper;
 import com.dev.servlet.application.port.in.product.ProductDetailPort;
 import com.dev.servlet.application.port.out.product.ProductRepositoryPort;
@@ -24,12 +24,12 @@ public class ProductDetailUseCase implements ProductDetailPort {
     private AuthenticationPort authenticationPort;
 
     @Override
-    public ProductResponse get(ProductRequest request, String auth) throws ApplicationException {
+    public ProductResponse get(ProductRequest request, String auth) throws AppException {
         log.debug("GetProductDetailUseCase: attempting to get product detail for product {}", request.id());
 
         Product product = productMapper.toProduct(request, authenticationPort.extractUserId(auth));
         product.setStatus(Status.ACTIVE.getValue());
-        product = repositoryPort.find(product).orElseThrow(() -> new ApplicationException("Product not found"));
+        product = repositoryPort.find(product).orElseThrow(() -> new AppException("Product not found"));
         return productMapper.toResponse(product);
     }
 }

@@ -1,6 +1,6 @@
 package com.dev.servlet.application.usecase.user;
 
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.mapper.UserMapper;
 import com.dev.servlet.application.port.in.user.GenerateConfirmationTokenPort;
 import com.dev.servlet.application.port.in.user.RegisterUserPort;
@@ -16,18 +16,18 @@ import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.RoleType;
 import com.dev.servlet.domain.entity.enums.Status;
 import com.dev.servlet.infrastructure.config.Properties;
+import com.dev.servlet.infrastructure.utils.PasswordHasher;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
-import static com.dev.servlet.infrastructure.utils.ThrowableUtils.serviceError;
 import static com.dev.servlet.shared.enums.ConstantUtils.DEMO_USER_LOGIN;
+import static jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 
 @Slf4j
 @ApplicationScoped
@@ -54,7 +54,7 @@ public class RegisterUserUseCase implements RegisterUserPort {
         baseUrl = Properties.getEnvOrDefault("APP_BASE_URL", "http://localhost:8080");
     }
 
-    public UserResponse register(UserCreateRequest userReq) throws ApplicationException {
+    public UserResponse register(UserCreateRequest userReq) throws AppException {
         log.debug("RegisterUserUseCase: registering user with login {}", userReq.login());
 
         if (Properties.isDemoModeEnabled()) {
@@ -65,9 +65,7 @@ public class RegisterUserUseCase implements RegisterUserPort {
         }
 
         boolean passwordError = userReq.password() == null || !userReq.password().equals(userReq.confirmPassword());
-        if (passwordError) {
-            throw serviceError(HttpServletResponse.SC_FORBIDDEN, "Passwords do not match.");
-        }
+        if (passwordError) throw new AppException(SC_FORBIDDEN, "Passwords do not match.");
 
         User user = User.builder()
                 .credentials(Credentials.builder()
@@ -77,13 +75,13 @@ public class RegisterUserUseCase implements RegisterUserPort {
         User userExists = repositoryPort.find(user).orElse(null);
         if (userExists != null) {
             log.warn("User already exists: {}", userExists.getCredentials().getLogin());
-            throw serviceError(HttpServletResponse.SC_FORBIDDEN, "Cannot register this user.");
+            throw new AppException(SC_FORBIDDEN, "Cannot register this user.");
         }
 
         User newUser = User.builder()
                 .credentials(Credentials.builder()
                         .login(userReq.login().toLowerCase())
-                        .password(userReq.password())
+                        .password(PasswordHasher.hash(userReq.password()))
                         .build())
                 .status(Status.PENDING.getValue())
                 .perfis(List.of(RoleType.DEFAULT.getCode()))
@@ -96,9 +94,10 @@ public class RegisterUserUseCase implements RegisterUserPort {
         String url = this.baseUrl + "/api/v1/user/confirm?token=" + token;
         messagePort.sendConfirmation(newUser.getCredentials().getLogin(), url);
 
-        UserResponse response = userMapper.toResponse(newUser);
+        UserResponse response = new UserResponse(newUser.getId());
         response.setCreated(true);
-        cachePort.setObject(newUser.getId(), "userCacheKey", response);
+
+        cachePort.clear("userCacheKey", newUser.getId());
         return response;
     }
 }

@@ -52,11 +52,13 @@
                                 <td class="text-center w-20">
                                     <a href="<c:url value='${baseLink}${version}${ listProduct }/${ product.id }'/>" target="_blank">
                                         <c:choose>
-                                            <c:when test="${not empty product.url and product.url ne ''}">
-                                                <img class="img-thumbnail img-square-min"
-                                                     src="<c:out value='${product.url}' escapeXml='true'/>"
+                                            <c:when test="${not empty product.thumbUrl and product.thumbUrl ne ''}">
+                                                <img src="${cdn}/${product.thumbUrl}"
+                                                     class="img-thumbnail img-square-min"
                                                      alt="<c:out value='Product ${product.name}' escapeXml='true'/>"
+                                                     fetchpriority="high"
                                                      loading="lazy"
+                                                     decoding="async"
                                                      onerror="this.src='<c:url value='/resources/assets/no_image_available.png'/>'">
                                             </c:when>
                                             <c:otherwise>

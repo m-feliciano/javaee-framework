@@ -2,11 +2,16 @@ apiVersion: v1
 kind: Service
 metadata:
   name: servlets-app
+  labels:
+    app: servlets-app
 spec:
-  type: NodePort
-  ports:
-    - port: 8080
-      targetPort: 8080
-      nodePort: 30798
+  type: ClusterIP
   selector:
     app: servlets-app
+
+  # You may use Port Forward to access the service locally
+  ports:
+    - name: http
+      port: 80          # porta do Service (estável, padrão web)
+      targetPort: 8080  # porta do container
+      protocol: TCP

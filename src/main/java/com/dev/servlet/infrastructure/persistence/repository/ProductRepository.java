@@ -1,6 +1,6 @@
 package com.dev.servlet.infrastructure.persistence.repository;
 
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.out.product.ProductRepositoryPort;
 import com.dev.servlet.domain.entity.Category;
 import com.dev.servlet.domain.entity.Product;
@@ -38,8 +38,8 @@ public class ProductRepository extends BaseRepository<Product, String> implement
     private Predicate buildDefaultFilter(Product product, CriteriaBuilder criteriaBuilder, Root<Product> root) {
         Predicate predicate = criteriaBuilder.notEqual(root.get(STATUS), Status.DELETED.getValue());
 
-        if (product.getUser() != null) {
-            predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get(USER).get("id"), product.getUser().getId()));
+        if (product.getOwner() != null) {
+            predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("owner").get("id"), product.getOwner().getId()));
         }
 
         if (product.getId() != null) {
@@ -103,7 +103,7 @@ public class ProductRepository extends BaseRepository<Product, String> implement
             cu.set(STATUS, Status.DELETED.getValue());
 
             Predicate predicate = builder.equal(root.get(ID), product.getId());
-            predicate = builder.and(predicate, builder.equal(root.get(USER).get(ID), product.getUser().getId()));
+            predicate = builder.and(predicate, builder.equal(root.get("owner").get(ID), product.getOwner().getId()));
             cu.where(predicate);
 
             Query query = em.createQuery(cu);
@@ -113,7 +113,7 @@ public class ProductRepository extends BaseRepository<Product, String> implement
     }
 
     @Override
-    public List<Product> saveAll(List<Product> products) throws ApplicationException {
+    public List<Product> saveAll(List<Product> products) throws AppException {
         AtomicReference<String> errors = new AtomicReference<>();
         Session session = em.unwrap(Session.class);
         session.getTransaction().begin();
@@ -126,10 +126,10 @@ public class ProductRepository extends BaseRepository<Product, String> implement
                     ps.setString(1, UUID.randomUUID().toString());
                     ps.setString(2, product.getName());
                     ps.setString(3, product.getDescription());
-                    ps.setString(4, product.getUrl());
+                    ps.setString(4, product.getThumbUrl());
                     ps.setDate(5, java.sql.Date.valueOf(product.getRegisterDate()));
                     ps.setBigDecimal(6, product.getPrice());
-                    ps.setString(7, product.getUser().getId());
+                    ps.setString(7, product.getOwner().getId());
                     ps.setString(8, Status.ACTIVE.getValue());
                     if (product.getCategory() != null) {
                         ps.setString(9, product.getCategory().getId());
@@ -152,7 +152,7 @@ public class ProductRepository extends BaseRepository<Product, String> implement
         });
 
         if (errors.get() != null) {
-            throw new ApplicationException(errors.get());
+            throw new AppException(errors.get());
         }
 
         try {

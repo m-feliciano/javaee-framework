@@ -1,6 +1,6 @@
 package com.dev.servlet.adapter.out.user;
 
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.out.user.GetUserPort;
 import com.dev.servlet.application.port.out.user.UserRepositoryPort;
 import com.dev.servlet.application.transfer.request.UserRequest;
@@ -18,7 +18,7 @@ public class GetUserAdapter implements GetUserPort {
     private UserRepositoryPort repositoryPort;
 
 
-    public Optional<User> get(UserRequest request) throws ApplicationException {
+    public Optional<User> get(UserRequest request) throws AppException {
         log.debug("GetUserUseCase: getting user details with id {}", request.login());
         return repositoryPort.find(new User(request.login(), request.password()));
     }

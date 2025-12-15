@@ -1,6 +1,6 @@
 package com.dev.servlet.application.usecase.user;
 
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.mapper.UserMapper;
 import com.dev.servlet.application.port.in.user.UserDetailsPort;
 import com.dev.servlet.application.port.out.cache.CachePort;
@@ -9,15 +9,16 @@ import com.dev.servlet.application.port.out.user.UserRepositoryPort;
 import com.dev.servlet.application.transfer.response.UserResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.dev.servlet.infrastructure.utils.ThrowableUtils.serviceError;
+import static jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN;
+import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 @Slf4j
 @ApplicationScoped
 public class UserDetailsUseCase implements UserDetailsPort {
-    private static final String CACHE_KEY = "userCacheKey";
+    private static final String CACHE_NAMESPACE = "userCacheKey";
+
     @Inject
     private UserRepositoryPort repositoryPort;
     @Inject
@@ -27,20 +28,22 @@ public class UserDetailsUseCase implements UserDetailsPort {
     @Inject
     private CachePort cachePort;
 
-    public UserResponse get(String userId, String auth) throws ApplicationException {
+    public UserResponse getDetail(String userId, String auth) throws AppException {
         log.debug("UserDetailsUseCase: getting user details with id {}", userId);
 
         if (!userId.trim().equals(authenticationPort.extractUserId(auth))) {
-            throw serviceError(HttpServletResponse.SC_FORBIDDEN, "User not authorized.");
+            throw new AppException(SC_FORBIDDEN, "User not authorized.");
         }
 
-        UserResponse response = cachePort.getObject(userId, CACHE_KEY);
-        if (response != null) return response;
+        UserResponse response = cachePort.get(CACHE_NAMESPACE, userId);
+        if (response == null) {
+            response = repositoryPort.findById(userId)
+                    .map(userMapper::toResponse)
+                    .orElseThrow(() -> new AppException(SC_NOT_FOUND, "User not found."));
 
-        repositoryPort.findById(userId)
-                .ifPresent(u -> cachePort.setObject(userId, CACHE_KEY, userMapper.toResponse(u)));
+            cachePort.set(CACHE_NAMESPACE, userId, response);
+        }
 
-        response = cachePort.getObject(userId, CACHE_KEY);
         return response;
     }
 }

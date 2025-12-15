@@ -8,7 +8,7 @@ import com.dev.servlet.adapter.in.web.validator.internal.AuthValidationHandler;
 import com.dev.servlet.adapter.in.web.validator.internal.ConstraintValidationHandler;
 import com.dev.servlet.adapter.in.web.validator.internal.MethodValidationHandler;
 import com.dev.servlet.adapter.in.web.validator.internal.RoleValidationHandler;
-import com.dev.servlet.application.exception.ApplicationException;
+import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.out.security.AuthenticationPort;
 
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ public final class RequestValidator {
         handlers.add(new ConstraintValidationHandler());
     }
 
-    public void validate(RequestMapping mapping, Request request) throws ApplicationException {
+    public void validate(RequestMapping mapping, Request request) throws AppException {
         for (ValidationHandler handler : handlers) {
             handler.validate(mapping, request);
         }

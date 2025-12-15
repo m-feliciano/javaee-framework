@@ -6,6 +6,7 @@ import com.dev.servlet.adapter.in.web.annotation.Property;
 import com.dev.servlet.adapter.in.web.annotation.RequestMapping;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.adapter.in.web.dto.IServletResponse;
+import com.dev.servlet.application.transfer.request.FileUploadRequest;
 import com.dev.servlet.application.transfer.request.ProductRequest;
 import com.dev.servlet.application.transfer.response.CategoryResponse;
 import com.dev.servlet.application.transfer.response.ProductResponse;
@@ -18,6 +19,7 @@ import static com.dev.servlet.domain.entity.enums.RequestMethod.POST;
 
 @Controller("product")
 public interface ProductControllerApi {
+
     @RequestMapping(value = "/create", method = POST, jsonType = ProductRequest.class)
     IHttpResponse<Void> register(ProductRequest request, @Authorization String auth);
 
@@ -45,4 +47,10 @@ public interface ProductControllerApi {
     @RequestMapping(value = "/scrape", method = POST)
     IHttpResponse<Void> scrape(@Authorization String auth,
                                @Property("scrape_product_url") String url);
+
+    @RequestMapping(value = "/upload-picture/{id}",
+            apiVersion = "v2",
+            method = POST,
+            jsonType = FileUploadRequest.class)
+    IHttpResponse<Void> upload(FileUploadRequest request, @Authorization String auth);
 }

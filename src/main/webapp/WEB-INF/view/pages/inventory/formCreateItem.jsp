@@ -46,9 +46,12 @@
         </form>
     </div>
     <div style="padding: inherit">
-        <c:if test="${ not empty product and not empty product.url }">
-            <img src="<c:out value='${product.url}' escapeXml='true'/>" alt="Product Image"
-                 style="max-width: 300px; max-height: 300px;"/>
+        <c:if test="${ not empty product and not empty product.thumbUrl }">
+            <img src="${cdn}/${product.thumbUrl}"
+                 class="img-fluid"
+                 loading="lazy"
+                 style="max-width: 300px; max-height: 300px;"
+                 alt="Product Image"/>
         </c:if>
     </div>
     </div>

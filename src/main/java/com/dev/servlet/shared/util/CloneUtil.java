@@ -18,7 +18,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 
 @Slf4j
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
@@ -74,7 +73,7 @@ public final class CloneUtil {
     @SuppressWarnings("unchecked")
     public static Object summarizeResponseBody(Object object) {
         if (object instanceof IPageable<?> pageable) {
-            return pageableSummary().apply(pageable);
+            return pageableSummary(pageable);
         }
 
         if (object instanceof Set<?> container && !container.isEmpty()) {
@@ -88,7 +87,8 @@ public final class CloneUtil {
                 if (element instanceof KeyPair(String key, Object value)) {
                     if (value instanceof IPageable<?> pg) {
                         responseSet.remove(element);
-                        responseSet.add(new KeyPair(key, pageableSummary().apply(pg)));
+                        Object summary = pageableSummary(pg);
+                        responseSet.add(new KeyPair(key, summary));
 
                     } else if (value instanceof Collection<?> coll) {
                         responseSet.remove(element);
@@ -108,8 +108,8 @@ public final class CloneUtil {
     }
 
     @NotNull
-    private static Function<IPageable<?>, Object> pageableSummary() {
-        return (IPageable<?> pageable) -> Map.of(
+    private static Object pageableSummary(IPageable<?> pageable) {
+        return Map.of(
                 "total_elements", pageable.getTotalElements(),
                 "current_page", pageable.getCurrentPage(),
                 "page_size", pageable.getPageSize()

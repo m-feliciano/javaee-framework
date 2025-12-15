@@ -59,8 +59,10 @@
     </div>
 
     <div style="padding: inherit; width: 50%; display: flex; align-items: flex-start; justify-content: center;">
-        <c:if test="${ not empty inventory and not empty inventory.product and not empty inventory.product.url }">
-            <img src="<c:out value='${inventory.product.url}' escapeXml='true'/>" alt="Product Image"
+        <c:if test="${ not empty inventory and not empty inventory.product and not empty inventory.product.thumbUrl }">
+            <img src="${cdn}/${inventory.product.thumbUrl}"
+                 alt="Product Image"
+                 loading="lazy"
                  style="max-width: 400px;"/>
         </c:if>
     </div>
