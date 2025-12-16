@@ -12,91 +12,97 @@
 
 <div class="content">
     <div class="main">
-        <div class="row" style="gap: 20px;">
-            <div class="col-md-12">
-                <form action="${baseLink}${version}${ updateProduct }/${product.id}" method="post" class="csrf-form">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <label for="inputId" class="form-label">ID</label>
-                                        <input type="text" name="id" class="form-control text-right" id="inputId"
-                                               value="${ product.id }" readonly/>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="inputRegisterDate" class="form-label">REGISTER</label>
-                                        <input type="text" name="register" class="form-control text-right"
-                                               id="inputRegisterDate"
-                                               value="${ product.registerDateFormatted }" required readonly/>
-                                    </div>
+        <div class="container-narrow">
+            <h2 class="mb-4">Update Product</h2>
+
+            <div class="grid-container grid-gap-lg" style="grid-template-columns: 1fr;">
+                <!-- Product Form -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Product Information</h3>
+                    </div>
+                    <div class="card-body">
+                        <form action="${baseLink}${version}${ updateProduct }/${product.id}" method="post" class="csrf-form grid-form-wide">
+                            <div class="grid-container grid-2-cols grid-gap-md">
+                                <div class="form-group">
+                                    <label for="inputId" class="form-label">ID</label>
+                                    <input type="text" name="id" class="form-control" id="inputId"
+                                           value="${ product.id }" readonly/>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputRegisterDate" class="form-label">REGISTER DATE</label>
+                                    <input type="text" name="register" class="form-control"
+                                           id="inputRegisterDate"
+                                           value="${ product.registerDateFormatted }" required readonly/>
                                 </div>
                             </div>
-                            <div class="mb-3">
+
+                            <div class="form-group">
                                 <label for="inputName" class="form-label">NAME</label>
                                 <input type="text" name="name" class="form-control" id="inputName"
                                        placeholder="Product name" value="${ product.name }" autocomplete="name" required
                                        minlength="4"/>
                             </div>
-                            <div class="mb-3">
+
+                            <div class="form-group">
                                 <label for="inputDescription" class="form-label">DESCRIPTION</label>
                                 <textarea name="description" class="form-control" id="inputDescription"
-                                          placeholder="Simple Description" rows="6" cols="auto"
+                                          placeholder="Product description" rows="6"
                                           required>${product.description}</textarea>
                             </div>
-                            <div class="mb-3">
-                                <div class="row justify-content-end">
-                                    <div class="col-md-6">
-                                        <label for="inputCategory" class="form-label">CATEGORY</label>
-                                        <select name="category.id" class="form-control text-center" id="inputCategory"
-                                                required>
-                                            <option value="${null}" selected>${"< SELECT >"}</option>
-                                            <c:forEach items="${ categories }" var="category">
-                                                <c:choose>
-                                                    <c:when test="${ category.id == product.category.id }">
-                                                        <option value="${ category.id }"
-                                                                selected>${ category.name }</option>
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <option value="${ category.id }">${ category.name }</option>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                            </c:forEach>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="inputPrice" class="form-label">PRICE</label>
-                                        <input name="price" class="form-control" id="inputPrice"
-                                               placeholder="1000,00" value="${ product.price }" min="0" max="10000"
-                                               step="any"
-                                               pattern="^\s*(?:[1-9]\d{0,2}(?:\,\d{3})*|0)(?:.\d{1,2})?$"
-                                               title="Currency should only contain numbers and (comma/doc) e.g. 1000,00"
-                                               required/>
-                                    </div>
+
+                            <div class="grid-container grid-2-cols grid-gap-md">
+                                <div class="form-group">
+                                    <label for="inputCategory" class="form-label">CATEGORY</label>
+                                    <select name="category.id" class="form-control" id="inputCategory" required>
+                                        <option value="${null}">${"< SELECT >"}</option>
+                                        <c:forEach items="${ categories }" var="category">
+                                            <c:choose>
+                                                <c:when test="${ category.id == product.category.id }">
+                                                    <option value="${ category.id }" selected>${ category.name }</option>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <option value="${ category.id }">${ category.name }</option>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </c:forEach>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputPrice" class="form-label">PRICE</label>
+                                    <input name="price" class="form-control" id="inputPrice"
+                                           placeholder="R$ 1000.00" value="${ product.price }" min="0" max="10000"
+                                           step="any"
+                                           pattern="^\s*(?:[1-9]\d{0,2}(?:\,\d{3})*|0)(?:.\d{1,2})?$"
+                                           title="Currency should only contain numbers and (comma/doc) e.g. 1000,00"
+                                           required/>
                                 </div>
                             </div>
-                            <div class="row flex-row-reverse mb20" style="margin-right: 0;">
-                                <jsp:include page="/WEB-INF/view/components/buttons/saveButton.jsp"/>
-                                <span class="mr-2"></span>
+
+                            <div class="grid-container grid-2-cols grid-gap-md">
                                 <jsp:include page="/WEB-INF/view/components/buttons/backButton.jsp"/>
+                                <jsp:include page="/WEB-INF/view/components/buttons/saveButton.jsp"/>
                             </div>
-                        </div>
+                        </form>
                     </div>
-                </form>
-            </div>
-            <div class="col-md-12">
-                <form enctype="multipart/form-data" method="post"
-                      action="${baseLink}/v2${uploadPicture}/${product.id}" class="csrf-upload-form">
-                    <label for="inputImage" class="form-label">IMAGES</label>
-                    <div class="row">
-                        <div class="col-md-18">
-                            <input type="file" name="file" class="form-control" id="inputImage" accept="image/*"/>
-                        </div>
-                        <div class="col-md-6">
+                </div>
+
+                <!-- Upload Image Form -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Product Image</h3>
+                    </div>
+                    <div class="card-body">
+                        <form enctype="multipart/form-data" method="post"
+                              action="${baseLink}/v2${uploadPicture}/${product.id}" class="csrf-upload-form grid-form">
+                            <div class="form-group">
+                                <label for="inputImage" class="form-label">Upload New Image</label>
+                                <input type="file" name="file" class="form-control" id="inputImage" accept="image/*"/>
+                            </div>
                             <jsp:include page="/WEB-INF/view/components/buttons/uploadButton.jsp"/>
-                        </div>
+                        </form>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>

@@ -1,6 +1,7 @@
 <%@ page import="com.dev.servlet.adapter.in.web.dto.IHttpResponse" %>
 <%@ page import="java.util.List" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="tag" tagdir="/WEB-INF/tags" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 <%@ include file="/WEB-INF/routes/history-routes.jspf" %>
@@ -12,81 +13,6 @@
 %>
 
 <title>Activity Timeline</title>
-
-<style>
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-
-    .page-header h2 {
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .view-switcher {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .view-switcher .btn {
-        padding: 0.5rem 1rem;
-        text-decoration: none;
-        border-radius: 6px;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.2s;
-    }
-
-    .view-switcher .btn-active {
-        background: var(--primary-color);
-        color: white;
-    }
-
-    .view-switcher .btn-inactive {
-        background: transparent;
-        color: var(--text-muted);
-        border: 1px solid var(--border-color);
-    }
-
-    .view-switcher .btn-inactive:hover {
-        background: var(--secondary-color);
-        color: white;
-    }
-
-    @media (max-width: 768px) {
-        .page-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .view-switcher {
-            width: 100%;
-        }
-
-        .view-switcher .btn {
-            flex: 1;
-            justify-content: center;
-        }
-    }
-
-    @media (prefers-color-scheme: dark) {
-        .view-switcher .btn-inactive {
-            border-color: var(--border-color-dark);
-        }
-
-        .view-switcher .btn-inactive:hover {
-            background: #6c757d;
-        }
-    }
-</style>
 
 <div class="content">
     <div class="main">
@@ -148,11 +74,7 @@
     </div>
 </div>
 
-<script>
-    setInterval(function() {
-        location.reload();
-    }, 30000);
-</script>
+<c:set var="activityTimelineJsUrl"><tag:assetPath name="activity-timeline.js"/></c:set>
+<script src="${activityTimelineJsUrl}" defer></script>
 
 <jsp:include page="/WEB-INF/view/components/footer.jsp"/>
-

@@ -1,0 +1,72 @@
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.page-header h2 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.view-switcher {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.view-switcher .btn {
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.view-switcher .btn-active {
+    background: var(--primary-color);
+    color: white;
+}
+
+.view-switcher .btn-inactive {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+}
+
+.view-switcher .btn-inactive:hover {
+    background: var(--secondary-color);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .view-switcher {
+        width: 100%;
+    }
+
+    .view-switcher .btn {
+        flex: 1;
+        justify-content: center;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .view-switcher .btn-inactive {
+        border-color: var(--border-color-dark);
+    }
+
+    .view-switcher .btn-inactive:hover {
+        background: #6c757d;
+    }
+}

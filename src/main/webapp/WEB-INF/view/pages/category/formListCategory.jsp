@@ -8,35 +8,38 @@
 
 <div class="content">
     <div class="main">
-        <div class="col-md-6">
-            <div class="mb-3">
-                <label for="inputId" class="form-label">ID</label>
-                <input type="text" name="id" class="form-control col-md-6" id="inputId"
-                       value="${ category.id }" readonly="readonly"/>
+        <div class="container-narrow">
+            <div class="action-bar">
+                <div class="action-bar-title">
+                    <h2>Category Details</h2>
+                    <p class="action-bar-subtitle">View category information</p>
+                </div>
+                <div class="action-buttons">
+                    <a href="${baseLink}${version}${listCategory}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Back
+                    </a>
+                    <a href="${baseLink}${version}${editCategory}/${category.id}" class="btn btn-success">
+                        <i class="bi bi-pencil-square"></i> Edit
+                    </a>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="inputName" class="form-label">NAME</label>
-                <input type="text" name="name" class="form-control" id="inputName"
-                       placeholder="name" value="${ category.name }" autocomplete="name" required minlength="4"
-                       readonly="readonly"/>
-            </div>
 
-            <div class="align-end">
-                <jsp:include page="/WEB-INF/view/components/buttons/customButton.jsp">
-                    <jsp:param name="btnLabel" value="Back"/>
-                    <jsp:param name="btnType" value="button"/>
-                    <jsp:param name="btnClass" value="btn btn-light"/>
-                    <jsp:param name="btnIcon" value="bi bi-arrow-left"/>
-                    <jsp:param name="btnOnclick"
-                               value="onclick='window.location.href=`${baseLink}${version}${listCategory}`'"/>
-                    <jsp:param name="btnId" value="id='backButton'"/>
-                </jsp:include>
+            <div class="card">
+                <div class="card-body">
+                    <div class="grid-form">
+                        <div class="form-group">
+                            <label for="inputId" class="form-label">ID</label>
+                            <input type="text" name="id" class="form-control" id="inputId"
+                                   value="${ category.id }" readonly/>
+                        </div>
 
-                <span class="mr-2"></span>
-
-                <a type="button" href="${baseLink}${version}${editCategory}/${category.id}" class="btn btn-success">
-                    Edit <i class="bi bi-pencil-square"></i>
-                </a>
+                        <div class="form-group">
+                            <label for="inputName" class="form-label">NAME</label>
+                            <input type="text" name="name" class="form-control" id="inputName"
+                                   value="${ category.name }" readonly/>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

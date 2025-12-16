@@ -83,4 +83,3 @@ const CsrfUtil = (function() {
 })();
 
 window.CsrfUtil = CsrfUtil;
-

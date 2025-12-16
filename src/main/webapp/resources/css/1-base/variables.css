@@ -84,6 +84,18 @@
     --spacing-16: 4rem;
     --spacing-20: 5rem;
     --spacing-24: 6rem;
+
+    --grid-columns: 12;
+    --grid-gap-xs: var(--spacing-1);
+    --grid-gap-sm: var(--spacing-2);
+    --grid-gap-md: var(--spacing-4);
+    --grid-gap-lg: var(--spacing-6);
+    --grid-gap-xl: var(--spacing-8);
+    --grid-max-width: var(--container-max-width);
+    --grid-breakpoint-sm: 576px;
+    --grid-breakpoint-md: 768px;
+    --grid-breakpoint-lg: 992px;
+    --grid-breakpoint-xl: 1200px;
     --border-radius-sm: 0.25rem;
     --border-radius-md: 0.375rem;
     --border-radius-lg: 0.5rem;
@@ -187,4 +199,3 @@
         --code-color: #c9d1d9;
     }
 }
-
