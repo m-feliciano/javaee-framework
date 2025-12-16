@@ -1,0 +1,36 @@
+.date-range-filter {
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.date-input-group .form-label {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.date-input-group .form-label i {
+    margin-right: 0.25rem;
+}
+
+.btn-filter {
+    padding: 0.5rem 1.25rem;
+    font-weight: 500;
+}
+
+@media (prefers-color-scheme: dark) {
+    .date-range-filter {
+        background: var(--card-background-dark);
+        border-color: var(--border-color-dark);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .date-input::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+    }
+}

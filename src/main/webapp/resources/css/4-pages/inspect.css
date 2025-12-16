@@ -154,7 +154,6 @@
     border-radius: 999px;
     font-size: .75rem;
     font-weight: 700;
-    color: unset;
 }
 
 .bg-info {
@@ -200,68 +199,6 @@
     border-radius: 4px;
 }
 
-.raw-json {
-    background: var(--raw-bg);
-    color: var(--raw-color);
-    padding: 18px 18px 18px 56px;
-    border-radius: 10px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
-    white-space: pre-wrap;
-    word-break: break-word;
-    overflow-wrap: anywhere;
-    overflow: auto;
-    max-height: 74vh;
-    border: 1px solid var(--raw-border);
-    box-shadow: var(--raw-box-shadow);
-    counter-reset: line;
-    position: relative;
-}
-
-.raw-json .line {
-    display: block;
-    position: relative;
-    padding-left: 0;
-}
-
-.raw-json .line:before {
-    content: counter(line);
-    counter-increment: line;
-    position: absolute;
-    left: -48px;
-    width: 40px;
-    text-align: right;
-    color: var(--raw-line-number-color);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
-    font-size: 12px;
-    line-height: 1.5;
-}
-
-.raw-json .json-key {
-    color: var(--raw-key-color);
-}
-
-.raw-json .json-string {
-    color: var(--raw-string-color);
-}
-
-.raw-json .json-number {
-    color: var(--raw-number-color);
-}
-
-.raw-json .json-boolean {
-    color: var(--raw-boolean-color);
-}
-
-.raw-json .json-null {
-    color: var(--raw-null-color);
-    font-style: italic;
-}
-
-pre.raw-json, pre.raw-json code {
-    background: transparent;
-    color: inherit;
-}
-
 .toast {
     position: fixed;
     right: 24px;
@@ -292,7 +229,7 @@ pre.raw-json, pre.raw-json code {
 
 .btn-primary {
     background: linear-gradient(90deg, var(--accent), var(--accent-2));
-    color: #071018;
+    color: var(--white);
     border: none
 }
 

@@ -8,42 +8,46 @@
 
 <div class="content">
     <div class="main">
-    <form action="${baseLink}${version}${updateItem}/${inventory.id}" method="post" class="csrf-form">
-        <div class="col-md-6">
-            <div class="mb-3">
-                <label for="inputItemId" class="form-label">ID</label>
-                <input type="text" name="id" class="form-control" id="inputItemId"
-                       placeholder="ID" value="${ inventory.id }" disabled required minlength="1"/>
-            </div>
-            <div class="mb-3">
-                <label for="inputProductId" class="form-label">PRODUCT ID</label>
-                <input type="text" name="product.id" class="form-control" id="inputProductId"
-                       disabled placeholder="ID" value="${inventory.getProduct().getId() }" required minlength="1"/>
-            </div>
-            <div class="mb-3">
-                <label for="inputQuantity" class="form-label">QUANTITY</label>
-                <input type="number" name="quantity" class="form-control" id="inputQuantity"
-                       placeholder="quantity" value="${ inventory.quantity }" required minlength="1"/>
-            </div>
-            <div class="mb-3">
-                <label for="inputDescription" class="form-label">DESCRIPTION</label>
-                <textarea name="description" class="form-control" id="inputDescription"
-                          placeholder="descripton" rows="6">${inventory.description}</textarea>
-            </div>
+        <div class="container-narrow">
+            <h2 class="mb-4">Update Inventory Item</h2>
 
-            <c:if test="${not empty error}">
-                <div class="alert alert-danger hidden-alert" role="alert">
-                    <c:out value="${error}"/>
+            <form action="${baseLink}${version}${updateItem}/${inventory.id}" method="post" class="csrf-form grid-form">
+                <div class="form-group">
+                    <label for="inputItemId" class="form-label">ID</label>
+                    <input type="text" name="id" class="form-control" id="inputItemId"
+                           placeholder="ID" value="${ inventory.id }" disabled/>
                 </div>
-            </c:if>
 
-            <div class="align-end">
-                <jsp:include page="/WEB-INF/view/components/buttons/backButton.jsp"/>
-                <span class="mr-2"></span>
-                <jsp:include page="/WEB-INF/view/components/buttons/saveButton.jsp"/>
-            </div>
+                <div class="form-group">
+                    <label for="inputProductId" class="form-label">PRODUCT ID</label>
+                    <input type="text" name="product.id" class="form-control" id="inputProductId"
+                           disabled placeholder="Product ID" value="${inventory.getProduct().getId() }"/>
+                </div>
+
+                <div class="form-group">
+                    <label for="inputQuantity" class="form-label required">QUANTITY</label>
+                    <input type="number" name="quantity" class="form-control" id="inputQuantity"
+                           placeholder="Quantity" value="${ inventory.quantity }" required min="1"/>
+                </div>
+
+                <div class="form-group">
+                    <label for="inputDescription" class="form-label">DESCRIPTION</label>
+                    <textarea name="description" class="form-control" id="inputDescription"
+                              placeholder="Item description" rows="6">${inventory.description}</textarea>
+                </div>
+
+                <c:if test="${not empty error}">
+                    <div class="alert alert-danger" role="alert">
+                        <c:out value="${error}"/>
+                    </div>
+                </c:if>
+
+                <div class="grid-container grid-2-cols grid-gap-md">
+                    <jsp:include page="/WEB-INF/view/components/buttons/backButton.jsp"/>
+                    <jsp:include page="/WEB-INF/view/components/buttons/saveButton.jsp"/>
+                </div>
+            </form>
         </div>
-    </form>
     </div>
 </div>
 

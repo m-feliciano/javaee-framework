@@ -1,0 +1,136 @@
+.search-container {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: var(--spacing-6);
+    margin-bottom: var(--spacing-6);
+    border: 1px solid var(--border-color);
+}
+
+.search-form {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--spacing-4);
+    align-items: end;
+}
+
+.search-filters {
+    display: grid;
+    grid-template-columns: 2fr auto auto auto;
+    gap: var(--spacing-4);
+    align-items: end;
+}
+
+.search-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+}
+
+.search-field.search-query {
+    min-width: 250px;
+}
+
+.search-input-wrapper {
+    position: relative;
+}
+
+.search-input-wrapper input {
+    width: 100%;
+    padding-left: calc(var(--spacing-4) * 2.5);
+}
+
+.search-input-wrapper .search-icon {
+    position: absolute;
+    left: var(--spacing-4);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray-500);
+    font-size: 1.125rem;
+    pointer-events: none;
+    transition: color var(--transition-fast);
+}
+
+.search-input-wrapper input:focus ~ .search-icon {
+    color: var(--primary-600);
+}
+
+.search-field select {
+    cursor: pointer;
+}
+
+.search-actions {
+    display: flex;
+    gap: var(--spacing-2);
+    align-items: center;
+    white-space: nowrap;
+}
+
+.search-actions .btn {
+    min-width: 100px;
+}
+
+@media (max-width: 1200px) {
+    .search-filters {
+        grid-template-columns: 1fr auto auto;
+    }
+}
+
+@media (max-width: 992px) {
+    .search-form {
+        grid-template-columns: 1fr;
+    }
+
+    .search-filters {
+        grid-template-columns: 1fr;
+    }
+
+    .search-field.search-query {
+        min-width: 100%;
+    }
+
+    .search-actions {
+        width: 100%;
+    }
+
+    .search-actions .btn {
+        flex: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .search-container {
+        padding: var(--spacing-4);
+    }
+
+    .search-form {
+        gap: var(--spacing-3);
+    }
+
+    .search-filters {
+        gap: var(--spacing-3);
+    }
+
+    .search-actions {
+        flex-direction: column;
+    }
+
+    .search-actions .btn {
+        width: 100%;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .search-container {
+        background-color: var(--card-background-dark);
+        border-color: var(--border-color-dark);
+    }
+
+    .search-input-wrapper .search-icon {
+        color: var(--gray-400);
+    }
+
+    .search-input-wrapper input:focus ~ .search-icon {
+        color: var(--primary-400);
+    }
+}

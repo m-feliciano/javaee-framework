@@ -8,7 +8,6 @@ import com.dev.servlet.shared.vo.KeyPair;
 import com.dev.servlet.shared.vo.Query;
 import com.dev.servlet.shared.vo.Sort;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.Part;
 import lombok.NoArgsConstructor;
 import org.apache.commons.io.FileUtils;
 
@@ -168,7 +167,16 @@ public final class URIUtils {
 
     private static BinaryPayload buildMultPartPayload(HttpServletRequest req) {
         try {
-            final Part part = req.getPart("file");
+            if (req.getParts() == null) return null;
+
+            var part = req.getPart("file");
+
+            if (part == null
+                || part.getSize() == 0
+                || part.getSubmittedFileName() == null
+                || part.getInputStream() == null
+                || part.getInputStream().available() == 0) return null;
+
             File tmp = File.createTempFile("upload_" + UUID.randomUUID().toString().substring(8), ".tmp");
             FileUtils.copyInputStreamToFile(part.getInputStream(), tmp);
             return new BinaryPayload(tmp.getAbsolutePath(), tmp.length(), part.getContentType());
