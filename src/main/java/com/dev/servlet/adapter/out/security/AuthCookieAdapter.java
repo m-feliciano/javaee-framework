@@ -1,5 +1,6 @@
 package com.dev.servlet.adapter.out.security;
 
+import com.dev.servlet.adapter.in.web.frontcontroller.ResponseWriter;
 import com.dev.servlet.application.port.out.audit.AuditPort;
 import com.dev.servlet.application.port.out.cache.CachePort;
 import com.dev.servlet.application.port.out.security.AuthCookiePort;
@@ -49,6 +50,8 @@ public class AuthCookieAdapter implements AuthCookiePort {
     private AuditPort auditPort;
     @Inject
     private CachePort cachePort;
+    @Inject
+    private ResponseWriter responseWriter;
 
     @PostConstruct
     public void init() {
@@ -121,7 +124,6 @@ public class AuthCookieAdapter implements AuthCookiePort {
 
         if (StringUtils.isNotBlank(domain)) cookie.setDomain(domain);
 
-        response.addCookie(cookie);
         String cookieHeader = buildSecureCookieHeader(name, value, maxAge, cookiePath, sameSite);
         response.addHeader("Set-Cookie", cookieHeader);
         CookieAuditInfo auditInfo = new CookieAuditInfo(name, maxAge);

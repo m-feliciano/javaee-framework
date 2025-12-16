@@ -49,6 +49,9 @@ public class DeleteProductUseCase implements DeleteProductPort {
 
         String thumb = product.getThumbUrl();
         repositoryPort.delete(product);
-        storageService.deleteFile(thumb);
+
+        if (thumb != null && !thumb.isBlank()) {
+            storageService.deleteFile(thumb);
+        }
     }
 }

@@ -61,7 +61,7 @@ public class RegisterUserUseCase implements RegisterUserPort {
             log.debug("RegisterUserUseCase: demo mode is enabled, only {} user can be registered", DEMO_USER_LOGIN);
             UserDemoModePort instance = demoModePortInstance.get();
             User user = instance.validateCredentials(new LoginRequest(userReq.login(), userReq.password()));
-            return userMapper.toResponse(user);
+            return new UserResponse(user.getId());
         }
 
         boolean passwordError = userReq.password() == null || !userReq.password().equals(userReq.confirmPassword());

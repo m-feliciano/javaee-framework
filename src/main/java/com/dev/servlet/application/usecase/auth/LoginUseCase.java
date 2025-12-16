@@ -25,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
+import static jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
+
 @Slf4j
 @ApplicationScoped
 public class LoginUseCase implements LoginPort {
@@ -52,10 +54,10 @@ public class LoginUseCase implements LoginPort {
             }
 
             User user = userPort.get(new UserRequest(login, null))
-                    .orElseThrow(() -> new AppException("Invalid login or password"));
+                    .orElseThrow(() -> new AppException(SC_UNAUTHORIZED, "Invalid login or password"));
 
             boolean verified = PasswordHasher.verify(credentials.password(), user.getCredentials().getPassword());
-            if (!verified) throw new AppException("Invalid login or password");
+            if (!verified) throw new AppException(SC_UNAUTHORIZED,"Invalid login or password");
 
             if (Status.PENDING.equals(user.getStatus())) {
                 UserResponse userResponse = UserResponse.builder()
@@ -72,7 +74,7 @@ public class LoginUseCase implements LoginPort {
             log.warn("LoginUseCase: login failed for user {}: {}", login, e.getMessage());
 
             return HttpResponse.<UserResponse>newBuilder()
-                    .statusCode(HttpServletResponse.SC_UNAUTHORIZED)
+                    .statusCode(SC_UNAUTHORIZED)
                     .error("Invalid login or password")
                     .reasonText("Unauthorized")
                     .next("forward:pages/formLogin.jsp")
@@ -83,7 +85,7 @@ public class LoginUseCase implements LoginPort {
     private UserResponse authenticate(User user) throws AppException {
         log.debug("LoginUseCase: authenticating user {}", user.getId());
 
-        UserResponse response = userMapper.toResponse(user);
+        UserResponse response = new UserResponse(user.getId());
         String accessToken = authenticationPort.generateAccessToken(user);
         String refreshJwt = authenticationPort.generateRefreshToken(user);
         log.debug("LoginUseCase: generated access and refresh tokens for user {}", user.getId());

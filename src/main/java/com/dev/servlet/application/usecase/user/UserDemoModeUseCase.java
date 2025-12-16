@@ -40,15 +40,26 @@ public class UserDemoModeUseCase implements UserDemoModePort {
         }
 
         if (!DEMO_USER_LOGIN.equalsIgnoreCase(credentials.login()) ||
-            !PasswordHasher.hash(DEMO_USER_PASSWORD).equalsIgnoreCase(credentials.password())) {
+            !DEMO_USER_PASSWORD.equalsIgnoreCase(credentials.password())) {
             log.warn("Authentication attempt in demo mode with invalid credentials: {}", credentials.login());
             throw new AppException(SC_UNAUTHORIZED, "Invalid demo user credentials.");
         }
 
         User user;
-        var maybe = repositoryPort.find(new User(credentials.login(), credentials.password()));
+        var maybe = repositoryPort.find(new User(credentials.login()));
         if (maybe.isPresent()) {
             user = maybe.get();
+
+            if (!user.getStatus().equals(Status.ACTIVE.getValue())) {
+                log.warn("Demo user {} found but is not active", credentials.login());
+                throw new AppException(SC_UNAUTHORIZED, "Demo user is not active.");
+            }
+
+            if (!PasswordHasher.verify(credentials.password(), user.getCredentials().getPassword())) {
+                log.warn("Demo user {} found but password does not match", credentials.login());
+                throw new AppException(SC_UNAUTHORIZED, "Invalid demo user credentials.");
+            }
+
             log.debug("UserDemoModeUseCase: DEMO_MODE - demo user {} found with id {}", credentials.login(), user.getId());
         } else {
             log.debug("UserDemoModeUseCase: DEMO_MODE - demo user not found, registering new guest user {}", credentials.login());
@@ -56,7 +67,7 @@ public class UserDemoModeUseCase implements UserDemoModePort {
             User newUser = User.builder()
                     .credentials(Credentials.builder()
                             .login(credentials.login().toLowerCase())
-                            .password(credentials.password())
+                            .password(PasswordHasher.hash(credentials.password()))
                             .build())
                     .status(Status.ACTIVE.getValue())
                     .perfis(List.of(RoleType.DEFAULT.getCode()))
