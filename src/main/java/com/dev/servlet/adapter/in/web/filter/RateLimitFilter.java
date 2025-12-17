@@ -37,14 +37,19 @@ public class RateLimitFilter implements Filter {
             chain.doFilter(request, response);
             return;
         }
+
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
+
         String endpoint = httpRequest.getRequestURI();
         String identifier = getClientIp(httpRequest);
+
         if (!rateLimiter.tryConsume(identifier, 1)) {
             long secondsUntilRefill = rateLimiter.getSecondsUntilRefill(identifier);
             log.warn("Rate limit exceeded [endpoint={}, identifier={}, retryAfter={}s]", endpoint, identifier, secondsUntilRefill);
+
             Long capacityLimit = Properties.getOrDefault("rate_limit.capacity", 30L);
+
             httpResponse.setStatus(429);
             httpResponse.setContentType("application/json");
             httpResponse.setHeader("Retry-After", String.valueOf(secondsUntilRefill));
@@ -54,6 +59,7 @@ public class RateLimitFilter implements Filter {
                     .write("{\"error\":\"Rate limit exceeded\",\"retryAfter\":%d}".formatted(secondsUntilRefill));
             return;
         }
+
         long availableTokens = rateLimiter.getAvailableTokens(identifier);
         httpResponse.setHeader("X-RateLimit-Remaining", String.valueOf(Math.max(0, availableTokens)));
         chain.doFilter(request, response);
