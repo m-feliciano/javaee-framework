@@ -29,10 +29,12 @@ public class Bucket4jRateLimiter implements RateLimiter {
         this.capacity = Properties.getOrDefault("rate_limit.capacity", 30L);
         this.refillTokens = Properties.getOrDefault("rate_limit.refill.tokens", 30L);
         this.refillPeriodSeconds = Properties.getOrDefault("rate_limit.refill.period_seconds", 60L);
+
         Bandwidth limit = Bandwidth.builder()
                 .capacity(capacity)
                 .refillGreedy(refillTokens, Duration.ofSeconds(refillPeriodSeconds))
                 .build();
+
         this.bucketConfiguration = BucketConfiguration.builder()
                 .addLimit(limit)
                 .build();

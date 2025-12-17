@@ -9,7 +9,7 @@ ENV MVN_PROFILE=${MVN_PROFILE}
 COPY src ./src
 COPY frontend ./frontend
 
-RUN mvn clean package -P${MVN_PROFILE} -DskipTests
+RUN mvn clean package -P${MVN_PROFILE} -DskipTests=false
 
 FROM tomcat:10.1.50-jre21-temurin
 
