@@ -49,28 +49,24 @@ public class CategoryController extends BaseController implements CategoryContro
     }
 
     @SneakyThrows
-    @Cache(invalidate = "categories_cache")
     public IHttpResponse<Void> delete(CategoryRequest category, @Authorization String auth) {
         deletePort.delete(category, auth);
         return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
     }
 
     @SneakyThrows
-    @Cache(invalidate = "categories_cache")
     public IHttpResponse<Void> register(CategoryRequest category, @Authorization String auth) {
         CategoryResponse response = registerPort.register(category, auth);
         return newHttpResponse(201, redirectTo(response.getId()));
     }
 
     @SneakyThrows
-    @Cache(invalidate = "categories_cache")
     public IHttpResponse<Void> update(CategoryRequest category, @Authorization String auth) {
         CategoryResponse response = updatePort.update(category, auth);
         return newHttpResponse(204, redirectTo(response.getId()));
     }
 
     @SneakyThrows
-    @Cache(value = "categories_cache", duration = 1, timeUnit = TimeUnit.HOURS)
     public IHttpResponse<Collection<CategoryResponse>> list(CategoryRequest category, @Authorization String auth) {
         Collection<CategoryResponse> response = listPort.list(category, auth);
         return okHttpResponse(response, forwardTo("listCategories"));

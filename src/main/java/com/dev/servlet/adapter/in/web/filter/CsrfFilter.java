@@ -27,7 +27,8 @@ public class CsrfFilter implements Filter {
             "/health/live",
             "/health/up",
             "/user/confirm",
-            "/alert/clear"
+            "/alert/clear",
+            "/auth/login"
     );
 
     @Inject
@@ -48,7 +49,7 @@ public class CsrfFilter implements Filter {
 
         String requestURI = request.getRequestURI();
         String method = request.getMethod();
-        if (RequestMethod.GET.getMethod().equals(method) || RequestMethod.OPTIONS.getMethod().equals(method)) {
+        if (RequestMethod.GET.getMethod().equals(method)) {
             AuthCookiePort.ensureCsrfToken(request, response);
             chain.doFilter(request, response);
             return;
