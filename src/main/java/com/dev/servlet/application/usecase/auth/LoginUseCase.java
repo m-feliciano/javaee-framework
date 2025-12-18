@@ -3,7 +3,6 @@ package com.dev.servlet.application.usecase.auth;
 import com.dev.servlet.adapter.in.web.dto.HttpResponse;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.application.exception.AppException;
-import com.dev.servlet.application.mapper.UserMapper;
 import com.dev.servlet.application.port.in.auth.LoginPort;
 import com.dev.servlet.application.port.in.user.UserDemoModePort;
 import com.dev.servlet.application.port.out.refreshtoken.RefreshTokenRepositoryPort;
@@ -19,7 +18,6 @@ import com.dev.servlet.infrastructure.config.Properties;
 import com.dev.servlet.infrastructure.utils.PasswordHasher;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
@@ -30,8 +28,6 @@ import static jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 @Slf4j
 @ApplicationScoped
 public class LoginUseCase implements LoginPort {
-    @Inject
-    private UserMapper userMapper;
     @Inject
     private GetUserPort userPort;
     @Inject

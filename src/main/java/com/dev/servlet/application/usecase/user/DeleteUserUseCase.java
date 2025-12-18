@@ -2,7 +2,6 @@ package com.dev.servlet.application.usecase.user;
 
 import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.in.user.DeleteUserPort;
-import com.dev.servlet.application.port.out.cache.CachePort;
 import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.application.port.out.user.UserRepositoryPort;
 import com.dev.servlet.domain.entity.User;
@@ -20,8 +19,6 @@ public class DeleteUserUseCase implements DeleteUserPort {
     private UserRepositoryPort repositoryPort;
     @Inject
     private AuthenticationPort authPort;
-    @Inject
-    private CachePort cachePort;
 
     public void delete(String userId, String auth) throws AppException {
         log.debug("DeleteUserUseCase: deleting user with id {}", userId);
@@ -33,7 +30,5 @@ public class DeleteUserUseCase implements DeleteUserPort {
         User user = repositoryPort.findById(userId)
                 .orElseThrow(() -> new AppException(SC_NOT_FOUND, "User not found."));
         repositoryPort.delete(user);
-
-        cachePort.clearAll(user.getId());
     }
 }

@@ -7,6 +7,10 @@ import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.adapter.in.web.dto.Request;
 import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.out.audit.AuditPort;
+import com.dev.servlet.application.port.out.security.AuthCookiePort;
+import com.dev.servlet.application.transfer.response.UserResponse;
+import com.dev.servlet.domain.entity.enums.RequestMethod;
+import com.dev.servlet.infrastructure.utils.URIUtils;
 import com.dev.servlet.shared.util.CloneUtil;
 import com.dev.servlet.shared.vo.AuditPayload;
 import jakarta.inject.Inject;
@@ -16,6 +20,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,7 +34,6 @@ import static com.dev.servlet.infrastructure.utils.URIUtils.matchWildcard;
 )
 @Slf4j
 public class FrontControllerServlet extends HttpServlet {
-
     private static final List<String> noAuditEndpoints = List.of(
             "GET:/api/v1/inspect/*",
             "GET:/api/v1/health/*",
@@ -39,6 +43,8 @@ public class FrontControllerServlet extends HttpServlet {
 
     @Inject
     private AuditPort auditPort;
+    @Inject
+    private AuthCookiePort authCookiePort;
     @Inject
     private IServletDispatcher dispatcher;
     @Inject
@@ -54,15 +60,26 @@ public class FrontControllerServlet extends HttpServlet {
         Request request = null;
         try {
             request = RequestBuilder.newBuilder().servletRequest(req).complete().build();
-
             IHttpResponse<?> response = dispatcher.dispatch(request);
-
             resp.setStatus(response.statusCode());
 
             if (response.error() != null && response.reasonText() == null) {
                 log.warn("Unsuccessful response: {}", response.error());
                 throw new AppException(response.statusCode(), response.error());
             }
+
+            // todo: frontend responsibility to fetch user details? its cached though, so low impact
+            Request userRequest = Request.builder()
+                    .endpoint("/api/v1/user/me")
+                    .method(RequestMethod.GET)
+                    .token(request.getToken())
+                    .build();
+
+            IHttpResponse<?> userResponse = dispatcher.dispatch(userRequest);
+            req.setAttribute("user", userResponse.body());
+
+            handleCookies(resp, request, response);
+            handlerResponseData(req, resp, request, response);
 
             responseWriter.write(req, resp, request, response);
             logAuditEvent(request, response);
@@ -105,6 +122,46 @@ public class FrontControllerServlet extends HttpServlet {
             } else {
                 auditPort.failure(eventName, req.getToken(), new AuditPayload<>(req, res));
             }
+        }
+    }
+
+    private void handleRequestAttributes(HttpServletRequest req, IHttpResponse<?> response) {
+        req.setAttribute("response", response);
+
+        try {
+            var queries = URIUtils.filterQueryParameters(req.getQueryString());
+            if (queries != null) {
+                req.setAttribute("q", queries.get("q"));
+                req.setAttribute("k", queries.get("k"));
+            }
+        } catch (Exception ignored) {
+        }
+
+        for (var key : req.getParameterMap().keySet()) {
+            req.setAttribute(key, req.getParameter(key));
+        }
+    }
+
+    private void handlerResponseData(HttpServletRequest req, HttpServletResponse resp, Request request, IHttpResponse<?> response) {
+        log.trace("Processing response data for request: {}", request.getEndpoint());
+
+        resp.setHeader("X-Correlation-ID", MDC.get("correlationId"));
+        handleRequestAttributes(req, response);
+
+        log.debug("Response status code: {}", response.statusCode());
+    }
+
+    private void handleCookies(HttpServletResponse resp, Request request, IHttpResponse<?> response) {
+        if (RequestMethod.POST.equals(request.getMethod())
+            && response.body() instanceof UserResponse user && user.hasToken()) {
+            authCookiePort.setAuthCookies(resp, user.getToken(), user.getRefreshToken());
+        }
+
+        if (request.contains("logout")) {
+            authCookiePort.clearCookies(resp);
+        } else {
+            // Ensure CDN cookies are added: e.g., for Cloudflare
+            authCookiePort.addCdnCookies(resp);
         }
     }
 }

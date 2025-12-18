@@ -4,5 +4,5 @@ import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.transfer.response.UserResponse;
 
 public interface UserDetailsPort {
-    UserResponse getDetail(String userId, String auth) throws AppException;
+    UserResponse getDetail(String auth) throws AppException;
 }

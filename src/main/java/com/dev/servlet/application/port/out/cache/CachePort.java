@@ -14,4 +14,6 @@ public interface CachePort {
     void clearAll(String key);
 
     void clearNamespace(String namespace);
+
+    void clearSuffix(String namespace, String userId);
 }

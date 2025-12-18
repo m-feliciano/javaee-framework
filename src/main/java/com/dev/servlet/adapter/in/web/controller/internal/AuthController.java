@@ -1,5 +1,7 @@
 package com.dev.servlet.adapter.in.web.controller.internal;
 
+import com.dev.servlet.adapter.in.web.annotation.Authorization;
+import com.dev.servlet.adapter.in.web.annotation.Property;
 import com.dev.servlet.adapter.in.web.controller.AuthControllerApi;
 import com.dev.servlet.adapter.in.web.controller.internal.base.BaseController;
 import com.dev.servlet.adapter.in.web.dto.HttpResponse;
@@ -30,22 +32,27 @@ public class AuthController extends BaseController implements AuthControllerApi 
     @Inject
     private RegisterPagePort registerPagePort;
 
+    @Override
+    protected Class<AuthController> implementation() {
+        return AuthController.class;
+    }
+
     public IHttpResponse<String> forwardRegister() {
         return HttpResponse.<String>next(registerPagePort.registerPage()).build();
     }
 
-    public IHttpResponse<String> form(String auth, String homepage) {
+    public IHttpResponse<String> form(@Authorization String auth, @Property("homepage") String homepage) {
         String next = formPort.form(auth, homepage);
         return HttpResponse.<String>next(next).build();
     }
 
     @SneakyThrows
-    public IHttpResponse<UserResponse> login(LoginRequest request, String homepage) {
+    public IHttpResponse<UserResponse> login(LoginRequest request, @Property("homepage") String homepage) {
         String onSuccess = "redirect:/" + homepage;
         return loginPort.login(request, onSuccess);
     }
 
-    public IHttpResponse<String> logout(String auth) {
+    public IHttpResponse<String> logout(@Authorization String auth) {
         logoutPort.logout(auth);
         return HttpResponse.<String>next(homePagePort.homePage()).build();
     }

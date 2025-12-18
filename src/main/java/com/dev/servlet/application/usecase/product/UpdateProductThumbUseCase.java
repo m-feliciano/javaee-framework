@@ -4,10 +4,12 @@ package com.dev.servlet.application.usecase.product;
 import com.dev.servlet.adapter.out.image.ImageService;
 import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.in.product.UpdateProductThumbPort;
+import com.dev.servlet.application.port.out.image.FileImageRepositoryPort;
 import com.dev.servlet.application.port.out.product.ProductRepositoryPort;
 import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.application.port.out.storage.StorageService;
 import com.dev.servlet.application.transfer.request.FileUploadRequest;
+import com.dev.servlet.domain.entity.FileImage;
 import com.dev.servlet.domain.entity.Product;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
@@ -38,6 +40,8 @@ public class UpdateProductThumbUseCase implements UpdateProductThumbPort {
     private ProductRepositoryPort repository;
     @Inject
     private FileHttpClient fileHttpClient;
+    @Inject
+    private FileImageRepositoryPort fileImageRepositoryPort;
 
     @Override
     public void updateThumb(FileUploadRequest request, String auth) throws AppException {
@@ -56,20 +60,37 @@ public class UpdateProductThumbUseCase implements UpdateProductThumbPort {
         Product product = Product.builder()
                 .id(productId)
                 .owner(new User(userId))
-                .status(Status.ACTIVE.getValue())
                 .build();
-
         product = repository.find(product).orElseThrow(() -> new AppException("Product not found"));
 
-        final String oldThumb = product.getThumbUrl();
-        final String path = "private/users/" + userId + "/products/" + productId + "/thumb/" + UUID.randomUUID() + ".jpg";
+        final String filename = UUID.randomUUID().toString().substring(0, 8) + ".jpg";
+        final String path = "private/users/" + userId + "/products/" + productId + "/thumb/" + filename;
+
+        if (product.hasThumbnails()) {
+            FileImage image = product.getThumbnails().getFirst();
+
+            String oldPath = image.getUri();
+            image.setFileName(filename);
+            image.setUri(path);
+            fileImageRepositoryPort.update(image);
+            storageService.deleteFile(oldPath);
+
+        } else {
+            FileImage image = FileImage.builder()
+                    .uri(path)
+                    .fileName(filename).fileType("image/jpeg")
+                    .status(Status.ACTIVE.getValue())
+                    .build();
+            product.addThumbnail(image);
+            fileImageRepositoryPort.save(image);
+        }
 
         URI uploadUri = storageService.generateUploadUri(path, "image/jpeg", Duration.ofMinutes(5));
 
         try (InputStream raw = request.payload().openStream();
-             InputStream processed = imageService.processToSquareJpg(raw, 400)) {
+             InputStream processed = imageService.processToOptimizedJpg(raw, 400, "product-thumbnail")) {
+
             fileHttpClient.upload(uploadUri, processed, "image/jpeg");
-            product.setThumbUrl(path);
 
         } catch (Exception e) {
             log.error("Failed to update product thumbnail", e);
@@ -77,12 +98,6 @@ public class UpdateProductThumbUseCase implements UpdateProductThumbPort {
 
         } finally {
             request.payload().close();
-        }
-
-        repository.update(product);
-
-        if (oldThumb != null) {
-            storageService.deleteFile(oldThumb);
         }
     }
 }

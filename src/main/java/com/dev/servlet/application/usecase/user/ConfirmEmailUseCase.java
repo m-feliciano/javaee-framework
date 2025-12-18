@@ -3,7 +3,6 @@ package com.dev.servlet.application.usecase.user;
 import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.in.user.ConfirmEmailPort;
 import com.dev.servlet.application.port.out.MessagePort;
-import com.dev.servlet.application.port.out.cache.CachePort;
 import com.dev.servlet.application.port.out.confirmtoken.ConfirmationTokenRepositoryPort;
 import com.dev.servlet.application.port.out.user.UserRepositoryPort;
 import com.dev.servlet.application.transfer.request.ConfirmEmailRequest;
@@ -30,8 +29,6 @@ public class ConfirmEmailUseCase implements ConfirmEmailPort {
     @Inject
     @Named("emailSender")
     private MessagePort messagePort;
-    @Inject
-    private CachePort cachePort;
 
     public void confirm(ConfirmEmailRequest token) throws AppException {
         log.debug("ConfirmEmailUseCase: confirming email with token {}", token.token());
@@ -53,8 +50,6 @@ public class ConfirmEmailUseCase implements ConfirmEmailPort {
 
         ct.setUsed(true);
         tokenRepositoryPort.update(ct);
-
-        cachePort.clear("userCacheKey", user.getId());
         messagePort.sendWelcome(user.getCredentials().getLogin());
     }
 }

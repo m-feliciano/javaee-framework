@@ -1,5 +1,8 @@
 package com.dev.servlet.adapter.in.web.controller.internal;
 
+import com.dev.servlet.adapter.in.web.annotation.Async;
+import com.dev.servlet.adapter.in.web.annotation.Authorization;
+import com.dev.servlet.adapter.in.web.annotation.Property;
 import com.dev.servlet.adapter.in.web.controller.ProductControllerApi;
 import com.dev.servlet.adapter.in.web.controller.internal.base.BaseController;
 import com.dev.servlet.adapter.in.web.dto.HttpResponse;
@@ -53,20 +56,25 @@ public class ProductController extends BaseController implements ProductControll
     @Inject
     private UpdateProductThumbPort updateProductThumbPort;
 
+    @Override
+    protected Class<ProductController> implementation() {
+        return ProductController.class;
+    }
+
     @SneakyThrows
-    public IHttpResponse<Void> register(ProductRequest request, String auth) {
+    public IHttpResponse<Void> register(ProductRequest request, @Authorization String auth) {
         ProductResponse product = createProductWithThumbPort.execute(request, auth);
         return newHttpResponse(201, redirectTo(product.getId()));
     }
 
     @SneakyThrows
-    public IHttpResponse<Collection<CategoryResponse>> forward(String auth) {
+    public IHttpResponse<Collection<CategoryResponse>> forward(@Authorization String auth) {
         var categories = listCategoryPort.list(null, auth);
         return newHttpResponse(302, categories, forwardTo("formCreateProduct"));
     }
 
     @SneakyThrows
-    public IServletResponse details(ProductRequest request, String auth) {
+    public IServletResponse details(ProductRequest request, @Authorization String auth) {
         ProductResponse response = this.findById(request, auth).body();
         Collection<CategoryResponse> categories = listCategoryPort.list(null, auth);
         Set<KeyPair> body = Set.of(
@@ -77,7 +85,7 @@ public class ProductController extends BaseController implements ProductControll
     }
 
     @SneakyThrows
-    public IServletResponse search(Query query, IPageRequest pageRequest, String auth) {
+    public IServletResponse search(Query query, IPageRequest pageRequest, @Authorization String auth) {
         User user = authenticationPort.extractUser(auth);
         Product product = productMapper.queryToProduct(query, user);
         Set<KeyPair> container = listProductContainerPort.assembleContainerResponse(pageRequest, auth, product);
@@ -85,38 +93,40 @@ public class ProductController extends BaseController implements ProductControll
     }
 
     @SneakyThrows
-    public IServletResponse list(IPageRequest pageRequest, String auth) {
+    public IServletResponse list(IPageRequest pageRequest, @Authorization String auth) {
         Product product = productMapper.toProduct(null, authenticationPort.extractUserId(auth));
         Set<KeyPair> container = listProductContainerPort.assembleContainerResponse(pageRequest, auth, product);
         return newServletResponse(container, forwardTo("listProducts"));
     }
 
     @SneakyThrows
-    public IHttpResponse<ProductResponse> findById(ProductRequest request, String auth) {
+    public IHttpResponse<ProductResponse> findById(ProductRequest request, @Authorization String auth) {
         ProductResponse product = productDetailPort.get(request, auth);
         return okHttpResponse(product, forwardTo("formListProduct"));
     }
 
     @SneakyThrows
-    public IHttpResponse<Void> update(ProductRequest request, String auth) {
+    public IHttpResponse<Void> update(ProductRequest request, @Authorization String auth) {
         ProductResponse response = updateProductPort.update(request, auth);
         return newHttpResponse(204, redirectTo(response.getId()));
     }
 
     @SneakyThrows
-    public IHttpResponse<Void> delete(ProductRequest filter, String auth) {
+    public IHttpResponse<Void> delete(ProductRequest filter, @Authorization String auth) {
         deleteProductPort.delete(filter, auth);
         return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
     }
 
     @SneakyThrows
-    public IHttpResponse<Void> scrape(String auth, String url) {
-        scrapeProductPort.scrapeAsync(url, auth);
+    @Async
+    public IHttpResponse<Void> scrape(@Authorization String auth,
+                                      @Property("scrape_product_url") String url) {
+        scrapeProductPort.scrape(url, auth);
         return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
     }
 
     @Override
-    public IHttpResponse<Void> upload(FileUploadRequest request, String auth) {
+    public IHttpResponse<Void> upload(FileUploadRequest request, @Authorization String auth) {
         updateProductThumbPort.updateThumb(request, auth);
         return newHttpResponse(204, redirectTo(request.id()));
     }

@@ -4,21 +4,24 @@ import com.dev.servlet.adapter.out.external.webscrape.transfer.ProductWebScrapeD
 import com.dev.servlet.application.transfer.request.CategoryRequest;
 import com.dev.servlet.application.transfer.request.ProductRequest;
 import com.dev.servlet.application.transfer.response.ProductResponse;
+import com.dev.servlet.domain.entity.FileImage;
 import com.dev.servlet.domain.entity.Product;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.shared.vo.Query;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.WARN)
 public interface ProductMapper {
+    @Mapping(target = "thumbUrl", source = "thumbnails", qualifiedByName = "firstElement")
     ProductResponse toResponse(Product product);
 
     @Mapping(target = "category", ignore = true)
+    @Mapping(target = "thumbUrl", source = "thumbnails", qualifiedByName = "firstElement")
     ProductResponse toResponseWithoutCategory(Product product);
 
-    @Mapping(target = "thumbUrl", source = "url")
     Product scrapeToProduct(ProductWebScrapeDTO productWebScrapeDTO);
 
     @Mapping(target = "owner", expression = "java(new com.dev.servlet.domain.entity.User(userId))")
@@ -36,5 +39,13 @@ public interface ProductMapper {
             }
         });
         return toProduct(builder.build(), user.getId());
+    }
+
+    @Named("firstElement")
+    default String firstElement(java.util.List<FileImage> list) {
+        if (list != null && !list.isEmpty()) {
+            return list.getFirst().getUri();
+        }
+        return null;
     }
 }

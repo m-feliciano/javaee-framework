@@ -45,7 +45,10 @@ class InspectControllerTest extends BaseControllerTest {
                 true,
                 List.of(),
                 List.of(),
-                "IHttpResponse"
+                "IHttpResponse",
+                "Retrieve the list of products",
+                false,
+                false
         );
 
         MethodInfo method2 = new MethodInfo(
@@ -55,7 +58,10 @@ class InspectControllerTest extends BaseControllerTest {
                 false,
                 List.of(),
                 List.of(),
-                "IHttpResponse"
+                "IHttpResponse",
+                "Register a new user",
+                false,
+                false
         );
 
         ControllerInfo productController = new ControllerInfo(
@@ -77,13 +83,16 @@ class InspectControllerTest extends BaseControllerTest {
         List<MethodInfo> methods = new java.util.ArrayList<>();
         for (int i = 0; i < methodCount; i++) {
             methods.add(new MethodInfo(
-                    "/api/v1/" + name.toLowerCase() + "/method" + i,
+                    "/api/v1/" + name.toLowerCase() + "/implementation" + i,
                     i % 2 == 0 ? "GET" : "POST",
                     null,
                     true,
                     List.of(),
                     List.of(),
-                    "IHttpResponse"
+                    "IHttpResponse",
+                    "Test implementation " + i,
+                    false,
+                    false
             ));
         }
 
@@ -247,7 +256,7 @@ class InspectControllerTest extends BaseControllerTest {
         }
 
         @Test
-        @DisplayName("Should include method metadata in introspection")
+        @DisplayName("Should include implementation metadata in introspection")
         void shouldIncludeMethodMetadata() {
             // Arrange
             MethodInfo method1 = new MethodInfo(
@@ -257,7 +266,10 @@ class InspectControllerTest extends BaseControllerTest {
                     true,
                     List.of(),
                     List.of(),
-                    "IHttpResponse"
+                    "IHttpResponse",
+                    "Retrieve the list of products",
+                    false,
+                    false
             );
 
             MethodInfo method2 = new MethodInfo(
@@ -267,7 +279,9 @@ class InspectControllerTest extends BaseControllerTest {
                     true,
                     List.of(),
                     List.of(),
-                    "IHttpResponse"
+                    "IHttpResponse",
+                    "Create a new product",
+                    false, false
             );
 
             ControllerInfo controller = new ControllerInfo(

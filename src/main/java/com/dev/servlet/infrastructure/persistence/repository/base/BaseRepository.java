@@ -109,7 +109,7 @@ public abstract class BaseRepository<T, ID> implements BaseRepositoryPort<T, ID>
     /**
      * Commits the current transaction and clears the EntityManager to detach all managed entities.
      * In case of an exception during commit, it rolls back the transaction.
-     * Note: Do not attempt to use the EntityManager after this method is called, as it will be cleared.
+     * Note: Do not attempt to use the EntityManager after this implementation is called, as it will be cleared.
      *
      * @throws RuntimeException if the commit fails
      */

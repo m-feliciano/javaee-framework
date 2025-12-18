@@ -2,7 +2,6 @@ package com.dev.servlet.application.usecase.user;
 
 import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.in.user.UserDemoModePort;
-import com.dev.servlet.application.port.out.cache.CachePort;
 import com.dev.servlet.application.port.out.user.UserRepositoryPort;
 import com.dev.servlet.application.transfer.request.LoginRequest;
 import com.dev.servlet.domain.entity.Credentials;
@@ -27,8 +26,6 @@ import static jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 public class UserDemoModeUseCase implements UserDemoModePort {
     @Inject
     private UserRepositoryPort repositoryPort;
-    @Inject
-    private CachePort cachePort;
 
     @Override
     public User validateCredentials(LoginRequest credentials) throws AppException {
@@ -78,7 +75,6 @@ public class UserDemoModeUseCase implements UserDemoModePort {
         }
 
         log.debug("UserDemoModeUseCase: demo user {} validated successfully", credentials.login());
-        cachePort.clear("userCacheKey", user.getId());
         return user;
     }
 }

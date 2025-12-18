@@ -8,6 +8,7 @@ import org.apache.commons.lang3.ClassUtils;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.net.URL;
 import java.util.ArrayList;
@@ -74,7 +75,18 @@ public final class ClassUtil {
         List<Method> methods = new ArrayList<>();
         for (Class<?> itf : aClass.getInterfaces()) {
             methods.addAll(Arrays.asList(itf.getDeclaredMethods()));
-            methods.addAll(findMethodsOnInterfaceRecursive((Class<? extends BaseRouterController>) itf));
+        }
+        return methods;
+    }
+
+    public static List<Method> findMethodsRecursive(Class<? extends BaseRouterController> clazz) {
+        List<Method> methods = new ArrayList<>();
+        for (Method method : clazz.getDeclaredMethods()) {
+            if (Modifier.isStatic(method.getModifiers())) continue;
+
+            if (Modifier.isPrivate(method.getModifiers())) continue;
+
+            methods.add(method);
         }
         return methods;
     }

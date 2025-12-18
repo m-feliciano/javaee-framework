@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Where;
 
 @Getter
 @Setter
@@ -23,6 +24,7 @@ import org.hibernate.annotations.GenericGenerator;
 @AllArgsConstructor
 @Entity
 @Table(name = "tb_inventory")
+@Where(clause = "status = 'A'")
 public class Inventory {
     @Id
     @Column(name = "id", updatable = false)
@@ -47,5 +49,15 @@ public class Inventory {
         this.product = product;
         this.quantity = quantity;
         this.description = description;
+    }
+
+    public InventoryBuilder toBuilder() {
+        return Inventory.builder()
+                .id(this.id)
+                .quantity(this.quantity)
+                .description(this.description)
+                .status(this.status)
+                .product(this.product)
+                .user(this.user);
     }
 }

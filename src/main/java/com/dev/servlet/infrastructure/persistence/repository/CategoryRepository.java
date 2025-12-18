@@ -20,7 +20,6 @@ import org.hibernate.Session;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 @NoArgsConstructor
@@ -64,7 +63,6 @@ public class CategoryRepository extends BaseRepository<Category, String> impleme
 
     @Override
     public List<Category> saveAll(List<Category> categories) throws AppException {
-        AtomicReference<String> errors = new AtomicReference<>();
         Session session = em.unwrap(Session.class);
         session.getTransaction().begin();
 
@@ -86,13 +84,8 @@ public class CategoryRepository extends BaseRepository<Category, String> impleme
                         i++;
                     }
                 }
-            } catch (Exception e) {
-                errors.set(e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
             }
         });
-        if (errors.get() != null) {
-            throw new AppException(errors.get());
-        }
         try {
             session.getTransaction().commit();
         } catch (Exception e) {
@@ -125,6 +118,10 @@ public class CategoryRepository extends BaseRepository<Category, String> impleme
             Expression<String> upper = cb.upper(root.get("name"));
             Predicate like = cb.like(upper, "%" + filter.getName().toUpperCase() + "%");
             predicate = cb.and(predicate, like);
+        }
+
+        if (filter.getId() != null) {
+            predicate = cb.and(predicate, cb.equal(root.get(ID), filter.getId()));
         }
         return predicate;
     }

@@ -199,6 +199,26 @@
     border-radius: 4px;
 }
 
+/* Description row styling */
+.description-row {
+    border-top: none !important;
+}
+
+.description-row td {
+    padding: 0 8px 12px 8px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.description-cell {
+    background: rgba(255, 255, 255, 0.01);
+    font-style: italic;
+}
+
+.description-cell i.bi {
+    margin-right: 4px;
+    opacity: 0.7;
+}
+
 .toast {
     position: fixed;
     right: 24px;

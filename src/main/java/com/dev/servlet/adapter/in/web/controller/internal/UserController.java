@@ -1,5 +1,7 @@
 package com.dev.servlet.adapter.in.web.controller.internal;
 
+import com.dev.servlet.adapter.in.web.annotation.Authorization;
+import com.dev.servlet.adapter.in.web.annotation.Cache;
 import com.dev.servlet.adapter.in.web.controller.UserControllerApi;
 import com.dev.servlet.adapter.in.web.controller.internal.base.BaseController;
 import com.dev.servlet.adapter.in.web.dto.HttpResponse;
@@ -24,6 +26,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.SneakyThrows;
 
+import java.util.concurrent.TimeUnit;
+
 @ApplicationScoped
 public class UserController extends BaseController implements UserControllerApi {
     private static final String REDIRECT_AUTH_FORM = "redirect:/api/v1/auth/form";
@@ -46,25 +50,31 @@ public class UserController extends BaseController implements UserControllerApi 
     @Inject
     private UpdateProfilePicturePort updateProfilePicturePort;
 
+    @Override
+    protected Class<UserController> implementation() {
+        return UserController.class;
+    }
 
     @SneakyThrows
     @Override
-    public IHttpResponse<UserResponse> update(UserRequest user, String auth) {
+    @Cache(invalidate = "users_cache")
+    public IHttpResponse<UserResponse> update(UserRequest user, @Authorization String auth) {
         UserResponse response = updateUserUseCase.update(user, auth);
-        return newHttpResponse(204, response, redirectTo(response.getId()));
+        return newHttpResponse(204, response, redirectToCtx("me"));
     }
 
     @SneakyThrows
     @Override
-    public IHttpResponse<Void> delete(UserRequest user, String auth) {
+    @Cache(invalidate = "users_cache")
+    public IHttpResponse<Void> delete(UserRequest user, @Authorization String auth) {
         deleteUserUseCase.delete(user.id(), auth);
-        return HttpResponse.<Void>next(FORM_LOGIN_FORM).build();
+        return newHttpResponse(200, REDIRECT_AUTH_FORM);
     }
 
-    @SneakyThrows
     @Override
-    public IHttpResponse<UserResponse> findById(UserRequest user, String auth) {
-        UserResponse response = userDetailsUseCase.getDetail(user.id(), auth);
+    @Cache(value = "users_cache", duration = 1, timeUnit = TimeUnit.HOURS)
+    public IHttpResponse<UserResponse> find(@Authorization String auth) {
+        UserResponse response = userDetailsUseCase.getDetail(auth);
         return okHttpResponse(response, forwardTo("formListUser"));
     }
 
@@ -85,6 +95,7 @@ public class UserController extends BaseController implements UserControllerApi 
 
     @SneakyThrows
     @Override
+    @Cache(invalidate = "users_cache")
     public IHttpResponse<Void> changeEmail(Query query) {
         changeEmailUseCase.change(query.get("token"));
         return newHttpResponse(200, REDIRECT_AUTH_FORM);
@@ -100,8 +111,9 @@ public class UserController extends BaseController implements UserControllerApi 
 
     @SneakyThrows
     @Override
-    public IHttpResponse<Void> updateProfilePicture(FileUploadRequest request, String auth) {
+    @Cache(invalidate = "users_cache")
+    public IHttpResponse<Void> updateProfilePicture(FileUploadRequest request, @Authorization String auth) {
         updateProfilePicturePort.updatePicture(request, auth);
-        return newHttpResponse(204, redirectTo(request.id()));
+        return newHttpResponse(204, redirectToCtx("me"));
     }
 }

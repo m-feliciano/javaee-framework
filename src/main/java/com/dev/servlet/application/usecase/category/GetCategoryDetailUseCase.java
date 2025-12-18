@@ -9,7 +9,6 @@ import com.dev.servlet.application.transfer.request.CategoryRequest;
 import com.dev.servlet.application.transfer.response.CategoryResponse;
 import com.dev.servlet.domain.entity.Category;
 import com.dev.servlet.domain.entity.User;
-import com.dev.servlet.domain.entity.enums.Status;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -29,17 +28,14 @@ public class GetCategoryDetailUseCase implements GetCategoryDetailPort {
         log.debug("GetCategoryDetailUseCase called with request: {} and auth: {}", request, auth);
 
         String userId = authenticationPort.extractUserId(auth);
-        Category category = loadCategory(request.id(), userId);
-        return categoryMapper.toResponse(category);
+        return categoryMapper.toResponse(findById(request.id(), userId));
     }
 
-    private Category loadCategory(String categoryId, String userId) throws AppException {
+    private Category findById(String entityId, String userId) throws AppException {
         Category category = Category.builder()
-                .id(categoryId)
+                .id(entityId)
                 .user(new User(userId))
-                .status(Status.ACTIVE.getValue())
                 .build();
-        return categoryRepositoryPort.find(category)
-                .orElseThrow(() -> new AppException("Category not found"));
+        return categoryRepositoryPort.find(category).orElseThrow(() -> new AppException("Category not found"));
     }
 }

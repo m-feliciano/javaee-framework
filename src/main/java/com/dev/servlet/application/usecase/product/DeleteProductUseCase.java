@@ -11,7 +11,6 @@ import com.dev.servlet.application.transfer.request.ProductRequest;
 import com.dev.servlet.domain.entity.Inventory;
 import com.dev.servlet.domain.entity.Product;
 import com.dev.servlet.domain.entity.User;
-import com.dev.servlet.domain.entity.enums.Status;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +35,6 @@ public class DeleteProductUseCase implements DeleteProductPort {
         String userId = authenticationPort.extractUserId(auth);
 
         Product product = productMapper.toProduct(request, userId);
-        product.setStatus(Status.ACTIVE.getValue());
         product = repositoryPort.find(product).orElseThrow(() -> new AppException("Product not found"));
 
         Inventory inventory = Inventory.builder()
@@ -47,7 +45,7 @@ public class DeleteProductUseCase implements DeleteProductPort {
             throw new AppException("Cannot delete product with existing inventory");
         }
 
-        String thumb = product.getThumbUrl();
+        String thumb = product.getThumbnail();
         repositoryPort.delete(product);
 
         if (thumb != null && !thumb.isBlank()) {

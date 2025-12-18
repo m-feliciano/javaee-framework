@@ -3,10 +3,6 @@ package com.dev.servlet.adapter.in.web.frontcontroller;
 import com.dev.servlet.adapter.in.web.dto.HttpResponse;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.adapter.in.web.dto.Request;
-import com.dev.servlet.application.port.in.user.UserDetailsPort;
-import com.dev.servlet.application.port.out.security.AuthCookiePort;
-import com.dev.servlet.application.port.out.security.AuthenticationPort;
-import com.dev.servlet.application.transfer.response.UserResponse;
 import com.dev.servlet.domain.entity.enums.RequestMethod;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,26 +26,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("ResponseWriter Tests")
+@SuppressWarnings("all")
 class ResponseWriterTest {
-
-    @Mock
-    private AuthCookiePort authCookiePort;
-
-    @Mock
-    private UserDetailsPort userDetailsPort;
-
-    @Mock
-    private AuthenticationPort authenticationPort;
 
     @Mock
     private HttpServletRequest request;
@@ -86,12 +72,13 @@ class ResponseWriterTest {
         @DisplayName("Should write JSON response correctly")
         void shouldWriteJsonResponse() throws Exception {
             // Arrange
-            IHttpResponse<String> jsonResponse = HttpResponse.ofJson("{\"status\":\"ok\"}");
+            IHttpResponse jsonResponse = HttpResponse.ok("{\"status\":\"ok\"}").build();
 
+            when(request.getHeader("Accept")).thenReturn("application/json");
             when(response.getWriter()).thenReturn(printWriter);
 
             Request request = Request.builder()
-                    .method(RequestMethod.GET.name())
+                    .method(RequestMethod.GET)
                     .endpoint("/api/v1/health")
                     .build();
 
@@ -101,7 +88,6 @@ class ResponseWriterTest {
             // Assert
             verify(response).setContentType("application/json");
             verify(response).setCharacterEncoding("UTF-8");
-            verify(response).setHeader("X-Correlation-ID", "test-correlation-id");
 
             String output = stringWriter.toString();
             assertThat(output).contains("status");
@@ -111,12 +97,13 @@ class ResponseWriterTest {
         @DisplayName("Should handle null body in JSON response")
         void shouldHandleNullBodyInJsonResponse() throws Exception {
             // Arrange
-            IHttpResponse jsonResponse = HttpResponse.ofJson("{\"data\":null}");
+            IHttpResponse<String> jsonResponse = HttpResponse.ok("{\"data\":null}").build();
 
+            when(request.getHeader("Accept")).thenReturn("application/json");
             when(response.getWriter()).thenReturn(printWriter);
 
             Request request = Request.builder()
-                    .method(RequestMethod.GET.name())
+                    .method(RequestMethod.GET)
                     .endpoint("/api/v1/test")
                     .build();
 
@@ -128,83 +115,6 @@ class ResponseWriterTest {
         }
     }
 
-    @Nested
-    @DisplayName("Cookie Handling Tests")
-    class CookieHandlingTests {
-
-        @Test
-        @DisplayName("Should set auth cookies for POST login with user token")
-        void shouldSetAuthCookiesForLogin() throws Exception {
-            // Arrange
-            UserResponse userResponse = UserResponse.builder()
-                    .id("user-123")
-                    .token("auth-token")
-                    .refreshToken("refresh-token")
-                    .build();
-
-            IHttpResponse<UserResponse> response = HttpResponse.ok(userResponse).build();
-
-            Request request = Request.builder()
-                    .method(RequestMethod.POST.name())
-                    .endpoint("/api/v1/auth/login")
-                    .build();
-
-            when(ResponseWriterTest.this.response.getWriter()).thenReturn(printWriter);
-            when(ResponseWriterTest.this.request.getRequestDispatcher(anyString())).thenReturn(requestDispatcher);
-            doNothing().when(authCookiePort).setAuthCookies(any(), anyString(), anyString());
-
-            // Act
-            responseWriter.write(ResponseWriterTest.this.request, ResponseWriterTest.this.response, request, response);
-
-            // Assert
-            verify(authCookiePort).setAuthCookies(ResponseWriterTest.this.response, "auth-token", "refresh-token");
-            verify(authCookiePort).addCdnCookies(ResponseWriterTest.this.response);
-        }
-
-        @Test
-        @DisplayName("Should clear cookies on logout")
-        void shouldClearCookiesOnLogout() throws Exception {
-            // Arrange
-            IHttpResponse<Void> response = HttpResponse.<Void>ok(null).build();
-
-            Request request = Request.builder()
-                    .method(RequestMethod.GET.name())
-                    .endpoint("/api/v1/auth/logout")
-                    .build();
-
-            when(ResponseWriterTest.this.response.getWriter()).thenReturn(printWriter);
-            when(ResponseWriterTest.this.request.getRequestDispatcher(anyString())).thenReturn(requestDispatcher);
-            doNothing().when(authCookiePort).clearCookies(any());
-
-            // Act
-            responseWriter.write(ResponseWriterTest.this.request, ResponseWriterTest.this.response, request, response);
-
-            // Assert
-            verify(authCookiePort).clearCookies(ResponseWriterTest.this.response);
-            verify(authCookiePort, never()).addCdnCookies(any());
-        }
-
-        @Test
-        @DisplayName("Should add CDN cookies for normal requests")
-        void shouldAddCdnCookies() throws Exception {
-            // Arrange
-            IHttpResponse<String> response = HttpResponse.ok("data").build();
-
-            Request request = Request.builder()
-                    .method(RequestMethod.GET.name())
-                    .endpoint("/api/v1/product/list")
-                    .build();
-
-            when(ResponseWriterTest.this.response.getWriter()).thenReturn(printWriter);
-            when(ResponseWriterTest.this.request.getRequestDispatcher(anyString())).thenReturn(requestDispatcher);
-
-            // Act
-            responseWriter.write(ResponseWriterTest.this.request, ResponseWriterTest.this.response, request, response);
-
-            // Assert
-            verify(authCookiePort).addCdnCookies(ResponseWriterTest.this.response);
-        }
-    }
 
     @Nested
     @DisplayName("Navigation Handling Tests")
@@ -219,7 +129,7 @@ class ResponseWriterTest {
                     .build();
 
             Request request = Request.builder()
-                    .method(RequestMethod.GET.name())
+                    .method(RequestMethod.GET)
                     .endpoint("/api/v1/product/list")
                     .build();
 
@@ -243,7 +153,7 @@ class ResponseWriterTest {
                     .build();
 
             Request request = Request.builder()
-                    .method(RequestMethod.POST.name())
+                    .method(RequestMethod.POST)
                     .endpoint("/api/v1/product/register")
                     .build();
 
@@ -254,78 +164,6 @@ class ResponseWriterTest {
 
             // Assert
             verify(ResponseWriterTest.this.response).sendRedirect(contains("product/123"));
-        }
-    }
-
-    @Nested
-    @DisplayName("Request Attributes Tests")
-    class RequestAttributesTests {
-
-        @Test
-        @DisplayName("Should set response as request attribute")
-        void shouldSetResponseAttribute() throws Exception {
-            // Arrange
-            IHttpResponse<String> response = HttpResponse.ok("test-data").build();
-
-            Request request = Request.builder()
-                    .method(RequestMethod.GET.name())
-                    .endpoint("/api/v1/test")
-                    .build();
-
-            when(ResponseWriterTest.this.response.getWriter()).thenReturn(printWriter);
-            when(ResponseWriterTest.this.request.getRequestDispatcher(anyString())).thenReturn(requestDispatcher);
-
-            // Act
-            responseWriter.write(ResponseWriterTest.this.request, ResponseWriterTest.this.response, request, response);
-
-            // Assert
-            verify(ResponseWriterTest.this.request).setAttribute(eq("response"), eq(response));
-        }
-
-        @Test
-        @DisplayName("Should handle query parameters")
-        void shouldHandleQueryParameters() throws Exception {
-            // Arrange
-            when(request.getQueryString()).thenReturn("q=search&k=value");
-
-            IHttpResponse<String> response = HttpResponse.ok("data").build();
-
-            Request request = Request.builder()
-                    .method(RequestMethod.GET.name())
-                    .endpoint("/api/v1/search")
-                    .build();
-
-            when(ResponseWriterTest.this.response.getWriter()).thenReturn(printWriter);
-            when(ResponseWriterTest.this.request.getRequestDispatcher(anyString())).thenReturn(requestDispatcher);
-
-            // Act
-            responseWriter.write(ResponseWriterTest.this.request, ResponseWriterTest.this.response, request, response);
-
-            // Assert
-            verify(ResponseWriterTest.this.request).setAttribute(eq("response"), any());
-        }
-
-        @Test
-        @DisplayName("Should set correlation ID header")
-        void shouldSetCorrelationIdHeader() throws Exception {
-            // Arrange
-            MDC.put("correlationId", "custom-correlation-id");
-
-            IHttpResponse<String> response = HttpResponse.ok("data").build();
-
-            Request request = Request.builder()
-                    .method(RequestMethod.GET.name())
-                    .endpoint("/api/v1/test")
-                    .build();
-
-            when(ResponseWriterTest.this.response.getWriter()).thenReturn(printWriter);
-            when(ResponseWriterTest.this.request.getRequestDispatcher(anyString())).thenReturn(requestDispatcher);
-
-            // Act
-            responseWriter.write(ResponseWriterTest.this.request, ResponseWriterTest.this.response, request, response);
-
-            // Assert
-            verify(ResponseWriterTest.this.response).setHeader("X-Correlation-ID", "custom-correlation-id");
         }
     }
 }

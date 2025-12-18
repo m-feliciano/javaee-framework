@@ -209,7 +209,6 @@ class ProductDetailUseCaseTest {
                     .name("Complete Product")
                     .price(new BigDecimal("199.99"))
                     .description("Complete description")
-                    .thumbUrl("https://example.com/image.jpg")
                     .owner(User.builder().id(USER_ID).build())
                     .registerDate(LocalDate.now())
                     .status(Status.ACTIVE.getValue())

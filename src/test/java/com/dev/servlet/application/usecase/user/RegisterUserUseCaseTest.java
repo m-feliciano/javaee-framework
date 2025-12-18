@@ -4,7 +4,6 @@ import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.mapper.UserMapper;
 import com.dev.servlet.application.port.in.user.GenerateConfirmationTokenPort;
 import com.dev.servlet.application.port.out.MessagePort;
-import com.dev.servlet.application.port.out.cache.CachePort;
 import com.dev.servlet.application.port.out.user.UserRepositoryPort;
 import com.dev.servlet.application.transfer.request.UserCreateRequest;
 import com.dev.servlet.application.transfer.response.UserResponse;
@@ -55,8 +54,6 @@ class RegisterUserUseCaseTest {
     private MessagePort messagePort;
     @Mock
     private GenerateConfirmationTokenPort generateConfirmationTokenPort;
-    @Mock
-    private CachePort cachePort;
     @InjectMocks
     private RegisterUserUseCase registerUserUseCase;
     private UserCreateRequest userCreateRequest;
@@ -86,9 +83,6 @@ class RegisterUserUseCaseTest {
         lenient()
                 .doNothing()
                 .when(messagePort).sendConfirmation(anyString(), anyString());
-        lenient()
-                .doNothing()
-                .when(cachePort).clear(anyString(), anyString());
     }
 
     @Nested
@@ -110,7 +104,6 @@ class RegisterUserUseCaseTest {
             verify(repositoryPort).save(any(User.class));
             verify(generateConfirmationTokenPort).generateFor(any(User.class), isNull());
             verify(messagePort).sendConfirmation(anyString(), anyString());
-            verify(cachePort).clear(anyString(), eq(USER_ID));
         }
 
         @Test
@@ -172,16 +165,6 @@ class RegisterUserUseCaseTest {
 
             // Assert
             verify(messagePort).sendConfirmation(eq(TEST_LOGIN.toLowerCase()), contains("token=" + CONFIRMATION_TOKEN));
-        }
-
-        @Test
-        @DisplayName("Should clear user cache")
-        void shouldClearUserCache() {
-            // Act
-            registerUserUseCase.register(userCreateRequest);
-
-            // Assert
-            verify(cachePort).clear("userCacheKey", USER_ID);
         }
 
         @Test
@@ -298,12 +281,11 @@ class RegisterUserUseCaseTest {
             registerUserUseCase.register(userCreateRequest);
 
             // Assert - Verify order
-            var inOrder = inOrder(repositoryPort, generateConfirmationTokenPort, messagePort, cachePort);
+            var inOrder = inOrder(repositoryPort, generateConfirmationTokenPort, messagePort);
             inOrder.verify(repositoryPort).find(any(User.class));
             inOrder.verify(repositoryPort).save(any(User.class));
             inOrder.verify(generateConfirmationTokenPort).generateFor(any(User.class), isNull());
             inOrder.verify(messagePort).sendConfirmation(anyString(), anyString());
-            inOrder.verify(cachePort).clear(anyString(), anyString());
         }
 
         @Test

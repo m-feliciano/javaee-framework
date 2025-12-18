@@ -15,8 +15,4 @@ public enum RequestMethod {
     RequestMethod(String method) {
         this.method = method;
     }
-
-    public boolean isEquals(String method) {
-        return this.method.equalsIgnoreCase(method);
-    }
 }

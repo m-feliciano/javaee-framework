@@ -1,6 +1,5 @@
 package com.dev.servlet.infrastructure.persistence.repository;
 
-import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.out.product.ProductRepositoryPort;
 import com.dev.servlet.domain.entity.Category;
 import com.dev.servlet.domain.entity.Product;
@@ -24,11 +23,14 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.hibernate.Session;
 
 import java.math.BigDecimal;
-import java.sql.Statement;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 @NoArgsConstructor
@@ -113,53 +115,18 @@ public class ProductRepository extends BaseRepository<Product, String> implement
     }
 
     @Override
-    public List<Product> saveAll(List<Product> products) throws AppException {
-        AtomicReference<String> errors = new AtomicReference<>();
+    public List<Product> saveAll(List<Product> products) {
         Session session = em.unwrap(Session.class);
-        session.getTransaction().begin();
-
-        session.doWork(connection -> {
-            String copies = String.join(", ", Collections.nCopies(9, "?"));
-            String sql = "INSERT INTO tb_product (id, name, description, url_img, register_date, price, user_id, status, category_id) VALUES (" + copies + ")";
-            try (var ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                for (Product product : products) {
-                    ps.setString(1, UUID.randomUUID().toString());
-                    ps.setString(2, product.getName());
-                    ps.setString(3, product.getDescription());
-                    ps.setString(4, product.getThumbUrl());
-                    ps.setDate(5, java.sql.Date.valueOf(product.getRegisterDate()));
-                    ps.setBigDecimal(6, product.getPrice());
-                    ps.setString(7, product.getOwner().getId());
-                    ps.setString(8, Status.ACTIVE.getValue());
-                    if (product.getCategory() != null) {
-                        ps.setString(9, product.getCategory().getId());
-                    } else {
-                        ps.setNull(9, java.sql.Types.BIGINT);
-                    }
-                    ps.addBatch();
-                }
-                ps.executeBatch();
-                try (var rs = ps.getGeneratedKeys()) {
-                    int i = 0;
-                    while (rs.next()) {
-                        products.get(i).setId(rs.getString(1));
-                        i++;
-                    }
-                }
+        session.doWork(conn -> {
+            try {
+                conn.setAutoCommit(false);
+                insertProducts(conn, products);
+                conn.commit();
             } catch (Exception e) {
-                errors.set(e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+                conn.rollback();
+                throw new RuntimeException("Failed to save products", e);
             }
         });
-
-        if (errors.get() != null) {
-            throw new AppException(errors.get());
-        }
-
-        try {
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-        }
 
         return products;
     }
@@ -179,5 +146,37 @@ public class ProductRepository extends BaseRepository<Product, String> implement
     @SuppressWarnings("unchecked")
     protected Predicate buildDefaultPredicateFor(Product filter, CriteriaBuilder cb, Root<?> root) {
         return buildDefaultFilter(filter, cb, (Root<Product>) root);
+    }
+
+    private void insertProducts(Connection connection, List<Product> products) throws SQLException {
+        String sql = """
+                INSERT INTO tb_product
+                (id, name, description, register_date, price, user_id, status, category_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            for (Product product : products) {
+                String productId = UUID.randomUUID().toString();
+                product.setId(productId);
+
+                ps.setString(1, productId);
+                ps.setString(2, product.getName());
+                ps.setString(3, product.getDescription());
+                ps.setDate(4, Date.valueOf(product.getRegisterDate()));
+                ps.setBigDecimal(5, product.getPrice());
+                ps.setString(6, product.getOwner().getId());
+                ps.setString(7, Status.ACTIVE.getValue());
+
+                if (product.getCategory() != null) {
+                    ps.setString(8, product.getCategory().getId());
+                } else {
+                    ps.setNull(8, Types.VARCHAR);
+                }
+
+                ps.addBatch();
+            }
+
+            ps.executeBatch();
+        }
     }
 }

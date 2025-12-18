@@ -154,24 +154,22 @@ class UserControllerTest extends BaseControllerTest {
         @DisplayName("Should find user by ID")
         void shouldFindUserById() {
             // Arrange
-            UserRequest request = UserRequest.builder().id(USER_ID).build();
-
             UserResponse expectedUser = UserResponse.builder()
                     .id(USER_ID)
                     .login("test@example.com")
                     .build();
 
-            when(userDetailsPort.getDetail(eq(USER_ID), eq(VALID_AUTH_TOKEN)))
+            when(userDetailsPort.getDetail(eq(VALID_AUTH_TOKEN)))
                     .thenReturn(expectedUser);
 
             // Act
-            IHttpResponse<UserResponse> response = userController.findById(request, VALID_AUTH_TOKEN);
+            IHttpResponse<UserResponse> response = userController.find(VALID_AUTH_TOKEN);
 
             // Assert
             assertThat(response).isNotNull();
             assertThat(response.body()).isEqualTo(expectedUser);
 
-            verify(userDetailsPort).getDetail(USER_ID, VALID_AUTH_TOKEN);
+            verify(userDetailsPort).getDetail(VALID_AUTH_TOKEN);
         }
     }
 

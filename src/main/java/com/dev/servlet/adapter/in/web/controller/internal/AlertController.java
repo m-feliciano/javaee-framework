@@ -1,5 +1,6 @@
 package com.dev.servlet.adapter.in.web.controller.internal;
 
+import com.dev.servlet.adapter.in.web.annotation.Authorization;
 import com.dev.servlet.adapter.in.web.controller.AlertControllerApi;
 import com.dev.servlet.adapter.in.web.controller.internal.base.BaseController;
 import com.dev.servlet.adapter.in.web.dto.HttpResponse;
@@ -21,14 +22,19 @@ public class AlertController extends BaseController implements AlertControllerAp
     @Inject
     private AlertPort alertPort;
 
-    public IHttpResponse<String> list(String auth) {
+    @Override
+    protected Class<AlertController> implementation() {
+        return AlertController.class;
+    }
+
+    public IHttpResponse<String> list(@Authorization String auth) {
         String userId = authenticationPort.extractUserId(auth);
         List<Alert> alerts = alertPort.list(userId);
         String json = CloneUtil.toJson(alerts);
-        return HttpResponse.ofJson(json);
+        return HttpResponse.ok(json).build();
     }
 
-    public IHttpResponse<Void> clear(String auth) {
+    public IHttpResponse<Void> clear(@Authorization String auth) {
         String userId = authenticationPort.extractUserId(auth);
         alertPort.clear(userId);
         return HttpResponse.<Void>newBuilder().statusCode(204).build();

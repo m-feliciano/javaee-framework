@@ -6,10 +6,6 @@ import org.imgscalr.Scalr;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 @ApplicationScoped
 public class ImageProcessor {
@@ -54,15 +50,5 @@ public class ImageProcessor {
 
     public BufferedImage resize(BufferedImage source, int size) {
         return Scalr.resize(source, Scalr.Method.ULTRA_QUALITY, size);
-    }
-
-    public InputStream toJpgStream(BufferedImage image) {
-        try {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            ImageIO.write(image, "jpg", out);
-            return new ByteArrayInputStream(out.toByteArray());
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to write image", e);
-        }
     }
 }

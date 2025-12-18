@@ -34,7 +34,7 @@ public abstract class BaseControllerTest {
     }
 
     /**
-     * Override this method to setup additional mocks specific to each controller test.
+     * Override this implementation to setup additional mocks specific to each controller test.
      */
     protected void setupAdditionalMocks() {
         // Default implementation does nothing

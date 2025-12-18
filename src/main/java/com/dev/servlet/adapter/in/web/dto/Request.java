@@ -1,5 +1,6 @@
 package com.dev.servlet.adapter.in.web.dto;
 
+import com.dev.servlet.domain.entity.enums.RequestMethod;
 import com.dev.servlet.shared.vo.Query;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
@@ -9,7 +10,7 @@ import lombok.Data;
 @Builder
 public class Request {
     private String endpoint;
-    private String method;
+    private RequestMethod method;
     private Query query;
     private Integer retry;
     @JsonIgnore

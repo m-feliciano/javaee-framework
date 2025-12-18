@@ -58,6 +58,10 @@ Click [here](PREVIEW.md) to see more.
 
 Pull the demo `docker-compose` file and start the services:
 
+IMPORTANT: This demo uses an older version (v2.x.x) of the framework and will not be updated with the latest changes.
+
+The current version of the framework can be found in the `master` branch.
+
 ```shell
 curl -O https://raw.githubusercontent.com/m-feliciano/javaee-framework/refs/heads/master/docker-compose.demo.yml
 ```

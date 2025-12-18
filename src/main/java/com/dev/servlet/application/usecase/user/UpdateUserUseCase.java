@@ -8,7 +8,6 @@ import com.dev.servlet.application.port.in.user.UpdateUserPort;
 import com.dev.servlet.application.port.in.user.UserDetailsPort;
 import com.dev.servlet.application.port.out.MessagePort;
 import com.dev.servlet.application.port.out.alert.AlertPort;
-import com.dev.servlet.application.port.out.cache.CachePort;
 import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.application.port.out.user.UserRepositoryPort;
 import com.dev.servlet.application.transfer.request.UserRequest;
@@ -46,8 +45,6 @@ public class UpdateUserUseCase implements UpdateUserPort {
     @Inject
     private GenerateConfirmationTokenPort generateConfirmationTokenPort;
     private String baseUrl;
-    @Inject
-    private CachePort cachePort;
 
     @PostConstruct
     public void init() {
@@ -60,14 +57,14 @@ public class UpdateUserUseCase implements UpdateUserPort {
         if (Properties.isDemoModeEnabled()) {
             log.warn("UpdateUserUseCase: update users is not allowed in demo mode");
             alertPort.publish(userId, "warning", "Update user is not allowed in demo mode.");
-            return userDetailsPort.getDetail(userId, auth);
+            return userDetailsPort.getDetail(auth);
         }
 
         final String newEmail = userRequest.login().toLowerCase();
         boolean emailUnavailable = !isEmailAvailable(newEmail, userMapper.toUser(userRequest));
         if (emailUnavailable) {
             alertPort.publish(userId, "warning", "The email address is already in use.");
-            return userDetailsPort.getDetail(userId, auth);
+            return userDetailsPort.getDetail(auth);
         }
 
         User user = repositoryPort.findById(userId).orElseThrow();
@@ -75,8 +72,6 @@ public class UpdateUserUseCase implements UpdateUserPort {
 
         repositoryPort.updateCredentials(userId,
                 new Credentials(newEmail, PasswordHasher.hash(userRequest.password())));
-
-        cachePort.clear("userCacheKey", user.getId());
 
         if (!oldEmail.equals(newEmail)) {
             String token = generateConfirmationTokenPort.generateFor(user, newEmail);

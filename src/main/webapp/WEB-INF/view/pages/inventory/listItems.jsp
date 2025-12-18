@@ -9,7 +9,7 @@
 <%
     IServletResponse servletResponse = (IServletResponse) request.getAttribute("response");
     request.setAttribute("categories", servletResponse.getEntity("categories"));
-    request.setAttribute("items", servletResponse.getEntity("items"));
+    request.setAttribute("pageable", servletResponse.getEntity("pageable"));
 %>
 
 <title>Inventory</title>
@@ -33,10 +33,10 @@
             <jsp:param name="action" value="${baseLink}${version}${ searchInventory }"/>
             <jsp:param name="onclear" value="${baseLink}${version}${ listInventory }"/>
             <jsp:param name="searchType" value="description"/>
-            <jsp:param name="limit" value="20"/>
+            <jsp:param name="limit" value="${pageable.pageSize}"/>
         </jsp:include>
 
-        <c:if test="${ empty items }">
+        <c:if test="${ pageable.totalElements == 0 }">
             <div class="empty-state">
                 <div class="empty-state-icon">
                     <i class="bi bi-inbox"></i>
@@ -49,7 +49,7 @@
             </div>
         </c:if>
 
-        <c:if test="${ not empty items }">
+        <c:if test="${ pageable.totalElements > 0 }">
             <c:set var="total" value="${0}"/>
             <div class="card">
                 <div class="table-responsive">
@@ -66,7 +66,7 @@
                         </thead>
                         <tbody>
 
-                        <c:forEach items="${ items }" var="inventory">
+                        <c:forEach items="${ pageable.getContent() }" var="inventory">
                             <c:set var="total"
                                    value="${total + inventory.getProduct().getPrice() * inventory.getQuantity()}"/>
 
@@ -102,6 +102,17 @@
                     </table>
                 </div>
             </div>
+
+            <jsp:include page="/WEB-INF/view/components/pagination.jsp">
+                <jsp:param name="totalRecords" value="${pageable.getTotalElements()}"/>
+                <jsp:param name="currentPage" value="${pageable.getCurrentPage()}"/>
+                <jsp:param name="totalPages" value="${pageable.getTotalPages()}"/>
+                <jsp:param name="pageSize" value="${pageable.getPageSize()}"/>
+                <jsp:param name="sort" value="${pageable.getSort().getField()}"/>
+                <jsp:param name="direction" value="${pageable.getSort().getDirection().getValue()}"/>
+                <jsp:param name="k" value="${k}"/>
+                <jsp:param name="q" value="${q}"/>
+            </jsp:include>
         </c:if>
     </div>
 </div>

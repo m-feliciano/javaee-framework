@@ -1,5 +1,6 @@
 package com.dev.servlet.adapter.in.web.controller.internal;
 
+import com.dev.servlet.adapter.in.web.annotation.Authorization;
 import com.dev.servlet.adapter.in.web.controller.InventoryControllerApi;
 import com.dev.servlet.adapter.in.web.controller.internal.base.BaseController;
 import com.dev.servlet.adapter.in.web.dto.HttpResponse;
@@ -20,6 +21,9 @@ import com.dev.servlet.application.transfer.request.ProductRequest;
 import com.dev.servlet.application.transfer.response.CategoryResponse;
 import com.dev.servlet.application.transfer.response.InventoryResponse;
 import com.dev.servlet.application.transfer.response.ProductResponse;
+import com.dev.servlet.domain.entity.Inventory;
+import com.dev.servlet.infrastructure.persistence.transfer.IPageRequest;
+import com.dev.servlet.infrastructure.persistence.transfer.IPageable;
 import com.dev.servlet.shared.vo.KeyPair;
 import com.dev.servlet.shared.vo.Query;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -50,61 +54,75 @@ public class InventoryController extends BaseController implements InventoryCont
     @Inject
     private ProductDetailPort productDetailPort;
 
+    @Override
+    protected Class<InventoryController> implementation() {
+        return InventoryController.class;
+    }
+
     @SneakyThrows
-    public IHttpResponse<ProductResponse> forwardRegister(Query query, String auth) {
+    public IHttpResponse<ProductResponse> forwardRegister(Query query, @Authorization String auth) {
         ProductResponse response = loadProductDetails(query, auth);
         return newHttpResponse(200, response, forwardTo("formCreateItem"));
     }
 
     @SneakyThrows
-    public IHttpResponse<Void> create(InventoryCreateRequest request, String auth) {
+    public IHttpResponse<Void> create(InventoryCreateRequest request, @Authorization String auth) {
         InventoryResponse inventory = registerInventoryPort.register(request, auth);
         return newHttpResponse(201, redirectTo(inventory.getId()));
     }
 
     @SneakyThrows
-    public IHttpResponse<Void> delete(InventoryRequest request, String auth) {
+    public IHttpResponse<Void> delete(InventoryRequest request, @Authorization String auth) {
         deleteInventoryPort.delete(request, auth);
         return HttpResponse.<Void>next(redirectToCtx("list")).build();
     }
 
     @SneakyThrows
-    public IServletResponse list(InventoryRequest request, String auth) {
-        return getServletResponse(request, auth);
+    public IServletResponse list(IPageRequest pageRequest, InventoryRequest request, @Authorization String auth) {
+        Inventory inventory = inventoryMapper.toInventory(request);
+        pageRequest.setFilter(inventory);
+        IServletResponse response = getServletResponse(pageRequest, auth);
+        log.debug("List completed for inventory: {}", request);
+        return response;
     }
 
     @SneakyThrows
-    public IServletResponse search(Query query, String auth) {
-        InventoryRequest request = inventoryMapper.queryToInventory(query);
-        return getServletResponse(request, auth);
+    public IServletResponse search(Query query, IPageRequest pageRequest, @Authorization String auth) {
+        Inventory inventory = inventoryMapper.toInventory(inventoryMapper.queryToInventory(query));
+        pageRequest.setFilter(inventory);
+        IServletResponse response = getServletResponse(pageRequest, auth);
+        log.debug("Search completed with query: {}", query);
+        return response;
     }
 
     @SneakyThrows
-    public IHttpResponse<InventoryResponse> findById(InventoryRequest request, String auth) {
+    public IHttpResponse<InventoryResponse> findById(InventoryRequest request, @Authorization String auth) {
         InventoryResponse inventory = inventoryDetailPort.get(request, auth);
         return okHttpResponse(inventory, forwardTo("formListItem"));
     }
 
     @SneakyThrows
-    public IHttpResponse<InventoryResponse> details(InventoryRequest request, String auth) {
+    public IHttpResponse<InventoryResponse> details(InventoryRequest request, @Authorization String auth) {
         InventoryResponse inventory = inventoryDetailPort.get(request, auth);
         return okHttpResponse(inventory, forwardTo("formUpdateItem"));
     }
 
     @SneakyThrows
-    public IHttpResponse<Void> update(InventoryRequest request, String auth) {
+    public IHttpResponse<Void> update(InventoryRequest request, @Authorization String auth) {
         InventoryResponse inventory = updateInventoryPort.update(request, auth);
         return newHttpResponse(204, redirectTo(inventory.getId()));
     }
 
-    private IServletResponse getServletResponse(InventoryRequest request, String auth) throws AppException {
-        Collection<InventoryResponse> inventories = listInventoryPort.list(request, auth);
+    private IServletResponse getServletResponse(IPageRequest pageRequest, String auth) throws AppException {
+        IPageable<InventoryResponse> page = listInventoryPort.getAllPageable(
+                pageRequest, auth, inventoryMapper::toResponse);
         Collection<CategoryResponse> categories = listCategoryPort.list(null, auth);
-        Set<KeyPair> data = Set.of(
-                new KeyPair("items", inventories),
+
+        Set<KeyPair> container = Set.of(
+                new KeyPair("pageable", page),
                 new KeyPair("categories", categories)
         );
-        return newServletResponse(data, forwardTo("listItems"));
+        return newServletResponse(container, forwardTo("listItems"));
     }
 
     private ProductResponse loadProductDetails(Query query, String auth) throws AppException {

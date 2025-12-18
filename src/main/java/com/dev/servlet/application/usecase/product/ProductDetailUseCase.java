@@ -8,7 +8,6 @@ import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.application.transfer.request.ProductRequest;
 import com.dev.servlet.application.transfer.response.ProductResponse;
 import com.dev.servlet.domain.entity.Product;
-import com.dev.servlet.domain.entity.enums.Status;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +27,6 @@ public class ProductDetailUseCase implements ProductDetailPort {
         log.debug("GetProductDetailUseCase: attempting to get product detail for product {}", request.id());
 
         Product product = productMapper.toProduct(request, authenticationPort.extractUserId(auth));
-        product.setStatus(Status.ACTIVE.getValue());
         product = repositoryPort.find(product).orElseThrow(() -> new AppException("Product not found"));
         return productMapper.toResponse(product);
     }

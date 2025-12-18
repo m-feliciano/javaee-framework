@@ -72,22 +72,6 @@ public class UserRepository extends BaseRepository<User, String> implements User
         return predicate;
     }
 
-
-    @Override
-    public void updateProfilePicture(String userId, String imgUrl) {
-        executeInTransaction(() -> {
-            CriteriaBuilder cb = em.getCriteriaBuilder();
-            CriteriaUpdate<User> cu = cb.createCriteriaUpdate(User.class);
-            Root<User> root = cu.from(User.class);
-
-            cu.set("imgUrl", imgUrl);
-            cu.where(cb.equal(root.get(ID), userId));
-
-            em.createQuery(cu).executeUpdate();
-            return null;
-        });
-    }
-
     @Override
     public void updateCredentials(String userId, Credentials credentials) {
         executeInTransaction(() -> {

@@ -4,6 +4,7 @@ import com.dev.servlet.adapter.in.web.controller.internal.InventoryController;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.adapter.in.web.dto.IServletResponse;
 import com.dev.servlet.application.mapper.InventoryMapper;
+import com.dev.servlet.application.mapper.Mapper;
 import com.dev.servlet.application.port.in.category.ListCategoryPort;
 import com.dev.servlet.application.port.in.product.ProductDetailPort;
 import com.dev.servlet.application.port.in.stock.DeleteInventoryPort;
@@ -17,6 +18,12 @@ import com.dev.servlet.application.transfer.request.ProductRequest;
 import com.dev.servlet.application.transfer.response.CategoryResponse;
 import com.dev.servlet.application.transfer.response.InventoryResponse;
 import com.dev.servlet.application.transfer.response.ProductResponse;
+import com.dev.servlet.domain.entity.Inventory;
+import com.dev.servlet.domain.entity.Product;
+import com.dev.servlet.infrastructure.persistence.transfer.IPageRequest;
+import com.dev.servlet.infrastructure.persistence.transfer.IPageable;
+import com.dev.servlet.infrastructure.persistence.transfer.internal.PageRequest;
+import com.dev.servlet.infrastructure.persistence.transfer.internal.PageResponse;
 import com.dev.servlet.shared.vo.Query;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -159,6 +166,7 @@ class InventoryControllerTest extends BaseControllerTest {
 
         @Test
         @DisplayName("Should list all inventory items with categories")
+        @SuppressWarnings("all")
         void shouldListAllInventoryItems() {
             // Arrange
             InventoryRequest filter = InventoryRequest.builder().build();
@@ -175,18 +183,33 @@ class InventoryControllerTest extends BaseControllerTest {
             cat.setName("Electronics");
             List<CategoryResponse> categories = List.of(cat);
 
-            when(listInventoryPort.list(any(), eq(VALID_AUTH_TOKEN))).thenReturn(inventories);
+            IPageRequest pageRequest = PageRequest.builder()
+                    .initialPage(0)
+                    .pageSize(10)
+                    .filter(filter)
+                    .build();
+
+            IPageable<InventoryResponse> pageResponse = PageResponse.<InventoryResponse>builder()
+                    .content(inventories)
+                    .totalElements(2)
+                    .currentPage(0)
+                    .pageSize(10)
+                    .build();
+
+            when(listInventoryPort.getAllPageable(any(PageRequest.class), eq(VALID_AUTH_TOKEN), any(Mapper.class)))
+                    .thenReturn((PageResponse) pageResponse);
+
             when(listCategoryPort.list(any(), eq(VALID_AUTH_TOKEN))).thenReturn(categories);
 
             // Act
-            IServletResponse response = inventoryController.list(filter, VALID_AUTH_TOKEN);
+            IServletResponse response = inventoryController.list(pageRequest, filter, VALID_AUTH_TOKEN);
 
             // Assert
             assertThat(response).isNotNull();
             assertThat(response.body()).isNotNull();
             assertThat(response.body()).hasSize(2); // items and categories
 
-            verify(listInventoryPort).list(filter, VALID_AUTH_TOKEN);
+            verify(listInventoryPort).getAllPageable(any(PageRequest.class), eq(VALID_AUTH_TOKEN), any(Mapper.class));
             verify(listCategoryPort).list(null, VALID_AUTH_TOKEN);
         }
 
@@ -219,32 +242,56 @@ class InventoryControllerTest extends BaseControllerTest {
 
         @Test
         @DisplayName("Should search inventory with query parameters")
+        @SuppressWarnings("all")
         void shouldSearchInventory() {
             // Arrange
             Map<String, String> params = new HashMap<>();
             params.put("productId", "product-123");
             Query query = Query.builder().parameters(params).build();
 
-            InventoryRequest mappedRequest = InventoryRequest.builder()
-                    .build();
+            List<InventoryResponse> searchResults = List.of(new InventoryResponse("inv-1"));
 
-            List<InventoryResponse> searchResults = List.of(
-                    new InventoryResponse("inv-1")
-            );
+            InventoryRequest filter = InventoryRequest.builder().build();
 
-            when(inventoryMapper.queryToInventory(query)).thenReturn(mappedRequest);
-            when(listInventoryPort.list(any(), eq(VALID_AUTH_TOKEN))).thenReturn(searchResults);
+            when(inventoryMapper.queryToInventory(any(Query.class))).thenReturn(filter);
+            when(inventoryMapper.toResponse(any(Inventory.class)))
+                    .thenReturn(new InventoryResponse("inv-1"));
+
+            when(inventoryMapper.toInventory(any()))
+                    .thenReturn(new Inventory(
+                            new Product("product-123"),
+                            100,
+                            "Sample inventory")
+                    );
             when(listCategoryPort.list(any(), eq(VALID_AUTH_TOKEN))).thenReturn(List.of());
 
+            IPageRequest pageRequest = PageRequest.builder()
+                    .filter(filter)
+                    .initialPage(0)
+                    .pageSize(10)
+                    .build();
+
+            IPageable<InventoryResponse> pageableResponse = PageResponse.<InventoryResponse>builder()
+                    .content(searchResults)
+                    .totalElements(1)
+                    .currentPage(0)
+                    .pageSize(10)
+                    .build();
+
+            when(listInventoryPort.getAllPageable(any(), eq(VALID_AUTH_TOKEN), any()))
+                    .thenReturn((PageResponse) pageableResponse);
+
             // Act
-            IServletResponse response = inventoryController.search(query, VALID_AUTH_TOKEN);
+            IServletResponse response = inventoryController.search(query, pageRequest, VALID_AUTH_TOKEN);
 
             // Assert
             assertThat(response).isNotNull();
             assertThat(response.body()).isNotNull();
 
-            verify(inventoryMapper).queryToInventory(query);
-            verify(listInventoryPort).list(mappedRequest, VALID_AUTH_TOKEN);
+            verify(inventoryMapper).toInventory(any());
+            verify(inventoryMapper).queryToInventory(any(Query.class));
+            verify(listCategoryPort).list(null, VALID_AUTH_TOKEN);
+            verify(listInventoryPort).getAllPageable(any(PageRequest.class), eq(VALID_AUTH_TOKEN), any(Mapper.class));
         }
     }
 

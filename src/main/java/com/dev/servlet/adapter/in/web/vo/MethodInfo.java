@@ -9,6 +9,9 @@ public record MethodInfo(
         boolean requireAuth,
         List<String> roles,
         List<ParamInfo> params,
-        String responseType
+        String responseType,
+        String description,
+        boolean deprecated,
+        boolean async
 ) {
 }

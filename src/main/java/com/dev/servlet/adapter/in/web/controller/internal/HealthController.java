@@ -20,6 +20,11 @@ public class HealthController extends BaseController implements HealthController
     @Inject
     private HealthService healthService;
 
+    @Override
+    protected Class<HealthController> implementation() {
+        return HealthController.class;
+    }
+
     public IHttpResponse<Map<String, Object>> health() {
         Map<String, Object> health = healthService.getHealthStatus();
         return HttpResponse.ok(health).next(HEALTH_PAGE).build();
@@ -41,6 +46,6 @@ public class HealthController extends BaseController implements HealthController
     public HttpResponse<String> up() {
         boolean isUp = healthService.isDatabaseHealthy() && healthService.isCacheHealthy();
         String json = "{\"status\":\"" + (isUp ? "UP" : "DOWN") + "\"}";
-        return HttpResponse.ofJson(json);
+        return HttpResponse.ok(json).build();
     }
 }

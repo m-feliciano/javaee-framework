@@ -290,7 +290,7 @@ class ProductControllerTest extends BaseControllerTest {
             // Arrange
             String url = "https://example.com/product";
 
-            when(scrapeProductPort.scrapeAsync(any(), any())).thenReturn(null);
+            when(scrapeProductPort.scrape(any(), any())).thenReturn(null);
 
             // Act
             IHttpResponse<Void> response = productController.scrape(VALID_AUTH_TOKEN, url);
@@ -299,7 +299,7 @@ class ProductControllerTest extends BaseControllerTest {
             assertThat(response).isNotNull();
             assertThat(response.next()).contains("redirect:");
 
-            verify(scrapeProductPort).scrapeAsync(url, VALID_AUTH_TOKEN);
+            verify(scrapeProductPort).scrape(url, VALID_AUTH_TOKEN);
         }
     }
 

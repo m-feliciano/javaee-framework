@@ -25,7 +25,7 @@
                             </c:if>
                         </div>
 
-                        <form action="${baseLink}/v2${uploadUserPhoto}/${user.id}"
+                        <form action="${baseLink}/v2${uploadUserPhoto}"
                               enctype="multipart/form-data"
                               method="post"
                               class="csrf-upload-form grid-form">
@@ -44,7 +44,7 @@
                         <h3>Account Information</h3>
                     </div>
                     <div class="card-body">
-                        <form action="<c:out value='${baseLink}${version}${ updateUser }/${user.id}' escapeXml='true'/>"
+                        <form action="<c:out value='${baseLink}${version}${ updateUser }' escapeXml='true'/>"
                               method="post"
                               class="csrf-form grid-form">
                             <div class="form-group">

@@ -16,10 +16,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +30,8 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "tb_category")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @ToString(of = {"id", "name"})
+@Where(clause = "status = 'A'")
 public class Category {
     @Id
     @Column(name = "id", updatable = false)

@@ -11,6 +11,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Where;
 
 import java.util.List;
 
@@ -30,7 +32,8 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "tb_user")
-@ToString(exclude = "credentials")
+@ToString(exclude = {"credentials", "images"})
+@Where(clause = "status IN ('A', 'P')")
 public class User {
     @Id
     @Column(name = "id", updatable = false)
@@ -45,8 +48,6 @@ public class User {
     @ColumnTransformer(write = "UPPER(?)")
     private String status;
 
-    @Column(name = "image_url")
-    private String imgUrl;
     @Column(name = "config")
     private String config;
 
@@ -54,6 +55,9 @@ public class User {
     @CollectionTable(name = "user_perfis", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "perfil_id")
     private List<Integer> perfis;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<FileImage> images;
 
     @Transient
     @JsonIgnore
@@ -99,5 +103,14 @@ public class User {
                 .login(this.getLogin())
                 .password(password)
                 .build();
+    }
+
+    @JsonIgnore
+    public FileImage getProfileImage() {
+        return hasProfileImage() ? images.getFirst() : null;
+    }
+
+    private boolean hasProfileImage() {
+        return images != null && !images.isEmpty();
     }
 }

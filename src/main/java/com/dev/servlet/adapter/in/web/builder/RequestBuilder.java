@@ -1,6 +1,7 @@
 package com.dev.servlet.adapter.in.web.builder;
 
 import com.dev.servlet.adapter.in.web.dto.Request;
+import com.dev.servlet.domain.entity.enums.RequestMethod;
 import com.dev.servlet.infrastructure.utils.KeyPairJsonUtil;
 import com.dev.servlet.infrastructure.utils.URIUtils;
 import com.dev.servlet.shared.vo.KeyPair;
@@ -19,7 +20,7 @@ import static com.dev.servlet.shared.enums.ConstantUtils.BEARER_PREFIX;
 public record RequestBuilder(HttpServletRequest servletRequest) {
     public static class RequestCreator {
         private String endpoint;
-        private String method;
+        private RequestMethod method;
         private String jsonBody;
         private String token;
         private Query query;
@@ -31,7 +32,7 @@ public record RequestBuilder(HttpServletRequest servletRequest) {
         }
 
         public RequestCreator method() {
-            this.method = servletRequest.getMethod();
+            this.method = RequestMethod.valueOf(servletRequest.getMethod());
             return this;
         }
 

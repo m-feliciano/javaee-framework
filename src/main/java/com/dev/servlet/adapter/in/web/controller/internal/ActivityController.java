@@ -1,5 +1,6 @@
 package com.dev.servlet.adapter.in.web.controller.internal;
 
+import com.dev.servlet.adapter.in.web.annotation.Authorization;
 import com.dev.servlet.adapter.in.web.controller.ActivityControllerApi;
 import com.dev.servlet.adapter.in.web.controller.internal.base.BaseController;
 import com.dev.servlet.adapter.in.web.dto.HttpResponse;
@@ -40,7 +41,12 @@ public class ActivityController extends BaseController implements ActivityContro
     @Inject
     private ActivityMapper activityMapper;
 
-    public IHttpResponse<IPageable<UserActivityLogResponse>> getHistory(PageRequest defaultPage, String auth) {
+    @Override
+    protected Class<ActivityController> implementation() {
+        return ActivityController.class;
+    }
+
+    public IHttpResponse<IPageable<UserActivityLogResponse>> getHistory(PageRequest defaultPage, @Authorization String auth) {
         final String userId = authenticationPort.extractUserId(auth);
         PageRequest pageRequest = PageRequest.of(
                 defaultPage.getInitialPage(),
@@ -52,7 +58,7 @@ public class ActivityController extends BaseController implements ActivityContro
         return HttpResponse.ok(activityLogPage).next(forwardTo("history")).build();
     }
 
-    public IHttpResponse<UserActivityLog> getActivityDetail(ActivityRequest request, String auth) {
+    public IHttpResponse<UserActivityLog> getActivityDetail(ActivityRequest request, @Authorization String auth) {
         final String userId = authenticationPort.extractUserId(auth);
         Optional<UserActivityLog> optional = userActivityDetailUseCase.getActivityDetail(request.id(), userId);
 
@@ -64,14 +70,14 @@ public class ActivityController extends BaseController implements ActivityContro
         return HttpResponse.ok(activityLog).next(forwardTo("detail")).build();
     }
 
-    public IHttpResponse<IPageable<UserActivityLogResponse>> search(Query query, IPageRequest pageRequest, String auth) {
+    public IHttpResponse<IPageable<UserActivityLogResponse>> search(Query query, IPageRequest pageRequest, @Authorization String auth) {
         UserActivityLog filter = activityMapper.toFilter(authenticationPort.extractUserId(auth), query);
         pageRequest.setFilter(filter);
         var activities = activityPageableUseCase.getAllPageable(pageRequest, activityMapper::toResponseDashBoard);
         return HttpResponse.ok(activities).next(forwardTo("history")).build();
     }
 
-    public IHttpResponse<List<UserActivityLogResponse>> getTimeline(Query query, String auth) {
+    public IHttpResponse<List<UserActivityLogResponse>> getTimeline(Query query, @Authorization String auth) {
         final String userId = authenticationPort.extractUserId(auth);
         String startDateStr = null;
         String endDateStr = null;

@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface IServletResponse extends IHttpResponse<Set<KeyPair>> {
+
     default Object getEntity(String key) {
         return Optional.of(body())
                 .flatMap(response -> response.stream()
@@ -29,10 +30,5 @@ public interface IServletResponse extends IHttpResponse<Set<KeyPair>> {
     @Override
     default String reasonText() {
         return null;
-    }
-
-    @Override
-    default boolean json() {
-        return false;
     }
 }
