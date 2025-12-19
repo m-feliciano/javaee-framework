@@ -73,28 +73,6 @@ class FrontControllerServletTest {
         lenient().when(request.getHeader(anyString())).thenReturn(null);
     }
 
-    @Test
-    @DisplayName("Should set correlation ID header")
-    void shouldSetCorrelationIdHeader() throws Exception {
-        // Arrange
-        MDC.put("correlationId", "custom-correlation-id");
-
-        IHttpResponse response = HttpResponse.ok("data").build();
-
-        Request request = Request.builder()
-                .method(RequestMethod.GET)
-                .endpoint("/api/v1/test")
-                .build();
-
-        when(FrontControllerServletTest.this.dispatcher.dispatch(any(Request.class))).thenReturn(response);
-        doNothing().when(FrontControllerServletTest.this.responseWriter).write(any(), any(), any(), any());
-        // Act
-        frontControllerServlet.service(FrontControllerServletTest.this.request, FrontControllerServletTest.this.response);
-
-        // Assert
-        verify(FrontControllerServletTest.this.response).setHeader("X-Correlation-ID", "custom-correlation-id");
-    }
-
     @Nested
     @DisplayName("Error Handling")
     class ErrorHandlingTests {
@@ -145,7 +123,6 @@ class FrontControllerServletTest {
             frontControllerServlet.service(request, response);
 
             // Assert
-            verify(response).setStatus(404);
             verify(errorWriter).write(any(), any(), eq(404), eq("Not Found"));
         }
     }
@@ -229,46 +206,6 @@ class FrontControllerServletTest {
     }
 
     @Nested
-    @DisplayName("Response Status Handling")
-    class ResponseStatusTests {
-
-        @Test
-        @DisplayName("Should set correct status code for successful response")
-        void shouldSetSuccessStatusCode() throws Exception {
-            // Arrange
-            IHttpResponse errorResponse = HttpResponse.<String>newBuilder()
-                    .statusCode(201)
-                    .error("Created")
-                    .build();
-
-            when(dispatcher.dispatch(any(Request.class))).thenReturn(errorResponse);
-
-            // Act
-            frontControllerServlet.service(request, response);
-
-            // Assert
-            verify(response).setStatus(201);
-        }
-
-        @Test
-        @DisplayName("Should handle 204 No Content response")
-        void shouldHandle204Response() throws Exception {
-            // Arrange
-            IHttpResponse mockResponse = HttpResponse.<Void>newBuilder()
-                    .statusCode(204)
-                    .build();
-
-            when(dispatcher.dispatch(any(Request.class))).thenReturn(mockResponse);
-
-            // Act
-            frontControllerServlet.service(request, response);
-
-            // Assert
-            verify(response).setStatus(204);
-        }
-    }
-
-    @Nested
     @DisplayName("Successful Request Processing")
     class SuccessfulRequestTests {
 
@@ -286,7 +223,6 @@ class FrontControllerServletTest {
             frontControllerServlet.service(request, response);
 
             // Assert
-            verify(response).setStatus(200);
             verify(responseWriter).write(any(), any(), any(), eq(mock));
             verify(auditPort).success(any(), any(), any());
         }
@@ -303,7 +239,6 @@ class FrontControllerServletTest {
             frontControllerServlet.service(request, response);
 
             // Assert
-            verify(response).setStatus(200);
             verify(responseWriter).write(any(), any(), any(), eq(mockResponse));
         }
 

@@ -79,9 +79,15 @@ public class UserRepository extends BaseRepository<User, String> implements User
             CriteriaUpdate<User> cu = cb.createCriteriaUpdate(User.class);
             Root<User> root = cu.from(User.class);
 
-            cu.set(CREDENTIALS, credentials);
-            cu.where(cb.equal(root.get(ID), userId));
+            if (credentials.getLogin() != null) {
+                cu.set(root.get(CREDENTIALS).get("login"), credentials.getLogin());
+            }
 
+            if (credentials.getPassword() != null) {
+                cu.set(root.get(CREDENTIALS).get("password"), credentials.getPassword());
+            }
+
+            cu.where(cb.equal(root.get(ID), userId));
             em.createQuery(cu).executeUpdate();
             return null;
         });

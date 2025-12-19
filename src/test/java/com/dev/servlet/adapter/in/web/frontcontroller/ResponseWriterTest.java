@@ -65,6 +65,73 @@ class ResponseWriterTest {
     }
 
     @Nested
+    @DisplayName("Response Status Handling")
+    class ResponseStatusTests {
+
+        @Test
+        @DisplayName("Should set correct status code for successful response")
+        void shouldSetSuccessStatusCode() throws Exception {
+            // Arrange
+            IHttpResponse errorResponse = HttpResponse.<String>newBuilder()
+                    .statusCode(201)
+                    .error("Created")
+                    .build();
+
+            when(request.getHeader("Accept")).thenReturn("text/html");
+            // Act
+            responseWriter.write(request, response,
+                    Request.builder()
+                            .method(RequestMethod.POST)
+                            .endpoint("/api/v1/resource") .build(),
+                    errorResponse);
+
+            // Assert
+            verify(response).setStatus(201);
+        }
+
+        @Test
+        @DisplayName("Should handle 204 No Content response")
+        void shouldHandle204Response() throws Exception {
+            // Arrange
+            IHttpResponse mockResponse = HttpResponse.<Void>newBuilder()
+                    .statusCode(204)
+                    .build();
+
+            when(request.getHeader("Accept")).thenReturn("text/html");
+            // Act
+            responseWriter.write(request, response,
+                    Request.builder()
+                            .method(RequestMethod.DELETE)
+                            .endpoint("/api/v1/resource/123") .build(),
+                    mockResponse);
+
+            // Assert
+            verify(response).setStatus(204);
+        }
+    }
+
+    @Test
+    @DisplayName("Should set correlation ID header")
+    void shouldSetCorrelationIdHeader() throws Exception {
+        // Arrange
+        MDC.put("correlationId", "custom-correlation-id");
+
+        IHttpResponse response = HttpResponse.ok("data").build();
+
+        Request request = Request.builder()
+                .method(RequestMethod.GET)
+                .endpoint("/api/v1/test")
+                .build();
+
+        when(ResponseWriterTest.this.request.getHeader("Accept")).thenReturn("text/html");
+        // Act
+        responseWriter.write(ResponseWriterTest.this.request, ResponseWriterTest.this.response, request, response);
+
+        // Assert
+        verify(ResponseWriterTest.this.response).setHeader("X-Correlation-ID", "custom-correlation-id");
+    }
+
+    @Nested
     @DisplayName("JSON Response Tests")
     class JsonResponseTests {
 
