@@ -129,7 +129,7 @@ public final class Properties {
         return BooleanUtils.toBoolean(getEnvOrDefault("DEMO_MODE", "false"));
     }
 
-    private static boolean isProductionMode() {
+    public static boolean isProductionMode() {
         return "production".equalsIgnoreCase(getOrDefault("app.env", "unknown"));
     }
 

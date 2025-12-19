@@ -99,6 +99,15 @@ Example of a complete url to list products: http://localhost:8080/api/v1/product
 
 If you want to see all available endpoints, check the Docs tab in the demo application UI or refer to the source code.
 
+## OpenAPI / Swagger
+
+The demo application includes OpenAPI documentation available at:
+
+- [OpenAPI Spec](openapi/openapi.yaml)
+
+View the API documentation online:
+- https://editor.swagger.io/?url=https://raw.githubusercontent.com/m-feliciano/servlets/master/openapi/openapi.yaml
+
 ## License
 
 MIT — see the LICENSE file.
@@ -115,3 +124,4 @@ Contributions are welcome. See CONTRIBUTING.md for guidelines.
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Docker Pulls](https://img.shields.io/docker/pulls/mfeliciano1/servlets-app)
 [![Last Commit](https://img.shields.io/github/last-commit/m-feliciano/javaee-framework)](...)
+[![OpenAPI](https://img.shields.io/badge/OpenAPI-3.0-green)](openapi/openapi.yaml)
