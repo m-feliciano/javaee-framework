@@ -27,7 +27,8 @@ public class CsrfFilter implements Filter {
             "/health/live",
             "/health/up",
             "/user/confirm",
-            "/alert/clear"
+            "/alert/clear",
+            "/auth/login"
     );
 
     @Inject
@@ -48,7 +49,7 @@ public class CsrfFilter implements Filter {
 
         String requestURI = request.getRequestURI();
         String method = request.getMethod();
-        if (RequestMethod.GET.name().equals(method)) {
+        if (RequestMethod.GET.getMethod().equals(method)) {
             AuthCookiePort.ensureCsrfToken(request, response);
             chain.doFilter(request, response);
             return;
@@ -56,11 +57,11 @@ public class CsrfFilter implements Filter {
 
         if (isStatefulMethod(method)) {
             if (!AuthCookiePort.validateCsrfToken(request)) {
-                log.warn("CSRF validation failed [method={}, uri={}]", method, requestURI);
+                log.warn("CSRF validation failed [implementation={}, uri={}]", method, requestURI);
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid CSRF token");
                 return;
             }
-            log.debug("CSRF validation successful [method={}, uri={}]", method, requestURI);
+            log.debug("CSRF validation successful [implementation={}, uri={}]", method, requestURI);
         }
         chain.doFilter(request, response);
     }

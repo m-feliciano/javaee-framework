@@ -3,7 +3,6 @@ package com.dev.servlet.application.usecase.category;
 import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.in.category.DeleteCategoryPort;
 import com.dev.servlet.application.port.in.category.GetCategoryDetailPort;
-import com.dev.servlet.application.port.out.cache.CachePort;
 import com.dev.servlet.application.port.out.category.CategoryRepositoryPort;
 import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.application.transfer.request.CategoryRequest;
@@ -24,9 +23,6 @@ public class DeleteCategoryUseCase implements DeleteCategoryPort {
     @Inject
     private GetCategoryDetailPort categoryDetailPort;
 
-    @Inject
-    private CachePort cachePort;
-
     @Override
     public void delete(CategoryRequest request, String auth) throws AppException {
         log.debug("DeleteCategoryUseCase called with request: {} and auth: {}", request, auth);
@@ -36,7 +32,5 @@ public class DeleteCategoryUseCase implements DeleteCategoryPort {
         Category category = new Category(response.getId());
         category.setUser(new User(userId));
         repositoryPort.delete(category);
-
-        cachePort.clear("categoryCacheKey", userId);
     }
 }

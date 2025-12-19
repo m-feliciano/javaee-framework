@@ -25,23 +25,12 @@ import org.hibernate.Session;
 import java.sql.ResultSet;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 @NoArgsConstructor
 @RequestScoped
 public class InventoryRepository extends BaseRepository<Inventory, String> implements InventoryRepositoryPort {
     public static final String PRODUCT = "product";
-
-    @Override
-    public Optional<Inventory> find(Inventory inventory) {
-        List<Inventory> all = findAll(inventory);
-        if (CollectionUtils.isEmpty(all)) {
-            return Optional.empty();
-        }
-        return Optional.of(all.getFirst());
-    }
 
     @Override
     public List<Inventory> findAll(Inventory inventory) {
@@ -117,7 +106,6 @@ public class InventoryRepository extends BaseRepository<Inventory, String> imple
 
     @Override
     public List<Inventory> saveAll(List<Inventory> inventories) throws AppException {
-        AtomicReference<String> errors = new AtomicReference<>();
         Session session = em.unwrap(Session.class);
         session.getTransaction().begin();
 
@@ -141,13 +129,8 @@ public class InventoryRepository extends BaseRepository<Inventory, String> imple
                     }
                 }
                 ps.executeBatch();
-            } catch (Exception e) {
-                errors.set(e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
             }
         });
-        if (errors.get() != null) {
-            throw new AppException(errors.get());
-        }
         try {
             session.getTransaction().commit();
         } catch (Exception e) {
@@ -159,17 +142,36 @@ public class InventoryRepository extends BaseRepository<Inventory, String> imple
     protected Predicate buildDefaultPredicateFor(Inventory filter, CriteriaBuilder cb, Root<?> root) {
         Predicate predicate = cb.equal(root.get(STATUS), Status.ACTIVE.getValue());
         predicate = cb.and(predicate, cb.equal(root.get(USER).get(ID), filter.getUser().getId()));
+
+        // Inventory filtering
         if (filter.getId() != null) {
             predicate = cb.and(predicate, cb.equal(root.get(ID), filter.getId()));
         }
+
         if (filter.getUser() != null) {
             predicate = cb.and(predicate, cb.equal(root.get(USER).get(ID), filter.getUser().getId()));
         }
+
         if (filter.getDescription() != null) {
             Expression<String> upper = cb.upper(root.get("description"));
             Predicate like = cb.like(upper, "%" + filter.getDescription().toUpperCase() + "%");
             predicate = cb.and(predicate, like);
         }
+
+        // Product filtering
+        if (filter.getProduct() != null) {
+            Predicate pProduct = cb.conjunction();
+            if (filter.getProduct().getId() != null) {
+                pProduct = cb.equal(root.get(PRODUCT).get(ID), filter.getProduct().getId());
+            } else {
+                if (filter.getProduct().getCategory() != null) {
+                    Predicate pCategory = cb.equal(root.get(PRODUCT).get("category").get(ID), filter.getProduct().getCategory().getId());
+                    pProduct = cb.and(pProduct, pCategory);
+                }
+            }
+            predicate = cb.and(predicate, pProduct);
+        }
+
         return predicate;
     }
 }

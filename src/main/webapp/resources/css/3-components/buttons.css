@@ -19,6 +19,10 @@
     overflow: hidden;
     color: var(--white); }
 
+.btn-light {
+    color: #000;
+}
+
 .btn::before {
     content: '';
     position: absolute;

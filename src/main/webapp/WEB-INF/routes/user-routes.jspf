@@ -4,6 +4,6 @@
 <c:set value="user" var="userLink"/>
 <c:url value="/${userLink}/registerUser" var="registerUser"/>
 <c:url value="/${userLink}/update" var="updateUser"/>
-<c:url value="/${userLink}/list" var="listUser"/>
+<c:url value="/${userLink}/me" var="listUser"/>
 <c:url value="/${userLink}/confirm" var="confirmUser"/>
 <c:url value="/${userLink}/upload-photo" var="uploadUserPhoto"/>

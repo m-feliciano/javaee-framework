@@ -1,5 +1,6 @@
 package com.dev.servlet.adapter.in.web.introspection;
 
+import com.dev.servlet.adapter.in.web.annotation.Async;
 import com.dev.servlet.adapter.in.web.annotation.Authorization;
 import com.dev.servlet.adapter.in.web.annotation.Controller;
 import com.dev.servlet.adapter.in.web.annotation.Property;
@@ -7,11 +8,9 @@ import com.dev.servlet.adapter.in.web.annotation.RequestMapping;
 import com.dev.servlet.adapter.in.web.vo.ControllerInfo;
 import com.dev.servlet.adapter.in.web.vo.MethodInfo;
 import com.dev.servlet.adapter.in.web.vo.ParamInfo;
-import com.dev.servlet.application.port.out.cache.CachePort;
 import com.dev.servlet.domain.entity.enums.RoleType;
 import com.dev.servlet.shared.util.ClassUtil;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -22,30 +21,17 @@ import java.util.List;
 public class ControllerIntrospectionService {
     private static final String CONTROLLERS_PACKAGE = "com.dev.servlet.adapter.in.web.controller";
 
-    @Inject
-    private CachePort cachePort;
-
     public List<ControllerInfo> listControllers() {
-        String namespace = "controllers_info";
-        String cacheKey = "system";
-
         try {
-            List<ControllerInfo> controllers = cachePort.get(namespace, cacheKey);
-            if (controllers != null) return controllers;
-
             List<Class<?>> classes = ClassUtil.scanPackage(CONTROLLERS_PACKAGE, Controller.class);
-            controllers = classes.stream()
-                    .map(clz -> {
-                        String base = clz.getAnnotation(Controller.class).value();
-                        List<MethodInfo> methods = buildMethodInfos(clz);
-                        return new ControllerInfo(clz.getSimpleName(), base, methods);
-                    })
+
+            return classes.stream()
+                    .map(clz -> new ControllerInfo(
+                            clz.getSimpleName(),
+                            clz.getAnnotation(Controller.class).value(),
+                            buildMethodInfos(clz)))
                     .parallel()
                     .toList();
-
-            cachePort.set(namespace, cacheKey, controllers);
-
-            return listControllers();  // calls it again to ensure caching works
         } catch (Exception e) {
             throw new RuntimeException("Failed to inspect controllers", e);
         }
@@ -58,12 +44,20 @@ public class ControllerIntrospectionService {
             RequestMapping rm = method.getAnnotation(RequestMapping.class);
             List<ParamInfo> params = buildParamInfos(method);
             List<String> roles = extractRoles(rm);
-            String returnType = formatReturnType(method.getGenericReturnType().getTypeName());
+
+            String responseType = formatReturnType(method.getGenericReturnType().getTypeName());
+
             String jsonType = rm.jsonType() != null && rm.jsonType() != Void.class ? rm.jsonType().getSimpleName() : "void";
             String path = rm.value();
-            String httpMethod = rm.method().name();
-            boolean requestAuth = rm.requestAuth();
-            methods.add(new MethodInfo(path, httpMethod, jsonType, requestAuth, roles, params, returnType));
+            String httpMethod = rm.method().getMethod();
+            boolean requireAuth = rm.requestAuth();
+            String description = rm.description();
+            boolean deprecated = method.isAnnotationPresent(Deprecated.class);
+
+            // todo: extract from actual implementation: see router base controller
+            boolean async = method.isAnnotationPresent(Async.class);
+
+            methods.add(new MethodInfo(path, httpMethod, jsonType, requireAuth, roles, params, responseType, description, deprecated, async));
         }
         return methods;
     }
@@ -75,9 +69,8 @@ public class ControllerIntrospectionService {
             Authorization auth = p.getAnnotation(Authorization.class);
             String propName = prop != null ? prop.value() : null;
             String typed;
-            if (auth != null) {
-                typed = "Authorization";
-            } else {
+            if (auth != null) typed = "Authorization";
+            else {
                 typed = p.getParameterizedType().getTypeName();
                 typed = typed.substring(typed.lastIndexOf(".") + 1);
             }
@@ -91,8 +84,7 @@ public class ControllerIntrospectionService {
         if (rm.roles().length == 0) {
             roles.add(RoleType.DEFAULT.name());
         } else {
-            for (RoleType r : rm.roles())
-                roles.add(r.name());
+            for (RoleType r : rm.roles()) roles.add(r.name());
         }
         return roles;
     }
@@ -103,12 +95,14 @@ public class ControllerIntrospectionService {
             int indexOf = returnType.lastIndexOf(">");
             returnType = returnType.substring(returnType.indexOf("<") + 1, indexOf);
         }
+
         if (returnType.contains("<")) {
             var realType = returnType.substring(0, returnType.indexOf("<"));
             realType = realType.substring(realType.lastIndexOf(".") + 1);
             var genericType = returnType.substring(returnType.indexOf("<") + 1, returnType.lastIndexOf(">"));
             return realType + "<" + genericType.substring(genericType.lastIndexOf(".") + 1) + ">";
         }
+
         return returnType.substring(returnType.lastIndexOf(".") + 1);
     }
 }

@@ -6,5 +6,4 @@ public interface IHttpResponse<T> {
     String error();
     String reasonText();
     String next();
-    boolean json();
 }

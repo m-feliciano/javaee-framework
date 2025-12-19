@@ -1,6 +1,5 @@
 package com.dev.servlet.adapter.out.security;
 
-import com.dev.servlet.adapter.in.web.frontcontroller.ResponseWriter;
 import com.dev.servlet.application.port.out.audit.AuditPort;
 import com.dev.servlet.application.port.out.cache.CachePort;
 import com.dev.servlet.application.port.out.security.AuthCookiePort;
@@ -50,8 +49,6 @@ public class AuthCookieAdapter implements AuthCookiePort {
     private AuditPort auditPort;
     @Inject
     private CachePort cachePort;
-    @Inject
-    private ResponseWriter responseWriter;
 
     @PostConstruct
     public void init() {
@@ -158,9 +155,6 @@ public class AuthCookieAdapter implements AuthCookiePort {
     public boolean validateCsrfToken(HttpServletRequest request) {
         String cookieToken = getCsrfToken(request);
         String requestToken = request.getHeader(CSRF_TOKEN_HEADER);
-        if (StringUtils.isBlank(requestToken)) {
-            requestToken = request.getParameter(CSRF_TOKEN_HEADER);
-        }
 
         if (StringUtils.isBlank(cookieToken) || StringUtils.isBlank(requestToken)) {
             log.warn("Missing CSRF token [cookie={}, request={}]", cookieToken != null, requestToken != null);
@@ -227,7 +221,6 @@ public class AuthCookieAdapter implements AuthCookiePort {
 
         if (StringUtils.isNotBlank(domain)) cookie.setDomain(domain);
 
-        response.addCookie(cookie);
         String cookieHeader = buildCsrfCookieHeader(token);
         response.addHeader("Set-Cookie", cookieHeader);
 

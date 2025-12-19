@@ -55,20 +55,31 @@
                                     <th>JSON Type</th>
                                     <th>Auth</th>
                                     <th>Roles</th>
+                                    <th>Async</th>
                                     <th>RESPONSE</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <c:forEach items="${ctrl.methods()}" var="m">
-                                    <tr class="method-row"
+                                    <tr class="method-row ${m.deprecated() ? 'table-warning' : ''}"
                                         data-http="<c:out value="${m.httpMethod()}"/>"
-                                        data-auth="<c:out value="${m.requireAuth()}"/>">
+                                        data-auth="<c:out value="${m.requireAuth()}"/>"
+                                        data-deprecated="<c:out value="${m.deprecated()}"/>"
+                                        data-async="<c:out value="${m.async()}"/>">
 
                                         <td data-label="Path">
                                             <code class="path"><c:out value="${m.path()}"/></code>
 
+                                            <c:if test="${m.deprecated()}">
+                                                <span class="badge bg-warning text-dark ms-1"
+                                                      title="This endpoint is deprecated">
+                                                    <i class="bi bi-exclamation-triangle"></i> DEPRECATED
+                                                </span>
+                                            </c:if>
+
                                             <c:if test="${\"/scrape\".equals(m.path())}">
-                                                <form action="${baseLink}${version}${scrapeProduct}" method="post"
+                                                <form action="${baseLink}${version}${scrapeProduct}"
+                                                      method="post"
                                                       class="d-inline ms-2 csrf-form">
                                                     <button type="submit"
                                                             class="btn btn-sm btn-outline-primary"
@@ -106,10 +117,34 @@
                                                 </c:choose>
                                             </c:forEach>
                                         </td>
+                                        <td data-label="Async">
+                                            <c:choose>
+                                                <c:when test="${m.async()}">
+                                                    <span class="badge bg-primary" title="Asynchronous execution">
+                                                        <i class="bi bi-lightning-charge"></i> Async
+                                                    </span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="badge bg-light text-dark">Sync</span>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </td>
                                         <td data-label="Return"><code class="return-type"><c:out
                                                 value="${m.responseType()}"/></code>
                                         </td>
                                     </tr>
+
+                                    <!-- Description row as subline -->
+                                    <c:if test="${not empty m.description()}">
+                                        <tr class="description-row ${m.deprecated() ? 'table-warning' : ''}">
+                                            <td colspan="7" class="description-cell">
+                                                <small class="text-muted">
+                                                    <i class="bi bi-info-circle"></i>
+                                                    <c:out value="${m.description()}"/>
+                                                </small>
+                                            </td>
+                                        </tr>
+                                    </c:if>
                                 </c:forEach>
                                 </tbody>
                             </table>

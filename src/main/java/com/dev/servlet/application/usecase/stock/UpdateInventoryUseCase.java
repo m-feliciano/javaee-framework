@@ -7,7 +7,6 @@ import com.dev.servlet.application.port.out.inventory.InventoryRepositoryPort;
 import com.dev.servlet.application.transfer.request.InventoryRequest;
 import com.dev.servlet.application.transfer.response.InventoryResponse;
 import com.dev.servlet.domain.entity.Inventory;
-import com.dev.servlet.domain.entity.enums.Status;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +26,6 @@ public class UpdateInventoryUseCase implements UpdateInventoryPort {
         Inventory inventory = repositoryPort.findById(request.id()).orElseThrow(() -> new AppException("Inventory not found"));
         inventory.setDescription(request.description());
         inventory.setQuantity(request.quantity());
-        inventory.setStatus(Status.ACTIVE.getValue());
         repositoryPort.update(inventory);
         return new InventoryResponse(inventory.getId());
     }

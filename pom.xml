@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>servlets</groupId>
     <artifactId>servlets</artifactId>
-    <version>3.4.0</version>
+    <version>3.4.0-alpha</version>
     <packaging>war</packaging>
     <properties>
         <java.version>21</java.version>
@@ -336,6 +336,16 @@
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk18on</artifactId>
             <version>1.83</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-imaging</artifactId>
+            <version>1.0.0-alpha6</version>
+        </dependency>
+        <dependency>
+            <groupId>com.adobe.xmp</groupId>
+            <artifactId>xmpcore</artifactId>
+            <version>6.1.11</version>
         </dependency>
     </dependencies>
     <build>

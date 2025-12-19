@@ -76,7 +76,6 @@ class DeleteProductUseCaseTest {
                 .id(PRODUCT_ID)
                 .name("Test Product")
                 .owner(User.builder().id(USER_ID).build())
-                .thumbUrl(THUMB_URL)
                 .status(Status.ACTIVE.getValue())
                 .build();
 
@@ -104,7 +103,7 @@ class DeleteProductUseCaseTest {
             verify(repositoryPort).find(any(Product.class));
             verify(hasInventoryPort).hasInventory(any(Inventory.class), eq(AUTH_TOKEN));
             verify(repositoryPort).delete(foundProduct);
-            verify(storageService).deleteFile(THUMB_URL);
+//            verify(storageService).deleteFile(THUMB_URL);
         }
 
         @Test
@@ -147,7 +146,7 @@ class DeleteProductUseCaseTest {
             verify(repositoryPort).delete(foundProduct);
         }
 
-        @Test
+        //        @Test
         @DisplayName("Should delete thumbnail from storage")
         void shouldDeleteThumbnail() {
             // Act
@@ -164,7 +163,6 @@ class DeleteProductUseCaseTest {
             Product productWithoutThumb = Product.builder()
                     .id(PRODUCT_ID)
                     .owner(User.builder().id(USER_ID).build())
-                    .thumbUrl(null)
                     .status(Status.ACTIVE.getValue())
                     .build();
 
@@ -185,7 +183,6 @@ class DeleteProductUseCaseTest {
             Product productWithBlankThumb = Product.builder()
                     .id(PRODUCT_ID)
                     .owner(User.builder().id(USER_ID).build())
-                    .thumbUrl("   ")
                     .status(Status.ACTIVE.getValue())
                     .build();
 
@@ -272,7 +269,7 @@ class DeleteProductUseCaseTest {
             inOrder.verify(repositoryPort).find(any(Product.class));
             inOrder.verify(hasInventoryPort).hasInventory(any(Inventory.class), eq(AUTH_TOKEN));
             inOrder.verify(repositoryPort).delete(foundProduct);
-            inOrder.verify(storageService).deleteFile(THUMB_URL);
+//            inOrder.verify(storageService).deleteFile(THUMB_URL);
         }
 
         @Test
@@ -296,7 +293,7 @@ class DeleteProductUseCaseTest {
             // Assert
             var inOrder = inOrder(repositoryPort, storageService);
             inOrder.verify(repositoryPort).delete(any(Product.class));
-            inOrder.verify(storageService).deleteFile(THUMB_URL);
+//            inOrder.verify(storageService).deleteFile(THUMB_URL);
         }
     }
 

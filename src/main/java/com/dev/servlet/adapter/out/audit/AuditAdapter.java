@@ -16,10 +16,13 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @ApplicationScoped
 public class AuditAdapter implements AuditPort {
+    private final static AtomicLong counter = new AtomicLong(0);
+
     private static final List<String> mdcKeys = List.of(
             "startedAt",
             "correlationId",
@@ -67,7 +70,9 @@ public class AuditAdapter implements AuditPort {
         metadata.put("timestamp", Instant.now().toString());
         loadFromMdc(metadata);
 
-        Thread.ofVirtual().start(() -> {
+        Thread.ofVirtual()
+                .name("audit-logger-counter-" + counter.incrementAndGet())
+                .start(() -> {
             final String threadName = Thread.currentThread().getName();
             log.debug("[Thread: {}] Logging audit event: {}", threadName, event);
 

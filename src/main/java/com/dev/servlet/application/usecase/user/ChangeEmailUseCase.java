@@ -2,7 +2,6 @@ package com.dev.servlet.application.usecase.user;
 
 import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.in.user.ChangeEmailPort;
-import com.dev.servlet.application.port.out.cache.CachePort;
 import com.dev.servlet.application.port.out.confirmtoken.ConfirmationTokenRepositoryPort;
 import com.dev.servlet.application.port.out.user.UserRepositoryPort;
 import com.dev.servlet.domain.entity.ConfirmationToken;
@@ -23,8 +22,6 @@ public class ChangeEmailUseCase implements ChangeEmailPort {
     private UserRepositoryPort repositoryPort;
     @Inject
     private ConfirmationTokenRepositoryPort tokenRepositoryPort;
-    @Inject
-    private CachePort cachePort;
 
     public void change(String token) throws AppException {
         log.debug("ChangeEmailUseCase: changing email with token {}", token);
@@ -41,11 +38,9 @@ public class ChangeEmailUseCase implements ChangeEmailPort {
 
         String email = CloneUtil.fromJson(ct.getBody(), String.class);
         user.setLogin(email);
-        user = repositoryPort.update(user);
+        repositoryPort.update(user);
 
         ct.setUsed(true);
         tokenRepositoryPort.update(ct);
-
-        cachePort.clear("userCacheKey", user.getId());
     }
 }

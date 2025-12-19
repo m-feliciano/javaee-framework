@@ -37,7 +37,7 @@
             <jsp:param name="searchType" value="name"/>
         </jsp:include>
 
-        <c:if test="${ !pageable.getContent().iterator().hasNext() }">
+        <c:if test="${ pageable.totalElements == 0 }">
             <div class="empty-state">
                 <div class="empty-state-icon">
                     <i class="bi bi-box-seam"></i>
@@ -50,7 +50,7 @@
             </div>
         </c:if>
 
-        <c:if test="${ pageable.getContent().iterator().hasNext() }">
+        <c:if test="${ pageable.totalElements > 0 }">
             <div class="card">
                 <div class="table-responsive">
                     <table class="table table-striped table-bordered table-hover mb-0">

@@ -14,7 +14,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.MDC;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("MDCFilter Tests")
@@ -63,7 +67,7 @@ class MDCFilterTest {
         }
 
         @Test
-        @DisplayName("Should add HTTP method to MDC during filter")
+        @DisplayName("Should add HTTP implementation to MDC during filter")
         void shouldAddHttpMethod() throws Exception {
             // Arrange
             doAnswer(invocation -> {

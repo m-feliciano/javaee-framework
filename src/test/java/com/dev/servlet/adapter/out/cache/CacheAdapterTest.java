@@ -132,6 +132,24 @@ class CacheAdapterTest {
         }
 
         @Test
+        @DisplayName("Should clear all keys with suffix in namespace")
+        void shouldClearAllKeysInSuffixNamespace() throws InterruptedException {
+            // Arrange
+            cacheAdapter.set("ns1", "user-123", "data1");
+            cacheAdapter.set("ns1", "user-456", "data2");
+            cacheAdapter.set("ns2", "user-123", "data3");
+
+            // Act
+            cacheAdapter.clearSuffix("ns1", "user-123");
+            // Wait for the background thread to complete
+            Thread.sleep(50);
+            // Assert
+            assertThat(cacheAdapter.<String>get("ns1", "user-123")).isNull();
+            assertThat(cacheAdapter.<String>get("ns1", "user-456")).isEqualTo("data2");
+            assertThat(cacheAdapter.<String>get("ns2", "user-123")).isEqualTo("data3");
+        }
+
+        @Test
         @DisplayName("Should clear all entries with specific key suffix")
         void shouldClearAllEntriesWithKeySuffix() {
             // Arrange

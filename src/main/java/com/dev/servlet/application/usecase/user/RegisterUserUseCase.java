@@ -1,12 +1,10 @@
 package com.dev.servlet.application.usecase.user;
 
 import com.dev.servlet.application.exception.AppException;
-import com.dev.servlet.application.mapper.UserMapper;
 import com.dev.servlet.application.port.in.user.GenerateConfirmationTokenPort;
 import com.dev.servlet.application.port.in.user.RegisterUserPort;
 import com.dev.servlet.application.port.in.user.UserDemoModePort;
 import com.dev.servlet.application.port.out.MessagePort;
-import com.dev.servlet.application.port.out.cache.CachePort;
 import com.dev.servlet.application.port.out.user.UserRepositoryPort;
 import com.dev.servlet.application.transfer.request.LoginRequest;
 import com.dev.servlet.application.transfer.request.UserCreateRequest;
@@ -35,8 +33,6 @@ public class RegisterUserUseCase implements RegisterUserPort {
     @Inject
     private UserRepositoryPort repositoryPort;
     @Inject
-    private UserMapper userMapper;
-    @Inject
     @Named("messageProducer")
     private MessagePort messagePort;
     @Inject
@@ -44,8 +40,6 @@ public class RegisterUserUseCase implements RegisterUserPort {
     // Only for demo purposes
     @Inject
     private Instance<UserDemoModePort> demoModePortInstance;
-    @Inject
-    private CachePort cachePort;
 
     private String baseUrl;
 
@@ -96,8 +90,6 @@ public class RegisterUserUseCase implements RegisterUserPort {
 
         UserResponse response = new UserResponse(newUser.getId());
         response.setCreated(true);
-
-        cachePort.clear("userCacheKey", newUser.getId());
         return response;
     }
 }

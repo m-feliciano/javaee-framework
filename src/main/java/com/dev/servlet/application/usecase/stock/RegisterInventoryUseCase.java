@@ -12,6 +12,7 @@ import com.dev.servlet.application.transfer.response.InventoryResponse;
 import com.dev.servlet.application.transfer.response.ProductResponse;
 import com.dev.servlet.domain.entity.Inventory;
 import com.dev.servlet.domain.entity.Product;
+import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -33,12 +34,15 @@ public class RegisterInventoryUseCase implements RegisterInventoryPort {
     public InventoryResponse register(InventoryCreateRequest request, String auth) throws AppException {
         log.debug("RegisterInventoryUseCase: attempting to register inventory for product {}", request.productId());
 
+        User user = authenticationPort.extractUser(auth);
+
         Inventory inventory = inventoryMapper.createToInventory(request);
         ProductResponse product = productDetailPort.get(new ProductRequest(inventory.getProduct().getId()), auth);
         inventory.setProduct(new Product(product.getId()));
         inventory.setStatus(Status.ACTIVE.getValue());
-        inventory.setUser(authenticationPort.extractUser(auth));
+        inventory.setUser(user);
         inventory = repositoryPort.save(inventory);
-        return inventoryMapper.toResponse(inventory);
+
+        return new InventoryResponse(inventory.getId());
     }
 }

@@ -1,6 +1,7 @@
 package com.dev.servlet.adapter.in.web.filter;
 
 import com.dev.servlet.application.port.out.security.AuthCookiePort;
+import com.dev.servlet.domain.entity.enums.RequestMethod;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -96,7 +97,7 @@ class CsrfFilterTest {
         @DisplayName("Should ensure CSRF token for GET requests")
         void shouldEnsureCsrfTokenForGet() throws Exception {
             // Arrange
-            when(request.getMethod()).thenReturn("GET");
+            when(request.getMethod()).thenReturn(RequestMethod.GET.getMethod());
 
             // Act
             csrfFilter.doFilter(request, response, filterChain);

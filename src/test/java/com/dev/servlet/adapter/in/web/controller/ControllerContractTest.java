@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Contract tests to verify that all controller implementations properly implement their API interfaces.
- * Validates interface compliance, annotations, method signatures, and architectural patterns.
+ * Validates interface compliance, annotations, implementation signatures, and architectural patterns.
  */
 @DisplayName("Controller Contract Tests")
 class ControllerContractTest {

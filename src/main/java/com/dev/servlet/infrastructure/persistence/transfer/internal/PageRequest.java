@@ -21,4 +21,13 @@ public final class PageRequest implements IPageRequest, Serializable {
     public static PageRequest of(int initialPage, int pageSize, Object filter, Sort sort) {
         return PageRequest.builder().initialPage(initialPage).pageSize(pageSize).filter(filter).sort(sort).build();
     }
+
+    @Override
+    public String toString() {
+        return "PageRequest{" +
+               "initialPage=" + initialPage +
+               ", pageSize=" + pageSize +
+               ", sort=" + sort +
+               '}';
+    }
 }

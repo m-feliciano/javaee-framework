@@ -75,9 +75,26 @@
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button">
                     <div class="navbar-user">
-                        <div class="user-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-                            US
-                        </div>
+                        <c:choose>
+                            <c:when test="${not empty user.imgUrl}">
+                                <div class="user-profile-pic">
+                                    <img src="${cdn}/${user.imgUrl}"
+                                         alt="User Profile Picture"
+                                         width="35" height="35" style="border-radius: 50%;">
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="user-avatar"
+                                     style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                            display: flex;
+                                            align-items: center;
+                                            justify-content: center;
+                                            color: white;
+                                            font-weight: bold;">
+                                    US
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
                         <div class="user-info">
                             <span class="user-name">${user.login.substring(0, user.login.indexOf('@'))}</span>
                             <span class="user-role">Administrador</span>
@@ -85,7 +102,7 @@
                     </div>
                 </a>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="<c:url value='${baseLink}${version}${listUser}/${user.id}'/>" >
+                    <a class="dropdown-item" href="<c:url value='${baseLink}${version}${listUser}'/>">
                         <i class="bi bi-person-circle"></i>
                         <span>My Profile</span>
                     </a>

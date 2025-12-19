@@ -1,6 +1,5 @@
 package com.dev.servlet.adapter.in.web.controller;
 
-import com.dev.servlet.adapter.in.web.annotation.Authorization;
 import com.dev.servlet.adapter.in.web.annotation.Controller;
 import com.dev.servlet.adapter.in.web.annotation.RequestMapping;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
@@ -18,15 +17,28 @@ import static com.dev.servlet.domain.entity.enums.RequestMethod.GET;
 
 @Controller("activity")
 public interface ActivityControllerApi {
-    @RequestMapping(value = "/history", method = GET)
-    IHttpResponse<IPageable<UserActivityLogResponse>> getHistory(PageRequest defaultPage, @Authorization String auth);
+    @RequestMapping(
+            value = "/history",
+            description = "Retrieve paginated user activity logs."
+    )
+    IHttpResponse<IPageable<UserActivityLogResponse>> getHistory(PageRequest defaultPage, String auth);
 
-    @RequestMapping(value = "/history/{id}", method = GET, jsonType = ActivityRequest.class)
-    IHttpResponse<UserActivityLog> getActivityDetail(ActivityRequest request, @Authorization String auth);
+    @RequestMapping(
+            value = "/history/{id}",
+            jsonType = ActivityRequest.class,
+            description = "Retrieve detailed information about a specific user activity log."
+    )
+    IHttpResponse<UserActivityLog> getActivityDetail(ActivityRequest request, String auth);
 
-    @RequestMapping(value = "/search", method = GET)
-    IHttpResponse<IPageable<UserActivityLogResponse>> search(Query query, IPageRequest pageRequest, @Authorization String auth);
+    @RequestMapping(
+            value = "/search",
+            description = "Search user activity logs based on query parameters."
+    )
+    IHttpResponse<IPageable<UserActivityLogResponse>> search(Query query, IPageRequest pageRequest, String auth);
 
-    @RequestMapping(value = "/timeline", method = GET)
-    IHttpResponse<List<UserActivityLogResponse>> getTimeline(Query query, @Authorization String auth);
+    @RequestMapping(
+            value = "/timeline",
+            description = "Retrieve a timeline of user activities."
+    )
+    IHttpResponse<List<UserActivityLogResponse>> getTimeline(Query query, String auth);
 }

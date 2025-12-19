@@ -4,8 +4,10 @@ import com.dev.servlet.adapter.in.web.annotation.Controller;
 import com.dev.servlet.adapter.in.web.dto.HttpResponse;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.adapter.in.web.dto.IServletResponse;
+import com.dev.servlet.application.port.out.cache.CachePort;
 import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.shared.vo.KeyPair;
+import jakarta.enterprise.context.control.RequestContextController;
 import jakarta.inject.Inject;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -24,6 +26,21 @@ public abstract class BaseController extends BaseRouterController {
     @Setter(AccessLevel.PROTECTED)
     private String webService;
 
+    @Inject
+    public void setJwtUtils(AuthenticationPort jwts) {
+        this.authenticationPort = jwts;
+    }
+
+    @Inject
+    public void setRequestContextController(RequestContextController requestContextController) {
+        this.requestContextController = requestContextController;
+    }
+
+    @Inject
+    public void setCachePort(CachePort cachePort) {
+        this.cachePort = cachePort;
+    }
+
     protected BaseController() {
         this.webService = webServiceFromClass(this.getClass());
     }
@@ -41,11 +58,6 @@ public abstract class BaseController extends BaseRouterController {
         }
 
         throw new IllegalStateException("No @Controller annotation found on class or its interfaces: " + clazz.getName());
-    }
-
-    @Inject
-    public void setJwtUtils(AuthenticationPort jwts) {
-        this.authenticationPort = jwts;
     }
 
     protected String redirectToCtx(String context) {

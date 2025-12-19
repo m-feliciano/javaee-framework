@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 @ApplicationScoped
 public class CacheAdapter implements CachePort {
     private static final String MAIN_CACHE = "application-cache";
-    private static final Duration ttl = Duration.ofHours(1);
+    private static final Duration ttl = Duration.ofHours(2);
     private static final ScheduledExecutorService cleaner = Executors.newSingleThreadScheduledExecutor();
     private static final Map<String, Long> tmpStore = new java.util.concurrent.ConcurrentHashMap<>();
 
@@ -33,6 +33,7 @@ public class CacheAdapter implements CachePort {
             for (Map.Entry<String, Long> entry : tmpStore.entrySet()) {
                 if (entry.getValue() < now) {
                     tmpStore.remove(entry.getKey());
+                    log.debug("Removed entry: {}", entry.getKey());
                 }
             }
         }, 1, 1, TimeUnit.MINUTES);
@@ -63,12 +64,16 @@ public class CacheAdapter implements CachePort {
 
     @Override
     public void set(String namespace, String key, Object value) {
+        log.debug("set namespace {}, key {}", namespace, key);
+
         String cacheKey = compoundKey(namespace, key);
         cache.put(cacheKey, value);
     }
 
     @Override
     public void set(String namespace, String key, Object value, Duration cacheTtl) {
+        log.debug("set namespace {}, key {}", namespace, key);
+
         String cacheKey = compoundKey(namespace, key);
         cache.put(cacheKey, value);
 
@@ -80,12 +85,15 @@ public class CacheAdapter implements CachePort {
     @Override
     public <T> T get(String namespace, String key) {
         String cacheKey = compoundKey(namespace, key);
-        return (T) cache.get(cacheKey);
+        T cached = (T) cache.get(cacheKey);
+        log.debug("Cache get for key: {} returned: {}", cacheKey, cached != null ? "HIT" : "MISS");
+        return cached;
     }
 
     @Override
     public void clear(String namespace, String key) {
         String cacheKey = compoundKey(namespace, key);
+        log.debug("Clearing cache {} for key: {}", namespace, key);
         cache.remove(cacheKey);
     }
 
@@ -94,14 +102,31 @@ public class CacheAdapter implements CachePort {
         cache.forEach(entry -> {
             if (entry.getKey().startsWith(namespace + ":")) {
                 cache.remove(entry.getKey());
+                log.debug("[clearNamespace] Removed key: {}", entry.getKey());
             }
         });
+    }
+
+    @Override
+    public void clearSuffix(String namespace, String userId) {
+        Thread.ofVirtual()
+                .name("cache-clear-suffix-%d")
+                .start(() -> {
+                    final String suffix = compoundKey(namespace, userId);
+                    cache.forEach(entry -> {
+                        if (entry.getKey().endsWith(suffix)) {
+                            cache.remove(entry.getKey());
+                            log.debug("[clearSuffix] Removed key: {}", entry.getKey());
+                        }
+                    });
+                });
     }
 
     public void clearAll(String key) {
         for (Cache.Entry<String, Object> entry : cache) {
             if (entry.getKey().endsWith(":" + key)) {
                 cache.remove(entry.getKey());
+                log.debug("[clearAll] Removed key: {}", entry.getKey());
             }
         }
     }

@@ -1,6 +1,5 @@
 package com.dev.servlet.adapter.in.web.controller;
 
-import com.dev.servlet.adapter.in.web.annotation.Authorization;
 import com.dev.servlet.adapter.in.web.annotation.Controller;
 import com.dev.servlet.adapter.in.web.annotation.RequestMapping;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
@@ -16,31 +15,67 @@ import static com.dev.servlet.domain.entity.enums.RequestMethod.POST;
 
 @Controller("user")
 public interface UserControllerApi {
-    @RequestMapping(value = "/update/{id}", method = POST, jsonType = UserRequest.class)
-    IHttpResponse<UserResponse> update(UserRequest user, @Authorization String auth);
+    @RequestMapping(
+            value = "/update",
+            method = POST,
+            jsonType = UserRequest.class,
+            description = "Update user information."
+    )
+    IHttpResponse<UserResponse> update(UserRequest user, String auth);
 
-    @RequestMapping(value = "/delete/{id}", roles = RoleType.ADMIN, method = POST, jsonType = UserRequest.class)
-    IHttpResponse<Void> delete(UserRequest user, @Authorization String auth);
+    @RequestMapping(
+            value = "/delete",
+            roles = RoleType.ADMIN,
+            method = POST,
+            jsonType = UserRequest.class,
+            description = "Delete a user by ID. Requires ADMIN role."
+    )
+    IHttpResponse<Void> delete(UserRequest user, String auth);
 
-    @RequestMapping(value = "/list/{id}", jsonType = UserRequest.class)
-    IHttpResponse<UserResponse> findById(UserRequest user, @Authorization String auth);
+    @RequestMapping(
+            value = "/me",
+            jsonType = UserRequest.class,
+            description = "Retrieve user information by ID."
+    )
+    IHttpResponse<UserResponse> find(String auth);
 
-    @RequestMapping(requestAuth = false, value = "/registerUser", method = POST, jsonType = UserCreateRequest.class)
+    @RequestMapping(
+            requestAuth = false,
+            value = "/registerUser",
+            method = POST,
+            jsonType = UserCreateRequest.class,
+            description = "Register a new user."
+    )
     IHttpResponse<UserResponse> register(UserCreateRequest user);
 
-    @RequestMapping(requestAuth = false, value = "/confirm")
+    @RequestMapping(
+            requestAuth = false,
+            value = "/confirm",
+            description = "Confirm user email registration."
+    )
     IHttpResponse<Void> confirm(Query query);
 
-    @RequestMapping(requestAuth = false, value = "/email-change-confirmation")
+    @RequestMapping(
+            requestAuth = false,
+            value = "/email-change-confirmation",
+            description = "Confirm user email change."
+    )
     IHttpResponse<Void> changeEmail(Query query);
 
-    @RequestMapping(requestAuth = false, value = "/resend-confirmation", method = POST)
+    @RequestMapping(
+            requestAuth = false,
+            value = "/resend-confirmation",
+            method = POST,
+            description = "Resend confirmation email to user. The message will be sent to the email associated with the provided user information. V2 API."
+    )
     IHttpResponse<Void> resendConfirmation(User user);
 
     @RequestMapping(
-            value = "/upload-photo/{id}",
+            value = "/upload-photo",
             apiVersion = "v2",
             method = POST,
-            jsonType = FileUploadRequest.class)
-    IHttpResponse<Void> updateProfilePicture(FileUploadRequest request, @Authorization String auth);
+            jsonType = FileUploadRequest.class,
+            description = "Update user profile picture. Accepts file upload. V2 API."
+    )
+    IHttpResponse<Void> updateProfilePicture(FileUploadRequest request, String auth);
 }

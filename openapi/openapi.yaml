@@ -1,0 +1,155 @@
+openapi: 3.0.0
+
+info:
+  title: Servlets Development API
+  version: 1.0.0
+  description: API de desenvolvimento
+
+servers:
+  - url: http://localhost:8080/api
+
+tags:
+  - name: Auth
+  - name: User
+  - name: Category
+  - name: Product
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: accessToken
+
+  parameters:
+    AcceptJson:
+      name: Accept
+      in: header
+      required: true
+      schema:
+        type: string
+        example: application/json
+
+security:
+  - cookieAuth: []
+
+paths:
+
+  /v1/auth/login:
+    parameters:
+      - $ref: '#/components/parameters/AcceptJson'
+    post:
+      tags: [Auth]
+      summary: Login
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [login, password]
+              properties:
+                login:
+                  type: string
+                  example: email@example.com
+                password:
+                  type: string
+                  example: "12345678"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json: {}
+        "400":
+          description: Invalid credentials
+        "500":
+          description: Server error
+
+  /v1/user/me:
+    parameters:
+      - $ref: '#/components/parameters/AcceptJson'
+    get:
+      tags: [User]
+      summary: Get current user
+      operationId: getCurrentUser
+      responses:
+        "200":
+          description: Successful
+          content:
+            application/json: {}
+        "401":
+          description: Unauthorized
+        "500":
+          description: Server error
+
+  /v1/category/list:
+    parameters:
+      - $ref: '#/components/parameters/AcceptJson'
+    get:
+      tags: [Category]
+      summary: List categories
+      operationId: listCategories
+      responses:
+        "200":
+          description: Successful
+          content:
+            application/json: {}
+        "401":
+          description: Unauthorized
+        "500":
+          description: Server error
+
+  /v1/category/update/{id}:
+    parameters:
+      - $ref: '#/components/parameters/AcceptJson'
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags: [Category]
+      summary: Update category
+      operationId: updateCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  example: NEW_NAME
+      responses:
+        "200":
+          description: Category updated
+          content:
+            application/json: {}
+        "400":
+          description: Invalid request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Server error
+
+  /v1/product/list:
+    parameters:
+      - $ref: '#/components/parameters/AcceptJson'
+    get:
+      tags: [Product]
+      summary: List products
+      operationId: listProducts
+      responses:
+        "200":
+          description: Successful
+          content:
+            application/json: {}
+        "401":
+          description: Unauthorized
+        "500":
+          description: Server error

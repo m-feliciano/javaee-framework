@@ -142,15 +142,17 @@ css/
     <jsp:param name="searchType" value="name"/>
 </jsp:include>
 
-<!-- Custom Button -->
-<button type="${param.btnType}"
-        class="${param.btnClass}"
-        ${param.btnDisabled}
-        ${param.btnOnclick}
-        ${param.btnId}>
-    <i class="${param.btnIcon}"></i>
-    ${param.btnLabel}
-</button>
+<!-- Pagination Component -->
+<jsp:include page="/WEB-INF/view/components/pagination.jsp">
+    <jsp:param name="totalRecords" value="${pageable.getTotalElements()}"/>
+    <jsp:param name="currentPage" value="${pageable.getCurrentPage()}"/>
+    <jsp:param name="totalPages" value="${pageable.getTotalPages()}"/>
+    <jsp:param name="pageSize" value="${pageable.getPageSize()}"/>
+    <jsp:param name="sort" value="${pageable.getSort().getField()}"/>
+    <jsp:param name="direction" value="${pageable.getSort().getDirection().getValue()}"/>
+    <jsp:param name="k" value="${k}"/>
+    <jsp:param name="q" value="${q}"/>
+</jsp:include>
 
 <!-- Custom Button usage -->
 <jsp:include page="/WEB-INF/view/components/buttons/customButton.jsp">
@@ -161,16 +163,49 @@ css/
     <jsp:param name="btnOnclick" value="onclick='history.back()'"/>
     <jsp:param name="btnId" value="id='backButton'"/>
 </jsp:include>
-
-<!-- Custom Pagination Component -->
-<jsp:include page="/WEB-INF/view/components/pagination.jsp">
-    <jsp:param name="pageable" value="${pageable}"/>
-</jsp:include>
 ```
 
 ### Technical Architecture
 
 #### Product View Implementation
+
+```java
+// ===== Annotations =====
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface RequestMapping {
+    String value();
+
+    RequestMethod method() default RequestMethod.GET;
+
+    Class<?> jsonType() default Void.class;
+
+    boolean requestAuth() default true;
+
+    String apiVersion() default "v1";
+
+    RoleType[] roles() default {};
+
+    // ===== For API Documentation =====
+    String description() default "";
+}
+
+// Cache Annotation
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Cache {
+    String value() default "";
+
+    String[] invalidate() default {};
+
+    long duration() default 1800; // Default is 30 minutes
+
+    TimeUnit timeUnit() default TimeUnit.SECONDS;
+}
+
+``` 
+
+#### Product Controller API
 
 ```java
 /**
@@ -179,43 +214,169 @@ css/
 @Controller("product")
 public interface ProductControllerApi {
 
-    @RequestMapping(value = "/create", method = POST, jsonType = ProductRequest.class)
-    IHttpResponse<Void> register(ProductRequest request, @Authorization String auth);
+    @RequestMapping(
+            value = "/create",
+            method = POST,
+            jsonType = ProductRequest.class,
+            description = "Create a new product."
+    )
+    IHttpResponse<Void> register(ProductRequest request, String auth);
 
-    @RequestMapping("/new")
-    IHttpResponse<Collection<CategoryResponse>> forward(@Authorization String auth);
+    @RequestMapping(
+            value = "/new",
+            description = "Forward to the product registration page and retrieve available categories."
+    )
+    IHttpResponse<Collection<CategoryResponse>> forward(String auth);
 
-    @RequestMapping(value = "/list", jsonType = ProductRequest.class)
-    IServletResponse list(IPageRequest pageRequest, @Authorization String auth);
+    @RequestMapping(
+            value = "/details/{id}",
+            jsonType = ProductRequest.class,
+            description = "Retrieve detailed information about a specific product by ID."
+    )
+    IServletResponse details(ProductRequest request, String auth);
 
-    @RequestMapping(value = "/list/{id}", jsonType = ProductRequest.class)
-    IHttpResponse<ProductResponse> findById(ProductRequest request, @Authorization String auth);
+    @RequestMapping(
+            value = "/search",
+            description = "Search products based on query parameters with pagination."
+    )
+    IServletResponse search(Query query, IPageRequest pageRequest, String auth);
 
-    @RequestMapping(value = "/update/{id}", method = POST, jsonType = ProductRequest.class)
-    IHttpResponse<Void> update(ProductRequest request, @Authorization String auth);
+    @RequestMapping(
+            value = "/list",
+            jsonType = ProductRequest.class,
+            description = "Retrieve paginated list of products."
+    )
+    IServletResponse list(IPageRequest pageRequest, String auth);
 
-    @RequestMapping(value = "/scrape", method = POST)
-    IHttpResponse<Void> scrape(@Authorization String auth,
-                               @Property("app.env") String environment,
-                               @Property("scrape_product_url") String url);
+    @RequestMapping(
+            value = "/list/{id}",
+            jsonType = ProductRequest.class,
+            description = "Retrieve product information by ID."
+    )
+    IHttpResponse<ProductResponse> findById(ProductRequest request, String auth);
+
+    @RequestMapping(
+            value = "/update/{id}",
+            method = POST,
+            jsonType = ProductRequest.class,
+            description = "Update an existing product."
+    )
+    IHttpResponse<Void> update(ProductRequest request, String auth);
+
+    @RequestMapping(
+            value = "/delete/{id}",
+            method = POST,
+            jsonType = ProductRequest.class,
+            description = "Delete a product by ID."
+    )
+    IHttpResponse<Void> delete(ProductRequest filter, String auth);
+
+    @RequestMapping(
+            value = "/scrape",
+            method = POST,
+            description = "Scrape product information from an external URL. DEMO or TEST use only. Runs asynchronously.",
+            async = true
+    )
+    IHttpResponse<Void> scrape(String auth, String url);
+
+    @RequestMapping(
+            value = "/upload-picture/{id}",
+            apiVersion = "v2", // V2 only
+            method = POST,
+            jsonType = FileUploadRequest.class,
+            description = "Upload a product picture. Accepts file upload. V2 API."
+    )
+    IHttpResponse<Void> upload(FileUploadRequest request, String auth);
 }
 ```
+
+#### Product Controller Implementation
 
 ```java
 @Slf4j
 @ApplicationScoped
 public class ProductController extends BaseController implements ProductControllerApi {
-    @Inject
-    private RegisterProductPort registerProductPort;
+    // Injections omitted for brevity
 
-    public IHttpResponse<Void> register(ProductRequest request, String auth) throws ServiceException {
-        ProductResponse product = registerProductPort.register(request, auth);
+    @Override
+    protected Class<ProductController> implementation() {
+        return ProductController.class;
+    }
+
+    @SneakyThrows
+    public IHttpResponse<Void> register(ProductRequest request, @Authorization String auth) {
+        ProductResponse product = createProductWithThumbPort.execute(request, auth);
         return newHttpResponse(201, redirectTo(product.getId()));
     }
+
+    @SneakyThrows
+    public IHttpResponse<Collection<CategoryResponse>> forward(@Authorization String auth) {
+        var categories = listCategoryPort.list(null, auth);
+        return newHttpResponse(302, categories, forwardTo("formCreateProduct"));
+    }
+
+    @SneakyThrows
+    public IServletResponse details(ProductRequest request, @Authorization String auth) {
+        ProductResponse response = this.findById(request, auth).body();
+        Collection<CategoryResponse> categories = listCategoryPort.list(null, auth);
+        Set<KeyPair> body = Set.of(
+                new KeyPair("product", response),
+                new KeyPair("categories", categories)
+        );
+        return newServletResponse(body, forwardTo("formUpdateProduct"));
+    }
+
+    @SneakyThrows
+    public IServletResponse search(Query query, IPageRequest pageRequest, @Authorization String auth) {
+        User user = authenticationPort.extractUser(auth);
+        Product product = productMapper.queryToProduct(query, user);
+        Set<KeyPair> container = listProductContainerPort.assembleContainerResponse(pageRequest, auth, product);
+        return newServletResponse(container, forwardTo("listProducts"));
+    }
+
+    @SneakyThrows
+    public IServletResponse list(IPageRequest pageRequest, @Authorization String auth) {
+        Product product = productMapper.toProduct(null, authenticationPort.extractUserId(auth));
+        Set<KeyPair> container = listProductContainerPort.assembleContainerResponse(pageRequest, auth, product);
+        return newServletResponse(container, forwardTo("listProducts"));
+    }
+
+    @SneakyThrows
+    public IHttpResponse<ProductResponse> findById(ProductRequest request, @Authorization String auth) {
+        ProductResponse product = productDetailPort.get(request, auth);
+        return okHttpResponse(product, forwardTo("formListProduct"));
+    }
+
+    @SneakyThrows
+    public IHttpResponse<Void> update(ProductRequest request, @Authorization String auth) {
+        ProductResponse response = updateProductPort.update(request, auth);
+        return newHttpResponse(204, redirectTo(response.getId()));
+    }
+
+    @SneakyThrows
+    public IHttpResponse<Void> delete(ProductRequest filter, @Authorization String auth) {
+        deleteProductPort.delete(filter, auth);
+        return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
+    }
+
+    @SneakyThrows
+    @Async
+    public IHttpResponse<Void> scrape(@Authorization String auth,
+                                      @Property("scrape_product_url") String url) {
+        scrapeProductPort.scrape(url, auth);
+        return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
+    }
+
+    @Override
+    public IHttpResponse<Void> upload(FileUploadRequest request, @Authorization String auth) {
+        updateProductThumbPort.updateThumb(request, auth);
+        return newHttpResponse(204, redirectTo(request.id()));
+    }
 }
+
 ```
 
-#### Auth Service Implementation
+#### Auth Use Case Implementation
 
 ```java
 
@@ -225,11 +386,9 @@ public class LoginUseCase implements LoginPort {
     // Dependencies ommitted for brevity
 
     @Override
-    public IHttpResponse<UserResponse> login(LoginRequest credentials, String onSuccess) throws ApplicationException {
+    public IHttpResponse<UserResponse> login(LoginRequest credentials, String onSuccess) throws AppException {
         final String login = credentials.login();
-        final String password = credentials.password();
 
-        log.debug("LoginUseCase: attempting login for user {}", login);
         try {
             if (Properties.isDemoModeEnabled()) {
                 log.debug("LoginUseCase: DEMO_MODE is enabled, bypassing authentication for user {}", login);
@@ -238,8 +397,11 @@ public class LoginUseCase implements LoginPort {
                 return HttpResponse.ok(response).next(onSuccess).build();
             }
 
-            User user = userPort.get(new UserRequest(login, password))
-                    .orElseThrow(() -> new ApplicationException("Invalid login or password"));
+            User user = userPort.get(new UserRequest(login, null))
+                    .orElseThrow(() -> new AppException(SC_UNAUTHORIZED, "Invalid login or password"));
+
+            boolean verified = PasswordHasher.verify(credentials.password(), user.getCredentials().getPassword());
+            if (!verified) throw new AppException(SC_UNAUTHORIZED, "Invalid login or password");
 
             if (Status.PENDING.equals(user.getStatus())) {
                 UserResponse userResponse = UserResponse.builder()
@@ -256,7 +418,7 @@ public class LoginUseCase implements LoginPort {
             log.warn("LoginUseCase: login failed for user {}: {}", login, e.getMessage());
 
             return HttpResponse.<UserResponse>newBuilder()
-                    .statusCode(HttpServletResponse.SC_UNAUTHORIZED)
+                    .statusCode(SC_UNAUTHORIZED)
                     .error("Invalid login or password")
                     .reasonText("Unauthorized")
                     .next("forward:pages/formLogin.jsp")
@@ -275,46 +437,47 @@ public class LoginUseCase implements LoginPort {
 public class AuthFilter implements Filter {
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException {
-        HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
-        HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+            throws IOException, ServletException {
 
-        boolean isAuthorized = isAuthorizedRequest(httpRequest);
-        if (isAuthorized) {
-            dispatcher.dispatch(httpRequest, httpResponse);
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
+
+        if (isAuthorizedRequest(request)) {
+            chain.doFilter(req, res);
             return;
         }
 
-        String token = AuthCookiePort.getTokenFromCookie(httpRequest, AuthCookiePort.getAccessTokenCookieName());
-        String refreshToken = AuthCookiePort.getTokenFromCookie(httpRequest, AuthCookiePort.getRefreshTokenCookieName());
+        Cookie[] cookies = request.getCookies();
+        String token = authCookiePort.getCookieFromArray(cookies, authCookiePort.getAccessTokenCookieName());
+        String refreshToken = authCookiePort.getCookieFromArray(cookies, authCookiePort.getRefreshTokenCookieName());
+
         if (token == null && refreshToken == null) {
-            log.warn("No tokens found for: {}, redirecting to login page", httpRequest.getRequestURI());
-            redirectToLogin(httpResponse);
+            log.warn("No tokens found for: {}", request.getRequestURI());
+            redirectToLogin(response);
             return;
         }
 
-        boolean tokenValid = token != null && authenticationPort.validateToken(token);
-        if (tokenValid) {
-            log.debug("Valid token access [endpoint={}]", httpRequest.getRequestURI());
-            dispatcher.dispatch(httpRequest, httpResponse);
+        if (token != null && authenticationPort.validateToken(token)) {
+            log.debug("Valid token access [endpoint={}]", request.getRequestURI());
+            chain.doFilter(req, res);
             return;
         }
 
         if (refreshToken != null && authenticationPort.validateToken(refreshToken)) {
             try {
-                RefreshTokenResponse refreshTokenResponse = RefreshTokenPort.refreshToken(BEARER_PREFIX + refreshToken);
-                AuthCookiePort.setAuthCookies(httpResponse, refreshTokenResponse.token(), refreshTokenResponse.refreshToken());
-                httpResponse.setStatus(HttpServletResponse.SC_FOUND);
-                httpResponse.sendRedirect(httpRequest.getRequestURI());
+                RefreshTokenResponse refresh = refreshTokenPort.refreshToken(BEARER_PREFIX + refreshToken);
+                authCookiePort.setAuthCookies(response, refresh.token(), refresh.refreshToken());
+                response.sendRedirect(request.getRequestURI());
                 return;
-            } catch (ApplicationException e) {
-                log.error("Failed to refresh token, redirecting to login page", e);
+            } catch (AppException e) {
+                log.error("Failed to refresh token", e);
             }
         }
 
-        log.warn("Both tokens are invalid for: {}, redirecting to login page", httpRequest.getRequestURI());
-        AuthCookiePort.clearCookies(httpResponse);
-        redirectToLogin(httpResponse);
+        log.warn("Invalid tokens for: {}", request.getRequestURI());
+        authCookiePort.clearCookies(response);
+        redirectToLogin(response);
     }
 }
 ```
@@ -334,137 +497,109 @@ Controllers extend `BaseRouterController`, which uses reflection to map endpoint
 ### Package Structure
 
 ```text
-├───main
-│   ├───java
-│   │   └───com
-│   │       └───dev
-│   │           └───servlet
-│   │               ├───adapter
-│   │               │   ├───in
-│   │               │   │   ├───messaging
-│   │               │   │   │   └───consumer
-│   │               │   │   ├───web
-│   │               │   │   │   ├───annotation
-│   │               │   │   │   ├───builder
-│   │               │   │   │   ├───controller
-│   │               │   │   │   │   └───internal
-│   │               │   │   │   │       └───base
-│   │               │   │   │   ├───dispatcher
-│   │               │   │   │   │   └───impl
-│   │               │   │   │   ├───dto
-│   │               │   │   │   ├───filter
-│   │               │   │   │   │   └───wrapper
-│   │               │   │   │   ├───introspection
-│   │               │   │   │   ├───listener
-│   │               │   │   │   ├───ratelimit
-│   │               │   │   │   │   └───internal
-│   │               │   │   │   ├───util
-│   │               │   │   │   ├───validator
-│   │               │   │   │   │   └───internal
-│   │               │   │   │   └───vo
-│   │               │   │   └───ws
-│   │               │   └───out
-│   │               │       ├───activity
-│   │               │       ├───alert
-│   │               │       ├───audit
-│   │               │       ├───cache
-│   │               │       ├───external
-│   │               │       │   └───webscrape
-│   │               │       │       ├───api
-│   │               │       │       ├───builder
-│   │               │       │       ├───service
-│   │               │       │       └───transfer
-│   │               │       ├───home
-│   │               │       ├───inventory
-│   │               │       ├───messaging
-│   │               │       │   ├───adapter
-│   │               │       │   ├───config
-│   │               │       │   ├───factory
-│   │               │       │   ├───producer
-│   │               │       │   └───registry
-│   │               │       ├───product
-│   │               │       ├───security
-│   │               │       └───user
-│   │               ├───application
-│   │               │   ├───exception
-│   │               │   ├───mapper
-│   │               │   ├───port
-│   │               │   │   ├───in
-│   │               │   │   │   ├───activity
-│   │               │   │   │   ├───auth
-│   │               │   │   │   ├───category
-│   │               │   │   │   ├───product
-│   │               │   │   │   ├───stock
-│   │               │   │   │   └───user
-│   │               │   │   └───out
-│   │               │   │       ├───activity
-│   │               │   │       ├───alert
-│   │               │   │       ├───audit
-│   │               │   │       ├───cache
-│   │               │   │       ├───category
-│   │               │   │       ├───confirmtoken
-│   │               │   │       ├───inventory
-│   │               │   │       ├───product
-│   │               │   │       ├───refreshtoken
-│   │               │   │       ├───security
-│   │               │   │       └───user
-│   │               │   ├───transfer
-│   │               │   │   ├───request
-│   │               │   │   └───response
-│   │               │   └───usecase
-│   │               │       ├───activity
-│   │               │       ├───auth
-│   │               │       ├───category
-│   │               │       ├───product
-│   │               │       ├───stock
-│   │               │       └───user
-│   │               ├───domain
-│   │               │   ├───entity
-│   │               │   │   └───enums
-│   │               │   └───enums
-│   │               ├───infrastructure
-│   │               │   ├───config
-│   │               │   ├───health
-│   │               │   │   └───internal
-│   │               │   ├───migration
-│   │               │   ├───persistence
-│   │               │   │   ├───repository
-│   │               │   │   │   └───base
-│   │               │   │   └───transfer
-│   │               │   │       └───internal
-│   │               │   └───utils
-│   │               └───shared
-│   │                   ├───enums
-│   │                   ├───util
-│   │                   └───vo
-│   ├───resources
-│   │   ├───db
-│   │   │   └───migration
-│   │   ├───META-INF
-│   │   └───mockito-extensions
-│   └───webapp
-│       ├───META-INF
-│       ├───resources
-│       │   ├───assets
-│       │   │   └───images
-│       │   ├───css
-│       │   ├───dist
-│       │   └───js
-│       └───WEB-INF
-│           ├───classes
-│           │   └───META-INF
-│           ├───fragments
-│           ├───routes
-│           ├───tags
-│           └───view
-│               ├───components
-│               │   └───buttons
-│               └───pages
-│                   ├───activity
-│                   ├───category
-│                   ├───health
-│                   ├───inspect
-│                   ├───inventory
-│                   ├───product
-│                   └───user
+├───adapter
+│   ├───in
+│   │   ├───messaging
+│   │   │   └───consumer
+│   │   ├───web
+│   │   │   ├───annotation
+│   │   │   ├───builder
+│   │   │   ├───controller
+│   │   │   │   └───internal
+│   │   │   │       └───base
+│   │   │   ├───dispatcher
+│   │   │   │   └───impl
+│   │   │   ├───dto
+│   │   │   ├───filter
+│   │   │   │   └───wrapper
+│   │   │   ├───frontcontroller
+│   │   │   ├───introspection
+│   │   │   ├───listener
+│   │   │   ├───ratelimit
+│   │   │   │   └───internal
+│   │   │   ├───util
+│   │   │   ├───validator
+│   │   │   │   └───internal
+│   │   │   └───vo
+│   │   └───ws
+│   └───out
+│       ├───activity
+│       ├───alert
+│       ├───audit
+│       ├───cache
+│       ├───external
+│       │   └───webscrape
+│       │       ├───api
+│       │       ├───builder
+│       │       ├───service
+│       │       └───transfer
+│       ├───home
+│       ├───image
+│       ├───inventory
+│       ├───messaging
+│       │   ├───adapter
+│       │   ├───config
+│       │   ├───factory
+│       │   ├───producer
+│       │   └───registry
+│       ├───product
+│       ├───security
+│       ├───storage
+│       └───user
+├───application
+│   ├───exception
+│   ├───mapper
+│   ├───port
+│   │   ├───in
+│   │   │   ├───activity
+│   │   │   ├───auth
+│   │   │   ├───category
+│   │   │   ├───product
+│   │   │   ├───stock
+│   │   │   └───user
+│   │   └───out
+│   │       ├───activity
+│   │       ├───alert
+│   │       ├───audit
+│   │       ├───cache
+│   │       ├───category
+│   │       ├───confirmtoken
+│   │       ├───inventory
+│   │       ├───product
+│   │       ├───refreshtoken
+│   │       ├───security
+│   │       ├───storage
+│   │       └───user
+│   ├───transfer
+│   │   ├───request
+│   │   └───response
+│   └───usecase
+│       ├───activity
+│       ├───auth
+│       ├───category
+│       ├───product
+│       ├───stock
+│       └───user
+├───domain
+│   ├───entity
+│   │   └───enums
+│   ├───enums
+│   └───vo
+├───infrastructure
+│   ├───annotations
+│   ├───config
+│   ├───health
+│   │   └───internal
+│   ├───http
+│   ├───migration
+│   ├───persistence
+│   │   ├───repository
+│   │   │   └───base
+│   │   └───transfer
+│   │       └───internal
+│   └───utils
+└───shared
+    ├───enums
+    ├───util
+    └───vo
 ```

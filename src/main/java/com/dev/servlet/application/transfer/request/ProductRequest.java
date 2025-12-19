@@ -9,12 +9,11 @@ import java.math.BigDecimal;
 public record ProductRequest(String id,
                              String name,
                              String description,
-                             String url,
                              BigDecimal price,
                              CategoryRequest category,
                              BinaryPayload payload // thumb payload
 ) {
     public ProductRequest(String id) {
-        this(id, null, null, null, null, null, null);
+        this(id, null, null, null, null, null);
     }
 }

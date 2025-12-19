@@ -12,9 +12,17 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequestMapping {
     String value();
+
     RequestMethod method() default RequestMethod.GET;
+
     Class<?> jsonType() default Void.class;
+
     boolean requestAuth() default true;
+
     String apiVersion() default "v1";
+
     RoleType[] roles() default {};
+
+    // ===== For API Documentation =====
+    String description() default "";
 }

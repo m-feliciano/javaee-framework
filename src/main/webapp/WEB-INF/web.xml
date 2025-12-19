@@ -17,6 +17,15 @@
     </listener>
 
     <filter>
+        <filter-name>CorsFilter</filter-name>
+        <filter-class>com.dev.servlet.adapter.in.web.filter.CorsFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>CorsFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
         <filter-name>MDCFilter</filter-name>
         <filter-class>com.dev.servlet.adapter.in.web.filter.MDCFilter</filter-class>
     </filter>

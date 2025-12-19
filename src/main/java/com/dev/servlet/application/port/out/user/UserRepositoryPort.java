@@ -17,8 +17,6 @@ public interface UserRepositoryPort {
 
     void delete(User user);
 
-    void updateProfilePicture(String userId, String imgUrl);
-
     void updateCredentials(String userId, Credentials credentials);
 }
 

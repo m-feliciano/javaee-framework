@@ -11,9 +11,18 @@ import static com.dev.servlet.domain.entity.enums.RequestMethod.GET;
 
 @Controller("inspect")
 public interface InspectControllerApi {
-    @RequestMapping(value = "/raw", method = GET, requestAuth = false)
+    @RequestMapping(
+            value = "/raw",
+            method = GET,
+            requestAuth = false,
+            description = "Retrieve raw JSON representation of all controllers and their endpoints."
+    )
     IHttpResponse<String> rawJson();
 
-    @RequestMapping(value = "/info", requestAuth = false)
+    @RequestMapping(
+            value = "/info",
+            requestAuth = false,
+            description = "Retrieve detailed information about all controllers and their endpoints."
+    )
     IHttpResponse<List<ControllerInfo>> page();
 }
