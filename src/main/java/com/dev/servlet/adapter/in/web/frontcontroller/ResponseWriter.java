@@ -7,6 +7,7 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 
 import java.io.PrintWriter;
 
@@ -20,6 +21,9 @@ public class ResponseWriter {
                       IHttpResponse<?> response) throws Exception {
 
         log.trace("write(req={}, resp={}, request={}, response={})", req, resp, request, response);
+
+        resp.setStatus(response.statusCode());
+        resp.setHeader("X-Correlation-ID", MDC.get("correlationId"));
 
         String header = req.getHeader("Accept");
         if (header != null && header.contains("application/json")) {

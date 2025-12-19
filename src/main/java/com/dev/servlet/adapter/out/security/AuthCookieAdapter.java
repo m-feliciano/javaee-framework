@@ -156,6 +156,10 @@ public class AuthCookieAdapter implements AuthCookiePort {
         String cookieToken = getCsrfToken(request);
         String requestToken = request.getHeader(CSRF_TOKEN_HEADER);
 
+        if (StringUtils.isBlank(requestToken)) {
+            requestToken = request.getParameter(CSRF_TOKEN_HEADER);
+        }
+
         if (StringUtils.isBlank(cookieToken) || StringUtils.isBlank(requestToken)) {
             log.warn("Missing CSRF token [cookie={}, request={}]", cookieToken != null, requestToken != null);
             auditPort.failure("csrf:token_missing", null, null);

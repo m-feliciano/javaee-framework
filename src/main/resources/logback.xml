@@ -75,7 +75,7 @@
     <logger name="com.mchange" level="WARN"/>
     <logger name="org.apache.commons" level="ERROR"/>
     <!-- Root Logger -->
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="FILE"/>
         <appender-ref ref="CONSOLE"/>
     </root>

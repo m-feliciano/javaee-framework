@@ -2,17 +2,94 @@ openapi: 3.0.0
 
 info:
   title: Servlets Development API
-  version: 1.0.0
-  description: API de desenvolvimento
+  version: 3.4.0-alpha
+  description: |
+    API RPC baseada em Servlets (não REST)
+    
+    **Características:**
+    - **Arquitetura:** RPC (Remote Procedure Call)
+    - **Autenticação:** Cookie-based (stateful)
+    - **Padrão:** Orientado a ações/procedimentos
+    - **Framework:** Jakarta EE Servlets
+    
+    **Autenticação:**
+    O sistema utiliza cookies HTTP para manter sessão (stateful).
+    1. POST /v1/auth/login → recebe cookie `accessToken`
+    2. Navegador envia cookie automaticamente em requisições subsequentes
+    3. POST /v1/auth/logout → invalida o cookie
+    
+    **WebSocket:**
+    Alertas em tempo real via WebSocket: `ws://localhost:8080/ws`
+  
+  contact:
+    name: Marcelo Feliciano
+    email: marcelof@tuta.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  
+  x-api-style: RPC
+  x-architecture: Servlets-based
+  x-state-management: Stateful (Cookie-based)
+  x-cors:
+    allowed-origins:
+      - "http://localhost:3000"
+      - "http://localhost:8080"
+    allowed-methods:
+      - GET
+      - POST
+    allowed-headers:
+      - Content-Type
+      - Cookie
+    credentials: true
+  x-rate-limiting:
+    requests-per-minute: 60
+    burst: 10
+
+externalDocs:
+  description: Repositório no GitHub
+  url: https://github.com/m-feliciano/javaee-framework/blob/master/README.md
 
 servers:
   - url: http://localhost:8080/api
+    description: Development server
 
 tags:
   - name: Auth
+    description: Authentication endpoints
   - name: User
+    description: User management endpoints
   - name: Category
+    description: Category management endpoints
   - name: Product
+    description: Product management endpoints
+  - name: Inventory
+    description: Inventory management endpoints
+  - name: Activity
+    description: Activity logs endpoints
+  - name: Alert
+    description: Alert management endpoints
+  - name: Health
+    description: Health check endpoints
+  - name: Inspect
+    description: API inspection endpoints
+
+x-tagGroups:
+  - name: Authentication & Users
+    tags:
+      - Auth
+      - User
+  - name: Catalog Management
+    tags:
+      - Category
+      - Product
+      - Inventory
+  - name: Monitoring & Logs
+    tags:
+      - Activity
+      - Alert
+      - Health
+      - Inspect
 
 components:
   securitySchemes:
@@ -20,136 +97,1758 @@ components:
       type: apiKey
       in: cookie
       name: accessToken
+      description: |
+        **Cookie-based stateful authentication**
+        
+        Flow:
+        1. POST /v1/auth/login → receives `Set-Cookie: accessToken`
+        2. Browser automatically sends cookie in subsequent requests
+        3. POST /v1/auth/logout → invalidates cookie
+        
+        Cookie attributes:
+        - HttpOnly: true (prevents XSS attacks)
+        - Secure: true (HTTPS only in production)
+        - SameSite: Strict (CSRF protection)
+        - Path: /api
+        - Max-Age: 3600 (1 hour)
 
-  parameters:
-    AcceptJson:
-      name: Accept
-      in: header
-      required: true
-      schema:
-        type: string
-        example: application/json
+  responses:
+    Unauthorized:
+      description: Missing or invalid authentication
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: Unauthorized access
+            status: 401
+            timestamp: "2024-12-19T10:30:00Z"
+    
+    Forbidden:
+      description: Insufficient permissions (ADMIN role required)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: Access denied - ADMIN role required
+            status: 403
+            timestamp: "2024-12-19T10:30:00Z"
+    
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: Resource not found
+            status: 404
+            timestamp: "2024-12-19T10:30:00Z"
+    
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: Invalid request parameters
+            status: 400
+            timestamp: "2024-12-19T10:30:00Z"
+    
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            message: Internal server error
+            status: 500
+            timestamp: "2024-12-19T10:30:00Z"
+
+  schemas:
+    LoginRequest:
+      type: object
+      required: [login, password]
+      properties:
+        login:
+          type: string
+          format: email
+          minLength: 3
+          maxLength: 100
+          example: user@example.com
+          description: User email or username
+        password:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 100
+          example: "password123"
+          description: User password (minimum 8 characters)
+
+    UserCreateRequest:
+      type: object
+      required: [name, email, password]
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: John Doe
+          description: User full name
+        email:
+          type: string
+          format: email
+          example: user@example.com
+          description: User email address (must be unique)
+        password:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 100
+          description: User password (minimum 8 characters)
+
+    UserRequest:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+          description: Unique user identifier
+        name:
+          type: string
+          example: "John Doe"
+          description: User full name
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+          description: User email address
+        role:
+          type: string
+          enum: [ADMIN, USER]
+          example: "USER"
+          description: User role
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-12-19T10:30:00Z"
+          description: Account creation timestamp
+
+    CategoryRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Category identifier
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: "Electronics"
+          description: Category name
+        description:
+          type: string
+          maxLength: 500
+          example: "Electronic devices and accessories"
+          description: Category description
+
+    CategoryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "cat-123e4567-e89b-12d3-a456-426614174000"
+          description: Unique category identifier
+        name:
+          type: string
+          example: "Electronics"
+          description: Category name
+        description:
+          type: string
+          example: "Electronic devices and accessories"
+          description: Category description
+
+    ProductRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Product identifier
+        name:
+          type: string
+          minLength: 2
+          maxLength: 200
+          example: "Dell XPS 15"
+          description: Product name
+        description:
+          type: string
+          maxLength: 1000
+          example: "High-performance laptop with 15.6 inch display"
+          description: Product description
+        price:
+          type: number
+          format: double
+          minimum: 0
+          example: 1999.99
+          description: Product price (must be positive)
+        categoryId:
+          type: string
+          format: uuid
+          example: "cat-123e4567-e89b-12d3-a456-426614174000"
+          description: Category identifier
+
+    ProductResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "prod-123e4567-e89b-12d3-a456-426614174000"
+          description: Unique product identifier
+        name:
+          type: string
+          example: "Dell XPS 15"
+          description: Product name
+        description:
+          type: string
+          example: "High-performance laptop with 15.6 inch display"
+          description: Product description
+        price:
+          type: number
+          format: double
+          example: 1999.99
+          description: Product price
+        category:
+          $ref: '#/components/schemas/CategoryResponse'
+
+    InventoryRequest:
+      type: object
+      properties:
+        id:
+          type: string
+        productId:
+          type: string
+        quantity:
+          type: integer
+
+    InventoryCreateRequest:
+      type: object
+      required: [productId, quantity]
+      properties:
+        productId:
+          type: string
+          format: uuid
+          example: "prod-123e4567-e89b-12d3-a456-426614174000"
+          description: Product identifier
+        quantity:
+          type: integer
+          minimum: 0
+          example: 100
+          description: Stock quantity (must be non-negative)
+
+    InventoryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "inv-123e4567-e89b-12d3-a456-426614174000"
+          description: Unique inventory identifier
+        product:
+          $ref: '#/components/schemas/ProductResponse'
+        quantity:
+          type: integer
+          example: 100
+          description: Current stock quantity
+
+    ActivityRequest:
+      type: object
+      properties:
+        id:
+          type: string
+
+    UserActivityLogResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "act-123e4567-e89b-12d3-a456-426614174000"
+          description: Unique activity log identifier
+        userId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+          description: User who performed the action
+        action:
+          type: string
+          enum: [CREATE, UPDATE, DELETE, LOGIN, LOGOUT]
+          example: "CREATE"
+          description: Action performed
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-12-19T10:30:00Z"
+          description: When the action occurred
+        details:
+          type: string
+          example: "Created product: Dell XPS 15"
+          description: Additional action details
+
+    FileUploadRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+
+    PageRequest:
+      type: object
+      properties:
+        page:
+          type: integer
+          default: 0
+          minimum: 0
+        limit:
+          type: integer
+          default: 10
+          minimum: 1
+          maximum: 100
+
+    Pageable:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            type: object
+          description: Page content (items)
+        totalElements:
+          type: integer
+          format: int64
+          example: 100
+          description: Total number of items across all pages
+        totalPages:
+          type: integer
+          example: 10
+          description: Total number of pages
+        size:
+          type: integer
+          example: 10
+          description: Items per page
+        number:
+          type: integer
+          example: 0
+          description: Current page number (0-indexed)
+        first:
+          type: boolean
+          example: true
+          description: Is this the first page?
+        last:
+          type: boolean
+          example: false
+          description: Is this the last page?
+        empty:
+          type: boolean
+          example: false
+          description: Is this page empty?
+
+    Query:
+      type: object
+      properties:
+        q:
+          type: string
+          description: Search query
+
+    ErrorResponse:
+      type: object
+      required: [message, status, timestamp]
+      properties:
+        message:
+          type: string
+          example: "Invalid request parameters"
+          description: Error message
+        status:
+          type: integer
+          example: 400
+          description: HTTP status code
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-12-19T10:30:00Z"
+          description: Error timestamp
+        path:
+          type: string
+          example: "/api/v1/product/create"
+          description: Request path that caused the error
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+          description: Validation errors (if applicable)
 
 security:
   - cookieAuth: []
 
 paths:
+  # ==================== AUTH ENDPOINTS ====================
+  /v1/auth/registerPage:
+    get:
+      tags: [Auth]
+      summary: Forward to registration page
+      operationId: forwardRegister
+      security: []
+      responses:
+        '200':
+          description: Registration page
+          content:
+            text/html:
+              schema:
+                type: string
+
+  /v1/auth/form:
+    get:
+      tags: [Auth]
+      summary: Retrieve registration form
+      operationId: form
+      security: []
+      parameters:
+        - name: auth
+          in: query
+          schema:
+            type: string
+        - name: homepage
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Registration form
+          content:
+            text/html:
+              schema:
+                type: string
 
   /v1/auth/login:
-    parameters:
-      - $ref: '#/components/parameters/AcceptJson'
     post:
       tags: [Auth]
-      summary: Login
+      summary: Authenticate user
+      description: |
+        Authenticates user with email/password and creates a session cookie.
+        
+        **Flow:**
+        1. Client sends credentials
+        2. Server validates credentials
+        3. Server returns cookie
+        4. Client automatically sends cookie in subsequent requests
       operationId: login
+      security: []
+      x-rpc-action: AuthenticateUser
+      x-idempotent: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              validUser:
+                summary: Valid user login
+                value:
+                  login: user@example.com
+                  password: password123
+              adminUser:
+                summary: Admin user login
+                value:
+                  login: admin@example.com
+                  password: admin123
+      responses:
+        '200':
+          description: Login successful
+          headers:
+            Set-Cookie:
+              description: Authentication cookie
+              schema:
+                type: string
+                example: accessToken=eyJhbGc...; Path=/api; HttpOnly; Secure; SameSite=Strict; Max-Age=3600
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+              examples:
+                user:
+                  summary: Regular user
+                  value:
+                    id: "550e8400-e29b-41d4-a716-446655440000"
+                    name: "John Doe"
+                    email: "john@example.com"
+                    role: "USER"
+                    createdAt: "2024-12-19T10:30:00Z"
+                admin:
+                  summary: Admin user
+                  value:
+                    id: "550e8400-e29b-41d4-a716-446655440001"
+                    name: "Admin User"
+                    email: "admin@example.com"
+                    role: "ADMIN"
+                    createdAt: "2024-12-19T10:30:00Z"
+          links:
+            GetCurrentUser:
+              operationId: getCurrentUser
+              description: Get authenticated user info
+            Logout:
+              operationId: logout
+              description: Logout current user
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /v1/auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout user
+      operationId: logout
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Logout successful
+
+  # ==================== USER ENDPOINTS ====================
+  /v1/user/update:
+    post:
+      tags: [User]
+      summary: Update user information
+      operationId: updateUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  /v1/user/delete:
+    post:
+      tags: [User]
+      summary: Delete user (ADMIN only)
+      description: |
+        Delete a user account. **Requires ADMIN role.**
+        
+        **Security:**
+        - Only users with ADMIN role can delete users
+        - Returns 403 Forbidden for non-admin users
+        
+        **Warning:** This action is irreversible.
+      operationId: deleteUser
+      x-rpc-action: DeleteUser
+      x-requires-auth: true
+      x-requires-role: ADMIN
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+            examples:
+              deleteUser:
+                summary: Delete user by ID
+                value:
+                  id: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: User deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User deleted successfully"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /v1/user/me:
+    get:
+      tags: [User]
+      summary: Get current user
+      operationId: getCurrentUser
+      responses:
+        '200':
+          description: Current user information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  /v1/user/registerUser:
+    post:
+      tags: [User]
+      summary: Register new user
+      operationId: registerUser
       security: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required: [login, password]
-              properties:
-                login:
-                  type: string
-                  example: email@example.com
-                password:
-                  type: string
-                  example: "12345678"
+              $ref: '#/components/schemas/UserCreateRequest'
       responses:
-        "200":
-          description: Login successful
+        '201':
+          description: User registered
           content:
-            application/json: {}
-        "400":
-          description: Invalid credentials
-        "500":
-          description: Server error
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
 
-  /v1/user/me:
-    parameters:
-      - $ref: '#/components/parameters/AcceptJson'
+  /v1/user/confirm:
     get:
       tags: [User]
-      summary: Get current user
-      operationId: getCurrentUser
+      summary: Confirm user email
+      operationId: confirmEmail
+      security: []
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
-        "200":
-          description: Successful
-          content:
-            application/json: {}
-        "401":
-          description: Unauthorized
-        "500":
-          description: Server error
+        '200':
+          description: Email confirmed
 
-  /v1/category/list:
-    parameters:
-      - $ref: '#/components/parameters/AcceptJson'
+  /v1/user/email-change-confirmation:
     get:
-      tags: [Category]
-      summary: List categories
-      operationId: listCategories
+      tags: [User]
+      summary: Confirm email change by token (sent via email)
+      operationId: confirmEmailChange
+      security: []
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
-        "200":
-          description: Successful
-          content:
-            application/json: {}
-        "401":
-          description: Unauthorized
-        "500":
-          description: Server error
+        '200':
+          description: Email change confirmed
 
-  /v1/category/update/{id}:
-    parameters:
-      - $ref: '#/components/parameters/AcceptJson'
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
+  /v1/user/resend-confirmation:
     post:
-      tags: [Category]
-      summary: Update category
-      operationId: updateCategory
+      tags: [User]
+      summary: Resend email change confirmation by email
+      operationId: resendConfirmation
+      security: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required: [name]
-              properties:
-                name:
-                  type: string
-                  example: NEW_NAME
+              $ref: '#/components/schemas/UserRequest'
       responses:
-        "200":
-          description: Category updated
+        '200':
+          description: Confirmation email resent
+
+  /v2/user/upload-photo:
+    post:
+      tags: [User]
+      summary: Upload user profile photo
+      description: |
+        **V2 API** - Upload user profile picture.
+        
+        **Accepted formats:** JPEG, PNG, GIF
+        **Max file size:** 1MB
+        **Recommended dimensions:** 400x400px
+        
+        **Example using curl:**
+        ```bash
+        curl -X POST http://localhost:8080/api/v2/user/upload-photo \
+          -H "Cookie: accessToken=YOUR_TOKEN" \
+          -F "photo=@profile.jpg"
+        ```
+      operationId: uploadUserPhoto
+      x-rpc-action: UploadUserPhoto
+      x-api-version: v2
+      x-requires-auth: true
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [photo]
+              properties:
+                photo:
+                  type: string
+                  format: binary
+                  description: Image file (JPEG, PNG, GIF)
+            encoding:
+              photo:
+                contentType: image/jpeg, image/png, image/gif
+      responses:
+        '200':
+          description: Photo uploaded successfully
           content:
-            application/json: {}
-        "400":
-          description: Invalid request
-        "401":
-          description: Unauthorized
-        "500":
-          description: Server error
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Photo uploaded successfully"
+                  photoUrl:
+                    type: string
+                    example: "https://cdn.example.com/users/550e8400/profile.jpg"
+        '400':
+          description: Invalid file format or size
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "File size exceeds 5MB limit"
+                status: 400
+                timestamp: "2024-12-19T10:30:00Z"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ==================== CATEGORY ENDPOINTS ====================
+  /v1/category/new:
+    get:
+      tags: [Category]
+      summary: Forward to category registration page
+      operationId: forwardCategoryRegister
+      responses:
+        '200':
+          description: Category registration page
+
+  /v1/category/create:
+    post:
+      tags: [Category]
+      summary: Create category
+      operationId: createCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryRequest'
+      responses:
+        '201':
+          description: Category created
+
+  /v1/category/list:
+    get:
+      tags: [Category]
+      summary: List categories
+      operationId: listCategories
+      responses:
+        '200':
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryResponse'
+
+  /v1/category/list/{id}:
+    get:
+      tags: [Category]
+      summary: Get category detail
+      operationId: getCategoryDetail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Category details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponse'
+
+  /v1/category/delete/{id}:
+    post:
+      tags: [Category]
+      summary: Delete category
+      operationId: deleteCategory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Category deleted
+
+  /v1/category/details/{id}:
+    get:
+      tags: [Category]
+      summary: Get category details
+      operationId: getCategoryDetails
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Category details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponse'
+
+  /v1/category/update/{id}:
+    post:
+      tags: [Category]
+      summary: Update category
+      operationId: updateCategory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryRequest'
+      responses:
+        '200':
+          description: Category updated
+
+  # ==================== PRODUCT ENDPOINTS ====================
+  /v1/product/create:
+    post:
+      tags: [Product]
+      summary: Create product
+      description: Create a new product (requires authentication)
+      operationId: createProduct
+      x-rpc-action: CreateProduct
+      x-requires-auth: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+            examples:
+              laptop:
+                summary: Create laptop
+                value:
+                  name: "Dell XPS 15"
+                  description: "High-performance laptop with 15.6 inch display"
+                  price: 1999.99
+                  categoryId: "cat-123e4567-e89b-12d3-a456-426614174000"
+              phone:
+                summary: Create phone
+                value:
+                  name: "iPhone 15 Pro"
+                  description: "Latest iPhone with A17 chip"
+                  price: 1099.00
+                  categoryId: "cat-456e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '201':
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+          links:
+            GetProduct:
+              operationId: findProductById
+              parameters:
+                id: '$response.body#/id'
+              description: Get the created product
+            UpdateProduct:
+              operationId: updateProduct
+              parameters:
+                id: '$response.body#/id'
+              description: Update the created product
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /v1/product/new:
+    get:
+      tags: [Product]
+      summary: Forward to product registration page
+      operationId: forwardProductRegister
+      responses:
+        '200':
+          description: Product registration page with categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryResponse'
+
+  /v1/product/details/{id}:
+    get:
+      tags: [Product]
+      summary: Get product details
+      operationId: getProductDetails
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+
+  /v1/product/search:
+    get:
+      tags: [Product]
+      summary: Search products
+      description: |
+        Search products by query string with pagination.
+        
+        **Search features:**
+        - Full-text search in name and description
+        - Case-insensitive
+        - Supports pagination
+      operationId: searchProducts
+      x-rpc-action: SearchProducts
+      parameters:
+        - name: q
+          in: query
+          required: false
+          description: Search query string (searches in name and description)
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 100
+            example: "laptop"
+        - name: page
+          in: query
+          required: false
+          description: Page number (0-indexed)
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+        - name: limit
+          in: query
+          required: false
+          description: Items per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+            example: 20
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pageable'
+              examples:
+                results:
+                  summary: Search results for "laptop"
+                  value:
+                    content:
+                      - id: "prod-123"
+                        name: "Dell XPS 15"
+                        price: 1999.99
+                        category:
+                          id: "cat-123"
+                          name: "Electronics"
+                      - id: "prod-124"
+                        name: "HP Laptop"
+                        price: 899.99
+                        category:
+                          id: "cat-123"
+                          name: "Electronics"
+                    totalElements: 25
+                    totalPages: 3
+                    size: 10
+                    number: 0
+                    first: true
+                    last: false
+                    empty: false
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
   /v1/product/list:
-    parameters:
-      - $ref: '#/components/parameters/AcceptJson'
     get:
       tags: [Product]
       summary: List products
       operationId: listProducts
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
       responses:
-        "200":
-          description: Successful
+        '200':
+          description: List of products
           content:
-            application/json: {}
-        "401":
-          description: Unauthorized
-        "500":
-          description: Server error
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pageable'
+
+  /v1/product/list/{id}:
+    get:
+      tags: [Product]
+      summary: Find product by ID
+      operationId: findProductById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+
+  /v1/product/update/{id}:
+    post:
+      tags: [Product]
+      summary: Update product
+      operationId: updateProduct
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+      responses:
+        '200':
+          description: Product updated
+
+  /v1/product/delete/{id}:
+    post:
+      tags: [Product]
+      summary: Delete product
+      operationId: deleteProduct
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product deleted
+
+  /v1/product/scrape:
+    post:
+      tags: [Product]
+      summary: Scrape product (async)
+      description: |
+        **⚠️ DEMO/TEST ONLY** - Asynchronous web scraping endpoint.
+        
+        This endpoint starts a background task to scrape product information from a URL.
+        The request returns immediately (async), and the scraping happens in the background.
+        
+        **Usage:**
+        1. POST with product URL
+        2. Server starts background scraping task
+        3. Response returned immediately (202 Accepted)
+        4. Check product list later for scraped data
+        
+        **Note:** This is for demonstration purposes only.
+      operationId: scrapeProduct
+      x-rpc-action: ScrapeProduct
+      x-async: true
+      x-demo-only: true
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: Product URL to scrape
+          schema:
+            type: string
+            format: uri
+            example: "https://example.com/product/123"
+      responses:
+        '202':
+          description: Scraping task accepted and started (async)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Scraping task started"
+                  taskId:
+                    type: string
+                    example: "task-123"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /v2/product/upload-picture/{id}:
+    post:
+      tags: [Product]
+      summary: Upload product picture
+      description: V2 API - Upload product picture
+      operationId: uploadProductPicture
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FileUploadRequest'
+      responses:
+        '200':
+          description: Picture uploaded
+
+  # ==================== INVENTORY ENDPOINTS ====================
+  /v1/inventory/new:
+    get:
+      tags: [Inventory]
+      summary: Forward to inventory registration page
+      operationId: forwardInventoryRegister
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Inventory registration page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+
+  /v1/inventory/create:
+    post:
+      tags: [Inventory]
+      summary: Create inventory
+      operationId: createInventory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryCreateRequest'
+      responses:
+        '201':
+          description: Inventory created
+
+  /v1/inventory/list:
+    get:
+      tags: [Inventory]
+      summary: List inventory
+      operationId: listInventory
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: List of inventory
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pageable'
+
+  /v1/inventory/search:
+    get:
+      tags: [Inventory]
+      summary: Search inventory
+      operationId: searchInventory
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Search results
+
+  /v1/inventory/delete/{id}:
+    post:
+      tags: [Inventory]
+      summary: Delete inventory
+      operationId: deleteInventory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Inventory deleted
+
+  /v1/inventory/list/{id}:
+    get:
+      tags: [Inventory]
+      summary: Find inventory by ID
+      operationId: findInventoryById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Inventory found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryResponse'
+
+  /v1/inventory/details/{id}:
+    get:
+      tags: [Inventory]
+      summary: Get inventory details
+      operationId: getInventoryDetails
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Inventory details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryResponse'
+
+  /v1/inventory/update/{id}:
+    post:
+      tags: [Inventory]
+      summary: Update inventory
+      operationId: updateInventory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryRequest'
+      responses:
+        '200':
+          description: Inventory updated
+
+  # ==================== ACTIVITY ENDPOINTS ====================
+  /v1/activity/history:
+    get:
+      tags: [Activity]
+      summary: Get activity history
+      operationId: getActivityHistory
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Activity history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pageable'
+
+  /v1/activity/history/{id}:
+    get:
+      tags: [Activity]
+      summary: Get activity detail
+      operationId: getActivityDetail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Activity details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserActivityLogResponse'
+
+  /v1/activity/search:
+    get:
+      tags: [Activity]
+      summary: Search activities
+      operationId: searchActivities
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pageable'
+
+  /v1/activity/timeline:
+    get:
+      tags: [Activity]
+      summary: Get activity timeline
+      operationId: getTimeline
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Activity timeline
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserActivityLogResponse'
+
+  # ==================== ALERT ENDPOINTS ====================
+  /v1/alert/list:
+    get:
+      tags: [Alert]
+      summary: List alerts (deprecated)
+      operationId: listAlerts
+      deprecated: true
+      description: |
+        **⚠️ DEPRECATED:** This endpoint is deprecated. Use WebSocket connection instead for real-time alerts.
+        
+        **WebSocket Alternative:**
+        ```javascript
+        // Connect to WebSocket
+        const ws = new WebSocket('ws://localhost:8080/ws');
+        
+        // Listen for alerts
+        ws.onmessage = (event) => {
+          const alert = JSON.parse(event.data);
+          console.log('Alert received:', alert);
+        };
+        
+        // Handle connection
+        ws.onopen = () => console.log('Connected to alerts');
+        ws.onerror = (error) => console.error('WebSocket error:', error);
+        ws.onclose = () => console.log('Disconnected from alerts');
+        ```
+        
+        **WebSocket Message Format:**
+        ```json
+        {
+          "id": "alert-123",
+          "message": "Low stock alert",
+          "severity": "WARNING",
+          "timestamp": "2024-12-19T10:30:00Z"
+        }
+        ```
+      x-websocket-endpoint: ws://localhost:8080/ws
+      responses:
+        '200':
+          description: List of alerts (polling - not recommended)
+          content:
+            application/json:
+              schema:
+                type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/alert/clear:
+    post:
+      tags: [Alert]
+      summary: Clear all alerts
+      operationId: clearAlerts
+      responses:
+        '200':
+          description: Alerts cleared
+
+  # ==================== HEALTH ENDPOINTS ====================
+  /v1/health/check:
+    get:
+      tags: [Health]
+      summary: Comprehensive health check
+      description: |
+        Returns comprehensive health status including database, cache, and application metrics.
+        
+        **No authentication required** - Public endpoint for monitoring.
+      operationId: healthCheck
+      security: []
+      x-rpc-action: HealthCheck
+      x-monitoring: true
+      responses:
+        '200':
+          description: Health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [UP, DOWN, DEGRADED]
+                    example: "UP"
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: "2024-12-19T10:30:00Z"
+                  uptime:
+                    type: integer
+                    description: Application uptime in seconds
+                    example: 86400
+                  checks:
+                    type: object
+                    properties:
+                      database:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                            example: "UP"
+                          responseTime:
+                            type: integer
+                            description: DB response time in ms
+                            example: 5
+                      cache:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                            example: "UP"
+                          hitRate:
+                            type: number
+                            example: 0.85
+                      messageBroker:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                            example: "UP"
+              examples:
+                healthy:
+                  summary: All systems healthy
+                  value:
+                    status: "UP"
+                    timestamp: "2024-12-19T10:30:00Z"
+                    uptime: 86400
+                    checks:
+                      database:
+                        status: "UP"
+                        responseTime: 5
+                      cache:
+                        status: "UP"
+                        hitRate: 0.85
+                      messageBroker:
+                        status: "UP"
+                degraded:
+                  summary: Degraded performance
+                  value:
+                    status: "DEGRADED"
+                    timestamp: "2024-12-19T10:30:00Z"
+                    uptime: 86400
+                    checks:
+                      database:
+                        status: "UP"
+                        responseTime: 250
+                      cache:
+                        status: "DOWN"
+                      messageBroker:
+                        status: "UP"
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "DOWN"
+
+  /v1/health/ready:
+    get:
+      tags: [Health]
+      summary: Readiness check
+      operationId: readinessCheck
+      security: []
+      responses:
+        '200':
+          description: Application ready
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+
+  /v1/health/live:
+    get:
+      tags: [Health]
+      summary: Liveness check
+      operationId: livenessCheck
+      security: []
+      responses:
+        '200':
+          description: Application alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+
+  /v1/health/up:
+    get:
+      tags: [Health]
+      summary: Check if app is up
+      operationId: upCheck
+      security: []
+      responses:
+        '200':
+          description: Application up
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  # ==================== INSPECT ENDPOINTS ====================
+  /v1/inspect/raw:
+    get:
+      tags: [Inspect]
+      summary: Get raw JSON of controllers
+      operationId: rawJson
+      security: []
+      responses:
+        '200':
+          description: Raw controller JSON
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /v1/inspect/info:
+    get:
+      tags: [Inspect]
+      summary: Get controllers info
+      description: |
+        Returns detailed information about all registered controllers and their endpoints.
+        
+        **No authentication required** - Public endpoint for API documentation/discovery.
+        
+        **Use cases:**
+        - API documentation generation
+        - Endpoint discovery
+        - Testing and debugging
+      operationId: controllersInfo
+      security: []
+      x-rpc-action: InspectControllers
+      responses:
+        '200':
+          description: Controllers information
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    className:
+                      type: string
+                      example: "ProductController"
+                    basePath:
+                      type: string
+                      example: "/v1/product"
+                    methods:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                            example: "createProduct"
+                          path:
+                            type: string
+                            example: "/v1/product/create"
+                          httpMethod:
+                            type: string
+                            enum: [GET, POST, PUT, DELETE]
+                            example: "POST"
+                          secured:
+                            type: boolean
+                            example: true
+                          async:
+                            type: boolean
+                            example: false
+                          deprecated:
+                            type: boolean
+                            example: false
+                          description:
+                            type: string
+                            example: "Create a new product"
+              examples:
+                controllers:
+                  summary: Example controllers info
+                  value:
+                    - className: "ProductController"
+                      basePath: "/v1/product"
+                      methods:
+                        - name: "createProduct"
+                          path: "/v1/product/create"
+                          httpMethod: "POST"
+                          secured: true
+                          async: false
+                          deprecated: false
+                          description: "Create a new product"
+                        - name: "listProducts"
+                          path: "/v1/product/list"
+                          httpMethod: "GET"
+                          secured: true
+                          async: false
+                          deprecated: false
+                          description: "List all products"
+                    - className: "UserController"
+                      basePath: "/v1/user"
+                      methods:
+                        - name: "getCurrentUser"
+                          path: "/v1/user/me"
+                          httpMethod: "GET"
+                          secured: true
+                          async: false
+                          deprecated: false
+                          description: "Get current authenticated user"
+        '500':
+          $ref: '#/components/responses/InternalServerError'

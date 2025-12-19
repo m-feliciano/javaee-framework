@@ -20,7 +20,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 
 import java.io.IOException;
 import java.util.List;
@@ -61,7 +60,6 @@ public class FrontControllerServlet extends HttpServlet {
         try {
             request = RequestBuilder.newBuilder().servletRequest(req).complete().build();
             IHttpResponse<?> response = dispatcher.dispatch(request);
-            resp.setStatus(response.statusCode());
 
             if (response.error() != null && response.reasonText() == null) {
                 log.warn("Unsuccessful response: {}", response.error());
@@ -79,7 +77,7 @@ public class FrontControllerServlet extends HttpServlet {
             req.setAttribute("user", userResponse.body());
 
             handleCookies(resp, request, response);
-            handlerResponseData(req, resp, request, response);
+            handleRequestAttributes(req, response);
 
             responseWriter.write(req, resp, request, response);
             logAuditEvent(request, response);
@@ -140,15 +138,6 @@ public class FrontControllerServlet extends HttpServlet {
         for (var key : req.getParameterMap().keySet()) {
             req.setAttribute(key, req.getParameter(key));
         }
-    }
-
-    private void handlerResponseData(HttpServletRequest req, HttpServletResponse resp, Request request, IHttpResponse<?> response) {
-        log.trace("Processing response data for request: {}", request.getEndpoint());
-
-        resp.setHeader("X-Correlation-ID", MDC.get("correlationId"));
-        handleRequestAttributes(req, response);
-
-        log.debug("Response status code: {}", response.statusCode());
     }
 
     private void handleCookies(HttpServletResponse resp, Request request, IHttpResponse<?> response) {

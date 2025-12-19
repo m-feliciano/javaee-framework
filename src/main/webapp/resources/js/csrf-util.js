@@ -7,30 +7,14 @@ const CsrfUtil = (function() {
         return match ? decodeURIComponent(match[2]) : null;
     }
 
-    const addTokenToHeaders = (headers = {}) => {
-        const token = getToken();
-        if (token) {
-            headers[CSRF_HEADER_NAME] = token;
-        }
-        return headers;
-    }
-
     const injectTokenAndSubmit = (form) => {
         const token = getToken();
-        if (!token) {
-            console.warn('CSRF token not found. Please refresh the page.');
-            return;
+        if (token) {
+            form.insertAdjacentHTML(
+                'beforeend',
+                `<input type="hidden" name="${CSRF_HEADER_NAME}" value="${token}">`
+            );
         }
-
-        let tokenInput = form.querySelector('input[name="' + CSRF_HEADER_NAME + '"]');
-        if (!tokenInput) {
-            tokenInput = document.createElement('input');
-            tokenInput.type = 'hidden';
-            tokenInput.name = CSRF_HEADER_NAME;
-            form.appendChild(tokenInput);
-        }
-        tokenInput.value = token;
-
         form.submit();
     }
 
@@ -65,21 +49,9 @@ const CsrfUtil = (function() {
         });
     }
 
-    function csrfFetch(url, options = {}) {
-        const method = (options.method || 'GET').toUpperCase();
-        if (['POST', 'PUT', 'DELETE'].includes(method)) {
-            options.headers = addTokenToHeaders(options.headers || {});
-        }
-        return fetch(url, options);
-    }
-
     attachToForms();
 
-    return {
-        getToken,
-        addTokenToHeaders,
-        fetch: csrfFetch
-    };
+    return {};
 })();
 
 window.CsrfUtil = CsrfUtil;

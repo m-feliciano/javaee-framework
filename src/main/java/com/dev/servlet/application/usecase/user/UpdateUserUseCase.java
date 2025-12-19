@@ -30,8 +30,6 @@ import java.time.OffsetDateTime;
 @ApplicationScoped
 public class UpdateUserUseCase implements UpdateUserPort {
     @Inject
-    private UserMapper userMapper;
-    @Inject
     @Named("messageProducer")
     private MessagePort messagePort;
     @Inject
@@ -61,7 +59,7 @@ public class UpdateUserUseCase implements UpdateUserPort {
         }
 
         final String newEmail = userRequest.login().toLowerCase();
-        boolean emailUnavailable = !isEmailAvailable(newEmail, userMapper.toUser(userRequest));
+        boolean emailUnavailable = !isEmailAvailable(newEmail, User.builder().id(userId).build());
         if (emailUnavailable) {
             alertPort.publish(userId, "warning", "The email address is already in use.");
             return userDetailsPort.getDetail(auth);
@@ -71,7 +69,7 @@ public class UpdateUserUseCase implements UpdateUserPort {
         final String oldEmail = user.getLogin();
 
         repositoryPort.updateCredentials(userId,
-                new Credentials(newEmail, PasswordHasher.hash(userRequest.password())));
+                new Credentials(null, PasswordHasher.hash(userRequest.password())));
 
         if (!oldEmail.equals(newEmail)) {
             String token = generateConfirmationTokenPort.generateFor(user, newEmail);
