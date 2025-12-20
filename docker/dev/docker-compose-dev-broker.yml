@@ -1,0 +1,32 @@
+services:
+  activemq:
+    image: apache/activemq-artemis:2.44.0
+    mem_limit: 512m
+    container_name: dev_activemq
+    restart: unless-stopped
+
+    env_file:
+      - ./.env.dev
+
+    environment:
+      ARTEMIS_USER: ${BROKER_USER}
+      ARTEMIS_PASSWORD: ${BROKER_PASSWORD}
+
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+
+    volumes:
+      - ./data/broker:/var/lib/artemis/data
+
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8161" ]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+
+networks:
+  default:
+    name: dev_shared_net
+    external: true
