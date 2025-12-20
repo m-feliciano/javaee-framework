@@ -32,7 +32,7 @@ public class FileImageRepository extends BaseRepository<FileImage, String> imple
         log.debug("Saving {} fileImages in batch.", images.size());
 
         Session session = em.unwrap(Session.class);
-        session.getTransaction().begin();
+        beginTransaction();
         try {
             session.doWork(connection -> {
                 String copies = String.join(", ", Collections.nCopies(7, "?"));
@@ -56,15 +56,11 @@ public class FileImageRepository extends BaseRepository<FileImage, String> imple
                 }
             });
 
-            session.getTransaction().commit();
+            commitTransaction(true);
             return images;
 
         } catch (Exception e) {
             log.error("Transaction rolled back due to error", e);
-            if (session.getTransaction().isActive()) {
-                session.getTransaction().rollback();
-            }
-
             throw new AppException("Transaction failed.");
         }
     }

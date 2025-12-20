@@ -128,6 +128,7 @@ public class ProductRepository extends BaseRepository<Product, String> implement
             }
         });
 
+        closeEm();
         return products;
     }
 
