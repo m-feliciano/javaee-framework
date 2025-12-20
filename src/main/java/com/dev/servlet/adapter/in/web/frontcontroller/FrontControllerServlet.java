@@ -141,8 +141,10 @@ public class FrontControllerServlet extends HttpServlet {
         try {
             var queries = URIUtils.filterQueryParameters(req.getQueryString());
             if (queries != null) {
+                // Set common query attributes for views
                 req.setAttribute("q", queries.get("q"));
                 req.setAttribute("k", queries.get("k"));
+                req.setAttribute("ct", queries.get("category"));
             }
         } catch (Exception ignored) {
         }

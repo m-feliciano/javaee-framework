@@ -68,6 +68,16 @@
     <logger name="org.jboss.weld" level="WARN"/>
     <!-- hikarycp -->
     <logger name="com.zaxxer.hikari" level="WARN"/>
+<!--    <logger name="com.zaxxer.hikari.HikariConfig" level="DEBUG"/>-->
+<!--    <logger name="com.zaxxer.hikari.pool.HikariPool" level="DEBUG"/>-->
+    <!-- Logger para Jakarta EE / GlassFish -->
+    <logger name="org.glassfish" level="WARN"/>
+    <logger name="jakarta.inject" level="WARN"/>
+<!--    <logger name="jakarta.annotation" level="WARN"/>-->
+<!--    <logger name="jakarta.enterprise" level="WARN"/>-->
+<!--    <logger name="jakarta.transaction" level="WARN"/>-->
+<!--    <logger name="jakarta.persistence" level="WARN"/>-->
+
     <!-- Logger para ehcache -->
     <logger name="net.sf.ehcache" level="WARN"/>
     <logger name="org.ehcache" level="WARN"/>

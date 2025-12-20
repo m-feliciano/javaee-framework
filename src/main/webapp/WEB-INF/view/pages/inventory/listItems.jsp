@@ -112,6 +112,7 @@
                 <jsp:param name="direction" value="${pageable.getSort().getDirection().getValue()}"/>
                 <jsp:param name="k" value="${k}"/>
                 <jsp:param name="q" value="${q}"/>
+                <jsp:param name="ct" value="${ct}"/>
             </jsp:include>
         </c:if>
     </div>

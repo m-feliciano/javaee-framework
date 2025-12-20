@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   title: Servlets Development API
-  version: 3.4.0-alpha
+  version: 3.5.0-rc
   description: |
     API RPC baseada em Servlets (não REST)
     

@@ -32,19 +32,23 @@ public interface InventoryMapper {
 
     default InventoryRequest queryToInventory(Query query) {
         InventoryRequest.InventoryRequestBuilder builder = InventoryRequest.builder();
-        ProductRequest.ProductRequestBuilder productBuilder = ProductRequest.builder();
+        ProductRequest.ProductRequestBuilder prodBuilder = ProductRequest.builder();
+        String product = "product";
+        String name = "name";
+        String category = "category";
+        String description = "description";
+
         query.parameters().forEach((k, v) -> {
-            if ("product".equals(k)) {
-                productBuilder.id(v.trim());
-            } else if ("name".equals(k)) {
-                productBuilder.name(v.trim());
-            } else if ("category".equals(k)) {
-                productBuilder.category(CategoryRequest.builder().id(v.trim()).build());
-            } else if ("description".equals(k)) {
-                builder.description(v.trim());
+            if (product.equals(k)) prodBuilder.id(v.trim());
+            else {
+                if (name.equals(k)) prodBuilder.name(v.trim());
+
+                else if (category.equals(k)) prodBuilder.category(CategoryRequest.builder().id(v.trim()).build());
+
+                else if (description.equals(k)) builder.description(v.trim());
             }
         });
-        builder.product(productBuilder.build());
+        builder.product(prodBuilder.build());
         return builder.build();
     }
 }
