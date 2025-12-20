@@ -19,8 +19,6 @@ public interface UserMapper {
     @Mapping(target = "imgUrl", source = "images", qualifiedByName = "firstElement")
     UserResponse toResponse(User user);
 
-    User toUser(UserRequest userRequest);
-
     @Named("firstElement")
     default String firstElement(List<FileImage> list) {
         if (list != null && !list.isEmpty()) {

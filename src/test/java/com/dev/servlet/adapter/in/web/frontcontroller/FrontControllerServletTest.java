@@ -216,6 +216,7 @@ class FrontControllerServletTest {
 
             IHttpResponse mock = HttpResponse.<String>ok("Success").build();
             when(dispatcher.dispatch(any())).thenReturn(mock);
+            when(request.getRequestURI()).thenReturn("/api/v1/product/list");
 
             doNothing().when(responseWriter).write(any(), any(), any(), any());
 
@@ -246,7 +247,8 @@ class FrontControllerServletTest {
         @DisplayName("Should not audit health check endpoints")
         void shouldNotAuditHealthEndpoints() throws Exception {
             // Arrange
-            when(request.getRequestURI()).thenReturn("/api/v1/health/status");
+            when(request.getRequestURI()).thenReturn("/api/v1/health/up");
+            when(request.getMethod()).thenReturn("GET");
 
             HttpResponse response = HttpResponse.<String>ok("UP").build();
             when(dispatcher.dispatch(any(Request.class)))
@@ -315,6 +317,7 @@ class FrontControllerServletTest {
             IHttpResponse mockResponse = HttpResponse.<String>ok("Logged out").build();
 
             when(request.getRequestURI()).thenReturn("/api/v1/auth/logout");
+            when(request.getMethod()).thenReturn("POST");
             when(dispatcher.dispatch(any())).thenReturn(mockResponse);
             doNothing().when(authCookiePort).clearCookies(any());
             doNothing().when(responseWriter).write(any(), any(), any(), any());
@@ -386,7 +389,6 @@ class FrontControllerServletTest {
             when(request.getMethod()).thenReturn("POST");
             when(request.getRequestURI()).thenReturn("/api/v1/user/update");
             when(dispatcher.dispatch(any())).thenReturn(userHttpResponse);
-            doNothing().when(authCookiePort).addCdnCookies(any());
             doNothing().when(responseWriter).write(any(), any(), any(), any());
 
             // Act
@@ -394,7 +396,6 @@ class FrontControllerServletTest {
 
             // Assert
             verify(authCookiePort, never()).setAuthCookies(any(), anyString(), anyString());
-            verify(authCookiePort).addCdnCookies(response);
         }
     }
 

@@ -63,7 +63,7 @@ IMPORTANT: This demo uses an older version (v2.x.x) of the framework and will no
 The current version of the framework can be found in the `master` branch.
 
 ```shell
-curl -O https://raw.githubusercontent.com/m-feliciano/javaee-framework/refs/heads/master/docker-compose.demo.yml
+curl -O https://raw.githubusercontent.com/m-feliciano/javaee-framework/refs/heads/master/docker/demo/docker-compose.demo.yml
 ```
 
 Run the demo application with Docker Compose:
@@ -74,7 +74,7 @@ docker compose -f docker-compose.demo.yml up -d
 
 ## To Set Up Services Manually
 
-Read the docker-compose file at `docker-compose.yml` to set up the PostgreSQL and ActiveMQ services.
+Read the docker-compose file at `SETUP_DOCKER_DEVELOP.md` for instructions on how to set up the required services
 
 ### Build and Run Locally
 Build the application using Maven:
@@ -91,7 +91,8 @@ The application exposes some endpoints. Here are examples:
 - `POST /api/v1/auth/login` - Authenticate with username/password
 - `GET /api/v1/product/list` - List products
 - `GET /api/v1/health/live` - Liveness probe
-- `GET /api/v1/user/{id}` - Get user details
+- `GET /api/v1/user/me` - Get current user details
+- `POST /api/v2/user/upload-photo` - Upload user photo (v2 example)
 
 The base URL is `http://localhost:8080` by default (local).
 

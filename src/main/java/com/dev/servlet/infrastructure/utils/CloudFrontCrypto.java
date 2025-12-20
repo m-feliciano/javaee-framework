@@ -98,7 +98,7 @@ public final class CloudFrontCrypto {
     public static Map<String, String> generateCloudFrontSignedCookies() throws Exception {
         PrivateKey key = loadPrivateKey(
                 Path.of(
-                        Properties.getEnv("CLOUDFRONT_PRIVATE_KEY_PATH"))
+                        Properties.getEnv("CLOUDFRONT_PK_PATH"))
         );
         String policy = getPolicy();
 

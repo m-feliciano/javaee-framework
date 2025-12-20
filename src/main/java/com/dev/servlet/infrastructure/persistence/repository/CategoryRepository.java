@@ -64,7 +64,7 @@ public class CategoryRepository extends BaseRepository<Category, String> impleme
     @Override
     public List<Category> saveAll(List<Category> categories) throws AppException {
         Session session = em.unwrap(Session.class);
-        session.getTransaction().begin();
+        beginTransaction();
 
         session.doWork(connection -> {
             String copies = String.join(", ", Collections.nCopies(3, "?"));
@@ -86,11 +86,9 @@ public class CategoryRepository extends BaseRepository<Category, String> impleme
                 }
             }
         });
-        try {
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-        }
+
+        commitTransaction(true);
+
         return categories;
     }
 

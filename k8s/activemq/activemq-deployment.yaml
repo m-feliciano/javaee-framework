@@ -19,11 +19,12 @@ spec:
             - containerPort: 61616
             - containerPort: 8161 # Console web do ActiveMQ
 
-          envFrom:
-            - configMapRef:
-                name: servlets-config
-            - secretRef:
-                name: servlets-secret
+          env:
+            - name: ARTEMIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: servlets-secret
+                  key: BROKER_PASSWORD
 
           readinessProbe:
             httpGet:

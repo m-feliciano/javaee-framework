@@ -2,10 +2,14 @@
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
 <c:if test="${param.totalPages > 1}">
+
+    <c:set var="queryParams"
+           value="${not empty param.k ? 'q='.concat(fn:escapeXml(param.q)).concat('&k=').concat(fn:escapeXml(param.k)).concat('&') : ''}${not empty param.ct ? 'category='.concat(fn:escapeXml(param.ct)).concat('&') : ''}" />
+
     <div class="pagination-container">
         <div class="pagination-info">
             Showing ${(param.currentPage - 1) * param.pageSize + 1} -
-            ${param.currentPage * param.pageSize > param.totalRecords ? param.totalRecords : param.currentPage * param.pageSize}
+                ${param.currentPage * param.pageSize > param.totalRecords ? param.totalRecords : param.currentPage * param.pageSize}
             of ${param.totalRecords} results&nbsp;&nbsp;
         </div>
 
@@ -14,7 +18,7 @@
                 <c:when test="${param.currentPage > 1}">
                     <li class="page-item">
                         <a class="page-link"
-                           href="?${not empty param.k ? 'q='.concat(fn:escapeXml(param.q)).concat('&k=').concat(fn:escapeXml(param.k)).concat('&') : ''}page=${param.currentPage - 1}&limit=${param.pageSize}&sort=${param.sort}&direction=${param.direction}">
+                           href="?${queryParams}page=${param.currentPage - 1}&limit=${param.pageSize}&sort=${param.sort}&direction=${param.direction}">
                             <i class="bi bi-chevron-left"></i>
                         </a>
                     </li>
@@ -31,7 +35,7 @@
             <c:if test="${param.currentPage > 3}">
                 <li class="page-item">
                     <a class="page-link"
-                       href="?${not empty param.k ? 'q='.concat(fn:escapeXml(param.q)).concat('&k=').concat(fn:escapeXml(param.k)).concat('&') : ''}page=1&limit=${param.pageSize}&sort=${param.sort}&direction=${param.direction}">
+                       href="?${queryParams}page=1&limit=${param.pageSize}&sort=${param.sort}&direction=${param.direction}">
                         1
                     </a>
                 </li>
@@ -54,8 +58,8 @@
                     <c:otherwise>
                         <li class="page-item">
                             <a class="page-link"
-                               href="?${not empty param.k ? 'q='.concat(fn:escapeXml(param.q)).concat('&k=').concat(fn:escapeXml(param.k)).concat('&') : ''}page=${i}&limit=${param.pageSize}&sort=${param.sort}&direction=${param.direction}">
-                                ${i}
+                               href="?${queryParams}page=${i}&limit=${param.pageSize}&sort=${param.sort}&direction=${param.direction}">
+                                    ${i}
                             </a>
                         </li>
                     </c:otherwise>
@@ -70,8 +74,8 @@
                 </c:if>
                 <li class="page-item">
                     <a class="page-link"
-                       href="?${not empty param.k ? 'q='.concat(fn:escapeXml(param.q)).concat('&k=').concat(fn:escapeXml(param.k)).concat('&') : ''}page=${param.totalPages}&limit=${param.pageSize}&sort=${param.sort}&direction=${param.direction}">
-                        ${param.totalPages}
+                       href="?${queryParams}page=${param.totalPages}&limit=${param.pageSize}&sort=${param.sort}&direction=${param.direction}">
+                            ${param.totalPages}
                     </a>
                 </li>
             </c:if>
@@ -80,7 +84,7 @@
                 <c:when test="${param.currentPage < param.totalPages}">
                     <li class="page-item">
                         <a class="page-link"
-                           href="?${not empty param.k ? 'q='.concat(fn:escapeXml(param.q)).concat('&k=').concat(fn:escapeXml(param.k)).concat('&') : ''}page=${param.currentPage + 1}&limit=${param.pageSize}&sort=${param.sort}&direction=${param.direction}">
+                           href="?${queryParams}page=${param.currentPage + 1}&limit=${param.pageSize}&sort=${param.sort}&direction=${param.direction}">
                             <i class="bi bi-chevron-right"></i>
                         </a>
                     </li>
@@ -96,4 +100,3 @@
         </ul>
     </div>
 </c:if>
-

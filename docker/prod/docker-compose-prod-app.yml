@@ -5,23 +5,24 @@ services:
     restart: unless-stopped
     ports:
       - "8080:8080"
+    mem_limit: 1g
 
     environment:
       DB_HOST: ${AWS_RDS_HOST}
       DB_PORT: ${AWS_RDS_PORT}
-      POSTGRES_DB: ${AWS_RDS_DB}
-      POSTGRES_USER: ${AWS_RDS_USER}
+      DB: ${AWS_RDS_DB}
+      DB_USER: ${AWS_RDS_USER}
 
-      ACTIVEMQ_BROKER_URL: ${AWS_ACTIVEMQ_BROKER_URL}
+      BROKER_URL: ${AWS_BROKER_URL}
 
       STORAGE_PROVIDER: s3
 
-      CLOUDFRONT_PRIVATE_KEY_PATH: /run/secrets/cloudfront_pk
+      CLOUDFRONT_PK_PATH: /run/secrets/cloudfront_pk
 
       SMTP_HOST: ${SMTP_HOST}
       SMTP_PORT: ${SMTP_PORT}
 
-      JAVA_OPTS: "-Xms256m -Xmx512m -XX:+UseG1GC -XX:+UseStringDeduplication"
+      JAVA_OPTS: "-Xms320m -Xm640m -XX:MaxMetaspaceSize=192m -XX:+UseG1GC -XX:+UseStringDeduplication -XX:MaxGCPauseMillis=200"
 
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/api/v1/health/up" ]

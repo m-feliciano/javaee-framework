@@ -3,17 +3,16 @@ kind: ConfigMap
 metadata:
   name: servlets-config
 data:
-  #  EMAIL: "email@"
   DB_HOST: "postgres"
   DB_PORT: "5432"
-  POSTGRES_DB: "servletsdb"
-  POSTGRES_USER: "postgres"
+  DB: "servletsdb"
+  DB_USER: "postgres"
 
   STORAGE_PROVIDER: "s3"
 
-  ACTIVEMQ_BROKER_URL: "tcp://activemq:61616?reconnectAttempts=-1&failoverAttempts=-1&retryInterval=2000&retryIntervalMultiplier=1.5&maxRetryInterval=60000"
+  BROKER_URL: "tcp://activemq:61616?reconnectAttempts=-1&failoverAttempts=-1&retryInterval=2000&retryIntervalMultiplier=1.5&maxRetryInterval=60000"
   ARTEMIS_USER: "artemis"
 
   SMTP_HOST: "smtp.gmail.com"
   SMTP_PORT: "587"
-  SMTP_USER: "your_email"
+  SMTP_USER: "your_user"

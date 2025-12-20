@@ -18,8 +18,9 @@ spec:
           image: postgres:15-alpine
           ports:
             - containerPort: 5432
-          envFrom:
-            - configMapRef:
-                name: servlets-config
-            - secretRef:
-                name: servlets-secret
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: servlets-secret
+                  key: DB_PASSWORD

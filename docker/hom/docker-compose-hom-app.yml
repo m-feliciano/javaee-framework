@@ -1,0 +1,26 @@
+services:
+  app:
+    image: mfeliciano1/servlets-app:homolog
+    container_name: servlets_app_hom
+    restart: unless-stopped
+    mem_limit: 1g
+
+    ports:
+      - "8080:8080"
+
+    env_file:
+      - .env.hom
+
+    environment:
+      CLOUDFRONT_PK_PATH: /run/secrets/cloudfront_pk
+
+      JAVA_OPTS: "-Xms256m -Xmx512m -XX:MaxMetaspaceSize=128m -XX:+UseG1GC -XX:+UseStringDeduplication -XX:MaxGCPauseMillis=200"
+
+    volumes:
+      - ${CLOUDFRONT_PK_PATH}:/run/secrets/cloudfront_pk:ro
+
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/api/v1/health/up" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5

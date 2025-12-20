@@ -107,7 +107,7 @@ public class InventoryRepository extends BaseRepository<Inventory, String> imple
     @Override
     public List<Inventory> saveAll(List<Inventory> inventories) throws AppException {
         Session session = em.unwrap(Session.class);
-        session.getTransaction().begin();
+        beginTransaction();
 
         session.doWork(connection -> {
             String copies = String.join(", ", Collections.nCopies(5, "?"));
@@ -131,11 +131,14 @@ public class InventoryRepository extends BaseRepository<Inventory, String> imple
                 ps.executeBatch();
             }
         });
+
         try {
-            session.getTransaction().commit();
+            commitTransaction(true);
         } catch (Exception e) {
-            session.getTransaction().rollback();
+            log.error("Error committing transaction for saving inventories", e);
+            throw new AppException("Failed to save inventories");
         }
+
         return inventories;
     }
     @Override

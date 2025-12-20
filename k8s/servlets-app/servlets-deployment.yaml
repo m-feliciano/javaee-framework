@@ -20,9 +20,11 @@ spec:
           env:
             - name: DB_HOST
               value: postgres
+
             - name: MQ_HOST
               value: activemq
-            - name: CLOUDFRONT_PRIVATE_KEY_PATH
+
+            - name: CLOUDFRONT_PK_PATH
               value: /run/secrets/cloudfront/cloudfront_pk
 
           envFrom:

@@ -80,12 +80,18 @@ public abstract class BaseRepository<T, ID> implements BaseRepositoryPort<T, ID>
         try {
             beginTransaction();
             R result = action.execute();
-            commitTransaction();
+            commitTransaction(true);
             return result;
+
         } catch (Exception e) {
-            log.error("Transaction failed: {}", e.getMessage());
-            rollbackTransaction();
+            try {
+                rollbackTransaction();
+            } catch (Exception ignore) {
+            }
+
             throw new RuntimeException("Transaction failed", e);
+        } finally {
+            closeEm();
         }
     }
 
@@ -100,7 +106,7 @@ public abstract class BaseRepository<T, ID> implements BaseRepositoryPort<T, ID>
         });
     }
 
-    private void beginTransaction() {
+    protected void beginTransaction() {
         if (!em.getTransaction().isActive()) {
             em.getTransaction().begin();
         }
@@ -113,15 +119,27 @@ public abstract class BaseRepository<T, ID> implements BaseRepositoryPort<T, ID>
      *
      * @throws RuntimeException if the commit fails
      */
-    protected void commitTransaction() {
+    protected void commitTransaction(boolean rollbackOnError) {
         try {
             em.flush(); // Flush changes to the database
             em.getTransaction().commit(); // Commit the transaction
             em.clear(); // Detach all managed entities
         } catch (Exception e) {
             log.error("Error committing transaction: {}", e.getMessage());
-            rollbackTransaction();
+
+            if (rollbackOnError) {
+                rollbackTransaction();
+            }
             throw e;
+
+        } finally {
+            closeEm();
+        }
+    }
+
+    protected void closeEm() {
+        if (em != null && em.isOpen()) {
+            em.close();
         }
     }
 

@@ -22,7 +22,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.stream.Stream;
 
 import static com.dev.servlet.infrastructure.utils.URIUtils.matchWildcard;
 
@@ -33,12 +33,11 @@ import static com.dev.servlet.infrastructure.utils.URIUtils.matchWildcard;
 )
 @Slf4j
 public class FrontControllerServlet extends HttpServlet {
-    private static final List<String> noAuditEndpoints = List.of(
-            "GET:/api/v1/inspect/*",
-            "GET:/api/v1/health/*",
-            "GET:/api/v1/activity/*",
-            "GET:/api/v1/alert/*"
-    );
+    // Api endpoints that are excluded from audit logging
+    private static final String GET_INSPECT_EVENT = "GET:/api/v1/inspect/*";
+    private static final String GET_ACTIVITY_EVENT = "GET:/api/v1/activity/*";
+    private static final String GET_HEALTH_UP_EVENT = "GET:/api/v1/health/up";
+    private static final String GET_ALERT_EVENT = "GET:/api/v1/alert/*";
 
     @Inject
     private AuditPort auditPort;
@@ -56,10 +55,16 @@ public class FrontControllerServlet extends HttpServlet {
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         log.trace("service(req={}, resp={})", req, resp);
 
+        final String event = "%s:%s".formatted(req.getMethod(), req.getRequestURI());
+        log.debug("Processing request for event: {}", event);
+
+        boolean logEndpoint = isLogEndpoint(event);
+
         Request request = null;
+        IHttpResponse<?> response = null;
         try {
             request = RequestBuilder.newBuilder().servletRequest(req).complete().build();
-            IHttpResponse<?> response = dispatcher.dispatch(request);
+            response = dispatcher.dispatch(request);
 
             if (response.error() != null && response.reasonText() == null) {
                 log.warn("Unsuccessful response: {}", response.error());
@@ -67,20 +72,22 @@ public class FrontControllerServlet extends HttpServlet {
             }
 
             // todo: frontend responsibility to fetch user details? its cached though, so low impact
-            Request userRequest = Request.builder()
-                    .endpoint("/api/v1/user/me")
-                    .method(RequestMethod.GET)
-                    .token(request.getToken())
-                    .build();
+            if (request.getToken() != null) {
+                Request userRequest = Request.builder()
+                        .endpoint("/api/v1/user/me")
+                        .method(RequestMethod.GET)
+                        .token(request.getToken())
+                        .build();
 
-            IHttpResponse<?> userResponse = dispatcher.dispatch(userRequest);
-            req.setAttribute("user", userResponse.body());
+                IHttpResponse<?> userResponse = dispatcher.dispatch(userRequest);
+                req.setAttribute("user", userResponse.body());
+            }
 
-            handleCookies(resp, request, response);
             handleRequestAttributes(req, response);
 
+            if (logEndpoint) handleCookies(resp, request, response);
+
             responseWriter.write(req, resp, request, response);
-            logAuditEvent(request, response);
 
         } catch (AppException e) {
             log.warn("Application error processing request: {}", e.getMessage());
@@ -91,8 +98,6 @@ public class FrontControllerServlet extends HttpServlet {
                 log.error("Error writing application error response: {}", ex.getMessage(), ex);
             }
 
-            logAuditEvent(request, null);
-
         } catch (Exception e) {
             log.error("Unexpected error processing request: {}", e.getMessage(), e);
 
@@ -102,24 +107,31 @@ public class FrontControllerServlet extends HttpServlet {
                 log.error("Error writing unexpected error response: {}", ex.getMessage(), ex);
             }
 
-            logAuditEvent(request, null);
+        } finally {
+            logAuditEvent(request, response, logEndpoint);
+            log.debug("Completed processing request for event: {}", event);
         }
     }
 
-    private void logAuditEvent(Request req, IHttpResponse<?> res) {
-        if (req == null) return;
+    private static boolean isLogEndpoint(String event) {
+        return Stream.of(GET_HEALTH_UP_EVENT,
+                        GET_INSPECT_EVENT,
+                        GET_ACTIVITY_EVENT,
+                        GET_ALERT_EVENT)
+                .noneMatch(pattern -> matchWildcard(pattern, event));
+    }
 
-        String eventName = "%s:%s".formatted(req.getMethod(), req.getEndpoint());
+    private void logAuditEvent(Request req, IHttpResponse<?> res, boolean logActivity) {
+        if (req == null || !logActivity) return;
 
-        if (noAuditEndpoints.stream().noneMatch(edp -> matchWildcard(edp, eventName))) {
+        String event = "%s:%s".formatted(req.getMethod(), req.getEndpoint());
 
-            int status = res != null ? res.statusCode() : 500;
-            if (status >= 200 && status < 400) {
-                Object payload = CloneUtil.summarizeResponseBody(res.body());
-                auditPort.success(eventName, req.getToken(), new AuditPayload<>(req, payload));
-            } else {
-                auditPort.failure(eventName, req.getToken(), new AuditPayload<>(req, res));
-            }
+        int status = res != null ? res.statusCode() : 500;
+        if (status >= 200 && status < 400) {
+            Object payload = CloneUtil.summarizeResponseBody(res.body());
+            auditPort.success(event, req.getToken(), new AuditPayload<>(req, payload));
+        } else {
+            auditPort.failure(event, req.getToken(), new AuditPayload<>(req, res));
         }
     }
 
@@ -129,8 +141,10 @@ public class FrontControllerServlet extends HttpServlet {
         try {
             var queries = URIUtils.filterQueryParameters(req.getQueryString());
             if (queries != null) {
+                // Set common query attributes for views
                 req.setAttribute("q", queries.get("q"));
                 req.setAttribute("k", queries.get("k"));
+                req.setAttribute("ct", queries.get("category"));
             }
         } catch (Exception ignored) {
         }
@@ -141,16 +155,18 @@ public class FrontControllerServlet extends HttpServlet {
     }
 
     private void handleCookies(HttpServletResponse resp, Request request, IHttpResponse<?> response) {
-        if (RequestMethod.POST.equals(request.getMethod())
-            && response.body() instanceof UserResponse user && user.hasToken()) {
-            authCookiePort.setAuthCookies(resp, user.getToken(), user.getRefreshToken());
+        if (RequestMethod.GET.equals(request.getMethod())) {
+            authCookiePort.addCdnCookies(resp);
         }
 
-        if (request.contains("logout")) {
-            authCookiePort.clearCookies(resp);
-        } else {
-            // Ensure CDN cookies are added: e.g., for Cloudflare
-            authCookiePort.addCdnCookies(resp);
+        if (RequestMethod.POST.equals(request.getMethod())) {
+            if (response.body() instanceof UserResponse user && user.hasToken()) {
+                authCookiePort.setAuthCookies(resp, user.getToken(), user.getRefreshToken());
+            }
+
+            if (request.contains("logout")) {
+                authCookiePort.clearCookies(resp);
+            }
         }
     }
 }
