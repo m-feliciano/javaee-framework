@@ -122,6 +122,8 @@ public abstract class BaseRepository<T, ID> implements BaseRepositoryPort<T, ID>
             log.error("Error committing transaction: {}", e.getMessage());
             rollbackTransaction();
             throw e;
+        } finally {
+            em.close(); // Close the EntityManager to prevent further use
         }
     }
 
