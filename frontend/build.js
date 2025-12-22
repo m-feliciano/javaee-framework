@@ -61,12 +61,10 @@ function listFiles(dir, ext) {
         .sort();
 }
 
-// Pega apenas main.css (que importa todos os outros)
 const mainCssPath = path.join(cssDir, "main.css");
 const allJs = listFiles(jsDir, ".js");
 const mainJs = allJs.filter(f => !pageScripts.has(path.basename(f)));
 
-// Cria entry point temporário
 let tmp = "";
 if (fs.existsSync(mainCssPath)) {
     tmp += `import "${relImport(mainCssPath)}";\n`;
@@ -74,17 +72,10 @@ if (fs.existsSync(mainCssPath)) {
 mainJs.forEach(f => tmp += `import "${relImport(f)}";\n`);
 fs.writeFileSync(tmpEntry, tmp, "utf8");
 
-console.log("🚀 Building assets...");
-console.log(`📦 CSS: ${fs.existsSync(mainCssPath) ? 'main.css' : 'none'}`);
-console.log(`📦 JS scripts: ${mainJs.length} files`);
-console.log(`📄 Page scripts: ${pageScripts.size} files`);
-
 (async () => {
     try {
         ensureDir(outDir);
 
-        // Build main bundle (CSS + JS comum)
-        console.log("\n⚡ Building main bundle...");
         await esbuild.build({
             entryPoints: [tmpEntry],
             bundle: true,
@@ -98,8 +89,6 @@ console.log(`📄 Page scripts: ${pageScripts.size} files`);
             format: 'esm',
         });
 
-        // Build page scripts separadamente
-        console.log("⚡ Building page scripts...");
         const pageOutputs = {};
         for (const file of pageScripts) {
             const input = path.join(jsDir, file);
@@ -122,11 +111,8 @@ console.log(`📄 Page scripts: ${pageScripts.size} files`);
                 format: 'esm',
             });
             pageOutputs[file] = out;
-            console.log(`  ✓ ${file}`);
         }
 
-        // Gera manifest com hashes
-        console.log("\n🔒 Generating manifest with hashes...");
         const manifest = {};
         const mainJsOut = path.join(outDir, "main.js");
 
@@ -134,7 +120,6 @@ console.log(`📄 Page scripts: ${pageScripts.size} files`);
             const hashedName = renameWithHash(mainJsOut, "main");
             manifest["main.js"] = hashedName;
             const size = fs.statSync(path.join(outDir, hashedName)).size;
-            console.log(`  ✓ main.js → ${hashedName} (${(size/1024).toFixed(2)} KB)`);
         }
 
         const mainCssOut = path.join(outDir, "main.css");
@@ -142,7 +127,6 @@ console.log(`📄 Page scripts: ${pageScripts.size} files`);
             const hashedName = renameWithHash(mainCssOut, "main");
             manifest["main.css"] = hashedName;
             const size = fs.statSync(path.join(outDir, hashedName)).size;
-            console.log(`  ✓ main.css → ${hashedName} (${(size/1024).toFixed(2)} KB)`);
         }
 
         for (const [orig, outPath] of Object.entries(pageOutputs)) {
@@ -150,23 +134,19 @@ console.log(`📄 Page scripts: ${pageScripts.size} files`);
                 const base = path.basename(orig, ".js");
                 const newName = renameWithHash(outPath, base);
                 manifest[orig] = newName;
-                const size = fs.statSync(path.join(outDir, newName)).size;
-                console.log(`  ✓ ${orig} → ${newName} (${(size/1024).toFixed(2)} KB)`);
+                fs.statSync(path.join(outDir, newName)).size;
             }
         }
 
         fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), "utf8");
-        console.log(`\n✅ Build complete! Manifest: ${Object.keys(manifest).length} files`);
 
-        // Calcula tamanho total
         const totalSize = Object.values(manifest).reduce((sum, fileName) => {
             const filePath = path.join(outDir, fileName);
             return sum + (fs.existsSync(filePath) ? fs.statSync(filePath).size : 0);
         }, 0);
-        console.log(`📊 Total size: ${(totalSize/1024).toFixed(2)} KB`);
 
     } catch (err) {
-        console.error("❌ Build failed:", err);
+        console.error("Build failed:", err);
         process.exit(1);
     } finally {
         try {

@@ -15,7 +15,6 @@ import com.dev.servlet.domain.entity.enums.RoleType;
 import com.dev.servlet.domain.entity.enums.Status;
 import com.dev.servlet.infrastructure.config.Properties;
 import com.dev.servlet.infrastructure.utils.PasswordHasher;
-import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -33,20 +32,13 @@ public class RegisterUserUseCase implements RegisterUserPort {
     @Inject
     private UserRepositoryPort repositoryPort;
     @Inject
-    @Named("messageProducer")
+    @Named("sqsMessageProducer")
     private MessagePort messagePort;
     @Inject
     private GenerateConfirmationTokenPort generateConfirmationTokenPort;
     // Only for demo purposes
     @Inject
     private Instance<UserDemoModePort> demoModePortInstance;
-
-    private String baseUrl;
-
-    @PostConstruct
-    public void init() {
-        baseUrl = Properties.getEnvOrDefault("APP_BASE_URL", "http://localhost:8080");
-    }
 
     public UserResponse register(UserCreateRequest userReq) throws AppException {
         log.debug("RegisterUserUseCase: registering user with login {}", userReq.login());
@@ -85,8 +77,8 @@ public class RegisterUserUseCase implements RegisterUserPort {
         log.info("User registered: {}", newUser.getCredentials().getLogin());
 
         String token = generateConfirmationTokenPort.generateFor(newUser, null);
-        String url = this.baseUrl + "/api/v1/user/confirm?token=" + token;
-        messagePort.sendConfirmation(newUser.getCredentials().getLogin(), url);
+        String link = Properties.getAppBaseUrl() + "/api/v1/user/confirm?token=" + token;
+        messagePort.sendConfirmation(newUser.getCredentials().getLogin(), link);
 
         UserResponse response = new UserResponse(newUser.getId());
         response.setCreated(true);

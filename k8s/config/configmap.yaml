@@ -8,8 +8,6 @@ data:
   DB: "servletsdb"
   DB_USER: "postgres"
 
-  STORAGE_PROVIDER: "s3"
-
   BROKER_URL: "tcp://activemq:61616?reconnectAttempts=-1&failoverAttempts=-1&retryInterval=2000&retryIntervalMultiplier=1.5&maxRetryInterval=60000"
   ARTEMIS_USER: "artemis"
 

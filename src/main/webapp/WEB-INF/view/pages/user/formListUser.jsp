@@ -1,5 +1,10 @@
+<%@ page import="com.dev.servlet.adapter.in.web.dto.IHttpResponse" %>
 <%@ include file="/WEB-INF/routes/user-routes.jspf" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
+
+<%
+    request.setAttribute("user", ((IHttpResponse<?>) request.getAttribute("response")).body());
+%>
 
 <div class="content">
     <div class="main">
@@ -15,7 +20,8 @@
                     <div class="card-body">
                         <div class="grid-container" style="place-items: center; margin-bottom: var(--spacing-4);">
                             <c:if test="${not empty user.imgUrl}">
-                                <img src="${cdn}/${user.imgUrl}" alt="user" class="avatar-img rounded-circle"
+                                <img src="${cdn}/${user.imgUrl}" alt="user"
+                                     class="avatar-img rounded-circle"
                                      style="width: 200px; height: 200px; object-fit: cover;"/>
                             </c:if>
                             <c:if test="${empty user.imgUrl}">
@@ -30,7 +36,7 @@
                               method="post"
                               class="csrf-upload-form grid-form">
                             <div class="form-group">
-                                <label for="inputImage" class="form-label">Upload New Profile Picture</label>
+                                <label for="inputImage" class="form-label">Upload Profile Picture</label>
                                 <input type="file" name="file" class="form-control" id="inputImage" accept="image/*"/>
                             </div>
                             <jsp:include page="/WEB-INF/view/components/buttons/uploadButton.jsp"/>

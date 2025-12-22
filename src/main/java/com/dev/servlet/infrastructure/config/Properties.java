@@ -20,6 +20,71 @@ public final class Properties {
     private final static ConcurrentHashMap<String, String> propertiesCache = new ConcurrentHashMap<>();
     private final static Map<String, Object> props = loadProperties();
 
+    public static String get(String key) {
+        return propertiesCache.computeIfAbsent(key, k -> {
+            Object value = getNestedValue(k);
+            return value != null ? value.toString() : null;
+        });
+    }
+
+    public static <T> T getOrDefault(String key, T defaultValue) {
+        String property = get(key);
+        T value = parseProperty(property, defaultValue);
+        return ObjectUtils.getIfNull(value, defaultValue);
+    }
+
+    public static String getEnvOrDefault(String env, String defaultValue) {
+        String getenv = System.getenv(env);
+        return ObjectUtils.getIfNull(getenv, defaultValue);
+    }
+
+    public static String getEnv(String env) {
+        return getEnvOrDefault(env, null);
+    }
+
+    public static java.util.Properties loadDatabaseProperties() {
+        String dbHost = System.getenv("DB_HOST");
+        String dbPort = System.getenv("DB_PORT");
+        String dbName = System.getenv("DB");
+        String dbUser = System.getenv("DB_USER");
+        String dbPassword = System.getenv("DB_PASSWORD");
+        if (dbHost == null || dbPort == null || dbName == null || dbUser == null || dbPassword == null) {
+            throw new IllegalStateException("Database environment variables missing. " +
+                                            "Required: DB_HOST, DB_PORT, DB, DB_USER, DB_PASSWORD");
+        }
+        String jdbcUrl = "jdbc:postgresql://%s:%s/%s".formatted(dbHost, dbPort, dbName);
+        java.util.Properties databaseProps = new java.util.Properties();
+        databaseProps.setProperty("jakarta.persistence.jdbc.url", jdbcUrl);
+        databaseProps.setProperty("jakarta.persistence.jdbc.user", dbUser);
+        databaseProps.setProperty("jakarta.persistence.jdbc.password", dbPassword);
+        databaseProps.setProperty("jakarta.persistence.jdbc.driver", "org.postgresql.Driver");
+        return databaseProps;
+    }
+
+    public static String getAppBaseUrl() {
+        return get("app.base_url");
+    }
+
+    public static String getAppDomain() {
+        return get("app.domain");
+    }
+
+    public static boolean isDemoModeEnabled() {
+        return BooleanUtils.toBoolean(getOrDefault("DEMO_MODE", "false"));
+    }
+
+    public static boolean isProductionMode() {
+        return isMode("production");
+    }
+
+    public static boolean isDevelopmentMode() {
+        return isMode("development");
+    }
+
+    private static boolean isMode(String mode) {
+        return mode.equalsIgnoreCase(getOrDefault("app.env", "unknown"));
+    }
+
     private static Map<String, Object> loadProperties() {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         URL url = loader.getResource("");
@@ -34,19 +99,6 @@ public final class Properties {
         } catch (Exception e) {
             throw new RuntimeException("Failed to load configuration from file: " + propFileName, e);
         }
-    }
-
-    public static String get(String key) {
-        return propertiesCache.computeIfAbsent(key, k -> {
-            Object value = getNestedValue(k);
-            return value != null ? value.toString() : null;
-        });
-    }
-
-    public static <T> T getOrDefault(String key, T defaultValue) {
-        String property = get(key);
-        T value = parseProperty(property, defaultValue);
-        return value != null ? value : defaultValue;
     }
 
     private static Object getNestedValue(String key) {
@@ -95,45 +147,5 @@ public final class Properties {
             array[i] = parseProperty(trimmed[i], defaultValue.iterator().next());
         }
         return List.of(array);
-    }
-
-    public static String getEnvOrDefault(String env, String defaultValue) {
-        String getenv = System.getenv(env);
-        return ObjectUtils.getIfNull(getenv, defaultValue);
-    }
-
-    public static String getEnv(String env) {
-        return getEnvOrDefault(env, null);
-    }
-
-    public static java.util.Properties loadDatabaseProperties() {
-        String dbHost = System.getenv("DB_HOST");
-        String dbPort = System.getenv("DB_PORT");
-        String dbName = System.getenv("DB");
-        String dbUser = System.getenv("DB_USER");
-        String dbPassword = System.getenv("DB_PASSWORD");
-        if (dbHost == null || dbPort == null || dbName == null || dbUser == null || dbPassword == null) {
-            throw new IllegalStateException("Database environment variables missing. " +
-                                            "Required: DB_HOST, DB_PORT, DB, DB_USER, DB_PASSWORD");
-        }
-        String jdbcUrl = "jdbc:postgresql://%s:%s/%s".formatted(dbHost, dbPort, dbName);
-        java.util.Properties databaseProps = new java.util.Properties();
-        databaseProps.setProperty("jakarta.persistence.jdbc.url", jdbcUrl);
-        databaseProps.setProperty("jakarta.persistence.jdbc.user", dbUser);
-        databaseProps.setProperty("jakarta.persistence.jdbc.password", dbPassword);
-        databaseProps.setProperty("jakarta.persistence.jdbc.driver", "org.postgresql.Driver");
-        return databaseProps;
-    }
-
-    public static boolean isDemoModeEnabled() {
-        return BooleanUtils.toBoolean(getEnvOrDefault("DEMO_MODE", "false"));
-    }
-
-    public static boolean isProductionMode() {
-        return "production".equalsIgnoreCase(getOrDefault("app.env", "unknown"));
-    }
-
-    public static boolean isDevelopmentMode() {
-        return "development".equalsIgnoreCase(getOrDefault("app.env", "unknown"));
     }
 }

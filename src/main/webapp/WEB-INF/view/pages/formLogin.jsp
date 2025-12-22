@@ -8,14 +8,29 @@
 
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="<c:url value='/resources/assets/favicon/apple-touch-icon.png'/>"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="<c:url value='/resources/assets/favicon/favicon-32x32.png'/>"/>
+    <link rel="icon" type="image/png" sizes="16x16" href="<c:url value='/resources/assets/favicon/favicon-16x16.png'/>"/>
+    <link rel="shortcut icon" href="<c:url value='/resources/assets/favicon/favicon.ico'/>"/>
+    <link rel="manifest" href="<c:url value='/resources/assets/favicon/site.webmanifest'/>"/>
+
+    <title>ServletStack Portal</title>
+</head>
 <body>
 <div class="login-page">
     <div class="login-container">
         <div class="login-header">
             <div class="login-logo">
-                <i class="bi bi-shield-lock-fill"></i>
+                <img src="<c:url value='/resources/assets/images/logo.png'/>" alt="ServletStack Logo" style="border-radius: 7%"/>
             </div>
-            <h1>Welcome Back</h1>
+            <h1>ServletStack Portal</h1>
             <p class="login-subtitle">Sign in to your account</p>
         </div>
 

@@ -17,12 +17,13 @@ public class EntityManagerProducer {
 
     @Produces
     public Session produce() {
-        log.info("EM OPEN {}", System.identityHashCode(this));
-        return (Session) provider.create();
+        EntityManager em = provider.create();
+        log.debug("EM OPEN {}", System.identityHashCode(em));
+        return (Session) em;
     }
 
     public void close(@Disposes EntityManager em) {
-        log.info("EM CLOSE {}", System.identityHashCode(em));
+        log.debug("EM CLOSE {}", System.identityHashCode(em));
         if (em.isOpen()) em.close();
     }
 }

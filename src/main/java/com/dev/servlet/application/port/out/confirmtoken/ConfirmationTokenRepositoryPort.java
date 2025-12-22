@@ -10,5 +10,7 @@ public interface ConfirmationTokenRepositoryPort {
     ConfirmationToken save(ConfirmationToken ct);
 
     ConfirmationToken update(ConfirmationToken ct);
+
+    boolean existsValidTokenForUser(String userId);
 }
 

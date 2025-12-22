@@ -14,9 +14,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.OffsetDateTime;
-
-import static jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 @Slf4j
@@ -27,7 +24,7 @@ public class ConfirmEmailUseCase implements ConfirmEmailPort {
     @Inject
     private UserRepositoryPort repositoryPort;
     @Inject
-    @Named("emailSender")
+    @Named("smtpEmailSender")
     private MessagePort messagePort;
 
     public void confirm(ConfirmEmailRequest token) throws AppException {
@@ -35,16 +32,10 @@ public class ConfirmEmailUseCase implements ConfirmEmailPort {
 
         ConfirmationToken ct = tokenRepositoryPort.findByToken(token.token())
                 .orElseThrow(() -> new AppException(SC_NOT_FOUND, "Invalid token."));
-        if (ct.isUsed()) {
-            throw new AppException(SC_FORBIDDEN, "Token already used.");
-        }
-
-        if (ct.getExpiresAt() != null && ct.getExpiresAt().isBefore(OffsetDateTime.now())) {
-            throw new AppException(SC_FORBIDDEN, "Token expired.");
-        }
 
         User user = repositoryPort.findById(ct.getUserId())
                 .orElseThrow(() -> new AppException(SC_NOT_FOUND, "User not found."));
+
         user.setStatus(Status.ACTIVE.getValue());
         user = repositoryPort.update(user);
 

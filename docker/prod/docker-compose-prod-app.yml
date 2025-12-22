@@ -15,8 +15,6 @@ services:
 
       BROKER_URL: ${AWS_BROKER_URL}
 
-      STORAGE_PROVIDER: s3
-
       CLOUDFRONT_PK_PATH: /run/secrets/cloudfront_pk
 
       SMTP_HOST: ${SMTP_HOST}

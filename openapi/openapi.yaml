@@ -198,7 +198,7 @@ components:
           maxLength: 100
           example: John Doe
           description: User full name
-        email:
+        login:
           type: string
           format: email
           example: user@example.com
@@ -217,7 +217,7 @@ components:
           type: string
         name:
           type: string
-        email:
+        login:
           type: string
 
     UserResponse:
@@ -232,7 +232,7 @@ components:
           type: string
           example: "John Doe"
           description: User full name
-        email:
+        login:
           type: string
           format: email
           example: "john@example.com"
@@ -247,6 +247,20 @@ components:
           format: date-time
           example: "2024-12-19T10:30:00Z"
           description: Account creation timestamp
+
+    UserProfile:
+      type: object
+      properties:
+        login:
+          type: string
+          format: email
+          example: "ana@example.com"
+          description: User email address
+        imgUrl:
+          type: string
+          format: uri
+          example: "https://cdn.example.com/private/users/550e8400/profile.jpg"
+          description: URL of the user's profile image
 
     CategoryRequest:
       type: object
@@ -534,15 +548,6 @@ paths:
       summary: Retrieve registration form
       operationId: form
       security: []
-      parameters:
-        - name: auth
-          in: query
-          schema:
-            type: string
-        - name: homepage
-          in: query
-          schema:
-            type: string
       responses:
         '200':
           description: Registration form
@@ -726,6 +731,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponse'
+  /v1/user/profile:
+    get:
+      tags: [ User ]
+      summary: Get current user profile
+      operationId: getUserProfile
+      responses:
+        '200':
+          description: User profile information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
 
   /v1/user/registerUser:
     post:
@@ -1243,15 +1260,6 @@ paths:
       x-rpc-action: ScrapeProduct
       x-async: true
       x-demo-only: true
-      parameters:
-        - name: url
-          in: query
-          required: true
-          description: Product URL to scrape
-          schema:
-            type: string
-            format: uri
-            example: "https://example.com/product/123"
       responses:
         '202':
           description: Scraping task accepted and started (async)

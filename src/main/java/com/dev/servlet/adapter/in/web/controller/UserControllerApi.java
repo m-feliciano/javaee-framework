@@ -6,6 +6,7 @@ import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.application.transfer.request.FileUploadRequest;
 import com.dev.servlet.application.transfer.request.UserCreateRequest;
 import com.dev.servlet.application.transfer.request.UserRequest;
+import com.dev.servlet.application.transfer.response.UserProfile;
 import com.dev.servlet.application.transfer.response.UserResponse;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.RoleType;
@@ -38,6 +39,9 @@ public interface UserControllerApi {
             description = "Retrieve user information by ID."
     )
     IHttpResponse<UserResponse> find(String auth);
+
+    @RequestMapping(value = "/profile", description = "Retrieve user profile information.")
+    IHttpResponse<UserProfile> profile(String auth);
 
     @RequestMapping(
             requestAuth = false,

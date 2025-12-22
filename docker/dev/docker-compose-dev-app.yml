@@ -16,8 +16,6 @@ services:
       - "8080:8080"
 
     environment:
-      STORAGE_PROVIDER: s3
-
       CLOUDFRONT_PK_PATH: /run/secrets/cloudfront_pk
 
       JAVA_OPTS: "-Xms256m -Xmx512m -XX:MaxMetaspaceSize=128m -XX:+UseG1GC -XX:+UseStringDeduplication -XX:MaxGCPauseMillis=200"

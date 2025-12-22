@@ -80,7 +80,7 @@
                                                      fetchpriority="high"
                                                      loading="lazy"
                                                      decoding="async"
-                                                     onerror="this.src='<c:url value='/resources/assets/no_image_available.png'/>'">
+                                                     onerror="this.src='<c:url value='/resources/assets/images/no_image_available.png'/>'">
                                             </c:when>
                                             <c:otherwise>
                                                 <img class="img-thumbnail img-square-min"

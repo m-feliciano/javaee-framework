@@ -52,7 +52,7 @@ public class AuthCookieAdapter implements AuthCookiePort {
 
     @PostConstruct
     public void init() {
-        this.domain = Properties.get("app.domain");
+        this.domain = Properties.getAppDomain();
 
         this.isSecure = Properties.getOrDefault("security.cookie.secure", true);
         this.cookiePath = Properties.getOrDefault("security.cookie.path", "/");

@@ -9,12 +9,12 @@ Focado em desempenho, segurança e estruturação clara de aplicações backend 
 - Segurança avançada: JWT com refresh/rotate, proteção CSRF e auditoria estruturada.
 - Caching em múltiplas camadas: Hibernate L1/L2 + Ehcache.
 - Rate limiting usando Leaky Bucket.
-- Mensageria com JMS/Artemis para eventos assíncronos.
+- Mensageria com JMS/Artemis ou Amazon SQS.
 - Validação JSR-303 com extensões e validadores customizados.
 - Observabilidade: logs com correlation IDs, métricas e health checks.
 - DTO Mapping com MapStruct.
 
-## Stack Tecnológico
+## Tecnologias Utilizadas
 
 - Java 21, Jakarta
 - Weld CDI, Hibernate, Ehcache
@@ -60,7 +60,7 @@ Veja o README.md
 O framework expõe alguns endpoints. Aqui estão exemplos:
 - `POST /api/v1/auth/login` - Autenticar com usuário/senha
 - `GET /api/v1/product/list` - Listar produtos
-- `GET /api/v1/health/live` - Liveness probe
+- `GET /api/v1/health/up` - Verificar saúde da aplicação
 - `GET /api/v1/user/{id}` - Obter detalhes do usuário
 
 A URL base é `http://localhost:8080` por padrão (local).

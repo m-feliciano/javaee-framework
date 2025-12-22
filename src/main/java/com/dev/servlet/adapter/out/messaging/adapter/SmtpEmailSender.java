@@ -3,6 +3,7 @@ package com.dev.servlet.adapter.out.messaging.adapter;
 import com.dev.servlet.adapter.out.messaging.Message;
 import com.dev.servlet.application.port.out.MessagePort;
 import com.dev.servlet.domain.enums.MessageType;
+import com.dev.servlet.infrastructure.config.Properties;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
@@ -16,36 +17,33 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Date;
-import java.util.Properties;
 
 @Slf4j
 @NoArgsConstructor
 @ApplicationScoped
-@Named("emailSender")
-public class EmailSenderAdapter implements MessagePort {
+@Named("smtpEmailSender")
+public class SmtpEmailSender implements MessagePort {
     private boolean smtpPrecheck = false;
     private String smtpHost;
     private String smtpPort;
     private String smtpUser;
     private String smtpPass;
     private String smtpFrom;
+    private String smtpFromName;
+    private java.util.Properties props;
 
     @PostConstruct
     public void init() {
-        smtpHost = System.getenv("SMTP_HOST");
-        smtpPort = System.getenv("SMTP_PORT");
-        smtpUser = System.getenv("SMTP_USER");
-        smtpPass = System.getenv("SMTP_PASS");
-        smtpFrom = System.getenv("SMTP_FROM");
-
-        if (StringUtils.isBlank(smtpFrom)) {
-            smtpFrom = "no-reply@localhost";
-        }
+        smtpHost = Properties.getEnv("SMTP_HOST");
+        smtpPort = Properties.getEnv("SMTP_PORT");
+        smtpUser = Properties.getEnv("SMTP_USER");
+        smtpPass = Properties.getEnv("SMTP_PASS");
+        smtpFrom = Properties.getEnvOrDefault("SMTP_FROM", "no-reply@localhost");
+        smtpFromName = Properties.getEnvOrDefault("SMTP_FROM_NAME", "ServletStack");
 
         if (smtpHost != null && smtpPort != null) {
             if (!(smtpPrecheck = ensureConnection())) {
@@ -54,6 +52,8 @@ public class EmailSenderAdapter implements MessagePort {
                 log.info("SMTP precheck succeeded; email sending enabled.");
             }
         }
+
+        props = defaultProperties();
     }
 
     @Override
@@ -67,26 +67,6 @@ public class EmailSenderAdapter implements MessagePort {
         }
     }
 
-    private void sendChangeEmail(String email, String link) {
-        String html = """
-                <html>
-                    <body>
-                        <div>
-                        <h2>Change Email Request</h2>
-                        <p>Please confirm your email change request by clicking the link below:</p>
-                        <p><a href="%s">Confirm Email Change</a></p>
-                        <p>If you did not request this change, please ignore this email.</p>
-                        </div>
-                    </body>
-                </html>
-                """.formatted(link);
-        String plain = "Please confirm your email change request.";
-        String subject = "Confirm your email change";
-        Properties props = defaultProperties();
-        log.info("Sending change email to {}", email);
-        sendEmail(email, props, subject, plain, html);
-    }
-
     @Override
     public void sendConfirmation(String to, String link) {
         final String subject = "Sign Up Confirmation";
@@ -95,10 +75,7 @@ public class EmailSenderAdapter implements MessagePort {
             return;
         }
 
-        String html = generateEmailConfirmationHtml(link);
-        String plain = generateEmailConfirmationPlainText(link);
-        Properties props = defaultProperties();
-        sendEmail(to, props, subject, plain, html);
+        sendEmail(to, props, subject, generateEmailConfirmationPlainText(link), generateEmailConfirmationHtml(link));
     }
 
     @Override
@@ -109,13 +86,10 @@ public class EmailSenderAdapter implements MessagePort {
             return;
         }
 
-        String plain = generateEmailWelcomePlainText();
-        String html = generateEmailWelcomeHtml();
-        Properties props = defaultProperties();
-        sendEmail(email, props, subject, plain, html);
+        sendEmail(email, props, subject, generateEmailWelcomePlainText(), generateEmailWelcomeHtml());
     }
 
-    private void sendEmail(String to, Properties props, String subject, String plain, String html) {
+    private void sendEmail(String to, java.util.Properties props, String subject, String plain, String html) {
         try {
             log.info("Preparing SMTP session for host={} port={}", smtpHost, smtpPort);
 
@@ -129,17 +103,22 @@ public class EmailSenderAdapter implements MessagePort {
             log.debug("JavaMail Session created successfully");
             jakarta.mail.Message message;
             message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(smtpFrom));
+            message.setFrom(new InternetAddress(smtpFrom, smtpFromName));
             message.setRecipients(MimeMessage.RecipientType.TO, InternetAddress.parse(to));
             message.setSubject(subject);
             message.setSentDate(new Date());
-            MimeMultipart multipart = new MimeMultipart("alternative");
+
             MimeBodyPart textPart = new MimeBodyPart();
             textPart.setText(plain, "UTF-8");
+
+            MimeMultipart multipart = new MimeMultipart("alternative");
             multipart.addBodyPart(textPart);
+
             MimeBodyPart htmlPart = new MimeBodyPart();
             htmlPart.setContent(html, "text/html; charset=UTF-8");
+
             multipart.addBodyPart(htmlPart);
+
             message.setContent(multipart);
             Transport.send(message);
             log.info("Confirmation email sent to {}", to);
@@ -149,8 +128,8 @@ public class EmailSenderAdapter implements MessagePort {
         }
     }
 
-    private Properties defaultProperties() {
-        Properties props = new Properties();
+    private java.util.Properties defaultProperties() {
+        java.util.Properties props = new java.util.Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.host", smtpHost);
@@ -171,6 +150,24 @@ public class EmailSenderAdapter implements MessagePort {
             return false;
         }
         return true;
+    }
+
+    private void sendChangeEmail(String email, String link) {
+        String html = """
+                <html>
+                    <body>
+                        <div>
+                        <h2>Change Email Request</h2>
+                        <p>Please confirm your email change request by clicking the link below:</p>
+                        <p><a href="%s">Confirm Email Change</a></p>
+                        <p>If you did not request this change, please ignore this email.</p>
+                        </div>
+                    </body>
+                </html>
+                """.formatted(link);
+        String plain = "Please confirm your email change request.";
+        String subject = "Confirm your email change";
+        sendEmail(email, props, subject, plain, html);
     }
 
     private String generateEmailConfirmationPlainText(String confirmation) {

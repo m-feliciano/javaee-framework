@@ -121,7 +121,8 @@ public class ProductController extends BaseController implements ProductControll
     @Async
     public IHttpResponse<Void> scrape(@Authorization String auth,
                                       @Property("scrape_product_url") String url) {
-        scrapeProductPort.scrape(url, auth);
+        // TODO: As the last scrape provider wasn't stable, we are using a mock value for now.
+        scrapeProductPort.scrape("mock", auth);
         return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
     }
 

@@ -9,7 +9,7 @@ Focused on performance, security, and a clear structure for modern backend appli
 - Advanced security: JWT with refresh/rotate tokens, CSRF protection, and structured auditing.
 - Multi-layer caching: Hibernate L1/L2 + Ehcache.
 - Rate limiting using the Leaky Bucket algorithm.
-- Messaging with JMS/ActiveMQ (Artemis) for asynchronous events.
+- Messaging with JMS/ActiveMQ or Amazon SQS.
 - JSR-303 validation with custom annotations and composite validators.
 - Observability: correlation-ID logging, metrics, and health checks.
 - DTO mapping powered by MapStruct.
@@ -30,6 +30,7 @@ Focused on performance, security, and a clear structure for modern backend appli
 - Javax -> Jakarta
 - Tomcat 9 -> 10
 - Hibernate 5 -> 6
+- Layered architecture -> Clean Architecture
 
 ## Architecture
 
@@ -88,11 +89,11 @@ sending.
 
 ## Endpoints
 The application exposes some endpoints. Here are examples:
-- `POST /api/v1/auth/login` - Authenticate with username/password
-- `GET /api/v1/product/list` - List products
-- `GET /api/v1/health/live` - Liveness probe
 - `GET /api/v1/user/me` - Get current user details
 - `POST /api/v2/user/upload-photo` - Upload user photo (v2 example)
+- `POST /api/v1/auth/login` - Authenticate with username/password
+- `GET /api/v1/health/up` - Check application health
+- `GET /api/v1/product/list` - List products
 
 The base URL is `http://localhost:8080` by default (local).
 
@@ -107,7 +108,8 @@ The demo application includes OpenAPI documentation available at:
 - [OpenAPI Spec](openapi/openapi.yaml)
 
 View the API documentation online:
-- https://editor.swagger.io/?url=https://raw.githubusercontent.com/m-feliciano/servlets/master/openapi/openapi.yaml
+
+- https://tinyurl.com/4ndzytyh
 
 ## License
 

@@ -5,13 +5,13 @@ import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.in.user.GenerateConfirmationTokenPort;
 import com.dev.servlet.application.port.in.user.ResendConfirmationPort;
 import com.dev.servlet.application.port.out.MessagePort;
+import com.dev.servlet.application.port.out.confirmtoken.ConfirmationTokenRepositoryPort;
 import com.dev.servlet.application.port.out.user.UserRepositoryPort;
 import com.dev.servlet.application.transfer.request.ResendConfirmationRequest;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
 import com.dev.servlet.domain.enums.MessageType;
 import com.dev.servlet.infrastructure.config.Properties;
-import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -27,16 +27,12 @@ public class ResendConfirmationUseCase implements ResendConfirmationPort {
     @Inject
     private UserRepositoryPort repositoryPort;
     @Inject
-    @Named("messageProducer")
+    @Named("sqsMessageProducer")
     private MessagePort messagePort;
     @Inject
     private GenerateConfirmationTokenPort generateConfirmationTokenPort;
-    private String baseUrl;
-
-    @PostConstruct
-    public void init() {
-        baseUrl = Properties.getEnvOrDefault("APP_BASE_URL", "http://localhost:8080");
-    }
+    @Inject
+    private ConfirmationTokenRepositoryPort tokenRepositoryPort;
 
     @Override
     public void resend(ResendConfirmationRequest request) throws AppException {
@@ -60,12 +56,16 @@ public class ResendConfirmationUseCase implements ResendConfirmationPort {
             return;
         }
 
+        if (tokenRepositoryPort.existsValidTokenForUser(userId)) {
+            log.info("ResendConfirmationUseCase: user {} already has a valid confirmation token, skip", userId);
+            return;
+        }
+
         String token = generateConfirmationTokenPort.generateFor(user, null);
-        String link = baseUrl + "/api/v1/user/confirm?token=" + token;
+        String link = Properties.getAppBaseUrl() + "/api/v1/user/confirm?token=" + token;
         String email = user.getCredentials().getLogin();
         String createdAt = OffsetDateTime.now().toString();
 
-        Message confirmation = new Message(userId, MessageType.CONFIRMATION, email, createdAt, link);
-        messagePort.send(confirmation);
+        messagePort.send(new Message(MessageType.CONFIRMATION, email, createdAt, link));
     }
 }

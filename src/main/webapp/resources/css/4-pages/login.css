@@ -49,7 +49,7 @@
 }
 .login-header {
     text-align: center;
-    padding: 3rem 2rem 2rem;
+    padding: 2rem 1rem 1rem;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: var(--white);
     position: relative;
@@ -85,9 +85,10 @@
     opacity: 0.95;
     margin: 0;
     font-weight: 400;
+    color: #fff;
 }
 .login-body {
-    padding: 2.5rem 2rem;
+    padding: 1.5rem 1rem;
 }
 .alert-login {
     display: flex;
@@ -124,7 +125,7 @@
 .login-form {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
 }
 
 .form-group {
@@ -283,7 +284,7 @@
 }
 .login-footer {
     text-align: center;
-    padding: 1.5rem 2rem 2rem;
+    padding: 1rem;
     background-color: var(--gray-100);
     border-top: 1px solid var(--gray-200);
 }

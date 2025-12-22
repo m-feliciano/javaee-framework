@@ -1,14 +1,4 @@
-# Docker Compose configuration for the application, PostgreSQL database, and ActiveMQ Artemis message broker.
-
-# Local: To run with a demo image (no build):
-# docker compose -f docker-compose.demo.yml up -d
-
-# Build demo image:
-# docker build --build-arg MVN_PROFILE=prod -t mfeliciano1/servlets-app:demo .
-# docker push mfeliciano1/servlets-app:demo
-
-# Note: This demo configuration uses a pre-built image and demo settings.
-# BUT it doesn't have s3 storage, CloudFront or SMTP integration.
+# v2.x.x - @Deprecated at 3.x.x
 
 services:
   db:

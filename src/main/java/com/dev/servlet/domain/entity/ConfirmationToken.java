@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Where;
 
 import java.time.OffsetDateTime;
 
@@ -23,6 +24,7 @@ import java.time.OffsetDateTime;
 @Entity
 @Table(name = "tb_confirmation_token")
 @ToString
+@Where(clause = "used = false AND expires_at > CURRENT_TIMESTAMP")
 public class ConfirmationToken {
     @Id
     @Column(name = "id", updatable = false)
