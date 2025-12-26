@@ -16,13 +16,14 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @ServerEndpoint(value = "/ws/alerts", configurator = WebSocketConfigurator.class)
 public class AlertWebSocket {
 
-    private static final Map<String, Session> sessions = new ConcurrentHashMap<>();
+    private static final Map<UUID, Session> sessions = new ConcurrentHashMap<>();
     @Inject
     private AuthenticationPort authenticationPort;
     @Inject
@@ -35,7 +36,7 @@ public class AlertWebSocket {
         Map<String, Object> props = session.getUserProperties();
         HandshakeRequest req = (HandshakeRequest) props.get("jakarta.websocket.server.HandshakeRequest");
 
-        String userId = authenticateUserFromHandshake(req);
+        UUID userId = authenticateUserFromHandshake(req);
         if (userId == null) {
             log.warn("AlertWebSocket: unauthorized connection attempt, closing session {}", session.getId());
             closeQuiet(session);
@@ -47,7 +48,7 @@ public class AlertWebSocket {
         log.debug("AlertWebSocket: connection opened for user {}", userId);
     }
 
-    private String authenticateUserFromHandshake(HandshakeRequest req) {
+    private UUID authenticateUserFromHandshake(HandshakeRequest req) {
         try {
             if (req == null) throw new Exception("No handshake request in WS session");
 
@@ -57,7 +58,7 @@ public class AlertWebSocket {
             String jwt = authCookiePort.getCookieFromList(cookie, authCookiePort.getAccessTokenCookieName());
             if (jwt == null) throw new Exception("Missing JWT token in WS cookies");
 
-            String userId = validateJwtAndGetUser(jwt);
+            UUID userId = validateJwtAndGetUser(jwt);
             if (userId == null) throw new Exception("Invalid JWT token");
 
             return userId;
@@ -77,7 +78,7 @@ public class AlertWebSocket {
         log.error("AlertWebSocket: error in session {}", session.getId(), ex);
     }
 
-    public void push(String userId, Object payload) {
+    public void push(UUID userId, Object payload) {
         log.debug("AlertWebSocket: pushing to user {} payload {}", userId, payload);
 
         Session ses = sessions.get(userId);
@@ -97,7 +98,7 @@ public class AlertWebSocket {
         }
     }
 
-    private String validateJwtAndGetUser(String jwt) {
+    private UUID validateJwtAndGetUser(String jwt) {
         try {
             return authenticationPort.extractUserId(jwt);
         } catch (Exception e) {

@@ -1,13 +1,14 @@
 package com.dev.servlet.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
@@ -16,8 +17,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnTransformer;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Where;
+
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -30,12 +32,7 @@ import org.hibernate.annotations.Where;
 public class FileImage {
 
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(
-            name = "uuid",
-            strategy = "org.hibernate.id.UUIDGenerator"
-    )
-    private String id;
+    private UUID id;
 
     @Column(length = 100, nullable = false, name = "file_name")
     private String fileName;
@@ -65,4 +62,9 @@ public class FileImage {
     @Transient
     @JsonIgnore
     private String externalSource;
+
+    @PrePersist
+    protected void onCreate() {
+        if (id == null) id = UuidCreator.getTimeOrdered();
+    }
 }

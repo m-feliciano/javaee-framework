@@ -10,6 +10,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.UUID;
+
 import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 @Slf4j
@@ -23,7 +25,7 @@ public class UserDetailsUseCase implements UserDetailsPort {
     private AuthenticationPort authenticationPort;
 
     public UserResponse getDetail(String auth) throws AppException {
-        String userId = authenticationPort.extractUserId(auth);
+        UUID userId = authenticationPort.extractUserId(auth);
         log.debug("UserDetailsUseCase: getting user details with id {}", userId);
 
         return repositoryPort.findById(userId)

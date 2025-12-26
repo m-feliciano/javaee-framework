@@ -19,6 +19,7 @@ import com.dev.servlet.application.transfer.request.FileUploadRequest;
 import com.dev.servlet.application.transfer.request.ResendConfirmationRequest;
 import com.dev.servlet.application.transfer.request.UserCreateRequest;
 import com.dev.servlet.application.transfer.request.UserRequest;
+import com.dev.servlet.application.transfer.response.UserProfile;
 import com.dev.servlet.application.transfer.response.UserResponse;
 import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.shared.vo.Query;
@@ -78,6 +79,14 @@ public class UserController extends BaseController implements UserControllerApi 
         return okHttpResponse(response, forwardTo("formListUser"));
     }
 
+    @Override
+    @Cache(value = "profile_cache")
+    public IHttpResponse<UserProfile> profile(@Authorization String auth) {
+        UserResponse response = userDetailsUseCase.getDetail(auth);
+        UserProfile profile = new UserProfile(response.getLogin(), response.getImgUrl());
+        return HttpResponse.ok(profile).build();
+    }
+
     @SneakyThrows
     @Override
     public IHttpResponse<UserResponse> register(UserCreateRequest user) {
@@ -95,7 +104,7 @@ public class UserController extends BaseController implements UserControllerApi 
 
     @SneakyThrows
     @Override
-    @Cache(invalidate = "users_cache")
+    @Cache(invalidate = {"users_cache", "profile_cache"})
     public IHttpResponse<Void> changeEmail(Query query) {
         changeEmailUseCase.change(query.get("token"));
         return newHttpResponse(200, REDIRECT_AUTH_FORM);
@@ -104,14 +113,13 @@ public class UserController extends BaseController implements UserControllerApi 
     @SneakyThrows
     @Override
     public IHttpResponse<Void> resendConfirmation(User user) {
-        ResendConfirmationRequest req = new ResendConfirmationRequest(user.getId());
-        resendConfirmationUseCase.resend(req);
+        resendConfirmationUseCase.resend(new ResendConfirmationRequest(user.getId()));
         return HttpResponse.<Void>next(FORM_LOGIN_FORM).build();
     }
 
     @SneakyThrows
     @Override
-    @Cache(invalidate = "users_cache")
+    @Cache(invalidate = {"users_cache", "profile_cache"})
     public IHttpResponse<Void> updateProfilePicture(FileUploadRequest request, @Authorization String auth) {
         updateProfilePicturePort.updatePicture(request, auth);
         return newHttpResponse(204, redirectToCtx("me"));

@@ -3,7 +3,7 @@ package com.dev.servlet.application.usecase.user;
 import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.mapper.UserMapper;
 import com.dev.servlet.application.port.in.user.GenerateConfirmationTokenPort;
-import com.dev.servlet.application.port.out.MessagePort;
+import com.dev.servlet.application.port.out.AsyncMessagePort;
 import com.dev.servlet.application.port.out.user.UserRepositoryPort;
 import com.dev.servlet.application.transfer.request.UserCreateRequest;
 import com.dev.servlet.application.transfer.response.UserResponse;
@@ -22,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -44,14 +45,14 @@ class RegisterUserUseCaseTest {
 
     private static final String TEST_LOGIN = "test@example.com";
     private static final String TEST_PASSWORD = "password123";
-    private static final String USER_ID = "user-123";
+    private static final UUID USER_ID = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     private static final String CONFIRMATION_TOKEN = "token-abc-123";
     @Mock
     private UserRepositoryPort repositoryPort;
     @Mock
     private UserMapper userMapper;
     @Mock
-    private MessagePort messagePort;
+    private AsyncMessagePort messagePort;
     @Mock
     private GenerateConfirmationTokenPort generateConfirmationTokenPort;
     @InjectMocks
@@ -234,7 +235,7 @@ class RegisterUserUseCaseTest {
         void shouldThrowExceptionWhenUserExists() {
             // Arrange
             User existingUser = User.builder()
-                    .id("existing-user-id")
+                    .id(UUID.randomUUID())
                     .credentials(Credentials.builder()
                             .login(TEST_LOGIN.toLowerCase())
                             .build())

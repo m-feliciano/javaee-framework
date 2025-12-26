@@ -28,12 +28,19 @@
     <meta name="robots" content="index, follow">
     <meta name="keywords" content="gestao, produtos, inventario, sistema empresarial, dashboard">
 
-    <title><c:out value="${headerTitle}" default="Store" escapeXml="true"/></title>
+    <title><c:out value="${headerTitle}" default="ServletStack"/></title>
 
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
           integrity="sha384-4LISF5TTJX/fLmGSxO53rV4miRxdg84mZsxmO8Rx5jGtp/LbrixFETvWa5a6sESd"
           crossorigin="anonymous"/>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="<c:url value='/resources/assets/favicon/apple-touch-icon.png'/>"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="<c:url value='/resources/assets/favicon/favicon-32x32.png'/>"/>
+    <link rel="icon" type="image/png" sizes="16x16" href="<c:url value='/resources/assets/favicon/favicon-16x16.png'/>"/>
+    <link rel="shortcut icon" href="<c:url value='/resources/assets/favicon/favicon.ico'/>"/>
+    <link rel="manifest" href="<c:url value='/resources/assets/favicon/site.webmanifest'/>"/>
+
     <!-- CSS Files -->
     <c:set var="mainCssUrl"><tag:assetPath name="main.css"/></c:set>
     <link rel="stylesheet" href="${mainCssUrl}"/>

@@ -2,16 +2,17 @@ package com.dev.servlet.domain.entity;
 
 import com.dev.servlet.domain.entity.enums.Status;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
@@ -21,10 +22,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.ColumnTransformer;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Where;
 
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Builder
@@ -37,9 +38,7 @@ import java.util.List;
 public class User {
     @Id
     @Column(name = "id", updatable = false)
-    @GeneratedValue(generator = "short-uuid")
-    @GenericGenerator(name = "short-uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    private String id;
+    private UUID id;
     @Embedded
     private Credentials credentials;
 
@@ -66,8 +65,13 @@ public class User {
     @JsonIgnore
     private String refreshToken;
 
-    public User(String id) {
+    public User(UUID id) {
         this.id = id;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        if (id == null) id = UuidCreator.getTimeOrdered();
     }
 
     public User(String login, String password) {

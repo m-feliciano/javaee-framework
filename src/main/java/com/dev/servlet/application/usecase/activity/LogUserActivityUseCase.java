@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.UUID;
 
 @Slf4j
 @ApplicationScoped
@@ -21,7 +22,7 @@ public class LogUserActivityUseCase implements LogUserActivityPort {
     private UserActivityLogRepositoryPort repositoryPort;
 
     @Override
-    public void logActivity(String userId,
+    public void logActivity(UUID userId,
                             ActivityStatus outcome,
                             AuditPayload<?, ?> payload,
                             HashMap<String, Object> metadata) {

@@ -43,9 +43,8 @@ public class HttpExecutorImpl<J> implements HttpExecutor<J> {
 
             do {
                 response = router.route(parser, request);
-                if (response.statusCode() >= 200 && response.statusCode() < 400) return response;
 
-                if (response.statusCode() >= 400 && response.statusCode() < 500) return response;
+                if (response.statusCode() >= 200 && response.statusCode() < 500) return response;
 
                 if (maxRetries <= 0) return response;
 

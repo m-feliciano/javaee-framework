@@ -26,7 +26,6 @@ public class UpdateCategoryUseCase implements UpdateCategoryPort {
         CategoryResponse response = categoryDetailPort.get(request, auth);
         response.setName(request.name().toUpperCase());
         repositoryPort.updateName(new Category(response.getId(), response.getName()));
-
-        return new CategoryResponse(response.getId());
+        return CategoryResponse.builder().id(response.getId()).build();
     }
 }

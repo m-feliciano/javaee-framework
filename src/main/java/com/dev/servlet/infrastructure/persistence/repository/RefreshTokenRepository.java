@@ -9,18 +9,18 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @NoArgsConstructor
 @RequestScoped
-public class RefreshTokenRepository extends BaseRepository<RefreshToken, String> implements RefreshTokenRepositoryPort {
+public class RefreshTokenRepository extends BaseRepository<RefreshToken, UUID> implements RefreshTokenRepositoryPort {
 
     public Optional<RefreshToken> findByToken(String token) {
         String query = "SELECT r FROM RefreshToken r WHERE r.token = :token AND revoked = false";
         TypedQuery<RefreshToken> q = em.createQuery(query, RefreshToken.class);
         q.setParameter("token", token);
-        RefreshToken result = q.getSingleResult();
-        return Optional.ofNullable(result);
+        return Optional.ofNullable(q.getSingleResultOrNull());
     }
 
     @Override
@@ -28,7 +28,7 @@ public class RefreshTokenRepository extends BaseRepository<RefreshToken, String>
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void revokeAll(String userId) {
+    public void revokeAll(UUID userId) {
         String query = "UPDATE RefreshToken r SET r.revoked = true WHERE r.user.id = :userId AND r.revoked = false";
 
         executeInTransaction(() -> {

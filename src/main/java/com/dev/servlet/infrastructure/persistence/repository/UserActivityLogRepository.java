@@ -16,10 +16,11 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @NoArgsConstructor
 @RequestScoped
-public class UserActivityLogRepository extends BaseRepository<UserActivityLog, String> implements UserActivityLogRepositoryPort {
+public class UserActivityLogRepository extends BaseRepository<UserActivityLog, UUID> implements UserActivityLogRepositoryPort {
 
     @Override
     public Collection<UserActivityLog> findAll(UserActivityLog object) {
@@ -55,7 +56,7 @@ public class UserActivityLogRepository extends BaseRepository<UserActivityLog, S
         return predicate;
     }
 
-    public List<UserActivityLog> findByUserIdAndDateRange(String userId, Date startDate, Date endDate, String status) {
+    public List<UserActivityLog> findByUserIdAndDateRange(UUID userId, Date startDate, Date endDate, String status) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<UserActivityLog> cq = cb.createQuery(UserActivityLog.class);
         Root<UserActivityLog> root = cq.from(UserActivityLog.class);

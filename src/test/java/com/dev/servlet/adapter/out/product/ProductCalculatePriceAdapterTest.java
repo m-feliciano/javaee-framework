@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.eq;
@@ -38,10 +39,10 @@ class ProductCalculatePriceAdapterTest {
     @BeforeEach
     void setUp() {
         product = Product.builder()
-                .id("product-123")
+                .id(UUID.randomUUID())
                 .name("Test Product")
                 .price(new BigDecimal("99.99"))
-                .owner(User.builder().id("user-123").build())
+                .owner(User.builder().id(UUID.randomUUID()).build())
                 .build();
     }
 

@@ -10,21 +10,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Testes de integração para CacheAdapter.
- * Como o CacheAdapter usa Ehcache com inicialização complexa,
- * estes são testes de integração que verificam o comportamento real do cache.
- */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CacheAdapter Integration Tests")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS) // Usado para @BeforeAll e @AfterAll não estáticos
 class CacheAdapterTest {
 
     private static final String TEST_NAMESPACE = "testNamespace";
-    private static final String TEST_KEY = "testKey";
+    private static final UUID TEST_KEY = UUID.randomUUID();
     private static final String TEST_VALUE = "testValue";
     private CacheAdapter cacheAdapter;
 
@@ -64,9 +60,10 @@ class CacheAdapterTest {
             // Arrange
             TestObject testObject = new TestObject("test", 123);
 
+            UUID key = UUID.randomUUID();
             // Act
-            cacheAdapter.set(TEST_NAMESPACE, "objectKey", testObject);
-            TestObject result = cacheAdapter.get(TEST_NAMESPACE, "objectKey");
+            cacheAdapter.set(TEST_NAMESPACE, key, testObject);
+            TestObject result = cacheAdapter.get(TEST_NAMESPACE, key);
 
             // Assert
             assertThat(result).isNotNull();
@@ -78,8 +75,9 @@ class CacheAdapterTest {
         @DisplayName("Should store value with custom TTL")
         void shouldStoreValueWithCustomTTL() {
             // Act
-            cacheAdapter.set(TEST_NAMESPACE, "ttlKey", "ttlValue", Duration.ofMinutes(5));
-            String result = cacheAdapter.get(TEST_NAMESPACE, "ttlKey");
+            UUID ttlKey = UUID.randomUUID();
+            cacheAdapter.set(TEST_NAMESPACE, ttlKey, "ttlValue", Duration.ofMinutes(5));
+            String result = cacheAdapter.get(TEST_NAMESPACE, ttlKey);
 
             // Assert
             assertThat(result).isEqualTo("ttlValue");
@@ -89,7 +87,7 @@ class CacheAdapterTest {
         @DisplayName("Should return null for non-existent key")
         void shouldReturnNullForNonExistentKey() {
             // Act
-            String result = cacheAdapter.get(TEST_NAMESPACE, "nonExistentKey");
+            String result = cacheAdapter.get(TEST_NAMESPACE, UUID.randomUUID());
 
             // Assert
             assertThat(result).isNull();
@@ -104,11 +102,12 @@ class CacheAdapterTest {
         @DisplayName("Should clear specific key")
         void shouldClearSpecificKey() {
             // Arrange
-            cacheAdapter.set(TEST_NAMESPACE, "clearKey", "clearValue");
+            UUID clearKey = UUID.randomUUID();
+            cacheAdapter.set(TEST_NAMESPACE, clearKey, "clearValue");
 
             // Act
-            cacheAdapter.clear(TEST_NAMESPACE, "clearKey");
-            String result = cacheAdapter.get(TEST_NAMESPACE, "clearKey");
+            cacheAdapter.clear(TEST_NAMESPACE, clearKey);
+            String result = cacheAdapter.get(TEST_NAMESPACE, clearKey);
 
             // Assert
             assertThat(result).isNull();
@@ -118,52 +117,58 @@ class CacheAdapterTest {
         @DisplayName("Should clear all keys in namespace")
         void shouldClearAllKeysInNamespace() {
             // Arrange
-            cacheAdapter.set("namespace1", "key1", "value1");
-            cacheAdapter.set("namespace1", "key2", "value2");
-            cacheAdapter.set("namespace2", "key1", "value3");
+            UUID key1 = UUID.randomUUID();
+            UUID key2 = UUID.randomUUID();
+            cacheAdapter.set("namespace1", key1, "value1");
+            cacheAdapter.set("namespace1", key2, "value2");
+            cacheAdapter.set("namespace2", key1, "value3");
 
             // Act
             cacheAdapter.clearNamespace("namespace1");
 
             // Assert
-            assertThat(cacheAdapter.<String>get("namespace1", "key1")).isNull();
-            assertThat(cacheAdapter.<String>get("namespace1", "key2")).isNull();
-            assertThat(cacheAdapter.<String>get("namespace2", "key1")).isEqualTo("value3");
+            assertThat(cacheAdapter.<String>get("namespace1", key1)).isNull();
+            assertThat(cacheAdapter.<String>get("namespace1", key2)).isNull();
+            assertThat(cacheAdapter.<String>get("namespace2", key1)).isEqualTo("value3");
         }
 
         @Test
         @DisplayName("Should clear all keys with suffix in namespace")
         void shouldClearAllKeysInSuffixNamespace() throws InterruptedException {
             // Arrange
-            cacheAdapter.set("ns1", "user-123", "data1");
-            cacheAdapter.set("ns1", "user-456", "data2");
-            cacheAdapter.set("ns2", "user-123", "data3");
+            UUID user123 = UUID.randomUUID();
+            UUID user456 = UUID.randomUUID();
+            cacheAdapter.set("ns1", user123, "data1");
+            cacheAdapter.set("ns1", user456, "data2");
+            cacheAdapter.set("ns2", user123, "data3");
 
             // Act
-            cacheAdapter.clearSuffix("ns1", "user-123");
+            cacheAdapter.clearSuffix("ns1", user123);
             // Wait for the background thread to complete
             Thread.sleep(50);
             // Assert
-            assertThat(cacheAdapter.<String>get("ns1", "user-123")).isNull();
-            assertThat(cacheAdapter.<String>get("ns1", "user-456")).isEqualTo("data2");
-            assertThat(cacheAdapter.<String>get("ns2", "user-123")).isEqualTo("data3");
+            assertThat(cacheAdapter.<String>get("ns1", user123)).isNull();
+            assertThat(cacheAdapter.<String>get("ns1", user456)).isEqualTo("data2");
+            assertThat(cacheAdapter.<String>get("ns2", user123)).isEqualTo("data3");
         }
 
         @Test
         @DisplayName("Should clear all entries with specific key suffix")
         void shouldClearAllEntriesWithKeySuffix() {
             // Arrange
-            cacheAdapter.set("ns1", "user-123", "data1");
-            cacheAdapter.set("ns2", "user-123", "data2");
-            cacheAdapter.set("ns3", "user-456", "data3");
+            UUID user123 = UUID.randomUUID();
+            UUID user456 = UUID.randomUUID();
+            cacheAdapter.set("ns1", user123, "data1");
+            cacheAdapter.set("ns2", user123, "data2");
+            cacheAdapter.set("ns3", user456, "data3");
 
             // Act
-            cacheAdapter.clearAll("user-123");
+            cacheAdapter.clearAll(user123);
 
             // Assert
-            assertThat(cacheAdapter.<String>get("ns1", "user-123")).isNull();
-            assertThat(cacheAdapter.<String>get("ns2", "user-123")).isNull();
-            assertThat(cacheAdapter.<String>get("ns3", "user-456")).isEqualTo("data3");
+            assertThat(cacheAdapter.<String>get("ns1", user123)).isNull();
+            assertThat(cacheAdapter.<String>get("ns2", user123)).isNull();
+            assertThat(cacheAdapter.<String>get("ns3", user456)).isEqualTo("data3");
         }
     }
 
@@ -175,20 +180,22 @@ class CacheAdapterTest {
         @DisplayName("Should isolate values by namespace")
         void shouldIsolateValuesByNamespace() {
             // Act
-            cacheAdapter.set("namespace1", "sameKey", "value1");
-            cacheAdapter.set("namespace2", "sameKey", "value2");
+            UUID sameKey = UUID.randomUUID();
+            cacheAdapter.set("namespace1", sameKey, "value1");
+            cacheAdapter.set("namespace2", sameKey, "value2");
 
             // Assert
-            assertThat(cacheAdapter.<String>get("namespace1", "sameKey")).isEqualTo("value1");
-            assertThat(cacheAdapter.<String>get("namespace2", "sameKey")).isEqualTo("value2");
+            assertThat(cacheAdapter.<String>get("namespace1", sameKey)).isEqualTo("value1");
+            assertThat(cacheAdapter.<String>get("namespace2", sameKey)).isEqualTo("value2");
         }
 
         @Test
         @DisplayName("Should handle empty namespace")
         void shouldHandleEmptyNamespace() {
             // Act
-            cacheAdapter.set("", "key", "value");
-            String result = cacheAdapter.get("", "key");
+            UUID key = UUID.randomUUID();
+            cacheAdapter.set("", key, "value");
+            String result = cacheAdapter.get("", key);
 
             // Assert
             assertThat(result).isEqualTo("value");
@@ -203,15 +210,15 @@ class CacheAdapterTest {
         @DisplayName("Should update existing value")
         void shouldUpdateExistingValue() {
             // Arrange
-            cacheAdapter.set(TEST_NAMESPACE, "updateKey", "oldValue");
+            UUID updateKey = UUID.randomUUID();
+            cacheAdapter.set(TEST_NAMESPACE, updateKey, "oldValue");
 
             // Act
-            cacheAdapter.set(TEST_NAMESPACE, "updateKey", "newValue");
-            String result = cacheAdapter.get(TEST_NAMESPACE, "updateKey");
+            cacheAdapter.set(TEST_NAMESPACE, updateKey, "newValue");
+            String result = cacheAdapter.get(TEST_NAMESPACE, updateKey);
 
             // Assert
             assertThat(result).isEqualTo("newValue");
         }
     }
 }
-

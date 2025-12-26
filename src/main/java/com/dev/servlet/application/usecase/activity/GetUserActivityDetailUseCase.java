@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @NoArgsConstructor
@@ -19,7 +20,7 @@ public class GetUserActivityDetailUseCase implements GetUserActivityDetailPort {
     private UserActivityLogRepositoryPort repositoryPort;
 
     @Override
-    public Optional<UserActivityLog> getActivityDetail(String activityId, String userId) {
+    public Optional<UserActivityLog> getActivityDetail(UUID activityId, UUID userId) {
         log.debug("Fetching activity log {} for user {}", activityId, userId);
         Optional<UserActivityLog> activityLog = repositoryPort.findById(activityId);
         if (activityLog.isPresent() && !activityLog.get().getUserId().equals(userId)) {

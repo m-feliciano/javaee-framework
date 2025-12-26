@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 @ApplicationScoped
 public class ChangeEmailMessageConsumer implements Consumer<Message> {
     @Inject
-    @Named("emailSender")
+    @Named("smtpEmailSender")
     private MessagePort messagePort;
 
     @Override

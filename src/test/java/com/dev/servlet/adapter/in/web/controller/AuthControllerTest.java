@@ -23,10 +23,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Test suite for AuthController implementation via AuthControllerApi interface.
- * Tests authentication flows including login, logout, form rendering, and registration page forwarding.
- */
 @DisplayName("AuthController Tests")
 class AuthControllerTest extends BaseControllerTest {
 

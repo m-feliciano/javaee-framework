@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @NoArgsConstructor
@@ -28,14 +29,14 @@ public class AlertController extends BaseController implements AlertControllerAp
     }
 
     public IHttpResponse<String> list(@Authorization String auth) {
-        String userId = authenticationPort.extractUserId(auth);
+        UUID userId = authenticationPort.extractUserId(auth);
         List<Alert> alerts = alertPort.list(userId);
         String json = CloneUtil.toJson(alerts);
         return HttpResponse.ok(json).build();
     }
 
     public IHttpResponse<Void> clear(@Authorization String auth) {
-        String userId = authenticationPort.extractUserId(auth);
+        UUID userId = authenticationPort.extractUserId(auth);
         alertPort.clear(userId);
         return HttpResponse.<Void>newBuilder().statusCode(204).build();
     }

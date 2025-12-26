@@ -14,6 +14,7 @@ import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @NoArgsConstructor
@@ -97,7 +98,7 @@ public class HealthServiceImpl implements HealthService {
     @Override
     public boolean isDatabaseHealthy() {
         try {
-            entityManager.createNativeQuery("SELECT 1").getSingleResult();
+            entityManager.createNativeQuery("SELECT 1").getSingleResultOrNull();
             log.debug("Database health check: PASSED");
             return true;
         } catch (Exception e) {
@@ -110,11 +111,11 @@ public class HealthServiceImpl implements HealthService {
     public boolean isCacheHealthy() {
         try {
             String namespace = "health";
-            String testKey = "health_check_test";
+            UUID uuid = UUID.randomUUID();
 
-            cachePort.set(namespace, testKey, "test_value");
-            String result = cachePort.get(namespace, testKey);
-            cachePort.clear(namespace, testKey);
+            cachePort.set(namespace, uuid, "test_value");
+            String result = cachePort.get(namespace, uuid);
+            cachePort.clear(namespace, uuid);
 
             boolean healthy = "test_value".equals(result);
             log.debug("Cache health check: {}", healthy ? "PASSED" : "FAILED");

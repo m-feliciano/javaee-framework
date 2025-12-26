@@ -20,10 +20,6 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Test suite for AlertController implementation via AlertControllerApi interface.
- * Tests alert management including listing and clearing user alerts.
- */
 @DisplayName("AlertController Tests")
 class AlertControllerTest extends BaseControllerTest {
 

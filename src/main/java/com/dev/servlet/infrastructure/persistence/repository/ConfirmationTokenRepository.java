@@ -12,9 +12,10 @@ import jakarta.persistence.criteria.Root;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RequestScoped
-public class ConfirmationTokenRepository extends BaseRepository<ConfirmationToken, String> implements ConfirmationTokenRepositoryPort {
+public class ConfirmationTokenRepository extends BaseRepository<ConfirmationToken, UUID> implements ConfirmationTokenRepositoryPort {
 
     @Override
     public Collection<ConfirmationToken> findAll(ConfirmationToken object) {
@@ -33,6 +34,24 @@ public class ConfirmationTokenRepository extends BaseRepository<ConfirmationToke
         query.where(cb.equal(root.get("token"), token));
         TypedQuery<ConfirmationToken> typedQuery = em.createQuery(query);
         List<ConfirmationToken> results = typedQuery.getResultList();
-        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.getFirst());
+    }
+
+    @Override
+    public boolean existsValidTokenForUser(UUID userId) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<ConfirmationToken> root = query.from(ConfirmationToken.class);
+        query.select(cb.count(root));
+        query.where(
+                cb.and(
+                        cb.equal(root.get("userId"), userId),
+                        cb.greaterThan(root.get("expiresAt"), cb.currentTimestamp()),
+                        cb.equal(root.get("used"), false)
+                )
+        );
+
+        Long count = em.createQuery(query).getSingleResultOrNull();
+        return count != null && count > 0;
     }
 }

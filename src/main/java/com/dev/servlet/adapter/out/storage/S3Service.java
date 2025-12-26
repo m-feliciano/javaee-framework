@@ -1,13 +1,11 @@
 package com.dev.servlet.adapter.out.storage;
 
 import com.dev.servlet.application.port.out.storage.StorageService;
-import com.dev.servlet.infrastructure.annotations.StorageProvider;
+import com.dev.servlet.infrastructure.annotations.Provider;
 import com.dev.servlet.infrastructure.config.Properties;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
@@ -22,7 +20,7 @@ import java.time.Duration;
 
 @Slf4j
 @ApplicationScoped
-@StorageProvider("s3")
+@Provider("s3")
 public class S3Service implements StorageService {
 
     private String bucketName;
@@ -32,24 +30,10 @@ public class S3Service implements StorageService {
     @PostConstruct
     public void init() {
         this.bucketName = Properties.get("s3.bucket.name");
+        Region region = Region.of(Properties.get("s3.region"));
 
-        String accessKey = Properties.getEnv("PROVIDER_ACCESS_KEY");
-        String secretKey = Properties.getEnv("PROVIDER_SECRET_KEY");
-
-        var credentials = StaticCredentialsProvider.create(
-                AwsBasicCredentials.create(accessKey, secretKey)
-        );
-
-        String region = Properties.get("s3.region");
-        this.presigner = S3Presigner.builder()
-                .region(Region.of(region))
-                .credentialsProvider(credentials)
-                .build();
-
-        this.s3Client = S3Client.builder()
-                .region(Region.of(region))
-                .credentialsProvider(credentials)
-                .build();
+        this.presigner = S3Presigner.builder().region(region).build();
+        this.s3Client = S3Client.builder().region(region).build();
     }
 
     @Override

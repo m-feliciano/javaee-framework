@@ -11,7 +11,7 @@
 <nav class="navbar">
     <div class="navbar-container">
         <a class="navbar-brand" href="${baseLink}${version}${listProduct}">
-            <img src="<c:url value='/resources/assets/logo.svg'/>" alt="Logo">
+            <img src="<c:url value='/resources/assets/images/logo.png'/>" alt="Logo">
         </a>
 
         <button class="navbar-toggler" type="button" aria-label="Toggle navigation">
@@ -75,28 +75,9 @@
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button">
                     <div class="navbar-user">
-                        <c:choose>
-                            <c:when test="${not empty user.imgUrl}">
-                                <div class="user-profile-pic">
-                                    <img src="${cdn}/${user.imgUrl}"
-                                         alt="User Profile Picture"
-                                         width="35" height="35" style="border-radius: 50%;">
-                                </div>
-                            </c:when>
-                            <c:otherwise>
-                                <div class="user-avatar"
-                                     style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                            display: flex;
-                                            align-items: center;
-                                            justify-content: center;
-                                            color: white;
-                                            font-weight: bold;">
-                                    US
-                                </div>
-                            </c:otherwise>
-                        </c:choose>
+                        <div class="user-profile-pic"></div>
                         <div class="user-info">
-                            <span class="user-name">${user.login.substring(0, user.login.indexOf('@'))}</span>
+                            <span class="user-name"></span>
                             <span class="user-role">Administrador</span>
                         </div>
                     </div>

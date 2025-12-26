@@ -1,10 +1,11 @@
 package com.dev.servlet.domain.entity;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,10 +13,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -28,9 +29,7 @@ import java.time.Instant;
 public class RefreshToken implements Serializable {
     @Id
     @Column(name = "id", updatable = false)
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    private String id;
+    private UUID id;
     @Column(name = "token", nullable = false, unique = true, columnDefinition = "TEXT")
     private String token;
     @ManyToOne
@@ -43,9 +42,14 @@ public class RefreshToken implements Serializable {
     @Column(name = "expires_at")
     private Instant expiresAt;
     @Column(name = "replaced_by")
-    private String replacedBy;
+    private UUID replacedBy;
     @Column(name = "ip_address")
     private String ipAddress;
     @Column(name = "user_agent")
     private String userAgent;
+
+    @PrePersist
+    protected void onCreate() {
+        if (id == null) id = UuidCreator.getTimeOrdered();
+    }
 }

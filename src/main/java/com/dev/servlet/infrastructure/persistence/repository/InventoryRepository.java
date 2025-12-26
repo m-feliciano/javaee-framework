@@ -7,6 +7,7 @@ import com.dev.servlet.domain.entity.Product;
 import com.dev.servlet.domain.entity.enums.Status;
 import com.dev.servlet.infrastructure.persistence.repository.base.BaseRepository;
 import com.dev.servlet.shared.util.CollectionUtils;
+import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -25,11 +26,12 @@ import org.hibernate.Session;
 import java.sql.ResultSet;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @NoArgsConstructor
 @RequestScoped
-public class InventoryRepository extends BaseRepository<Inventory, String> implements InventoryRepositoryPort {
+public class InventoryRepository extends BaseRepository<Inventory, UUID> implements InventoryRepositoryPort {
     public static final String PRODUCT = "product";
 
     @Override
@@ -100,8 +102,8 @@ public class InventoryRepository extends BaseRepository<Inventory, String> imple
                 cb.equal(joinProduct.get(ID), inventory.getProduct().getId()),
                 cb.equal(joinUser.get(ID), inventory.getUser().getId()));
         cq.select(cb.count(root)).where(predicate);
-        Long count = em.createQuery(cq).getSingleResult();
-        return count > 0;
+        Long count = em.createQuery(cq).getSingleResultOrNull();
+        return count != null && count > 0;
     }
 
     @Override
@@ -114,17 +116,18 @@ public class InventoryRepository extends BaseRepository<Inventory, String> imple
             String sql = "INSERT INTO tb_inventory (id, description, product_id, user_id, status) VALUES (" + copies + ")";
             try (java.sql.PreparedStatement ps = connection.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
                 for (Inventory inventory : inventories) {
-                    ps.setString(1, inventory.getId());
+                    ps.setObject(1, UuidCreator.getTimeOrdered());
                     ps.setString(2, inventory.getDescription());
-                    ps.setString(3, inventory.getProduct().getId());
-                    ps.setString(4, inventory.getUser().getId());
+                    ps.setObject(3, inventory.getProduct().getId());
+                    ps.setObject(4, inventory.getUser().getId());
                     ps.setString(5, Status.ACTIVE.getValue());
                     ps.addBatch();
                 }
+
                 try (ResultSet rs = ps.getGeneratedKeys()) {
                     int i = 0;
                     while (rs.next()) {
-                        inventories.get(i).setId(rs.getString(1));
+                        inventories.get(i).setId(UUID.fromString(rs.getString(1)));
                         i++;
                     }
                 }
@@ -139,6 +142,7 @@ public class InventoryRepository extends BaseRepository<Inventory, String> imple
             throw new AppException("Failed to save inventories");
         }
 
+        closeEm();
         return inventories;
     }
     @Override

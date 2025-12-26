@@ -7,12 +7,13 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 @Data
 @Builder
 public class UserActivityLogResponse {
-    private String id;
-    private String userId;
+    private UUID id;
+    private UUID userId;
     private String action;
     private String entityType;
     private String entityId;

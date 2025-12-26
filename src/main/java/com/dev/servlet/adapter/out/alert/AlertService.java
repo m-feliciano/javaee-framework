@@ -10,18 +10,19 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 @ApplicationScoped
 public class AlertService implements AlertPort {
 
-    private static final Map<String, Deque<Alert>> store = new ConcurrentHashMap<>();
+    private static final Map<UUID, Deque<Alert>> store = new ConcurrentHashMap<>();
 
     @Inject
     private AlertWebSocket ws;
 
-    public void publish(String userId, String status, String message) {
+    public void publish(UUID userId, String status, String message) {
         store.computeIfAbsent(userId, k -> new ConcurrentLinkedDeque<>());
         Deque<Alert> alerts = store.get(userId);
 
@@ -41,13 +42,13 @@ public class AlertService implements AlertPort {
      * @deprecated Use WebSocket to receive alerts in real-time.
      */
     @Deprecated
-    public List<Alert> list(String userId) {
+    public List<Alert> list(UUID userId) {
         Deque<Alert> alerts = store.get(userId);
         if (alerts == null) return List.of();
         return new ArrayList<>(alerts);
     }
 
-    public void clear(String userId) {
+    public void clear(UUID userId) {
         store.remove(userId);
     }
 }

@@ -7,13 +7,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public final class UserResponse {
-    private String id;
+    private UUID id;
     private String login;
     @JsonIgnore
     private String password;
@@ -26,7 +27,7 @@ public final class UserResponse {
     private Boolean unconfirmedEmail;
     private Boolean created;
 
-    public UserResponse(String id) {
+    public UserResponse(UUID id) {
         this.id = id;
     }
 

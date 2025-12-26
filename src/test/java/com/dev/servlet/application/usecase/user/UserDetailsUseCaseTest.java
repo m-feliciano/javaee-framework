@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -33,7 +34,7 @@ import static org.mockito.Mockito.when;
 @DisplayName("UserDetailsUseCase Tests")
 class UserDetailsUseCaseTest {
 
-    private static final String USER_ID = "user-123";
+    private static final UUID USER_ID = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     private static final String AUTH_TOKEN = "Bearer valid.token";
     @Mock
     private UserRepositoryPort repositoryPort;

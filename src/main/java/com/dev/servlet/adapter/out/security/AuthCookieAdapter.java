@@ -22,6 +22,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static com.dev.servlet.infrastructure.utils.CloudFrontCrypto.generateCloudFrontSignedCookies;
@@ -38,7 +39,9 @@ public class AuthCookieAdapter implements AuthCookiePort {
     private static final int REFRESH_TOKEN_MAX_AGE = Math.toIntExact(TimeUnit.DAYS.toSeconds(30));
     private static final int CSRF_TOKEN_MAX_AGE = Math.toIntExact(TimeUnit.DAYS.toSeconds(1));
 
+    private final UUID cdnCookiesKey = UUID.randomUUID();
     private final SecureRandom secureRandom = new SecureRandom();
+
     private boolean isSecure;
     private String cookiePath;
     private String domain;
@@ -52,7 +55,7 @@ public class AuthCookieAdapter implements AuthCookiePort {
 
     @PostConstruct
     public void init() {
-        this.domain = Properties.get("app.domain");
+        this.domain = Properties.getAppDomain();
 
         this.isSecure = Properties.getOrDefault("security.cookie.secure", true);
         this.cookiePath = Properties.getOrDefault("security.cookie.path", "/");
@@ -185,7 +188,6 @@ public class AuthCookieAdapter implements AuthCookiePort {
 
         try {
             String namespace = "cdn:cookies";
-            String cdnCookiesKey = "cdn_cookies_key";
 
             Map<String, String> cookies = cachePort.get(namespace, cdnCookiesKey);
             if (cookies == null || cookies.isEmpty()) {

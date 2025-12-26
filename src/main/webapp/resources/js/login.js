@@ -1,10 +1,12 @@
 (function() {
     const pwdInput = document.getElementById('inputPassword');
     if (pwdInput) {
-        let toggle = document.createElement('button');
+        const toggle = document.createElement('button');
         toggle.type = 'button';
         toggle.className = 'btn btn-icon btn-password-toggle';
         toggle.style.marginLeft = '8px';
+        toggle.style.color = '#000';
+        toggle.style.backgroundColor = '#e0e0e0';
         toggle.innerHTML = '<i class="bi bi-eye-fill"></i>';
 
         const parent = pwdInput.closest('.input-group');
@@ -28,16 +30,4 @@
             pwdInput.focus();
         });
     }
-})();
-function onLoginSubmit(form) {
-    const submitBtn = form.querySelector('button[type="submit"]');
-    if (submitBtn) {
-        const btnText = submitBtn.querySelector('.btn-text');
-        const btnLoading = submitBtn.querySelector('.btn-loading-spinner');
-
-        if (btnText) btnText.style.display = 'none';
-        if (btnLoading) btnLoading.style.display = 'inline-flex';
-        submitBtn.disabled = true;
-    }
-    return true;
-}
+})();

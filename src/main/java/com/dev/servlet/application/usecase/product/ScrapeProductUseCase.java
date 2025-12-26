@@ -60,7 +60,7 @@ public class ScrapeProductUseCase implements ScrapeProductPort {
     @Inject
     private FileHttpClient fileHttpClient;
 
-    private static String composeFilePath(String userId, String productId, String thumbName) {
+    private static String composeFilePath(UUID userId, UUID productId, String thumbName) {
         return "private/users/" + userId + "/products/" + productId + "/thumb/" + thumbName;
     }
 
@@ -141,6 +141,7 @@ public class ScrapeProductUseCase implements ScrapeProductPort {
 
         alertPort.publish(user.getId(), "success",
                 String.format("Successfully scraped %d products.", products.size()));
+
         return products.stream()
                 .map(p -> new ProductResponse(p.getId()))
                 .toList();
@@ -173,7 +174,7 @@ public class ScrapeProductUseCase implements ScrapeProductPort {
         log.debug("Processing file optimization...");
 
         try (InputStream pic = imageService.processToOptimizedJpg(in, 500, "product-thumbnail")) {
-            log.info("Generating image URL for product image at path: {}", path);
+            log.debug("Generating image URL for product image at path: {}", path);
             URI uploadUri = storageService.generateUploadUri(path, "image/jpeg", Duration.ofMinutes(5));
             fileHttpClient.upload(uploadUri, pic, "image/jpeg");
 
@@ -183,7 +184,7 @@ public class ScrapeProductUseCase implements ScrapeProductPort {
     }
 
     private InputStream downloadFile(String url) {
-        log.info("Downloading image...");
+        log.debug("Downloading image...");
 
         try (InputStream in = fileHttpClient.download(url)) {
             return new ByteArrayInputStream(in.readAllBytes());

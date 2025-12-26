@@ -13,6 +13,8 @@ import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 
+import java.util.UUID;
+
 @Slf4j
 @ApplicationScoped
 public class ListInventoryUseCase implements ListInventoryPort {
@@ -28,7 +30,7 @@ public class ListInventoryUseCase implements ListInventoryPort {
         log.debug("ListInventoryUseCase: attempting to list inventories pageable with initialPage {}, pageSize {}",
                 pageRequest.getInitialPage(), pageRequest.getPageSize());
 
-        String userId = authPort.extractUserId(auth);
+        UUID userId = authPort.extractUserId(auth);
 
         Inventory filter = (Inventory) pageRequest.getFilter();
         filter = ObjectUtils.getIfNull(filter, Inventory::new);

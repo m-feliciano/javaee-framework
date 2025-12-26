@@ -1,19 +1,20 @@
 package com.dev.servlet.application.port.out.cache;
 
 import java.time.Duration;
+import java.util.UUID;
 
 public interface CachePort {
-    void set(String namespace, String key, Object object);
+    void set(String namespace, UUID key, Object object);
 
-    void set(String namespace, String key, Object object, Duration ttl);
+    void set(String namespace, UUID key, Object object, Duration ttl);
 
-    <T> T get(String namespace, String key);
+    <T> T get(String namespace, UUID key);
 
-    void clear(String namespace, String key);
+    void clear(String namespace, UUID key);
 
-    void clearAll(String key);
+    void clearAll(UUID key);
 
     void clearNamespace(String namespace);
 
-    void clearSuffix(String namespace, String userId);
+    void clearSuffix(String namespace, UUID key);
 }

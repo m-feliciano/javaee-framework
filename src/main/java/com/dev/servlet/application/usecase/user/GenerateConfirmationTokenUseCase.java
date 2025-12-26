@@ -26,7 +26,7 @@ public class GenerateConfirmationTokenUseCase implements GenerateConfirmationTok
                 .token(token)
                 .userId(user.getId())
                 .createdAt(OffsetDateTime.now())
-                .expiresAt(OffsetDateTime.now().plusHours(1))
+                .expiresAt(OffsetDateTime.now().plusMinutes(30))
                 .body(CloneUtil.toJson(body))
                 .used(false)
                 .build();

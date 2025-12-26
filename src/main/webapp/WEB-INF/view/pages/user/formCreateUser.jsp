@@ -6,7 +6,7 @@
 <body>
 <div class="grid-page">
     <div class="content">
-        <div class="main">
+        <div class="main" style="width: 450px; padding-top: 100px;">
             <div class="container-narrow">
                 <div class="login-container">
                     <h2 class="text-center mb-4">Sign up</h2>

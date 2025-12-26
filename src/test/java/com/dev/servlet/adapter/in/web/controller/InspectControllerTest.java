@@ -18,10 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Test suite for InspectController implementation via InspectControllerApi interface.
- * Tests controller introspection and metadata retrieval for API documentation.
- */
 @DisplayName("InspectController Tests")
 class InspectControllerTest extends BaseControllerTest {
 

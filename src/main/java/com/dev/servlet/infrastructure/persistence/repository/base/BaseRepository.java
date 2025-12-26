@@ -91,7 +91,7 @@ public abstract class BaseRepository<T, ID> implements BaseRepositoryPort<T, ID>
 
             throw new RuntimeException("Transaction failed", e);
         } finally {
-            closeEm();
+//            closeEm();
         }
     }
 
@@ -131,9 +131,6 @@ public abstract class BaseRepository<T, ID> implements BaseRepositoryPort<T, ID>
                 rollbackTransaction();
             }
             throw e;
-
-        } finally {
-            closeEm();
         }
     }
 
@@ -225,7 +222,7 @@ public abstract class BaseRepository<T, ID> implements BaseRepositoryPort<T, ID>
         Predicate predicate = buildDefaultPredicateFor((T) pageRequest.getFilter(), cb, root);
         query.where(predicate).select(cb.count(root));
         TypedQuery<Long> typedQuery = em.createQuery(query);
-        Long count = typedQuery.getSingleResult();
+        Long count = typedQuery.getSingleResultOrNull();
         return count != null ? count : 0L;
     }
 }

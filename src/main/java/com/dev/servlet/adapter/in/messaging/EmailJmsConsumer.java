@@ -1,16 +1,16 @@
 package com.dev.servlet.adapter.in.messaging;
 
 import com.dev.servlet.adapter.out.messaging.Message;
-import com.dev.servlet.adapter.out.messaging.config.MessageConfig;
-import com.dev.servlet.adapter.out.messaging.factory.MessageFactory;
 import com.dev.servlet.adapter.out.messaging.registry.MessageServiceRegistry;
 import com.dev.servlet.domain.enums.MessageType;
+import com.dev.servlet.infrastructure.config.Properties;
 import com.dev.servlet.shared.util.CloneUtil;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Initialized;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.jms.Connection;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.Destination;
@@ -21,11 +21,17 @@ import jakarta.jms.TextMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import static com.dev.servlet.adapter.out.messaging.config.MessageConfig.EMAIL_EXCHANGE_QUEUE;
+import java.util.Arrays;
+
+import static com.dev.servlet.adapter.out.messaging.factory.MessageFactory.createConnectionFactory;
+import static com.dev.servlet.infrastructure.config.Properties.getEnv;
+import static com.dev.servlet.infrastructure.config.Properties.getEnvOrDefault;
 
 @Slf4j
 @ApplicationScoped
+@Named("emailJmsConsumer")
 public class EmailJmsConsumer implements MessageListener {
+    private static final String EMAIL_EXCHANGE_QUEUE = "email.exchange.queue";
 
     private Connection connection;
     private Session session;
@@ -35,16 +41,20 @@ public class EmailJmsConsumer implements MessageListener {
     private MessageServiceRegistry messageServiceRegistry;
 
     public void onStartup(@Observes @Initialized(ApplicationScoped.class) Object init) {
-        MessageConfig.BrokerConfig config = MessageConfig.createBrokerConfig(EMAIL_EXCHANGE_QUEUE);
-        this.initConsumerWithRetry(config);
+        if ("jms".equals(Properties.get("provider.broker"))) {
+            String brokerUrl = getEnvOrDefault("BROKER_URL", "tcp://activemq:61616");
+            String user = getEnv("BROKER_USER");
+            String pass = getEnv("BROKER_PASSWORD");
+            log.info("EmailJmsConsumer: emailConfirmationQueue configured with brokerUrl={}, user={}", brokerUrl, user);
+
+            this.initConsumerWithRetry(createConnectionFactory(brokerUrl, user, pass));
+
+        } else {
+            log.info("EmailJmsConsumer: JMS provider not configured, skipping EmailJmsConsumer initialization");
+        }
     }
 
-    private void initConsumerWithRetry(MessageConfig.BrokerConfig config) {
-        ConnectionFactory factory = MessageFactory.createConnectionFactory(
-                config.brokerUrl(),
-                config.user(),
-                config.pass()
-        );
+    private void initConsumerWithRetry(ConnectionFactory factory) {
 
         int attempt = 0;
         long delay = 2000;
@@ -141,17 +151,12 @@ public class EmailJmsConsumer implements MessageListener {
     }
 
     private void safeClose() {
-        try {
-            if (consumer != null) consumer.close();
-        } catch (Exception ignored) {
-        }
-        try {
-            if (session != null) session.close();
-        } catch (Exception ignored) {
-        }
-        try {
-            if (connection != null) connection.close();
-        } catch (Exception ignored) {
-        }
+        Arrays.asList(consumer, session, connection)
+                .forEach(c -> {
+                    try {
+                        c.close();
+                    } catch (Exception ignored) {
+                    }
+                });
     }
 }

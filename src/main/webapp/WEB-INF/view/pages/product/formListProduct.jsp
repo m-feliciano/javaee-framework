@@ -50,7 +50,7 @@
                     <div class="product-image-wrapper">
                         <c:choose>
                             <c:when test="${empty product.thumbUrl}">
-                                <img src="<c:url value='/resources/assets/no_image_available.png'/>"
+                                <img src="<c:url value='/resources/assets/images/no_image_available.png'/>"
                                      alt="No image available"
                                      loading="lazy"/>
                             </c:when>

@@ -1,6 +1,38 @@
 (function () {
     'use strict';
 
+    const createImgElement = (src) => {
+        if (!src) return;
+
+        const imgElem = document.createElement('img');
+        imgElem.src = `https://d31x5h09ggcgvz.cloudfront.net/${src}`;
+        imgElem.alt = 'User Profile Picture';
+        imgElem.width = 35;
+        imgElem.height = 35;
+        imgElem.style.borderRadius = '50%';
+        return imgElem;
+    }
+
+    async function loadUserProfile() {
+        const response = await fetch(`${location.origin}/api/v1/user/profile`, {
+            credentials: 'same-origin',
+            headers: {'Accept': 'application/json'}
+        }).catch();
+
+        if (!response.ok) return;
+
+        const {login, imgUrl} = await response.json();
+
+        if (imgUrl) {
+            const userAvatarDiv = document.querySelector('.navbar-user .user-profile-pic');
+            const imgElem = createImgElement(imgUrl);
+            if (imgElem) userAvatarDiv.replaceChildren(imgElem);
+        }
+
+        const userNameSpan = document.querySelector('.navbar-user .user-name');
+        userNameSpan.textContent = login?.includes('@') ? login?.substring(0, login?.indexOf('@')) : login;
+    }
+
     const navbar = (() => {
         let alerts = new Map();
         let inited = false;
@@ -214,6 +246,7 @@
             initNavbarUI();
             bindNotificationButtons();
             connectWebSocket();
+            loadUserProfile().then(r => r);
         }
 
         return {init};

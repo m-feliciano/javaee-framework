@@ -38,6 +38,7 @@ public class FrontControllerServlet extends HttpServlet {
     private static final String GET_ACTIVITY_EVENT = "GET:/api/v1/activity/*";
     private static final String GET_HEALTH_UP_EVENT = "GET:/api/v1/health/up";
     private static final String GET_ALERT_EVENT = "GET:/api/v1/alert/*";
+    private static final String GET_PROFILE_EVENT = "GET:/api/v1/user/profile";
 
     @Inject
     private AuditPort auditPort;
@@ -69,18 +70,6 @@ public class FrontControllerServlet extends HttpServlet {
             if (response.error() != null && response.reasonText() == null) {
                 log.warn("Unsuccessful response: {}", response.error());
                 throw new AppException(response.statusCode(), response.error());
-            }
-
-            // todo: frontend responsibility to fetch user details? its cached though, so low impact
-            if (request.getToken() != null) {
-                Request userRequest = Request.builder()
-                        .endpoint("/api/v1/user/me")
-                        .method(RequestMethod.GET)
-                        .token(request.getToken())
-                        .build();
-
-                IHttpResponse<?> userResponse = dispatcher.dispatch(userRequest);
-                req.setAttribute("user", userResponse.body());
             }
 
             handleRequestAttributes(req, response);
@@ -117,7 +106,9 @@ public class FrontControllerServlet extends HttpServlet {
         return Stream.of(GET_HEALTH_UP_EVENT,
                         GET_INSPECT_EVENT,
                         GET_ACTIVITY_EVENT,
-                        GET_ALERT_EVENT)
+                        GET_ALERT_EVENT,
+                        GET_PROFILE_EVENT
+                )
                 .noneMatch(pattern -> matchWildcard(pattern, event));
     }
 

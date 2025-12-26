@@ -34,6 +34,7 @@ import org.mockito.Mock;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -81,10 +82,11 @@ class InventoryControllerTest extends BaseControllerTest {
             InventoryCreateRequest request = new InventoryCreateRequest(
                     100,
                     "Initial stock",
-                    "product-123"
+                    UUID.randomUUID()
             );
 
-            InventoryResponse expectedResponse = new InventoryResponse("inventory-123");
+            UUID uuid = UUID.randomUUID();
+            InventoryResponse expectedResponse = new InventoryResponse(uuid);
             expectedResponse.setQuantity(100);
             expectedResponse.setDescription("Initial stock");
 
@@ -97,7 +99,7 @@ class InventoryControllerTest extends BaseControllerTest {
             // Assert
             assertThat(response).isNotNull();
             assertThat(response.next()).contains("redirect:");
-            assertThat(response.next()).contains("inventory-123");
+            assertThat(response.next()).contains(uuid.toString());
 
             verify(registerInventoryPort).register(request, VALID_AUTH_TOKEN);
         }
@@ -111,12 +113,13 @@ class InventoryControllerTest extends BaseControllerTest {
         @DisplayName("Should update inventory successfully")
         void shouldUpdateInventory() {
             // Arrange
+            UUID uuid = UUID.randomUUID();
             InventoryRequest request = InventoryRequest.builder()
-                    .id("inventory-123")
+                    .id(uuid)
                     .quantity(150)
                     .build();
 
-            InventoryResponse expectedResponse = new InventoryResponse("inventory-123");
+            InventoryResponse expectedResponse = new InventoryResponse(uuid);
             expectedResponse.setQuantity(150);
 
             when(updateInventoryPort.update(any(InventoryRequest.class), eq(VALID_AUTH_TOKEN)))
@@ -128,7 +131,7 @@ class InventoryControllerTest extends BaseControllerTest {
             // Assert
             assertThat(response).isNotNull();
             assertThat(response.next()).contains("redirect:");
-            assertThat(response.next()).contains("inventory-123");
+            assertThat(response.next()).contains(uuid.toString());
 
             verify(updateInventoryPort).update(request, VALID_AUTH_TOKEN);
         }
@@ -143,7 +146,7 @@ class InventoryControllerTest extends BaseControllerTest {
         void shouldDeleteInventory() {
             // Arrange
             InventoryRequest request = InventoryRequest.builder()
-                    .id("inventory-to-delete")
+                    .id(UUID.randomUUID())
                     .build();
 
             doNothing().when(deleteInventoryPort).delete(any(InventoryRequest.class), eq(VALID_AUTH_TOKEN));
@@ -171,15 +174,15 @@ class InventoryControllerTest extends BaseControllerTest {
             // Arrange
             InventoryRequest filter = InventoryRequest.builder().build();
 
-            InventoryResponse inv1 = new InventoryResponse("inv-1");
+            InventoryResponse inv1 = new InventoryResponse(UUID.randomUUID());
             inv1.setQuantity(100);
 
-            InventoryResponse inv2 = new InventoryResponse("inv-2");
+            InventoryResponse inv2 = new InventoryResponse(UUID.randomUUID());
             inv2.setQuantity(50);
 
             List<InventoryResponse> inventories = List.of(inv1, inv2);
 
-            CategoryResponse cat = new CategoryResponse("cat-1");
+            CategoryResponse cat = CategoryResponse.builder().id(UUID.randomUUID()).build();
             cat.setName("Electronics");
             List<CategoryResponse> categories = List.of(cat);
 
@@ -217,9 +220,10 @@ class InventoryControllerTest extends BaseControllerTest {
         @DisplayName("Should retrieve inventory detail by ID")
         void shouldGetInventoryDetail() {
             // Arrange
-            InventoryRequest request = InventoryRequest.builder().id("inventory-123").build();
+            UUID uuid = UUID.randomUUID();
+            InventoryRequest request = InventoryRequest.builder().id(uuid).build();
 
-            InventoryResponse expectedInventory = new InventoryResponse("inventory-123");
+            InventoryResponse expectedInventory = new InventoryResponse(uuid);
             expectedInventory.setQuantity(100);
 
             when(inventoryDetailPort.get(any(InventoryRequest.class), eq(VALID_AUTH_TOKEN)))
@@ -245,21 +249,22 @@ class InventoryControllerTest extends BaseControllerTest {
         @SuppressWarnings("all")
         void shouldSearchInventory() {
             // Arrange
+            UUID uuid = UUID.randomUUID();
             Map<String, String> params = new HashMap<>();
             params.put("productId", "product-123");
             Query query = Query.builder().parameters(params).build();
 
-            List<InventoryResponse> searchResults = List.of(new InventoryResponse("inv-1"));
+            List<InventoryResponse> searchResults = List.of(new InventoryResponse(uuid));
 
             InventoryRequest filter = InventoryRequest.builder().build();
 
             when(inventoryMapper.queryToInventory(any(Query.class))).thenReturn(filter);
             when(inventoryMapper.toResponse(any(Inventory.class)))
-                    .thenReturn(new InventoryResponse("inv-1"));
+                    .thenReturn(new InventoryResponse(uuid));
 
             when(inventoryMapper.toInventory(any()))
                     .thenReturn(new Inventory(
-                            new Product("product-123"),
+                            new Product(UUID.randomUUID()),
                             100,
                             "Sample inventory")
                     );
@@ -303,11 +308,13 @@ class InventoryControllerTest extends BaseControllerTest {
         @DisplayName("Should forward to registration form with product details")
         void shouldForwardToRegistrationForm() {
             // Arrange
+            UUID uuid = UUID.randomUUID();
+
             Map<String, String> params = new HashMap<>();
-            params.put("productId", "product-123");
+            params.put("productId", uuid.toString());
             Query query = Query.builder().parameters(params).build();
 
-            ProductResponse product = new ProductResponse("product-123");
+            ProductResponse product = new ProductResponse(uuid);
             product.setName("Test Product");
 
             when(productDetailPort.get(any(ProductRequest.class), eq(VALID_AUTH_TOKEN)))

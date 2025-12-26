@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -39,6 +40,7 @@ import static org.mockito.Mockito.when;
 @DisplayName("ActivityController Tests")
 class ActivityControllerTest extends BaseControllerTest {
 
+    private static final UUID ACTIVITY_ID = UUID.randomUUID();
     @Mock
     private GetActivityPageablePort activityPageableUseCase;
     @Mock
@@ -98,15 +100,15 @@ class ActivityControllerTest extends BaseControllerTest {
         void shouldRetrieveActivityDetail() {
             // Arrange
             User user = User.builder().id(USER_ID).build();
-            ActivityRequest request = new ActivityRequest("activity-123", "LOGIN", user);
+            ActivityRequest request = new ActivityRequest(ACTIVITY_ID, "LOGIN", user);
 
             UserActivityLog activityLog = UserActivityLog.builder()
-                    .id("activity-123")
+                    .id(ACTIVITY_ID)
                     .userId(USER_ID)
                     .action("LOGIN")
                     .build();
 
-            when(userActivityDetailUseCase.getActivityDetail(eq("activity-123"), eq(USER_ID)))
+            when(userActivityDetailUseCase.getActivityDetail(eq(ACTIVITY_ID), eq(USER_ID)))
                     .thenReturn(Optional.of(activityLog));
 
             // Act
@@ -117,7 +119,7 @@ class ActivityControllerTest extends BaseControllerTest {
             assertThat(response).isNotNull();
             assertThat(response.body()).isEqualTo(activityLog);
 
-            verify(userActivityDetailUseCase).getActivityDetail("activity-123", USER_ID);
+            verify(userActivityDetailUseCase).getActivityDetail(ACTIVITY_ID, USER_ID);
         }
 
         @Test
@@ -125,7 +127,7 @@ class ActivityControllerTest extends BaseControllerTest {
         void shouldThrowExceptionWhenNotFound() {
             // Arrange
             User user = User.builder().id(USER_ID).build();
-            ActivityRequest request = new ActivityRequest("non-existent", "LOGIN", user);
+            ActivityRequest request = new ActivityRequest(UUID.randomUUID(), "LOGIN", user);
 
             when(userActivityDetailUseCase.getActivityDetail(any(), any()))
                     .thenReturn(Optional.empty());
@@ -234,4 +236,3 @@ class ActivityControllerTest extends BaseControllerTest {
         }
     }
 }
-

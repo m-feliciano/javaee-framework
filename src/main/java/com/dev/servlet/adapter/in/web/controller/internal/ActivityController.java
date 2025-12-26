@@ -26,6 +26,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.dev.servlet.shared.util.DateUtil.YYYY_MM_DD;
 
@@ -47,7 +48,7 @@ public class ActivityController extends BaseController implements ActivityContro
     }
 
     public IHttpResponse<IPageable<UserActivityLogResponse>> getHistory(PageRequest defaultPage, @Authorization String auth) {
-        final String userId = authenticationPort.extractUserId(auth);
+        UUID userId = authenticationPort.extractUserId(auth);
         PageRequest pageRequest = PageRequest.of(
                 defaultPage.getInitialPage(),
                 defaultPage.getPageSize(),
@@ -59,7 +60,7 @@ public class ActivityController extends BaseController implements ActivityContro
     }
 
     public IHttpResponse<UserActivityLog> getActivityDetail(ActivityRequest request, @Authorization String auth) {
-        final String userId = authenticationPort.extractUserId(auth);
+        UUID userId = authenticationPort.extractUserId(auth);
         Optional<UserActivityLog> optional = userActivityDetailUseCase.getActivityDetail(request.id(), userId);
 
         UserActivityLog activityLog = optional.orElseThrow(() -> new RuntimeException("Activity not found"));
@@ -78,7 +79,7 @@ public class ActivityController extends BaseController implements ActivityContro
     }
 
     public IHttpResponse<List<UserActivityLogResponse>> getTimeline(Query query, @Authorization String auth) {
-        final String userId = authenticationPort.extractUserId(auth);
+        UUID userId = authenticationPort.extractUserId(auth);
         String startDateStr = null;
         String endDateStr = null;
         if (query != null) {
