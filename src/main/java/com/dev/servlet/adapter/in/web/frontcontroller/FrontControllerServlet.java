@@ -51,6 +51,16 @@ public class FrontControllerServlet extends HttpServlet {
     @Inject
     private ErrorResponseWriter errorWriter;
 
+    private static boolean isUserRequest(String event) {
+        return Stream.of(GET_HEALTH_UP_EVENT,
+                        GET_INSPECT_EVENT,
+                        GET_ACTIVITY_EVENT,
+                        GET_ALERT_EVENT,
+                        GET_PROFILE_EVENT
+                )
+                .noneMatch(pattern -> matchWildcard(pattern, event));
+    }
+
     @Override
     @Interceptors({LogExecutionTimeInterceptor.class})
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -59,24 +69,24 @@ public class FrontControllerServlet extends HttpServlet {
         final String event = "%s:%s".formatted(req.getMethod(), req.getRequestURI());
         log.debug("Processing request for event: {}", event);
 
-        boolean logEndpoint = isLogEndpoint(event);
+        boolean isUserRequest = isUserRequest(event);
 
-        Request request = null;
-        IHttpResponse<?> response = null;
+        Request input = null;
+        IHttpResponse<?> output = null;
         try {
-            request = RequestBuilder.newBuilder().servletRequest(req).complete().build();
-            response = dispatcher.dispatch(request);
+            input = RequestBuilder.newBuilder().servletRequest(req).complete().build();
+            output = dispatcher.dispatch(input);
 
-            if (response.error() != null && response.reasonText() == null) {
-                log.warn("Unsuccessful response: {}", response.error());
-                throw new AppException(response.statusCode(), response.error());
+            if (output.error() != null && output.reasonText() == null) {
+                log.warn("Unsuccessful response: {}", output.error());
+                throw new AppException(output.statusCode(), output.error());
             }
 
-            handleRequestAttributes(req, response);
+            handleRequestAttributes(req, output);
 
-            if (logEndpoint) handleCookies(resp, request, response);
+            if (isUserRequest) handleCookies(resp, input, output);
 
-            responseWriter.write(req, resp, request, response);
+            responseWriter.write(req, resp, input, output);
 
         } catch (AppException e) {
             log.warn("Application error processing request: {}", e.getMessage());
@@ -97,32 +107,20 @@ public class FrontControllerServlet extends HttpServlet {
             }
 
         } finally {
-            logAuditEvent(request, response, logEndpoint);
+            if (input != null && isUserRequest) logAuditEvent(event, input, output);
             log.debug("Completed processing request for event: {}", event);
         }
     }
 
-    private static boolean isLogEndpoint(String event) {
-        return Stream.of(GET_HEALTH_UP_EVENT,
-                        GET_INSPECT_EVENT,
-                        GET_ACTIVITY_EVENT,
-                        GET_ALERT_EVENT,
-                        GET_PROFILE_EVENT
-                )
-                .noneMatch(pattern -> matchWildcard(pattern, event));
-    }
+    private <T> void logAuditEvent(String event, Request input, IHttpResponse<T> resp) {
+        IHttpResponse<?> output = CloneUtil.cloneResponseSummary(resp);
+        AuditPayload<?, ?> payload = new AuditPayload<>(input, output);
 
-    private void logAuditEvent(Request req, IHttpResponse<?> res, boolean logActivity) {
-        if (req == null || !logActivity) return;
-
-        String event = "%s:%s".formatted(req.getMethod(), req.getEndpoint());
-
-        int status = res != null ? res.statusCode() : 500;
+        int status = resp != null ? resp.statusCode() : 500;
         if (status >= 200 && status < 400) {
-            Object payload = CloneUtil.summarizeResponseBody(res.body());
-            auditPort.success(event, req.getToken(), new AuditPayload<>(req, payload));
+            auditPort.success(event, input.getToken(), payload);
         } else {
-            auditPort.failure(event, req.getToken(), new AuditPayload<>(req, res));
+            auditPort.failure(event, input.getToken(), payload);
         }
     }
 

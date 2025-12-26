@@ -8,6 +8,7 @@ import com.dev.servlet.adapter.in.web.dto.Request;
 import com.dev.servlet.adapter.in.web.util.EndpointParser;
 import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.infrastructure.utils.BeanUtil;
+import jakarta.enterprise.context.ApplicationScoped;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -18,7 +19,8 @@ import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 
 @Slf4j
 @NoArgsConstructor
-public class HttpExecutorImpl<J> implements HttpExecutor<J> {
+@ApplicationScoped
+public class HttpExecutorImpl implements HttpExecutor {
 
     private static BaseRouterController resolveController(EndpointParser parser) throws AppException {
         try {
@@ -32,11 +34,11 @@ public class HttpExecutorImpl<J> implements HttpExecutor<J> {
     }
 
     @Override
-    public IHttpResponse<J> send(Request request) {
+    public IHttpResponse<?> send(Request request) {
         final String endpoint = request.getEndpoint();
         int maxRetries = ObjectUtils.getIfNull(request.getRetry(), 0);
 
-        IHttpResponse<J> response;
+        IHttpResponse<?> response;
         try {
             EndpointParser parser = EndpointParser.of(endpoint);
             BaseRouterController router = resolveController(parser);
@@ -67,7 +69,7 @@ public class HttpExecutorImpl<J> implements HttpExecutor<J> {
         }
     }
 
-    private IHttpResponse<J> handleException(Exception ex) {
+    private IHttpResponse<?> handleException(Exception ex) {
         log.error("HttpExecutor: Unhandled exception occurred: {}", ex.getMessage(), ex);
 
         int code = 500;

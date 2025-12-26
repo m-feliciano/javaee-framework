@@ -35,9 +35,9 @@ import static com.dev.servlet.shared.enums.ConstantUtils.REFRESH_TOKEN_COOKIE;
 @ApplicationScoped
 public class AuthCookieAdapter implements AuthCookiePort {
 
-    private static final int ACCESS_TOKEN_MAX_AGE = Math.toIntExact(TimeUnit.DAYS.toSeconds(1));
-    private static final int REFRESH_TOKEN_MAX_AGE = Math.toIntExact(TimeUnit.DAYS.toSeconds(30));
-    private static final int CSRF_TOKEN_MAX_AGE = Math.toIntExact(TimeUnit.DAYS.toSeconds(1));
+    private static final int CSRF_TOKEN_MAX_AGE = (int) TimeUnit.HOURS.toSeconds(12);
+    private static final int ACCESS_TOKEN_MAX_AGE = (int) TimeUnit.MINUTES.toSeconds(15);
+    private static final int REFRESH_TOKEN_MAX_AGE = (int) TimeUnit.DAYS.toSeconds(14);
 
     private final UUID cdnCookiesKey = UUID.randomUUID();
     private final SecureRandom secureRandom = new SecureRandom();
@@ -47,9 +47,6 @@ public class AuthCookieAdapter implements AuthCookiePort {
     private String domain;
     private String sameSite;
 
-    @Setter
-    @Inject
-    private AuditPort auditPort;
     @Inject
     private CachePort cachePort;
 
@@ -126,8 +123,6 @@ public class AuthCookieAdapter implements AuthCookiePort {
 
         String cookieHeader = buildSecureCookieHeader(name, value, maxAge, cookiePath, sameSite);
         response.addHeader("Set-Cookie", cookieHeader);
-        CookieAuditInfo auditInfo = new CookieAuditInfo(name, maxAge);
-        auditPort.success("auth_cookie:set_cookie", null, new AuditPayload<>(auditInfo, cookieHeader));
     }
 
     private String buildSecureCookieHeader(String name, String value, int maxAge, String path, String sameSite) {
@@ -150,7 +145,6 @@ public class AuthCookieAdapter implements AuthCookiePort {
         if (StringUtils.isBlank(csrfToken)) {
             setCsrfTokenCookie(response, generateCsrfToken());
             log.debug("Generated new CSRF token");
-            auditPort.success("csrf:token_generated", null, null);
         }
     }
 
@@ -165,17 +159,13 @@ public class AuthCookieAdapter implements AuthCookiePort {
 
         if (StringUtils.isBlank(cookieToken) || StringUtils.isBlank(requestToken)) {
             log.warn("Missing CSRF token [cookie={}, request={}]", cookieToken != null, requestToken != null);
-            auditPort.failure("csrf:token_missing", null, null);
             return false;
         }
 
         boolean valid = cookieToken.equals(requestToken);
-        if (!valid) {
-            log.warn("CSRF token mismatch");
-            auditPort.failure("csrf:token_mismatch", null, null);
-        } else {
-            log.debug("CSRF token validated successfully");
-        }
+        if (!valid)  log.warn("CSRF token mismatch");
+        else log.debug("CSRF token validated successfully");
+
         return valid;
     }
 
@@ -229,9 +219,6 @@ public class AuthCookieAdapter implements AuthCookiePort {
 
         String cookieHeader = buildCsrfCookieHeader(token);
         response.addHeader("Set-Cookie", cookieHeader);
-
-        CookieAuditInfo auditInfo = new CookieAuditInfo(CSRF_TOKEN_COOKIE, CSRF_TOKEN_MAX_AGE);
-        auditPort.success("csrf:cookie_set", null, new AuditPayload<>(auditInfo, cookieHeader));
     }
 
     private String buildCsrfCookieHeader(String token) {
@@ -250,9 +237,6 @@ public class AuthCookieAdapter implements AuthCookiePort {
         if (StringUtils.isNotBlank(sameSite)) header.append("; SameSite=").append(sameSite);
 
         return header.toString();
-    }
-
-    record CookieAuditInfo(String cookieName, int cookieMaxAge) {
     }
 
     private static Cookie[] getCookies(List<String> cookies) {

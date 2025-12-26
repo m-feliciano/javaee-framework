@@ -3,6 +3,7 @@ package com.dev.servlet.adapter.in.web.controller;
 import com.dev.servlet.adapter.in.web.controller.internal.HealthController;
 import com.dev.servlet.adapter.in.web.dto.HttpResponse;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
+import com.dev.servlet.application.transfer.response.HealthStatus;
 import com.dev.servlet.infrastructure.health.HealthService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -95,10 +96,10 @@ class HealthControllerTest extends BaseControllerTest {
         @Test
         @DisplayName("Should return UP when healthy")
         void shouldReturnUp() {
-            HttpResponse<String> response = healthController.up();
+            HttpResponse<HealthStatus> response = healthController.up();
 
             assertThat(response).isNotNull();
-            assertThat(response.body()).contains("UP");
+            assertThat(response.body().status()).contains("UP");
             verify(healthService).isDatabaseHealthy();
             verify(healthService).isCacheHealthy();
         }

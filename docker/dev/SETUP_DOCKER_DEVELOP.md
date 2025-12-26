@@ -15,7 +15,8 @@ docker compose -f docker-compose-dev-db.yml --env-file .env.dev up -d
 docker compose -f docker-compose-dev-broker.yml --env-file .env.dev up -d
 
 ### 5. Start the application service.
-docker compose -f docker-compose-dev-app.yml --env-file .env.dev up --build
+
+docker compose -f docker-compose-dev-app.yml --env-file .env.dev up --build -d
 
 ### 6. Logs and Monitoring
 To view logs for a specific service, use the following command:

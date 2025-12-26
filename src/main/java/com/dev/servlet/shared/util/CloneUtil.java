@@ -1,5 +1,7 @@
 package com.dev.servlet.shared.util;
 
+import com.dev.servlet.adapter.in.web.dto.HttpResponse;
+import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.infrastructure.persistence.transfer.IPageable;
 import com.dev.servlet.shared.vo.KeyPair;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -114,5 +116,16 @@ public final class CloneUtil {
                 "current_page", pageable.getCurrentPage(),
                 "page_size", pageable.getPageSize()
         );
+    }
+
+    public static IHttpResponse<?> cloneResponseSummary(IHttpResponse<?> resp) {
+        if (resp == null) return null;
+
+        return HttpResponse.newBuilder()
+                .error(resp.error())
+                .reasonText(resp.reasonText())
+                .statusCode(resp.statusCode())
+                .body(CloneUtil.summarizeResponseBody(resp.body()))
+                .build();
     }
 }

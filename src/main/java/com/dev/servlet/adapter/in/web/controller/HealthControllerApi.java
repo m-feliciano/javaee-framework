@@ -4,6 +4,7 @@ import com.dev.servlet.adapter.in.web.annotation.Controller;
 import com.dev.servlet.adapter.in.web.annotation.RequestMapping;
 import com.dev.servlet.adapter.in.web.dto.HttpResponse;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
+import com.dev.servlet.application.transfer.response.HealthStatus;
 
 import java.util.Map;
 
@@ -19,5 +20,5 @@ public interface HealthControllerApi {
     IHttpResponse<Map<String, Object>> liveness();
 
     @RequestMapping(value = "/up", requestAuth = false, description = "Check if the application is up (database and cache health).")
-    HttpResponse<String> up();
+    HttpResponse<HealthStatus> up();
 }

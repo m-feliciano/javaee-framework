@@ -4,45 +4,57 @@ info:
   title: Servlets Development API
   version: 3.5.0-rc
   description: |
-    API RPC baseada em Servlets (não REST)
-    
-    **Características:**
-    - **Arquitetura:** RPC (Remote Procedure Call)
-    - **Autenticação:** Cookie-based (stateful)
-    - **Padrão:** Orientado a ações/procedimentos
-    - **Framework:** Jakarta EE Servlets
-    
-    **Autenticação:**
-    O sistema utiliza cookies HTTP para manter sessão (stateful).
-    1. POST /v1/auth/login → recebe cookie `accessToken`
-    2. Navegador envia cookie automaticamente em requisições subsequentes
-    3. POST /v1/auth/logout → invalida o cookie
-    
-    **WebSocket:**
-    Alertas em tempo real via WebSocket: `ws://localhost:8080/ws`
-  
+    RPC API baseada em Jakarta Servlets.
+    **Esta API não segue o modelo REST.**
+
+    ### Estilo Arquitetural
+    - **Modelo:** RPC (Remote Procedure Call)
+    - **Orientação:** Ações / Procedimentos
+    - **Transporte:** HTTP
+
+    ### Autenticação
+    A autenticação é **stateless** e baseada exclusivamente em **cookies HTTP seguros**.
+    O servidor não mantém sessão em memória.
+
+    - `POST /v1/auth/login`  
+      Emite o cookie `accessToken`
+    - O cliente envia o cookie automaticamente nas requisições subsequentes
+    - `POST /v1/auth/logout`  
+      Invalida o cookie no cliente
+
+    Todo o estado de autenticação está contido no cookie (ex: token assinado).
+
   contact:
     name: Marcelo Feliciano
     email: marcelof@tuta.io
+
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
-  
-  x-api-style: RPC
-  x-architecture: Servlets-based
-  x-state-management: Stateful (Cookie-based)
+
+  x-api-style: rpc
+  x-architecture: jakarta-servlets
+  x-state-management: stateless-cookie
+
+  x-security:
+    authentication: http-cookie
+    session-storage: none
+    csrf-protection: required
+
   x-cors:
     allowed-origins:
-      - "http://localhost:3000"
-      - "http://localhost:8080"
+      - http://localhost:3000
+      - http://localhost:8080
     allowed-methods:
       - GET
       - POST
     allowed-headers:
       - Content-Type
       - Cookie
-    credentials: true
+    allow-credentials: true
+
   x-rate-limiting:
+    scope: per-ip
     requests-per-minute: 60
     burst: 10
 
@@ -98,7 +110,7 @@ components:
       in: cookie
       name: accessToken
       description: |
-        **Cookie-based stateful authentication**
+        **Cookie-based stateless authentication**
         
         Flow:
         1. POST /v1/auth/login → receives `Set-Cookie: accessToken`
@@ -110,7 +122,7 @@ components:
         - Secure: true (HTTPS only in production)
         - SameSite: Strict (CSRF protection)
         - Path: /api
-        - Max-Age: 3600 (1 hour)
+        - Max-Age: 3600 (1 day)
 
   responses:
     Unauthorized:

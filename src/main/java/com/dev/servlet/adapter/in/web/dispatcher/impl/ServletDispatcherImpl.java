@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ServletDispatcherImpl implements IServletDispatcher {
 
     @Inject
-    private HttpExecutor<?> httpExecutor;
+    private HttpExecutor httpExecutor;
 
     @Override
     @Interceptors({LogExecutionTimeInterceptor.class})

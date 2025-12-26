@@ -4,6 +4,7 @@ import com.dev.servlet.adapter.in.web.controller.HealthControllerApi;
 import com.dev.servlet.adapter.in.web.controller.internal.base.BaseController;
 import com.dev.servlet.adapter.in.web.dto.HttpResponse;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
+import com.dev.servlet.application.transfer.response.HealthStatus;
 import com.dev.servlet.infrastructure.health.HealthService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -43,9 +44,8 @@ public class HealthController extends BaseController implements HealthController
     }
 
     @Override
-    public HttpResponse<String> up() {
+    public HttpResponse<HealthStatus> up() {
         boolean isUp = healthService.isDatabaseHealthy() && healthService.isCacheHealthy();
-        String json = "{\"status\":\"" + (isUp ? "UP" : "DOWN") + "\"}";
-        return HttpResponse.ok(json).build();
+        return HttpResponse.ok(new HealthStatus(isUp ? "UP" : "DOWN")).build();
     }
 }

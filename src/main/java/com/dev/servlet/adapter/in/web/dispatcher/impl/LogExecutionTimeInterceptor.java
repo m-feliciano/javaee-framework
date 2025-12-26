@@ -22,7 +22,7 @@ public class LogExecutionTimeInterceptor {
             return context.proceed();
         } finally {
             stopWatch.stop();
-            log.debug("{}.{} completed [duration={}ms]", className, methodName, stopWatch.getTime());
+            log.info("{}.{} completed [duration={}ms]", className, methodName, stopWatch.getTime());
         }
     }
 }

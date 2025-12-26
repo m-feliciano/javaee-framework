@@ -65,7 +65,7 @@ public class AuditAdapter implements AuditPort {
 
     private void audit(String event, String token, ActivityStatus outcome, Object payload) {
         HashMap<String, Object> metadata = new HashMap<>();
-        metadata.put("schemaVersion", "1.0");
+        metadata.put("schemaVersion", "1.1");
         metadata.put("event", event);
         metadata.put("outcome", outcome);
         metadata.put("timestamp", Instant.now().toString());

@@ -50,11 +50,6 @@ public abstract class BaseRouterController {
         initRouteMapping();
     }
 
-    @SuppressWarnings("unchecked")
-    private static <U> IHttpResponse<U> invokeServiceMethod(Object instance, Method method, Object[] args) throws Exception {
-        return (IHttpResponse<U>) method.invoke(instance, args);
-    }
-
     private static String composeNamespace(EndpointParser endpoint, String suffix) {
         return endpoint.path()
                        .replace("{", "")
@@ -64,48 +59,6 @@ public abstract class BaseRouterController {
 
     // Prevents refence injection issues
     protected abstract Class<? extends BaseRouterController> implementation();
-
-    private void initRouteMapping() {
-        var clazz = implementation();
-        reflections.computeIfAbsent(clazz.getName(), k -> {
-            log.debug("Initializing route mappings for controller: {}", clazz.getName());
-
-            List<Method> implementationMethods = findMethodsRecursive(clazz);
-
-            Set<MethodMapping> mappings = new HashSet<>();
-            for (Method in : findMethodsOnInterfaceRecursive(clazz)) {
-                log.debug("Discovered route method: {} in controller interface: {}", in.getName(), clazz.getName());
-
-                for (Method imp : implementationMethods) {
-                    if (imp.getName().equals(in.getName())
-                        && imp.getParameterCount() == in.getParameterCount()) {
-                        var mapping = in.getAnnotation(RequestMapping.class);
-                        log.debug("Mapping endpoint: {} to method: {}", mapping.value(), in.getName());
-                        mappings.add(new MethodMapping(mapping, imp));
-                        break;
-                    }
-                }
-            }
-
-            return mappings;
-        });
-    }
-
-    private MethodMapping routeMappingFromEndpoint(String endpoint) throws AppException {
-        String controllerName = implementation().getName();
-        Set<MethodMapping> methodMappings = reflections.get(controllerName);
-        if (methodMappings == null) {
-            throw new AppException("No route mappings initialized for controller: " + controllerName);
-        }
-
-        for (MethodMapping mm : methodMappings) {
-            if (mm.parent().value().equals(endpoint)) {
-                return mm;
-            }
-        }
-
-        throw new AppException("Api not implemented!");
-    }
 
     public <U> IHttpResponse<U> route(EndpointParser endpoint, Request request) throws Exception {
         log.trace("Route endpoint: {} request: {}", endpoint, request);
@@ -136,6 +89,53 @@ public abstract class BaseRouterController {
         IHttpResponse<U> response = executeHttp(path, async, method, args);
         invalidateCaches(request.getToken(), cache);
         return response;
+    }
+
+    private void initRouteMapping() {
+        var clazz = implementation();
+        reflections.computeIfAbsent(clazz.getName(), k -> {
+            log.debug("Initializing route mappings for controller: {}", clazz.getName());
+
+            List<Method> implementationMethods = findMethodsRecursive(clazz);
+
+            Set<MethodMapping> mappings = new HashSet<>();
+            for (Method in : findMethodsOnInterfaceRecursive(clazz)) {
+                log.debug("Discovered route method: {} in controller interface: {}", in.getName(), clazz.getName());
+
+                for (Method imp : implementationMethods) {
+                    if (imp.getName().equals(in.getName())
+                        && imp.getParameterCount() == in.getParameterCount()) {
+                        var mapping = in.getAnnotation(RequestMapping.class);
+                        log.debug("Mapping endpoint: {} to method: {}", mapping.value(), in.getName());
+                        mappings.add(new MethodMapping(mapping, imp));
+                        break;
+                    }
+                }
+            }
+
+            return mappings;
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    private <U> IHttpResponse<U> invokeServiceMethod(Method method, Object[] args) throws Exception {
+        return (IHttpResponse<U>) method.invoke(this, args);
+    }
+
+    private MethodMapping routeMappingFromEndpoint(String endpoint) throws AppException {
+        String controllerName = implementation().getName();
+        Set<MethodMapping> methodMappings = reflections.get(controllerName);
+        if (methodMappings == null) {
+            throw new AppException("No route mappings initialized for controller: " + controllerName);
+        }
+
+        for (MethodMapping mm : methodMappings) {
+            if (mm.parent().value().equals(endpoint)) {
+                return mm;
+            }
+        }
+
+        throw new AppException("Api not implemented!");
     }
 
     private Object[] prepareMethodArguments(Method method, Request request) {
@@ -180,7 +180,7 @@ public abstract class BaseRouterController {
 
         if (!async) {
             log.debug("Executing synchronous HTTP for method endpoint: {}", endpoint);
-            return invokeServiceMethod(this, method, args);
+            return invokeServiceMethod(method, args);
         }
 
         log.debug("Executing asynchronous HTTP for method endpoint: {}", endpoint);
@@ -195,7 +195,7 @@ public abstract class BaseRouterController {
                 .start(() -> {
                     requestContextController.activate();
                     try {
-                        invokeServiceMethod(this, method, args);
+                        invokeServiceMethod(method, args);
                     } catch (Exception e) {
                         log.error("Error during async request", e);
                     } finally {

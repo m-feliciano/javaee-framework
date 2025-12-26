@@ -1,9 +1,11 @@
 package com.dev.servlet.adapter.in.web.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Builder;
 
 @Builder(builderMethodName = "newBuilder")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record HttpResponse<T>(
         int statusCode,
         T body,

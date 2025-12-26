@@ -14,7 +14,7 @@ services:
     environment:
       CLOUDFRONT_PK_PATH: /run/secrets/cloudfront_pk
 
-      JAVA_OPTS: "-Xms400m -Xmx800m -XX:MaxMetaspaceSize=156m -XX:+UseG1GC -XX:+UseStringDeduplication -XX:MaxGCPauseMillis=200"
+      JAVA_OPTS: "-Xms312m -Xmx800m -XX:MaxMetaspaceSize=512m -XX:+UseG1GC -XX:+UseStringDeduplication -XX:MaxGCPauseMillis=200"
 
     volumes:
       - ${CLOUDFRONT_PK_PATH}:/run/secrets/cloudfront_pk:ro
