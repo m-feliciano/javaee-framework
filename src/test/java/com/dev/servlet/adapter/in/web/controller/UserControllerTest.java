@@ -25,6 +25,7 @@ import org.mockito.Mock;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,6 +36,8 @@ import static org.mockito.Mockito.when;
 
 @DisplayName("UserController Tests")
 class UserControllerTest extends BaseControllerTest {
+
+    private static final UUID USER_ID = UUID.randomUUID();
 
     @Mock
     private UpdateUserPort updateUserPort;
@@ -76,7 +79,7 @@ class UserControllerTest extends BaseControllerTest {
             );
 
             UserResponse expectedResponse = UserResponse.builder()
-                    .id("user-123")
+                    .id(USER_ID)
                     .login("newuser@example.com")
                     .build();
 
@@ -133,16 +136,16 @@ class UserControllerTest extends BaseControllerTest {
         @DisplayName("Should delete user successfully")
         void shouldDeleteUser() {
             // Arrange
-            UserRequest request = UserRequest.builder().id("user-to-delete").build();
+            UserRequest request = UserRequest.builder().id(USER_ID).build();
 
-            doNothing().when(deleteUserPort).delete(eq("user-to-delete"), eq(VALID_AUTH_TOKEN));
+            doNothing().when(deleteUserPort).delete(eq(USER_ID), eq(VALID_AUTH_TOKEN));
 
             // Act
             IHttpResponse<Void> response = userController.delete(request, VALID_AUTH_TOKEN);
 
             // Assert
             assertThat(response).isNotNull();
-            verify(deleteUserPort).delete("user-to-delete", VALID_AUTH_TOKEN);
+            verify(deleteUserPort).delete(USER_ID, VALID_AUTH_TOKEN);
         }
     }
 

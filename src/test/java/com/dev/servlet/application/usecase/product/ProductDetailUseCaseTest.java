@@ -23,6 +23,7 @@ import org.mockito.quality.Strictness;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -40,9 +41,9 @@ import static org.mockito.Mockito.when;
 @DisplayName("ProductDetailUseCase Tests")
 class ProductDetailUseCaseTest {
 
-    private static final String USER_ID = "user-123";
+    private static final UUID USER_ID = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     private static final String AUTH_TOKEN = "Bearer valid.token";
-    private static final String PRODUCT_ID = "product-456";
+    private static final UUID PRODUCT_ID = UUID.fromString("223e4567-e89b-12d3-a456-426614174000");
     @Mock
     private ProductRepositoryPort repositoryPort;
     @Mock

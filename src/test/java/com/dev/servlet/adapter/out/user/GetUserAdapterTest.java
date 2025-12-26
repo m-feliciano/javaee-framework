@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -40,7 +41,7 @@ class GetUserAdapterTest {
         userRequest = new UserRequest(TEST_LOGIN, TEST_PASSWORD);
 
         user = User.builder()
-                .id("user-123")
+                .id(UUID.randomUUID())
                 .credentials(Credentials.builder()
                         .login(TEST_LOGIN)
                         .password(TEST_PASSWORD)
@@ -178,7 +179,7 @@ class GetUserAdapterTest {
 
             // Assert
             assertThat(result).isNotEmpty();
-            assertThat(result.get().getId()).isEqualTo("user-123");
+            assertThat(result.get().getId()).isEqualTo(user.getId());
         }
 
         @Test

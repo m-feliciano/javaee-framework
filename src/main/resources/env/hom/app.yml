@@ -42,6 +42,13 @@ provider:
   storage: s3
   broker: sqs
 
+smtp:
+  host: email-smtp.us-east-1.amazonaws.com
+  port: 587
+  from:
+    address:
+    name:
+
 s3:
   region: us-east-1
   bucket:

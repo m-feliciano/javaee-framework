@@ -15,6 +15,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.UUID;
+
 @Slf4j
 @ApplicationScoped
 public class DeleteProductUseCase implements DeleteProductPort {
@@ -32,7 +34,7 @@ public class DeleteProductUseCase implements DeleteProductPort {
     @Override
     public void delete(ProductRequest request, String auth) throws AppException {
         log.debug("DeleteProductUseCase: deleting product with id {}", request.id());
-        String userId = authenticationPort.extractUserId(auth);
+        UUID userId = authenticationPort.extractUserId(auth);
 
         Product product = productMapper.toProduct(request, userId);
         product = repositoryPort.find(product).orElseThrow(() -> new AppException("Product not found"));

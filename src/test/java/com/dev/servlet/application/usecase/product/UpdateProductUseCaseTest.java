@@ -23,6 +23,7 @@ import org.mockito.quality.Strictness;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -40,10 +41,10 @@ import static org.mockito.Mockito.when;
 @DisplayName("UpdateProductUseCase Tests")
 class UpdateProductUseCaseTest {
 
-    private static final String USER_ID = "user-123";
     private static final String AUTH_TOKEN = "Bearer valid.token";
-    private static final String PRODUCT_ID = "product-456";
-    private static final String CATEGORY_ID = "category-789";
+    private static final UUID USER_ID = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+    private static final UUID PRODUCT_ID = UUID.fromString("223e4567-e89b-12d3-a456-426614174000");
+    private static final UUID CATEGORY_ID = UUID.fromString("323e4567-e89b-12d3-a456-426614174000");
     @Mock
     private ProductRepositoryPort productRepositoryPort;
     @Mock
@@ -340,7 +341,7 @@ class UpdateProductUseCaseTest {
         @DisplayName("Should handle category change")
         void shouldHandleCategoryChange() {
             // Arrange
-            String newCategoryId = "new-category-999";
+            UUID newCategoryId = UUID.fromString("423e4567-e89b-12d3-a456-426614174000");
             CategoryRequest newCategory = CategoryRequest.builder()
                     .id(newCategoryId)
                     .build();

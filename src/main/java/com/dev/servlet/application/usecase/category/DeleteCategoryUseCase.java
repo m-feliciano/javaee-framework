@@ -13,6 +13,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.UUID;
+
 @Slf4j
 @ApplicationScoped
 public class DeleteCategoryUseCase implements DeleteCategoryPort {
@@ -27,7 +29,7 @@ public class DeleteCategoryUseCase implements DeleteCategoryPort {
     public void delete(CategoryRequest request, String auth) throws AppException {
         log.debug("DeleteCategoryUseCase called with request: {} and auth: {}", request, auth);
 
-        String userId = authenticationPort.extractUserId(auth);
+        UUID userId = authenticationPort.extractUserId(auth);
         CategoryResponse response = categoryDetailPort.get(request, auth);
         Category category = new Category(response.getId());
         category.setUser(new User(userId));

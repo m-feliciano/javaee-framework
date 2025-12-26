@@ -9,6 +9,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.UUID;
+
 import static jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
@@ -20,10 +22,10 @@ public class DeleteUserUseCase implements DeleteUserPort {
     @Inject
     private AuthenticationPort authPort;
 
-    public void delete(String userId, String auth) throws AppException {
+    public void delete(UUID userId, String auth) throws AppException {
         log.debug("DeleteUserUseCase: deleting user with id {}", userId);
 
-        if (!authPort.extractUserId(auth).trim().equals(userId.trim())) {
+        if (!authPort.extractUserId(auth).equals(userId)) {
             throw new AppException(SC_FORBIDDEN, "User not authorized.");
         }
 

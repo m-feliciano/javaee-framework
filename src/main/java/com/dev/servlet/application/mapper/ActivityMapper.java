@@ -8,6 +8,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
+import java.util.UUID;
+
 @Mapper(unmappedTargetPolicy = ReportingPolicy.WARN)
 public interface ActivityMapper {
     UserActivityLogResponse toResponse(UserActivityLog activityLog);
@@ -18,7 +20,7 @@ public interface ActivityMapper {
     @Mapping(target = "requestPayload", ignore = true)
     UserActivityLogResponse toResponseDashBoard(UserActivityLog activityLog);
 
-    default UserActivityLog toFilter(String userId, Query query) {
+    default UserActivityLog toFilter(UUID userId, Query query) {
         UserActivityLog filter = UserActivityLog.builder().userId(userId).build();
         if (query.parameters().get("status") != null) {
             String status = query.parameters().get("status").toUpperCase();

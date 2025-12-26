@@ -21,7 +21,7 @@ import jakarta.jms.TextMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
+import java.util.Arrays;
 
 import static com.dev.servlet.adapter.out.messaging.factory.MessageFactory.createConnectionFactory;
 import static com.dev.servlet.infrastructure.config.Properties.getEnv;
@@ -151,7 +151,7 @@ public class EmailJmsConsumer implements MessageListener {
     }
 
     private void safeClose() {
-        List.of(consumer, session, connection)
+        Arrays.asList(consumer, session, connection)
                 .forEach(c -> {
                     try {
                         c.close();

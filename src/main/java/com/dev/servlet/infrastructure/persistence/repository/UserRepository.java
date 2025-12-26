@@ -16,10 +16,11 @@ import jakarta.persistence.criteria.Root;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 @RequestScoped
 @NoArgsConstructor
-public class UserRepository extends BaseRepository<User, String> implements UserRepositoryPort {
+public class UserRepository extends BaseRepository<User, UUID> implements UserRepositoryPort {
 
     public static final String CREDENTIALS = "credentials";
 
@@ -73,7 +74,7 @@ public class UserRepository extends BaseRepository<User, String> implements User
     }
 
     @Override
-    public void updateCredentials(String userId, Credentials credentials) {
+    public void updateCredentials(UUID userId, Credentials credentials) {
         executeInTransaction(() -> {
             CriteriaBuilder cb = em.getCriteriaBuilder();
             CriteriaUpdate<User> cu = cb.createCriteriaUpdate(User.class);

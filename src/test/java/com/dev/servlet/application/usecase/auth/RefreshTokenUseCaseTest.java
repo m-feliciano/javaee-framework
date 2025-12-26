@@ -21,6 +21,7 @@ import org.mockito.quality.Strictness;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -38,14 +39,16 @@ import static org.mockito.Mockito.when;
 @DisplayName("RefreshTokenUseCase Tests")
 class RefreshTokenUseCaseTest {
 
-    private static final String OLD_REFRESH_TOKEN = "Bearer old.refresh.token";
     private static final String OLD_TOKEN_RAW = "old.refresh.token";
-    private static final String NEW_ACCESS_TOKEN = "Bearer new.access.token";
-    private static final String NEW_REFRESH_TOKEN = "Bearer new.refresh.token";
     private static final String NEW_TOKEN_RAW = "new.refresh.token";
-    private static final String USER_ID = "user-123";
-    private static final String OLD_TOKEN_ID = "rt-old-123";
-    private static final String NEW_TOKEN_ID = "rt-new-456";
+    private static final String OLD_REFRESH_TOKEN = "Bearer old.refresh.token";
+    private static final String NEW_REFRESH_TOKEN = "Bearer new.refresh.token";
+    private static final String NEW_ACCESS_TOKEN = "Bearer new.access.token";
+
+    private static final UUID OLD_TOKEN_ID = UUID.fromString("111e4567-e89b-12d3-a456-426614174000");
+    private static final UUID NEW_TOKEN_ID = UUID.fromString("222e4567-e89b-12d3-a456-426614174000");
+    private static final UUID USER_ID = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+
     @Mock
     private AuthenticationPort authenticationPort;
     @Mock

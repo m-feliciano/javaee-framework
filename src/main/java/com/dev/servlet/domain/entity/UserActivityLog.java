@@ -1,21 +1,22 @@
 package com.dev.servlet.domain.entity;
 
 import com.dev.servlet.domain.entity.enums.ActivityStatus;
+import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -27,11 +28,9 @@ import java.time.LocalDateTime;
 public class UserActivityLog {
     @Id
     @Column(name = "id", updatable = false)
-    @GeneratedValue(generator = "short-uuid")
-    @GenericGenerator(name = "short-uuid", strategy = "com.dev.servlet.shared.util.ShortUuidGenerator")
-    private String id;
-    @Column(name = "user_id", nullable = false)
-    private String userId;
+    private UUID id;
+    @Column(name = "user_id", updatable = false)
+    private UUID userId;
     @Column(name = "action", nullable = false, length = 100)
     private String action;
     @Column(name = "entity_type", length = 50)
@@ -63,4 +62,10 @@ public class UserActivityLog {
     private LocalDateTime timestamp;
     @Column(name = "user_agent", length = 500)
     private String userAgent;
+
+    @PrePersist
+    protected void onCreate() {
+        if (id == null) id = UuidCreator.getTimeOrdered();
+        if (timestamp == null) timestamp = LocalDateTime.now();
+    }
 }

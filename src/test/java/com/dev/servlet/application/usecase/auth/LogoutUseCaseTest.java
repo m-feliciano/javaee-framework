@@ -13,8 +13,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import java.util.UUID;
+
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
@@ -28,7 +29,7 @@ import static org.mockito.Mockito.when;
 class LogoutUseCaseTest {
 
     private static final String AUTH_TOKEN = "Bearer valid.jwt.token";
-    private static final String USER_ID = "user-123";
+    private static final UUID USER_ID = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     @Mock
     private AuthenticationPort authenticationPort;
     @Mock
@@ -102,8 +103,8 @@ class LogoutUseCaseTest {
 
             // Assert
             verify(authenticationPort).extractUserId(AUTH_TOKEN);
-            verify(repositoryPort, never()).revokeAll(anyString());
-            verify(cachePort, never()).clearAll(anyString());
+            verify(repositoryPort, never()).revokeAll(org.mockito.ArgumentMatchers.any(UUID.class));
+            verify(cachePort, never()).clearAll(org.mockito.ArgumentMatchers.any(UUID.class));
         }
 
         @Test
@@ -172,4 +173,3 @@ class LogoutUseCaseTest {
         }
     }
 }
-

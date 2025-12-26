@@ -22,6 +22,7 @@ import org.mockito.quality.Strictness;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,9 +38,9 @@ import static org.mockito.Mockito.when;
 @DisplayName("RegisterProductUseCase Tests")
 class RegisterProductUseCaseTest {
 
-    private static final String USER_ID = "user-123";
     private static final String AUTH_TOKEN = "Bearer valid.token";
-    private static final String PRODUCT_ID = "product-456";
+    private static final UUID USER_ID = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+    private static final UUID PRODUCT_ID = UUID.fromString("223e4567-e89b-12d3-a456-426614174000");
     @Mock
     private ProductRepositoryPort repositoryPort;
     @Mock
@@ -50,7 +51,6 @@ class RegisterProductUseCaseTest {
     private RegisterProductUseCase registerProductUseCase;
     private ProductRequest productRequest;
     private Product product;
-    private Product savedProduct;
 
     @BeforeEach
     void setUp() {
@@ -67,7 +67,7 @@ class RegisterProductUseCaseTest {
                 .owner(User.builder().id(USER_ID).build())
                 .build();
 
-        savedProduct = Product.builder()
+        Product savedProduct = Product.builder()
                 .id(PRODUCT_ID)
                 .name("Test Product")
                 .price(new BigDecimal("99.99"))

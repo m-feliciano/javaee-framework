@@ -8,6 +8,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.UUID;
+
 @Slf4j
 @ApplicationScoped
 public class LogoutUseCase implements LogoutPort {
@@ -23,7 +25,7 @@ public class LogoutUseCase implements LogoutPort {
         log.debug("LogoutUseCase: logging out user");
 
         try {
-            String userId = authenticationPort.extractUserId(auth);
+            UUID userId = authenticationPort.extractUserId(auth);
             repositoryPort.revokeAll(userId);
             cachePort.clearAll(userId);
         } catch (Exception ignored) {

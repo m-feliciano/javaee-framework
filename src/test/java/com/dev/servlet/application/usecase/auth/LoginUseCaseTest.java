@@ -29,10 +29,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Testes simplificados para LoginUseCase focando no fluxo de autenticação
- * sem mockar classes estáticas problemáticas como PasswordHasher e Properties.
- */
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("LoginUseCase Tests")
@@ -40,10 +36,10 @@ class LoginUseCaseTest {
 
     private static final String TEST_LOGIN = "testuser@example.com";
     private static final String TEST_PASSWORD = "password123";
-    private static final String USER_ID = "user-123";
     private static final String ACCESS_TOKEN = "Bearer access.token.jwt";
     private static final String REFRESH_TOKEN = "Bearer refresh.token.jwt";
     private static final String ON_SUCCESS = "redirect:/home";
+
     @Mock
     private GetUserPort userPort;
     @Mock

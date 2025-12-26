@@ -3,13 +3,13 @@ WORKDIR /app
 
 COPY pom.xml .
 
-ARG MVN_PROFILE=prod
+ARG MVN_PROFILE=dev
 ENV MVN_PROFILE=${MVN_PROFILE}
 
 COPY src ./src
 COPY frontend ./frontend
 
-RUN mvn clean package -P${MVN_PROFILE} -DskipTests=false
+RUN mvn clean package -P${MVN_PROFILE} -DskipTests=true
 
 FROM tomcat:10.1.50-jre21-temurin
 

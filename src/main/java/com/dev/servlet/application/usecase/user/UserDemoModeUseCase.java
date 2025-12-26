@@ -43,7 +43,7 @@ public class UserDemoModeUseCase implements UserDemoModePort {
         }
 
         User user;
-        var maybe = repositoryPort.find(new User(credentials.login()));
+        var maybe = repositoryPort.find(new User(credentials.login(), null));
         if (maybe.isPresent()) {
             user = maybe.get();
 

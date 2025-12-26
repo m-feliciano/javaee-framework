@@ -20,7 +20,7 @@ Focused on performance, security, and a clear structure for modern backend appli
 - Weld CDI, Hibernate, Ehcache
 - JJWT, Jackson, SLF4J/Logback
 - JUnit 5 + Mockito
-- PostgreSQL, OkHttp
+- PostgreSQL 16+, OkHttp
 - Maven 3.6+
 - AWS SDK v2
 - Docker & Kubernetes

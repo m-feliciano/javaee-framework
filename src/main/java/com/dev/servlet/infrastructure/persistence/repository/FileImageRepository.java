@@ -5,6 +5,7 @@ import com.dev.servlet.application.port.out.image.FileImageRepositoryPort;
 import com.dev.servlet.domain.entity.FileImage;
 import com.dev.servlet.domain.entity.enums.Status;
 import com.dev.servlet.infrastructure.persistence.repository.base.BaseRepository;
+import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.enterprise.context.RequestScoped;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,7 @@ import java.util.UUID;
 @Slf4j
 @NoArgsConstructor
 @RequestScoped
-public class FileImageRepository extends BaseRepository<FileImage, String> implements FileImageRepositoryPort {
+public class FileImageRepository extends BaseRepository<FileImage, UUID> implements FileImageRepositoryPort {
 
     @Override
     public Collection<FileImage> findAll(FileImage object) {
@@ -40,15 +41,15 @@ public class FileImageRepository extends BaseRepository<FileImage, String> imple
 
                 try (var ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                     for (FileImage entity : images) {
-                        entity.setId(UUID.randomUUID().toString());
+                        entity.setId(UuidCreator.getTimeOrdered());
 
-                        ps.setString(1, entity.getId());
+                        ps.setObject(1, entity.getId());
                         ps.setString(2, entity.getFileName());
                         ps.setString(3, entity.getFileType());
                         ps.setString(4, entity.getUri());
                         ps.setString(5, Status.ACTIVE.getValue());
-                        ps.setString(6, entity.getProduct() != null ? entity.getProduct().getId() : null);
-                        ps.setString(7, entity.getUser() != null ? entity.getUser().getId() : null);
+                        ps.setObject(6, entity.getProduct() != null ? entity.getProduct().getId() : null);
+                        ps.setObject(7, entity.getUser() != null ? entity.getUser().getId() : null);
                         ps.addBatch();
                     }
 

@@ -33,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.UUID;
 
 @Slf4j
 @ApplicationScoped
@@ -126,9 +127,14 @@ public class InventoryController extends BaseController implements InventoryCont
     }
 
     private ProductResponse loadProductDetails(Query query, String auth) throws AppException {
-        if (query == null || !query.has("productId")) return null;
+        if (query == null) return null;
+
         String productId = query.get("productId");
-        ProductRequest request = ProductRequest.builder().id(productId).build();
+        if (productId == null || productId.isBlank()) return null;
+
+        ProductRequest request = ProductRequest.builder()
+                .id(UUID.fromString(productId))
+                .build();
         return productDetailPort.get(request, auth);
     }
 }

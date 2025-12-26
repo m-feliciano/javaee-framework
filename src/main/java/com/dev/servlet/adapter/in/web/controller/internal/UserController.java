@@ -113,8 +113,7 @@ public class UserController extends BaseController implements UserControllerApi 
     @SneakyThrows
     @Override
     public IHttpResponse<Void> resendConfirmation(User user) {
-        ResendConfirmationRequest req = new ResendConfirmationRequest(user.getId());
-        resendConfirmationUseCase.resend(req);
+        resendConfirmationUseCase.resend(new ResendConfirmationRequest(user.getId()));
         return HttpResponse.<Void>next(FORM_LOGIN_FORM).build();
     }
 

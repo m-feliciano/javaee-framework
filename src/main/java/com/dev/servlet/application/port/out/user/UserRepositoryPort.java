@@ -4,10 +4,11 @@ import com.dev.servlet.domain.entity.Credentials;
 import com.dev.servlet.domain.entity.User;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public interface UserRepositoryPort {
 
-    Optional<User> findById(String userId);
+    Optional<User> findById(UUID userId);
 
     User update(User user);
 
@@ -17,6 +18,6 @@ public interface UserRepositoryPort {
 
     void delete(User user);
 
-    void updateCredentials(String userId, Credentials credentials);
+    void updateCredentials(UUID userId, Credentials credentials);
 }
 

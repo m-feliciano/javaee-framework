@@ -8,6 +8,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import java.util.UUID;
+
 import static org.mockito.Mockito.lenient;
 
 /**
@@ -20,8 +22,7 @@ public abstract class BaseControllerTest {
 
     protected static final String VALID_AUTH_TOKEN = "Bearer valid.jwt.token";
     protected static final String INVALID_AUTH_TOKEN = "Bearer invalid.token";
-    protected static final String USER_ID = "test-user-123";
-    protected static final String ADMIN_USER_ID = "admin-user-456";
+    protected static final UUID USER_ID = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     @Mock
     protected AuthenticationPort authenticationPort;
 
@@ -58,4 +59,3 @@ public abstract class BaseControllerTest {
         assert actual.contains(expectedPage) : "Response should contain page: " + expectedPage;
     }
 }
-

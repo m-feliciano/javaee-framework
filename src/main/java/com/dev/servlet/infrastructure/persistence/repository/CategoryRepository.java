@@ -20,11 +20,12 @@ import org.hibernate.Session;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @NoArgsConstructor
 @RequestScoped
-public class CategoryRepository extends BaseRepository<Category, String> implements CategoryRepositoryPort {
+public class CategoryRepository extends BaseRepository<Category, UUID> implements CategoryRepositoryPort {
 
     @Override
     public List<Category> findAll(Category category) {
@@ -73,14 +74,16 @@ public class CategoryRepository extends BaseRepository<Category, String> impleme
                 for (Category category : categories) {
                     ps.setString(1, category.getName());
                     ps.setString(2, Status.ACTIVE.getValue());
-                    ps.setString(3, category.getUser().getId());
+                    ps.setObject(3, category.getUser().getId());
                     ps.addBatch();
                 }
+
                 ps.executeBatch();
+
                 try (var rs = ps.getGeneratedKeys()) {
                     int i = 0;
                     while (rs.next()) {
-                        categories.get(i).setId(rs.getString(1));
+                        categories.get(i).setId(UUID.fromString(rs.getString(1)));
                         i++;
                     }
                 }
@@ -88,7 +91,7 @@ public class CategoryRepository extends BaseRepository<Category, String> impleme
         });
 
         commitTransaction(true);
-
+        closeEm();
         return categories;
     }
 

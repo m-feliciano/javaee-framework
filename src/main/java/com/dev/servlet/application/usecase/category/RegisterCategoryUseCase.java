@@ -33,7 +33,6 @@ public class RegisterCategoryUseCase implements RegisterCategoryPort {
         category.setUser(user);
         category.setStatus(Status.ACTIVE.getValue());
         category = categoryRepositoryPort.save(category);
-
-        return new CategoryResponse(category.getId());
+        return CategoryResponse.builder().id(category.getId()).build();
     }
 }

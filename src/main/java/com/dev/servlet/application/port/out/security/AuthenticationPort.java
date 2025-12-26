@@ -3,12 +3,13 @@ package com.dev.servlet.application.port.out.security;
 import com.dev.servlet.domain.entity.User;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface AuthenticationPort {
 
     boolean validateToken(String token);
 
-    String extractUserId(String token);
+    UUID extractUserId(String token);
 
     List<Integer> extractRoles(String token);
 

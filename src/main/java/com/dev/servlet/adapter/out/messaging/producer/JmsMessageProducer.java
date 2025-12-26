@@ -2,14 +2,14 @@ package com.dev.servlet.adapter.out.messaging.producer;
 
 import com.dev.servlet.adapter.out.messaging.Message;
 import com.dev.servlet.adapter.out.messaging.factory.MessageFactory;
-import com.dev.servlet.application.port.out.MessagePort;
+import com.dev.servlet.application.port.out.AsyncMessagePort;
 import com.dev.servlet.domain.enums.MessageType;
+import com.dev.servlet.infrastructure.annotations.Provider;
 import com.dev.servlet.infrastructure.config.Properties;
 import com.dev.servlet.shared.util.CloneUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Named;
 import jakarta.jms.Connection;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.DeliveryMode;
@@ -24,8 +24,8 @@ import static com.dev.servlet.infrastructure.config.Properties.getEnvOrDefault;
 
 @Slf4j
 @ApplicationScoped
-@Named("jmsMessageProducer")
-public class JmsMessageProducer implements MessagePort {
+@Provider("jms")
+public class JmsMessageProducer implements AsyncMessagePort {
     private static final String EMAIL_EXCHANGE_QUEUE = "email.exchange.queue";
 
     private Connection connection;

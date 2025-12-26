@@ -22,38 +22,35 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Date;
 
+import static com.dev.servlet.adapter.out.messaging.email.EmailTemplates.changeEmailHtml;
+import static com.dev.servlet.adapter.out.messaging.email.EmailTemplates.changeEmailPlain;
+import static com.dev.servlet.adapter.out.messaging.email.EmailTemplates.emailConfirmationHtml;
+import static com.dev.servlet.adapter.out.messaging.email.EmailTemplates.emailConfirmationPlain;
+import static com.dev.servlet.adapter.out.messaging.email.EmailTemplates.subjectChangeEmail;
+import static com.dev.servlet.adapter.out.messaging.email.EmailTemplates.subjectEmailConfirmation;
+import static com.dev.servlet.adapter.out.messaging.email.EmailTemplates.subjectWelcome;
+import static com.dev.servlet.adapter.out.messaging.email.EmailTemplates.welcomeHtml;
+import static com.dev.servlet.adapter.out.messaging.email.EmailTemplates.welcomePlain;
+
 @Slf4j
 @NoArgsConstructor
 @ApplicationScoped
 @Named("smtpEmailSender")
 public class SmtpEmailSender implements MessagePort {
     private boolean smtpPrecheck = false;
-    private String smtpHost;
-    private String smtpPort;
-    private String smtpUser;
-    private String smtpPass;
-    private String smtpFrom;
-    private String smtpFromName;
     private java.util.Properties props;
 
     @PostConstruct
     public void init() {
-        smtpHost = Properties.getEnv("SMTP_HOST");
-        smtpPort = Properties.getEnv("SMTP_PORT");
-        smtpUser = Properties.getEnv("SMTP_USER");
-        smtpPass = Properties.getEnv("SMTP_PASS");
-        smtpFrom = Properties.getEnvOrDefault("SMTP_FROM", "no-reply@localhost");
-        smtpFromName = Properties.getEnvOrDefault("SMTP_FROM_NAME", "ServletStack");
+        props = Properties.loadSmtpProperties();
 
-        if (smtpHost != null && smtpPort != null) {
+        if (props.getProperty("mail.smtp.host") != null && props.getProperty("mail.smtp.port") != null) {
             if (!(smtpPrecheck = ensureConnection())) {
                 log.warn("SMTP precheck failed; email sending will be disabled until connectivity is restored.");
             } else {
                 log.info("SMTP precheck succeeded; email sending enabled.");
             }
         }
-
-        props = defaultProperties();
     }
 
     @Override
@@ -69,28 +66,43 @@ public class SmtpEmailSender implements MessagePort {
 
     @Override
     public void sendConfirmation(String to, String link) {
-        final String subject = "Sign Up Confirmation";
-        if (!smtpPrecheck || smtpHost == null || smtpPort == null || smtpUser == null || smtpPass == null) {
+        String subject = subjectEmailConfirmation();
+        if (!isSmtpConfigSetUp()) {
             log.info("[EMAIL-DRYRUN] To={} Subject={} Body={}", to, subject, null);
             return;
         }
 
-        sendEmail(to, props, subject, generateEmailConfirmationPlainText(link), generateEmailConfirmationHtml(link));
+        sendEmail(to, subject, emailConfirmationPlain(link), emailConfirmationHtml(link));
+    }
+
+    private boolean isSmtpConfigSetUp() {
+        return smtpPrecheck &&
+               props.getProperty("mail.smtp.host") != null &&
+               props.getProperty("mail.smtp.port") != null &&
+               props.getProperty("mail.smtp.user") != null &&
+               props.getProperty("mail.smtp.pass") != null;
     }
 
     @Override
     public void sendWelcome(String email) {
-        final String subject = "Welcome!";
-        if (!smtpPrecheck || smtpHost == null || smtpPort == null || smtpUser == null || smtpPass == null) {
+        String subject = subjectWelcome();
+        if (!isSmtpConfigSetUp()) {
             log.info("[EMAIL-DRYRUN] To={} Subject={}", email, subject);
             return;
         }
 
-        sendEmail(email, props, subject, generateEmailWelcomePlainText(), generateEmailWelcomeHtml());
+        sendEmail(email, subject, welcomePlain(), welcomeHtml());
     }
 
-    private void sendEmail(String to, java.util.Properties props, String subject, String plain, String html) {
+    private void sendEmail(String to, String subject, String plain, String html) {
         try {
+            String smtpHost = props.getProperty("mail.smtp.host");
+            String smtpPort = props.getProperty("mail.smtp.port");
+            String smtpUser = props.getProperty("mail.smtp.user");
+            String smtpPass = props.getProperty("mail.smtp.pass");
+            String smtpFrom = props.getProperty("mail.smtp.from.address");
+            String smtpFromName = props.getProperty("smtp.from.name", "NoReply");
+
             log.info("Preparing SMTP session for host={} port={}", smtpHost, smtpPort);
 
             Session session = Session.getInstance(props, new Authenticator() {
@@ -128,19 +140,10 @@ public class SmtpEmailSender implements MessagePort {
         }
     }
 
-    private java.util.Properties defaultProperties() {
-        java.util.Properties props = new java.util.Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", smtpHost);
-        props.put("mail.smtp.port", smtpPort);
-        props.put("mail.smtp.connectiontimeout", "10000");
-        props.put("mail.smtp.timeout", "10000");
-        props.put("mail.smtp.writetimeout", "10000");
-        return props;
-    }
-
     private boolean ensureConnection() {
+        String smtpHost = props.getProperty("mail.smtp.host");
+        String smtpPort = props.getProperty("mail.smtp.port");
+
         try (Socket sock = new Socket()) {
             int port = Integer.parseInt(smtpPort);
             sock.connect(new InetSocketAddress(smtpHost, port), 5000);
@@ -153,92 +156,6 @@ public class SmtpEmailSender implements MessagePort {
     }
 
     private void sendChangeEmail(String email, String link) {
-        String html = """
-                <html>
-                    <body>
-                        <div>
-                        <h2>Change Email Request</h2>
-                        <p>Please confirm your email change request by clicking the link below:</p>
-                        <p><a href="%s">Confirm Email Change</a></p>
-                        <p>If you did not request this change, please ignore this email.</p>
-                        </div>
-                    </body>
-                </html>
-                """.formatted(link);
-        String plain = "Please confirm your email change request.";
-        String subject = "Confirm your email change";
-        sendEmail(email, props, subject, plain, html);
-    }
-
-    private String generateEmailConfirmationPlainText(String confirmation) {
-        return """
-                Hello,
-                Please confirm your registration using the link below:
-                %s
-                The link expires in 1 hour.
-                If you did not request this, please ignore this message.
-                Support: no-reply@localhost
-                """.formatted(confirmation);
-    }
-
-    private String generateEmailConfirmationHtml(String confirmationLink) {
-        return """
-                <html lang="en">
-                  <head>
-                    <meta charset="utf-8"/>
-                    <style>
-                      .btn { display:inline-block; padding:12px 22px; background:#667eea; color:#fff; text-decoration:none; border-radius:8px; }
-                      .container { font-family: Arial, Helvetica, sans-serif; color:#111; line-height:1.4; }
-                      .footer { color:#6b7280; font-size:13px; margin-top:18px; }
-                    </style>
-                  </head>
-                  <body>
-                    <div class="container">
-                      <h2>Confirm your email</h2>
-                      <p>Hello,</p>
-                      <p>Click the button below to confirm your email. The link expires in 1 hour.</p>
-                      <p><a class="btn" href="%s" target="_blank">Confirm email</a></p>
-                      <p class="footer">
-                        If the button doesn't work, copy and paste this link into your browser:<br/>
-                        %s
-                      </p>
-                      <p class="footer">If you did not request this, simply ignore this email.</p>
-                    </div>
-                  </body>
-                </html>
-                """.formatted(confirmationLink, confirmationLink);
-    }
-
-    private String generateEmailWelcomePlainText() {
-        return """
-                Welcome to Our Service!
-                
-                We're excited to have you on board. Thank you for joining us!
-                
-                If you have any questions or need assistance, feel free to reach out to our support team.
-                
-                Best regards
-                """;
-    }
-
-    private String generateEmailWelcomeHtml() {
-        return """
-                <html lang="en">
-                  <head>
-                    <meta charset="utf-8"/>
-                    <style>
-                      .container { font-family: Arial, Helvetica, sans-serif; color:#111; line-height:1.4; }
-                    </style>
-                  </head>
-                  <body>
-                    <div class="container">
-                      <h2>Welcome to Our Service!</h2>
-                      <p>We're excited to have you on board. Thank you for joining us!</p>
-                      <p>If you have any questions or need assistance, feel free to reach out to our support team.</p>
-                      <p>Best regards</p>
-                    </div>
-                  </body>
-                </html>
-                """;
+        sendEmail(email, subjectChangeEmail(), changeEmailPlain(link), changeEmailHtml(link));
     }
 }

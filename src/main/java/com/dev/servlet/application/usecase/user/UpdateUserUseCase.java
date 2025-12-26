@@ -5,7 +5,7 @@ import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.in.user.GenerateConfirmationTokenPort;
 import com.dev.servlet.application.port.in.user.UpdateUserPort;
 import com.dev.servlet.application.port.in.user.UserDetailsPort;
-import com.dev.servlet.application.port.out.MessagePort;
+import com.dev.servlet.application.port.out.AsyncMessagePort;
 import com.dev.servlet.application.port.out.alert.AlertPort;
 import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.application.port.out.user.UserRepositoryPort;
@@ -19,17 +19,16 @@ import com.dev.servlet.infrastructure.config.Properties;
 import com.dev.servlet.infrastructure.utils.PasswordHasher;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Slf4j
 @ApplicationScoped
 public class UpdateUserUseCase implements UpdateUserPort {
     @Inject
-    @Named("sqsMessageProducer")
-    private MessagePort messagePort;
+    private AsyncMessagePort messagePort;
     @Inject
     private AuthenticationPort authPort;
     @Inject
@@ -42,7 +41,7 @@ public class UpdateUserUseCase implements UpdateUserPort {
     private GenerateConfirmationTokenPort generateConfirmationTokenPort;
 
     public UserResponse update(UserRequest userRequest, String auth) throws AppException {
-        String userId = authPort.extractUserId(auth);
+        UUID userId = authPort.extractUserId(auth);
 
         if (Properties.isDemoModeEnabled()) {
             log.warn("UpdateUserUseCase: update users is not allowed in demo mode");

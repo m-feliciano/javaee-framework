@@ -13,6 +13,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 
+import java.util.UUID;
+
 @Mapper(unmappedTargetPolicy = ReportingPolicy.WARN)
 public interface ProductMapper {
     @Mapping(target = "thumbUrl", source = "thumbnails", qualifiedByName = "firstElement")
@@ -25,7 +27,7 @@ public interface ProductMapper {
     Product scrapeToProduct(ProductWebScrapeDTO productWebScrapeDTO);
 
     @Mapping(target = "owner", expression = "java(new com.dev.servlet.domain.entity.User(userId))")
-    Product toProduct(ProductRequest product, String userId);
+    Product toProduct(ProductRequest product, UUID userId);
 
     default Product queryToProduct(Query query, User user) {
         ProductRequest.ProductRequestBuilder builder = ProductRequest.builder();
@@ -35,7 +37,11 @@ public interface ProductMapper {
             } else if ("name".equals(k)) {
                 builder.name(v.trim());
             } else if ("category".equals(k)) {
-                builder.category(CategoryRequest.builder().id(v.trim()).build());
+                builder.category(
+                        CategoryRequest.builder()
+                                .id(UUID.fromString(v))
+                                .build()
+                );
             }
         });
         return toProduct(builder.build(), user.getId());

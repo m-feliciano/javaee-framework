@@ -2,15 +2,17 @@ package com.dev.servlet.application.transfer.response;
 
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
 public final class InventoryResponse {
-    private String id;
+    private UUID id;
     private Integer quantity;
     private String description;
     private String status;
     private ProductResponse product;
 
-    public InventoryResponse(String id) {
+    public InventoryResponse(UUID id) {
         this.id = id;
     }
 }

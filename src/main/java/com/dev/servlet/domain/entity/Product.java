@@ -1,14 +1,15 @@
 package com.dev.servlet.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,13 +18,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.ColumnTransformer;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Where;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -37,9 +38,7 @@ import java.util.List;
 public class Product {
     @Id
     @Column(name = "id", updatable = false)
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    private String id;
+    private UUID id;
 
     @Column(name = "name", length = 100, nullable = false)
     private String name;
@@ -67,8 +66,13 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    public Product(String id) {
+    public Product(UUID id) {
         this.id = id;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        if (id == null) id = UuidCreator.getTimeOrdered();
     }
 
     public void setCategory(Category category) {

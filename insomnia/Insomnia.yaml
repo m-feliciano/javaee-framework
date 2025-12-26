@@ -1,0 +1,557 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: Development
+meta:
+  id: wrk_9f65861401164a069bef8b086da99d47
+  created: 1766098145667
+  modified: 1766099119043
+  description: ""
+collection:
+  - url: http://localhost:8080/api/v1/auth/login
+    name: POST auth:login
+    meta:
+      id: req_bb95900da3664ae79a04d181c0ca237f
+      created: 1766096992418
+      modified: 1766150981734
+      isPrivate: false
+      description: ""
+      sortKey: -1766096992418
+    method: POST
+    body:
+      mimeType: multipart/form-data
+      params:
+        - name: login
+          value: example@email.com
+        - name: password
+          value: "12345678"
+    headers:
+      - name: Accept
+        value: application/json
+      - name: Accept-Language
+        value: en-US,en;q=0.9
+      - name: Cache-Control
+        value: max-age=0
+      - name: Connection
+        value: keep-alive
+      - name: Content-Type
+        value: multipart/form-data
+      - name: sec-ch-ua
+        value: '"Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"'
+      - name: sec-ch-ua-mobile
+        value: ?0
+      - name: sec-ch-ua-platform
+        value: '"Windows"'
+      - name: Sec-Fetch-Dest
+        value: document
+      - name: Sec-Fetch-Mode
+        value: navigate
+      - name: Sec-Fetch-Site
+        value: same-origin
+      - name: Sec-Fetch-User
+        value: ?1
+      - name: Upgrade-Insecure-Requests
+        value: "1"
+      - name: User-Agent
+        value: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like
+          Gecko) Chrome/143.0.0.0 Safari/537.36
+      - name: Cookie
+        value: XSRF-TOKEN={{ _.XSRF_TOKEN }}; accessToken={{ _.ACCESS_TOKEN }}
+    scripts:
+      afterResponse: |
+        const res = insomnia.response;
+
+        if (!res || !res.headers) {
+          console.warn('No response or headers');
+          return;
+        }
+
+        function getCookie(name) {
+          const found = res.headers.filter(h =>
+            h.value.startsWith(name + '=')
+          );
+
+          if (!found.length) return null;
+
+          return decodeURIComponent(
+            found[0].value.split(';')[0].split('=')[1]
+          );
+        }
+
+        const xsrfToken    = getCookie('XSRF-TOKEN');
+        const accessToken  = getCookie('accessToken');
+        const refreshToken = getCookie('refreshToken');
+
+        if (xsrfToken) {
+          insomnia.environment.set('XSRF_TOKEN', xsrfToken);
+          console.log('XSRF_TOKEN stored');
+        }
+
+        if (accessToken) {
+          insomnia.environment.set('ACCESS_TOKEN', accessToken);
+          console.log('ACCESS_TOKEN stored');
+        }
+
+        if (refreshToken) {
+          insomnia.environment.set('REFRESH_TOKEN', refreshToken);
+          console.log('REFRESH_TOKEN stored');
+        }
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: false
+        store: false
+      rebuildPath: true
+  - url: http://localhost:8080/api/v1/user/me
+    name: GET user_me
+    meta:
+      id: req_08e27534f49b4fbd89e430569b36ce18
+      created: 1766096992420
+      modified: 1766114260954
+      isPrivate: false
+      description: ""
+      sortKey: -1766096992420
+    method: GET
+    headers:
+      - name: Accept
+        value: application/json
+      - name: Accept-Language
+        value: en-US,en;q=0.9
+      - name: Cache-Control
+        value: max-age=0
+      - name: Connection
+        value: keep-alive
+      - name: Cookie
+        value: XSRF-TOKEN={{ _.XSRF_TOKEN }}; accessToken={{ _.ACCESS_TOKEN }}
+        disabled: false
+      - name: Referer
+        value: http://localhost:8080/api/v1/product/list/?page=1&limit=3&sort=registerDate&order=desc
+      - name: sec-ch-ua
+        value: '"Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"'
+      - name: sec-ch-ua-mobile
+        value: ?0
+      - name: sec-ch-ua-platform
+        value: '"Windows"'
+      - name: Sec-Fetch-Dest
+        value: document
+      - name: Sec-Fetch-Mode
+        value: navigate
+      - name: Sec-Fetch-Site
+        value: same-origin
+      - name: Sec-Fetch-User
+        value: ?1
+      - name: Upgrade-Insecure-Requests
+        value: "1"
+      - name: User-Agent
+        value: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like
+          Gecko) Chrome/143.0.0.0 Safari/537.36
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: false
+        store: false
+      rebuildPath: true
+  - url: http://localhost:8080/api/v1/category/list
+    name: GET categories
+    meta:
+      id: req_5d0ae7725cd24972af794515cc5ea291
+      created: 1766096992421
+      modified: 1766098709765
+      isPrivate: false
+      description: ""
+      sortKey: -1766096992421
+    method: GET
+    headers:
+      - name: Accept
+        value: application/json
+      - name: Accept-Language
+        value: en-US,en;q=0.9
+      - name: Cache-Control
+        value: max-age=0
+      - name: Connection
+        value: keep-alive
+      - name: Cookie
+        value: accessToken={{ _.ACCESS_TOKEN }}
+      - name: sec-ch-ua
+        value: '"Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"'
+      - name: sec-ch-ua-mobile
+        value: ?0
+      - name: sec-ch-ua-platform
+        value: '"Windows"'
+      - name: Sec-Fetch-Dest
+        value: document
+      - name: Sec-Fetch-Mode
+        value: navigate
+      - name: Sec-Fetch-Site
+        value: same-origin
+      - name: Sec-Fetch-User
+        value: ?1
+      - name: Upgrade-Insecure-Requests
+        value: "1"
+      - name: User-Agent
+        value: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like
+          Gecko) Chrome/143.0.0.0 Safari/537.36
+    scripts:
+      afterResponse: |-
+        const res = insomnia.response;
+        if (!res || !res.headers) {
+            console.warn('No response or headers');
+            return;
+        }
+        const xsrfHeader = res.headers.filter(h => {
+            return h.value.startsWith('XSRF-TOKEN=');
+        });
+        if (!xsrfHeader.length) {
+            console.warn('XSRF-TOKEN cookie not found');
+            return;
+        }
+        const token = xsrfHeader[0].value.split(';')[0].split('=')[1];
+        insomnia.environment.set('XSRF_TOKEN', decodeURIComponent(token));
+        console.log('XSRF_TOKEN stored');
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: false
+        store: false
+      rebuildPath: true
+  - url: http://localhost:8080/api/v1/category/update/1f0e1ef2-7d4f-65db-8f90-174244067c95
+    name: POST category
+    meta:
+      id: req_e98c9c9fe0694c37a4afa46beb82bca7
+      created: 1766096992422
+      modified: 1766708643756
+      isPrivate: false
+      description: ""
+      sortKey: -1766096992422
+    method: POST
+    body:
+      mimeType: multipart/form-data
+      params:
+        - name: name
+          value: NOVWWWW
+    headers:
+      - name: Accept
+        value: application/json
+      - name: Accept-Language
+        value: en-US,en;q=0.9
+      - name: Cache-Control
+        value: max-age=0
+      - name: Connection
+        value: keep-alive
+      - name: Content-Type
+        value: multipart/form-data
+      - name: sec-ch-ua
+        value: '"Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"'
+      - name: Sec-Fetch-Site
+        value: same-origin
+      - name: Upgrade-Insecure-Requests
+        value: "1"
+      - name: User-Agent
+        value: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like
+          Gecko) Chrome/143.0.0.0 Safari/537.36
+      - name: Cookie
+        value: accessToken={{ _.ACCESS_TOKEN }}; XSRF-TOKEN={{ _.XSRF_TOKEN }}
+      - name: X-XSRF-TOKEN
+        value: "{{ _.XSRF_TOKEN }}"
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: false
+        store: false
+      rebuildPath: true
+  - url: http://localhost:8080/api/v1/product/list/?page=1&limit=100&sort=registerDate&order=desc
+    name: GET products
+    meta:
+      id: req_455454e79a7b406bb09719dc074c9e14
+      created: 1766098722189
+      modified: 1766711931966
+      isPrivate: false
+      description: ""
+      sortKey: -1766096992420.5
+    method: GET
+    headers:
+      - name: Accept
+        value: application/json
+      - name: Accept-Language
+        value: en-US,en;q=0.9
+      - name: Cache-Control
+        value: max-age=0
+      - name: Connection
+        value: keep-alive
+      - name: Cookie
+        value: accessToken={{ _.ACCESS_TOKEN }}
+      - name: sec-ch-ua
+        value: '"Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"'
+      - name: sec-ch-ua-mobile
+        value: ?0
+      - name: sec-ch-ua-platform
+        value: '"Windows"'
+      - name: Sec-Fetch-Dest
+        value: document
+      - name: Sec-Fetch-Mode
+        value: navigate
+      - name: Sec-Fetch-Site
+        value: same-origin
+      - name: Sec-Fetch-User
+        value: ?1
+      - name: Upgrade-Insecure-Requests
+        value: "1"
+      - name: User-Agent
+        value: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like
+          Gecko) Chrome/143.0.0.0 Safari/537.36
+    scripts:
+      afterResponse: |-
+        const res = insomnia.response;
+        if (!res || !res.headers) {
+            console.warn('No response or headers');
+            return;
+        }
+        const xsrfHeader = res.headers.filter(h => {
+            return h.value.startsWith('XSRF-TOKEN=');
+        });
+        if (!xsrfHeader.length) {
+            console.warn('XSRF-TOKEN cookie not found');
+            return;
+        }
+        const token = xsrfHeader[0].value.split(';')[0].split('=')[1];
+        insomnia.environment.set('XSRF_TOKEN', decodeURIComponent(token));
+        console.log('XSRF_TOKEN stored');
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: false
+        store: false
+      rebuildPath: true
+  - url: http://localhost:8080/api/v2/user/upload-photo
+    name: POST user:profile-picture
+    meta:
+      id: req_8535ac26ff5a4b6681b2c74ca0437a28
+      created: 1766106140322
+      modified: 1766153841728
+      isPrivate: false
+      description: ""
+      sortKey: -1764093637638
+    method: POST
+    body:
+      mimeType: multipart/form-data
+      params:
+        - name: file
+          value: ""
+          description: ""
+          disabled: false
+          fileName: your\absolute_path\63392556-f8f1-4ba1-9696-409535209dbc.jpg
+          type: file
+    headers:
+      - name: Accept
+        value: application/json
+      - name: Accept-Language
+        value: en-US,en;q=0.9
+      - name: Cache-Control
+        value: max-age=0
+      - name: Connection
+        value: keep-alive
+      - name: Content-Type
+        value: multipart/form-data
+      - name: sec-ch-ua
+        value: '"Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"'
+      - name: sec-ch-ua-mobile
+        value: ?0
+      - name: sec-ch-ua-platform
+        value: '"Windows"'
+      - name: Sec-Fetch-Dest
+        value: document
+      - name: Sec-Fetch-Mode
+        value: navigate
+      - name: Sec-Fetch-Site
+        value: same-origin
+      - name: Sec-Fetch-User
+        value: ?1
+      - name: Upgrade-Insecure-Requests
+        value: "1"
+      - name: User-Agent
+        value: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like
+          Gecko) Chrome/143.0.0.0 Safari/537.36
+      - name: Cookie
+        value: XSRF-TOKEN={{ _.XSRF_TOKEN }}; accessToken={{ _.ACCESS_TOKEN }}
+      - name: X-XSRF-TOKEN
+        value: "{{ _.XSRF_TOKEN }}"
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: false
+        store: false
+      rebuildPath: true
+  - url: http://localhost:8080/api/v1/user/update
+    name: POST user:update
+    meta:
+      id: req_0081766277c14ca5bd50ab7762b4b9d5
+      created: 1766106354454
+      modified: 1766106394151
+      isPrivate: false
+      description: ""
+      sortKey: -1763091960248
+    method: POST
+    body:
+      mimeType: multipart/form-data
+      params:
+        - name: login
+          value: example@email.com
+          description: ""
+          disabled: false
+          multiline: false
+          fileName: your\absolute_path\4f9b314c-c963-4ebb-b643-edc436cb1bcb.jpg
+          type: text
+        - name: password
+          value: "87654321"
+          description: ""
+          disabled: false
+    headers:
+      - name: Accept
+        value: application/json
+      - name: Accept-Language
+        value: en-US,en;q=0.9
+      - name: Cache-Control
+        value: max-age=0
+      - name: Connection
+        value: keep-alive
+      - name: Content-Type
+        value: multipart/form-data
+      - name: sec-ch-ua
+        value: '"Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"'
+      - name: sec-ch-ua-mobile
+        value: ?0
+      - name: sec-ch-ua-platform
+        value: '"Windows"'
+      - name: Sec-Fetch-Dest
+        value: document
+      - name: Sec-Fetch-Mode
+        value: navigate
+      - name: Sec-Fetch-Site
+        value: same-origin
+      - name: Sec-Fetch-User
+        value: ?1
+      - name: Upgrade-Insecure-Requests
+        value: "1"
+      - name: User-Agent
+        value: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like
+          Gecko) Chrome/143.0.0.0 Safari/537.36
+      - name: Cookie
+        value: XSRF-TOKEN={{ _.XSRF_TOKEN }}; accessToken={{ _.ACCESS_TOKEN }}
+      - name: X-XSRF-TOKEN
+        value: "{{ _.XSRF_TOKEN }}"
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: false
+        store: false
+      rebuildPath: true
+  - url: http://localhost:8080/api/v1/product/scrape
+    name: POST product/scrape
+    meta:
+      id: req_b05c51c73e204151ab5cfd8501df3ab9
+      created: 1766235415844
+      modified: 1766711535412
+      isPrivate: false
+      description: ""
+      sortKey: -1766235415844
+    method: POST
+    headers:
+      - name: User-Agent
+        value: insomnia/12.2.0
+        description: ""
+        disabled: false
+      - name: Cookie
+        value: accessToken={{ _.ACCESS_TOKEN }}; XSRF-TOKEN={{ _.XSRF_TOKEN }}
+        description: ""
+        disabled: false
+      - name: X-XSRF-TOKEN
+        value: "{{ _.XSRF_TOKEN }}"
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/api/v2/auth/refresh-token
+    name: POST refresh-token
+    meta:
+      id: req_4e8172d1285c4f37b3fbf1f495e38688
+      created: 1766709537263
+      modified: 1766710856170
+      isPrivate: false
+      description: ""
+      sortKey: -1766709537263
+    method: POST
+    body:
+      mimeType: multipart/form-data
+      params:
+        - name: refreshToken
+          value: "{{ _.REFRESH_TOKEN }}"
+          description: ""
+          disabled: false
+    headers:
+      - name: Content-Type
+        value: multipart/form-data
+      - name: User-Agent
+        value: insomnia/12.2.0
+        description: ""
+        disabled: false
+      - name: Cookie
+        value: XSRF-TOKEN={{ _.XSRF_TOKEN }};
+        description: ""
+        disabled: false
+      - name: X-XSRF-TOKEN
+        value: "{{ _.XSRF_TOKEN }}"
+        description: ""
+        disabled: false
+      - name: Accept
+        value: application/json
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: false
+        store: false
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_413fc0ba50234f65a6f8469bc2a25760
+    created: 1766096992426
+    modified: 1766712008405
+environments:
+  name: Base Environment
+  meta:
+    id: env_c41b785bc3134757874aeccba6579f2f
+    created: 1766096992423
+    modified: 1766712008406
+    isPrivate: false
+  data:
+    # The scripts will update these tokens automatically
+    ACCESS_TOKEN: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJTZXJ2bGV0Iiwic3ViIjoiQXV0aGVudGljYXRpb24iLCJ1c2VyIjoiMWYwZTFlZWUtNjU2ZS02ODQwLThmOTAtMTc0MjQ0MDY3Yzk1Iiwicm9sZXMiOlsyXSwiaWF0IjoxNzY2NzExNDMwLCJleHAiOjE3NjY3OTc4MzAsImp0aSI6IjhkZjEwZmViLTUyMjMtNGU0Ny1iOGUzLTJhMzdkMGZkYmZkMiJ9.xgdGuOVOp_cUxLUWb_ilwr1Ieuas7JlF3vJgoDpBQm_9vNhbflB9SBha2Gpdyt1IFNiMCMb9FrFh4VGPQjJf3g
+    REFRESH_TOKEN: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJTZXJ2bGV0Iiwic3ViIjoiUmVmcmVzaCIsInVzZXIiOiIxZjBlMWVlZS02NTZlLTY4NDAtOGY5MC0xNzQyNDQwNjdjOTUiLCJpYXQiOjE3NjY3MTE0MzAsImV4cCI6MTc2OTMwMzQzMCwianRpIjoiOTJmMDZkM2YtNjNjZC00ZDQ4LWI2ZjctM2Q4NTFkMWM4OTJjIn0.TYPHTmVr6VuWcEEHJ7MPjrkcd5ivPhYgQw5MYd2_vL0Y98AJb6y7jlRWR1ZKzoU96njdvzRhgzJhxloi7fVz5A
+    XSRF_TOKEN: BNr7k7wZSeEJPzbZfL0JHlWWGdGUurWqFOgSM3yNtKw

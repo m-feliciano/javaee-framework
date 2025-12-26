@@ -14,6 +14,7 @@ import org.ehcache.config.builders.ResourcePoolsBuilder;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -63,7 +64,7 @@ public class CacheAdapter implements CachePort {
     }
 
     @Override
-    public void set(String namespace, String key, Object value) {
+    public void set(String namespace, UUID key, Object value) {
         log.debug("set namespace {}, key {}", namespace, key);
 
         String cacheKey = compoundKey(namespace, key);
@@ -71,7 +72,7 @@ public class CacheAdapter implements CachePort {
     }
 
     @Override
-    public void set(String namespace, String key, Object value, Duration cacheTtl) {
+    public void set(String namespace, UUID key, Object value, Duration cacheTtl) {
         log.debug("set namespace {}, key {}", namespace, key);
 
         String cacheKey = compoundKey(namespace, key);
@@ -83,7 +84,7 @@ public class CacheAdapter implements CachePort {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T get(String namespace, String key) {
+    public <T> T get(String namespace, UUID key) {
         String cacheKey = compoundKey(namespace, key);
         T cached = (T) cache.get(cacheKey);
         log.debug("Cache get for key: {} returned: {}", cacheKey, cached != null ? "HIT" : "MISS");
@@ -91,7 +92,7 @@ public class CacheAdapter implements CachePort {
     }
 
     @Override
-    public void clear(String namespace, String key) {
+    public void clear(String namespace, UUID key) {
         String cacheKey = compoundKey(namespace, key);
         log.debug("Clearing cache {} for key: {}", namespace, key);
         cache.remove(cacheKey);
@@ -108,11 +109,11 @@ public class CacheAdapter implements CachePort {
     }
 
     @Override
-    public void clearSuffix(String namespace, String userId) {
+    public void clearSuffix(String namespace, UUID key) {
         Thread.ofVirtual()
                 .name("cache-clear-suffix-%d")
                 .start(() -> {
-                    final String suffix = compoundKey(namespace, userId);
+                    final String suffix = compoundKey(namespace, key);
                     cache.forEach(entry -> {
                         if (entry.getKey().endsWith(suffix)) {
                             cache.remove(entry.getKey());
@@ -122,7 +123,7 @@ public class CacheAdapter implements CachePort {
                 });
     }
 
-    public void clearAll(String key) {
+    public void clearAll(UUID key) {
         for (Cache.Entry<String, Object> entry : cache) {
             if (entry.getKey().endsWith(":" + key)) {
                 cache.remove(entry.getKey());
@@ -137,7 +138,7 @@ public class CacheAdapter implements CachePort {
         log.info("CacheManager closed");
     }
 
-    private String compoundKey(String namespace, String key) {
+    private String compoundKey(String namespace, UUID key) {
         return namespace + ":" + key;
     }
 }

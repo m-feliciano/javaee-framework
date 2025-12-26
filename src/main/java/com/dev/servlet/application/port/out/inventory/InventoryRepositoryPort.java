@@ -7,6 +7,7 @@ import com.dev.servlet.infrastructure.persistence.transfer.IPageable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface InventoryRepositoryPort {
     Optional<Inventory> find(Inventory inventory);
@@ -17,7 +18,7 @@ public interface InventoryRepositoryPort {
 
     boolean has(Inventory inventory);
 
-    Optional<Inventory> findById(String id);
+    Optional<Inventory> findById(UUID id);
 
     Inventory save(Inventory inventory);
 

@@ -54,8 +54,8 @@ public class UpdateProductThumbUseCase implements UpdateProductThumbPort {
             throw new AppException("Image size exceeds 1MB.");
         }
 
-        String userId = authPort.extractUserId(auth);
-        String productId = Objects.requireNonNull(request.id(), "Product ID is required");
+        UUID userId = authPort.extractUserId(auth);
+        UUID productId = Objects.requireNonNull(request.id(), "Product ID is required");
 
         Product product = Product.builder()
                 .id(productId)

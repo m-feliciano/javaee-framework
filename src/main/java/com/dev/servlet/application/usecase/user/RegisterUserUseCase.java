@@ -4,7 +4,7 @@ import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.in.user.GenerateConfirmationTokenPort;
 import com.dev.servlet.application.port.in.user.RegisterUserPort;
 import com.dev.servlet.application.port.in.user.UserDemoModePort;
-import com.dev.servlet.application.port.out.MessagePort;
+import com.dev.servlet.application.port.out.AsyncMessagePort;
 import com.dev.servlet.application.port.out.user.UserRepositoryPort;
 import com.dev.servlet.application.transfer.request.LoginRequest;
 import com.dev.servlet.application.transfer.request.UserCreateRequest;
@@ -18,7 +18,6 @@ import com.dev.servlet.infrastructure.utils.PasswordHasher;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
-import jakarta.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -32,8 +31,7 @@ public class RegisterUserUseCase implements RegisterUserPort {
     @Inject
     private UserRepositoryPort repositoryPort;
     @Inject
-    @Named("sqsMessageProducer")
-    private MessagePort messagePort;
+    private AsyncMessagePort messagePort;
     @Inject
     private GenerateConfirmationTokenPort generateConfirmationTokenPort;
     // Only for demo purposes

@@ -6,6 +6,7 @@ import com.dev.servlet.domain.entity.Product;
 import com.dev.servlet.domain.entity.enums.Status;
 import com.dev.servlet.infrastructure.persistence.repository.base.BaseRepository;
 import com.dev.servlet.shared.util.CollectionUtils;
+import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
@@ -35,7 +36,7 @@ import java.util.UUID;
 @Slf4j
 @NoArgsConstructor
 @RequestScoped
-public class ProductRepository extends BaseRepository<Product, String> implements ProductRepositoryPort {
+public class ProductRepository extends BaseRepository<Product, UUID> implements ProductRepositoryPort {
 
     private Predicate buildDefaultFilter(Product product, CriteriaBuilder criteriaBuilder, Root<Product> root) {
         Predicate predicate = criteriaBuilder.notEqual(root.get(STATUS), Status.DELETED.getValue());
@@ -139,7 +140,7 @@ public class ProductRepository extends BaseRepository<Product, String> implement
         Predicate predicate = buildDefaultFilter(filter, builder, root);
 
         query.where(predicate).select(builder.sum(root.get("price")));
-        BigDecimal totalPrice = em.createQuery(query).getSingleResult();
+        BigDecimal totalPrice = em.createQuery(query).getSingleResultOrNull();
         return ObjectUtils.getIfNull(totalPrice, BigDecimal.ZERO);
     }
 
@@ -157,23 +158,16 @@ public class ProductRepository extends BaseRepository<Product, String> implement
                 """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             for (Product product : products) {
-                String productId = UUID.randomUUID().toString();
-                product.setId(productId);
+                product.setId(UuidCreator.getTimeOrdered());
 
-                ps.setString(1, productId);
+                ps.setObject(1, product.getId());
                 ps.setString(2, product.getName());
                 ps.setString(3, product.getDescription());
                 ps.setDate(4, Date.valueOf(product.getRegisterDate()));
                 ps.setBigDecimal(5, product.getPrice());
-                ps.setString(6, product.getOwner().getId());
+                ps.setObject(6, product.getOwner().getId());
                 ps.setString(7, Status.ACTIVE.getValue());
-
-                if (product.getCategory() != null) {
-                    ps.setString(8, product.getCategory().getId());
-                } else {
-                    ps.setNull(8, Types.VARCHAR);
-                }
-
+                ps.setObject(8, product.getCategory());
                 ps.addBatch();
             }
 

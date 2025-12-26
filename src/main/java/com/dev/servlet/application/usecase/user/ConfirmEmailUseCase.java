@@ -2,7 +2,7 @@ package com.dev.servlet.application.usecase.user;
 
 import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.in.user.ConfirmEmailPort;
-import com.dev.servlet.application.port.out.MessagePort;
+import com.dev.servlet.application.port.out.AsyncMessagePort;
 import com.dev.servlet.application.port.out.confirmtoken.ConfirmationTokenRepositoryPort;
 import com.dev.servlet.application.port.out.user.UserRepositoryPort;
 import com.dev.servlet.application.transfer.request.ConfirmEmailRequest;
@@ -11,7 +11,6 @@ import com.dev.servlet.domain.entity.User;
 import com.dev.servlet.domain.entity.enums.Status;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
@@ -24,8 +23,7 @@ public class ConfirmEmailUseCase implements ConfirmEmailPort {
     @Inject
     private UserRepositoryPort repositoryPort;
     @Inject
-    @Named("smtpEmailSender")
-    private MessagePort messagePort;
+    private AsyncMessagePort messagePort;
 
     public void confirm(ConfirmEmailRequest token) throws AppException {
         log.debug("ConfirmEmailUseCase: confirming email with token {}", token.token());

@@ -20,7 +20,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.slf4j.MDC;
+
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -289,7 +290,7 @@ class FrontControllerServletTest {
             // Arrange
             com.dev.servlet.application.transfer.response.UserResponse userResponse =
                     com.dev.servlet.application.transfer.response.UserResponse.builder()
-                            .id("user-123")
+                            .id(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
                             .token("auth-token")
                             .refreshToken("refresh-token")
                             .build();
@@ -354,7 +355,7 @@ class FrontControllerServletTest {
             // Arrange
             com.dev.servlet.application.transfer.response.UserResponse userResponse =
                     com.dev.servlet.application.transfer.response.UserResponse.builder()
-                            .id("user-123")
+                            .id(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
                             .token("auth-token")
                             .refreshToken("refresh-token")
                             .build();
@@ -381,7 +382,7 @@ class FrontControllerServletTest {
             // Arrange
             com.dev.servlet.application.transfer.response.UserResponse userResponse =
                     com.dev.servlet.application.transfer.response.UserResponse.builder()
-                            .id("user-123")
+                            .id(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
                             .build();
 
             IHttpResponse userHttpResponse = HttpResponse.ok(userResponse).build();

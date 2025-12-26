@@ -13,6 +13,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.UUID;
+
 @Slf4j
 @ApplicationScoped
 public class GetCategoryDetailUseCase implements GetCategoryDetailPort {
@@ -27,11 +29,11 @@ public class GetCategoryDetailUseCase implements GetCategoryDetailPort {
     public CategoryResponse get(CategoryRequest request, String auth) throws AppException {
         log.debug("GetCategoryDetailUseCase called with request: {} and auth: {}", request, auth);
 
-        String userId = authenticationPort.extractUserId(auth);
+        UUID userId = authenticationPort.extractUserId(auth);
         return categoryMapper.toResponse(findById(request.id(), userId));
     }
 
-    private Category findById(String entityId, String userId) throws AppException {
+    private Category findById(UUID entityId, UUID userId) throws AppException {
         Category category = Category.builder()
                 .id(entityId)
                 .user(new User(userId))

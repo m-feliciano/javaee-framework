@@ -4,9 +4,10 @@ import com.dev.servlet.domain.entity.enums.ActivityStatus;
 import com.dev.servlet.shared.vo.AuditPayload;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 public interface LogUserActivityPort {
 
-    void logActivity(String userId, ActivityStatus outcome, AuditPayload<?, ?> payload, HashMap<String, Object> metadata);
+    void logActivity(UUID userId, ActivityStatus outcome, AuditPayload<?, ?> payload, HashMap<String, Object> metadata);
 }
 

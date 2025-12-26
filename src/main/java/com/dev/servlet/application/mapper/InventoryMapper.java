@@ -11,6 +11,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
+import java.util.UUID;
+
 @Mapper(unmappedTargetPolicy = ReportingPolicy.WARN)
 public interface InventoryMapper {
     String PRODUCT_RESPONSE_TEMPLATE = """
@@ -39,11 +41,16 @@ public interface InventoryMapper {
         String description = "description";
 
         query.parameters().forEach((k, v) -> {
-            if (product.equals(k)) prodBuilder.id(v.trim());
+            if (product.equals(k)) prodBuilder.id(UUID.fromString(v));
             else {
                 if (name.equals(k)) prodBuilder.name(v.trim());
 
-                else if (category.equals(k)) prodBuilder.category(CategoryRequest.builder().id(v.trim()).build());
+                else if (category.equals(k))
+                    prodBuilder.category(
+                            CategoryRequest.builder()
+                                    .id(UUID.fromString(v.trim()))
+                                    .build()
+                    );
 
                 else if (description.equals(k)) builder.description(v.trim());
             }

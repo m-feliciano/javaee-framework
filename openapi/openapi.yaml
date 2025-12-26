@@ -169,6 +169,9 @@ components:
             timestamp: "2024-12-19T10:30:00Z"
 
   schemas:
+    UUID:
+      type: string
+      format: uuid
     LoginRequest:
       type: object
       required: [login, password]
@@ -214,7 +217,7 @@ components:
       type: object
       properties:
         id:
-          type: string
+          $ref: '#/components/schemas/UUID'
         name:
           type: string
         login:
@@ -266,9 +269,7 @@ components:
       type: object
       properties:
         id:
-          type: string
-          format: uuid
-          description: Category identifier
+          $ref: '#/components/schemas/UUID'
         name:
           type: string
           minLength: 2
@@ -302,9 +303,7 @@ components:
       type: object
       properties:
         id:
-          type: string
-          format: uuid
-          description: Product identifier
+          $ref: '#/components/schemas/UUID'
         name:
           type: string
           minLength: 2
@@ -649,6 +648,54 @@ paths:
                   message:
                     type: string
                     example: Logout successful
+  /v2/auth/refresh-token:
+    post:
+      tags: [ Auth ]
+      summary: Refresh authentication token
+      description: |
+        **V2 API** - Refreshes the authentication token by issuing a new one.
+
+        **Flow:**
+        1. Client sends request with refresh token
+        2. Server validates existing token
+        3. Server returns new authentication
+      operationId: refreshToken
+      x-api-version: v2
+      x-rpc-action: RefreshAuthToken
+      x-requires-auth: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+                  description: Refresh token
+            example:
+              refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: New access token
+                  refreshToken:
+                    type: string
+                    description: New refresh token
+              example:
+                token: "newlyGeneratedAccessTokenValue"
+                refreshToken: "newlyGeneratedRefreshTokenValue"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
   # ==================== USER ENDPOINTS ====================
   /v1/user/update:
@@ -928,6 +975,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: Category details
@@ -947,6 +995,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: Category deleted
@@ -962,6 +1011,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: Category details
@@ -981,6 +1031,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -1072,6 +1123,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: Product details
@@ -1195,6 +1247,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: Product found
@@ -1214,6 +1267,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -1235,6 +1289,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: Product deleted
@@ -1293,6 +1348,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -1394,6 +1450,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: Inventory deleted
@@ -1409,6 +1466,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: Inventory found
@@ -1428,6 +1486,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: Inventory details
@@ -1447,6 +1506,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -1493,6 +1553,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: Activity details

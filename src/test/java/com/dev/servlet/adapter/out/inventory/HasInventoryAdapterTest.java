@@ -13,6 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -22,6 +24,10 @@ import static org.mockito.Mockito.when;
 class HasInventoryAdapterTest {
 
     private static final String AUTH_TOKEN = "Bearer valid.token";
+    private static final UUID INVENTORY_ID = UUID.fromString("323e4567-e89b-12d3-a456-426614174000");
+    private static final UUID USER_ID = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+    private static final UUID PRODUCT_ID = UUID.fromString("223e4567-e89b-12d3-a456-426614174000");
+
     @Mock
     private InventoryRepositoryPort repositoryPort;
     @InjectMocks
@@ -31,9 +37,9 @@ class HasInventoryAdapterTest {
     @BeforeEach
     void setUp() {
         inventory = Inventory.builder()
-                .id("inventory-123")
-                .user(User.builder().id("user-123").build())
-                .product(Product.builder().id("product-456").build())
+                .id(INVENTORY_ID)
+                .user(User.builder().id(USER_ID).build())
+                .product(Product.builder().id(PRODUCT_ID).build())
                 .quantity(10)
                 .build();
     }
@@ -93,7 +99,7 @@ class HasInventoryAdapterTest {
         void shouldCheckInventoryWithZeroQuantity() {
             // Arrange
             Inventory emptyInventory = Inventory.builder()
-                    .id("inventory-empty")
+                    .id(UUID.fromString("333e4567-e89b-12d3-a456-426614174000"))
                     .quantity(0)
                     .build();
             when(repositoryPort.has(emptyInventory)).thenReturn(true);
@@ -110,8 +116,8 @@ class HasInventoryAdapterTest {
         void shouldCheckInventoryWithoutId() {
             // Arrange
             Inventory noIdInventory = Inventory.builder()
-                    .user(User.builder().id("user-123").build())
-                    .product(Product.builder().id("product-456").build())
+                    .user(User.builder().id(USER_ID).build())
+                    .product(Product.builder().id(PRODUCT_ID).build())
                     .quantity(5)
                     .build();
             when(repositoryPort.has(noIdInventory)).thenReturn(false);
@@ -124,4 +130,3 @@ class HasInventoryAdapterTest {
         }
     }
 }
-

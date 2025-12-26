@@ -17,6 +17,7 @@ import org.mockito.Mock;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -25,10 +26,6 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Test suite for CategoryController implementation via CategoryControllerApi interface.
- * Tests category CRUD operations including creation, update, deletion, and listing.
- */
 @DisplayName("CategoryController Tests")
 class CategoryControllerTest extends BaseControllerTest {
 
@@ -64,24 +61,22 @@ class CategoryControllerTest extends BaseControllerTest {
         void shouldRegisterCategory() {
             // Arrange
             CategoryRequest request = CategoryRequest.builder()
-                    .name("Electronics")
-                    .status("ACTIVE")
+                    .name("New Category")
                     .build();
 
-            CategoryResponse expectedResponse = new CategoryResponse("cat-123");
-            expectedResponse.setName("Electronics");
-            expectedResponse.setStatus("ACTIVE");
+            UUID uuid = UUID.randomUUID();
 
-            when(registerPort.register(any(CategoryRequest.class), eq(VALID_AUTH_TOKEN)))
-                    .thenReturn(expectedResponse);
+            CategoryResponse expectedResponse = CategoryResponse.builder().id(uuid).build();
+            expectedResponse.setName("New Category");
+            when(registerPort.register(any(CategoryRequest.class), any())).thenReturn(expectedResponse);
 
             // Act
             IHttpResponse<Void> response = categoryController.register(request, VALID_AUTH_TOKEN);
 
             // Assert
             assertThat(response).isNotNull();
-            assertThat(response.next()).contains("redirect:");
-            assertThat(response.next()).contains("cat-123");
+            assertThat(response.statusCode()).isEqualTo(201);
+            assertThat(response.next()).contains(uuid.toString());
 
             verify(registerPort).register(request, VALID_AUTH_TOKEN);
         }
@@ -91,7 +86,7 @@ class CategoryControllerTest extends BaseControllerTest {
         void shouldReturn201OnSuccess() {
             // Arrange
             CategoryRequest request = CategoryRequest.builder().name("Test").build();
-            CategoryResponse response = new CategoryResponse("new-cat");
+            CategoryResponse response = CategoryResponse.builder().id(UUID.randomUUID()).build();
 
             when(registerPort.register(any(), any())).thenReturn(response);
 
@@ -111,24 +106,21 @@ class CategoryControllerTest extends BaseControllerTest {
         @DisplayName("Should update category successfully")
         void shouldUpdateCategory() {
             // Arrange
+            UUID uuid = UUID.randomUUID();
             CategoryRequest request = CategoryRequest.builder()
-                    .id("cat-123")
-                    .name("Updated Electronics")
+                    .id(uuid)
+                    .name("Updated Category")
                     .build();
-
-            CategoryResponse expectedResponse = new CategoryResponse("cat-123");
-            expectedResponse.setName("Updated Electronics");
-
-            when(updatePort.update(any(CategoryRequest.class), eq(VALID_AUTH_TOKEN)))
-                    .thenReturn(expectedResponse);
+            CategoryResponse expectedResponse = CategoryResponse.builder().id(uuid).build();
+            expectedResponse.setName("Updated Category");
+            when(updatePort.update(any(CategoryRequest.class), any())).thenReturn(expectedResponse);
 
             // Act
-            IHttpResponse<Void> response = categoryController.update(request, VALID_AUTH_TOKEN);
-
+            var response = categoryController.update(request, VALID_AUTH_TOKEN);
             // Assert
             assertThat(response).isNotNull();
-            assertThat(response.next()).contains("redirect:");
-            assertThat(response.next()).contains("cat-123");
+            assertThat(response.statusCode()).isEqualTo(204);
+            assertThat(response.next()).contains(uuid.toString());
 
             verify(updatePort).update(request, VALID_AUTH_TOKEN);
         }
@@ -136,11 +128,13 @@ class CategoryControllerTest extends BaseControllerTest {
         @Test
         @DisplayName("Should return 204 status on successful update")
         void shouldReturn204OnUpdate() {
+            UUID uuid = UUID.randomUUID();
+
             // Arrange
-            CategoryRequest request = CategoryRequest.builder().id("cat-123").build();
+            CategoryRequest request = CategoryRequest.builder().id(uuid).build();
 
             when(updatePort.update(any(), any()))
-                    .thenReturn(new CategoryResponse("cat-123"));
+                    .thenReturn(CategoryResponse.builder().id(uuid).build());
 
             // Act
             IHttpResponse<Void> response = categoryController.update(request, VALID_AUTH_TOKEN);
@@ -159,7 +153,7 @@ class CategoryControllerTest extends BaseControllerTest {
         void shouldDeleteCategory() {
             // Arrange
             CategoryRequest request = CategoryRequest.builder()
-                    .id("cat-to-delete")
+                    .id(UUID.randomUUID())
                     .build();
 
             doNothing().when(deletePort).delete(any(CategoryRequest.class), eq(VALID_AUTH_TOKEN));
@@ -179,7 +173,7 @@ class CategoryControllerTest extends BaseControllerTest {
         @DisplayName("Should redirect to list after deletion")
         void shouldRedirectToListAfterDeletion() {
             // Arrange
-            CategoryRequest request = CategoryRequest.builder().id("cat-123").build();
+            CategoryRequest request = CategoryRequest.builder().id(UUID.randomUUID()).build();
 
             doNothing().when(deletePort).delete(any(), any());
 
@@ -201,13 +195,13 @@ class CategoryControllerTest extends BaseControllerTest {
             // Arrange
             CategoryRequest filter = CategoryRequest.builder().build();
 
-            CategoryResponse cat1 = new CategoryResponse("cat-1");
+            CategoryResponse cat1 = CategoryResponse.builder().id(UUID.randomUUID()).build();
             cat1.setName("Electronics");
 
-            CategoryResponse cat2 = new CategoryResponse("cat-2");
+            CategoryResponse cat2 = CategoryResponse.builder().id(UUID.randomUUID()).build();
             cat2.setName("Books");
 
-            CategoryResponse cat3 = new CategoryResponse("cat-3");
+            CategoryResponse cat3 = CategoryResponse.builder().id(UUID.randomUUID()).build();
             cat3.setName("Clothing");
 
             List<CategoryResponse> expectedCategories = List.of(cat1, cat2, cat3);
@@ -231,9 +225,10 @@ class CategoryControllerTest extends BaseControllerTest {
         @DisplayName("Should retrieve category details by ID")
         void shouldGetCategoryDetails() {
             // Arrange
-            CategoryRequest request = CategoryRequest.builder().id("cat-123").build();
+            UUID uuid = UUID.randomUUID();
+            CategoryRequest request = CategoryRequest.builder().id(uuid).build();
 
-            CategoryResponse expectedCategory = new CategoryResponse("cat-123");
+            CategoryResponse expectedCategory = CategoryResponse.builder().id(uuid).build();
             expectedCategory.setName("Electronics");
             expectedCategory.setStatus("ACTIVE");
 
@@ -254,10 +249,11 @@ class CategoryControllerTest extends BaseControllerTest {
         @Test
         @DisplayName("Should get category detail for display")
         void shouldGetCategoryDetail() {
+            UUID uuid = UUID.randomUUID();
             // Arrange
-            CategoryRequest request = CategoryRequest.builder().id("cat-123").build();
+            CategoryRequest request = CategoryRequest.builder().id(uuid).build();
 
-            CategoryResponse expectedCategory = new CategoryResponse("cat-123");
+            CategoryResponse expectedCategory = CategoryResponse.builder().id(uuid).build();
             expectedCategory.setName("Books");
 
             when(detailPort.get(any(CategoryRequest.class), eq(VALID_AUTH_TOKEN)))
@@ -328,12 +324,13 @@ class CategoryControllerTest extends BaseControllerTest {
         @DisplayName("Should handle all CRUD operations")
         void shouldHandleCrudOperations() {
             // Arrange
+            UUID uuid = UUID.randomUUID();
             CategoryRequest request = CategoryRequest.builder()
-                    .id("cat-test")
+                    .id(uuid)
                     .name("Test Category")
                     .build();
 
-            CategoryResponse response = new CategoryResponse("cat-test");
+            CategoryResponse response = CategoryResponse.builder().id(uuid).build();
             response.setName("Test Category");
 
             when(registerPort.register(any(), any())).thenReturn(response);
@@ -352,4 +349,3 @@ class CategoryControllerTest extends BaseControllerTest {
         }
     }
 }
-

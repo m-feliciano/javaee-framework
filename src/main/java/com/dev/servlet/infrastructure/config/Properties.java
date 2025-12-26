@@ -148,4 +148,23 @@ public final class Properties {
         }
         return List.of(array);
     }
+
+    public static java.util.Properties loadSmtpProperties() {
+        var props = new java.util.Properties();
+
+        props.put("mail.smtp.user", getEnv("SMTP_USER"));
+        props.put("mail.smtp.pass", getEnv("SMTP_PASS"));
+
+        props.put("mail.smtp.host", get("smtp.host"));
+        props.put("mail.smtp.port", get("smtp.port"));
+        props.put("mail.smtp.from.address", get("smtp.from.address"));
+        props.put("mail.smtp.from.name", get("smtp.from.name"));
+
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.connectiontimeout", "10000");
+        props.put("mail.smtp.timeout", "10000");
+        props.put("mail.smtp.writetimeout", "10000");
+        return props;
+    }
 }

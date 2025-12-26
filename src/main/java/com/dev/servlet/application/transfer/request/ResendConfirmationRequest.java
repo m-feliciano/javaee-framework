@@ -1,5 +1,7 @@
 package com.dev.servlet.application.transfer.request;
 
-public record ResendConfirmationRequest(String userId) {
+import java.util.UUID;
+
+public record ResendConfirmationRequest(UUID userId) {
 }
 

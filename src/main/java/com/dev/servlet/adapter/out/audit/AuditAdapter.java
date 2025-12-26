@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
@@ -79,7 +80,7 @@ public class AuditAdapter implements AuditPort {
             try {
                 requestContextController.activate();
 
-                String userId = null;
+                UUID userId = null;
                 if (token != null && !token.isBlank()) {
                     try {
                         userId = authenticationPort.extractUserId(token);

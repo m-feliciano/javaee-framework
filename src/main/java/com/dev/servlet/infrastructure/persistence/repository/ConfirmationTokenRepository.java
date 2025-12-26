@@ -12,9 +12,10 @@ import jakarta.persistence.criteria.Root;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RequestScoped
-public class ConfirmationTokenRepository extends BaseRepository<ConfirmationToken, String> implements ConfirmationTokenRepositoryPort {
+public class ConfirmationTokenRepository extends BaseRepository<ConfirmationToken, UUID> implements ConfirmationTokenRepositoryPort {
 
     @Override
     public Collection<ConfirmationToken> findAll(ConfirmationToken object) {
@@ -37,7 +38,7 @@ public class ConfirmationTokenRepository extends BaseRepository<ConfirmationToke
     }
 
     @Override
-    public boolean existsValidTokenForUser(String userId) {
+    public boolean existsValidTokenForUser(UUID userId) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<ConfirmationToken> root = query.from(ConfirmationToken.class);
@@ -50,7 +51,7 @@ public class ConfirmationTokenRepository extends BaseRepository<ConfirmationToke
                 )
         );
 
-        Long count = em.createQuery(query).getSingleResult();
+        Long count = em.createQuery(query).getSingleResultOrNull();
         return count != null && count > 0;
     }
 }

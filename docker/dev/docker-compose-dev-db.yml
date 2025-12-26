@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:15-alpine
+    image: postgres:18-alpine
     mem_limit: 512m
     container_name: dev_postgres
     restart: unless-stopped

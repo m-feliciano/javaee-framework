@@ -1,14 +1,14 @@
 package com.dev.servlet.adapter.out.messaging.producer;
 
 import com.dev.servlet.adapter.out.messaging.Message;
-import com.dev.servlet.application.port.out.MessagePort;
+import com.dev.servlet.application.port.out.AsyncMessagePort;
 import com.dev.servlet.domain.enums.MessageType;
+import com.dev.servlet.infrastructure.annotations.Provider;
 import com.dev.servlet.infrastructure.config.Properties;
 import com.dev.servlet.shared.util.CloneUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsClient;
@@ -18,8 +18,8 @@ import java.time.OffsetDateTime;
 
 @Slf4j
 @ApplicationScoped
-@Named("sqsMessageProducer")
-public class SqsMessageProducer implements MessagePort {
+@Provider("sqs")
+public class SqsMessageProducer implements AsyncMessagePort {
 
     private SqsClient sqsClient;
     private String queueUrl;

@@ -35,10 +35,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.lenient;
@@ -47,6 +47,9 @@ import static org.mockito.Mockito.when;
 
 @DisplayName("ProductController Tests")
 class ProductControllerTest extends BaseControllerTest {
+
+    private static final UUID USER_ID = UUID.randomUUID();
+    private static final UUID PRODUCT_ID = UUID.randomUUID();
 
     @Mock
     private ProductDetailPort productDetailPort;
@@ -80,7 +83,7 @@ class ProductControllerTest extends BaseControllerTest {
         lenient().when(authenticationPort.extractUser(VALID_AUTH_TOKEN)).thenReturn(mockUser);
         lenient().when(authenticationPort.extractUserId(VALID_AUTH_TOKEN)).thenReturn(USER_ID);
 
-        ProductResponse mockProduct = new ProductResponse("product-123");
+        ProductResponse mockProduct = new ProductResponse(PRODUCT_ID);
         mockProduct.setName("Test Product");
         mockProduct.setPrice(new BigDecimal("99.99"));
 
@@ -114,7 +117,7 @@ class ProductControllerTest extends BaseControllerTest {
             assertThat(response).isNotNull();
             assertThat(response.statusCode()).isEqualTo(201);
             assertThat(response.next()).contains("redirect:");
-            assertThat(response.next()).contains("product-123");
+            assertThat(response.next()).contains(PRODUCT_ID.toString());
 
             verify(createProductWithThumbPort).execute(request, VALID_AUTH_TOKEN);
         }
@@ -128,7 +131,7 @@ class ProductControllerTest extends BaseControllerTest {
         @DisplayName("Should find product by ID")
         void shouldFindProductById() {
             // Arrange
-            ProductRequest request = ProductRequest.builder().id("product-123").build();
+            ProductRequest request = ProductRequest.builder().id(PRODUCT_ID).build();
 
             // Act
             IHttpResponse<ProductResponse> response = productController.findById(request, VALID_AUTH_TOKEN);
@@ -136,7 +139,7 @@ class ProductControllerTest extends BaseControllerTest {
             // Assert
             assertThat(response).isNotNull();
             assertThat(response.body()).isNotNull();
-            assertThat(response.body().getId()).isEqualTo("product-123");
+            assertThat(response.body().getId()).isEqualTo(PRODUCT_ID);
             assertThat(response.next()).contains("forward:");
 
             verify(productDetailPort).get(request, VALID_AUTH_TOKEN);
@@ -167,7 +170,7 @@ class ProductControllerTest extends BaseControllerTest {
         @DisplayName("Should get product details with categories")
         void shouldGetProductDetails() {
             // Arrange
-            ProductRequest request = ProductRequest.builder().id("product-123").build();
+            ProductRequest request = ProductRequest.builder().id(PRODUCT_ID).build();
 
             // Act
             IServletResponse response = productController.details(request, VALID_AUTH_TOKEN);
@@ -223,7 +226,7 @@ class ProductControllerTest extends BaseControllerTest {
         void shouldUpdateProduct() {
             // Arrange
             ProductRequest request = ProductRequest.builder()
-                    .id("product-123")
+                    .id(PRODUCT_ID)
                     .name("Updated Product")
                     .build();
 
@@ -244,7 +247,7 @@ class ProductControllerTest extends BaseControllerTest {
             // Arrange
             FileUploadRequest uploadRequest = new FileUploadRequest(
                     new BinaryPayload("path/to/thumb.jpg", 10L, "image/jpeg"),
-                    "user-123");
+                    USER_ID);
 
             // Act
             IHttpResponse<Void> response = productController.upload(uploadRequest, VALID_AUTH_TOKEN);
@@ -266,7 +269,7 @@ class ProductControllerTest extends BaseControllerTest {
         @DisplayName("Should delete product successfully")
         void shouldDeleteProduct() {
             // Arrange
-            ProductRequest request = ProductRequest.builder().id("product-123").build();
+            ProductRequest request = ProductRequest.builder().id(PRODUCT_ID).build();
 
             doNothing().when(deleteProductPort).delete(any(), any());
 
@@ -312,7 +315,10 @@ class ProductControllerTest extends BaseControllerTest {
         @DisplayName("Should forward to registration form with categories")
         void shouldForwardToRegistrationForm() {
             // Arrange
-            CategoryResponse category = new CategoryResponse("cat-1");
+            CategoryResponse category = CategoryResponse.builder().id(
+                            UUID.fromString("33333333-3333-3333-3333-333333333333"))
+                    .build();
+
             category.setName("Electronics");
 
             when(listCategoryPort.list(null, VALID_AUTH_TOKEN))

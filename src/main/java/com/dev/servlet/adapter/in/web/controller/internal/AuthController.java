@@ -10,8 +10,11 @@ import com.dev.servlet.application.port.in.auth.FormPort;
 import com.dev.servlet.application.port.in.auth.HomePagePort;
 import com.dev.servlet.application.port.in.auth.LoginPort;
 import com.dev.servlet.application.port.in.auth.LogoutPort;
+import com.dev.servlet.application.port.in.auth.RefreshTokenPort;
 import com.dev.servlet.application.port.in.auth.RegisterPagePort;
 import com.dev.servlet.application.transfer.request.LoginRequest;
+import com.dev.servlet.application.transfer.request.RefreshTokenRequest;
+import com.dev.servlet.application.transfer.response.RefreshTokenResponse;
 import com.dev.servlet.application.transfer.response.UserResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -31,6 +34,8 @@ public class AuthController extends BaseController implements AuthControllerApi 
     private HomePagePort homePagePort;
     @Inject
     private RegisterPagePort registerPagePort;
+    @Inject
+    private RefreshTokenPort refreshTokenPort;
 
     @Override
     protected Class<AuthController> implementation() {
@@ -55,5 +60,11 @@ public class AuthController extends BaseController implements AuthControllerApi 
     public IHttpResponse<String> logout(@Authorization String auth) {
         logoutPort.logout(auth);
         return HttpResponse.<String>next(homePagePort.homePage()).build();
+    }
+
+    @Override
+    public IHttpResponse<RefreshTokenResponse> refreshToken(RefreshTokenRequest req) {
+        var res = refreshTokenPort.refreshToken(req.refreshToken());
+        return HttpResponse.ok(res).build();
     }
 }

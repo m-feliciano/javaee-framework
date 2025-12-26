@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -126,7 +127,7 @@ public abstract class BaseRouterController {
 
         final Cache cache = method.getAnnotation(Cache.class);
         if (request.getToken() != null && cache != null && StringUtils.isNotBlank(cache.value())) {
-            String userId = authenticationPort.extractUserId(request.getToken());
+            UUID userId = authenticationPort.extractUserId(request.getToken());
             return executeCachedHttp(endpoint, method, userId, args);
         }
 
@@ -209,7 +210,7 @@ public abstract class BaseRouterController {
 
     private <U> IHttpResponse<U> executeCachedHttp(EndpointParser parser,
                                                    Method method,
-                                                   String key,
+                                                   UUID uuid,
                                                    Object[] args) throws Exception {
         log.debug("Executing cached HTTP for method endpoint: {}", parser.path());
 
@@ -217,13 +218,13 @@ public abstract class BaseRouterController {
         boolean async = method.isAnnotationPresent(Async.class);
         String namespace = composeNamespace(parser, cache.value());
 
-        IHttpResponse<U> response = cachePort.get(namespace, key);
+        IHttpResponse<U> response = cachePort.get(namespace, uuid);
         if (response == null) {
             response = executeHttp(parser.path(), async, method, args);
 
             if (response.statusCode() >= 200 && response.statusCode() < 400) {
                 Duration ttl = Duration.of(cache.duration(), cache.timeUnit().toChronoUnit());
-                cachePort.set(namespace, key, response, ttl);
+                cachePort.set(namespace, uuid, response, ttl);
             }
         }
 
@@ -234,7 +235,7 @@ public abstract class BaseRouterController {
         if (cache == null || token == null) return;
 
         try {
-            String userId = authenticationPort.extractUserId(token);
+            UUID userId = authenticationPort.extractUserId(token);
             for (String namespace : cache.invalidate()) {
                 cachePort.clearSuffix(namespace, userId);
             }

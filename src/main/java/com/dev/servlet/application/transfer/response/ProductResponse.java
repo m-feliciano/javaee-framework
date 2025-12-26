@@ -10,12 +10,13 @@ import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public final class ProductResponse {
-    private String id;
+    private UUID id;
     private String name;
     private String description;
     private String thumbUrl;
@@ -24,17 +25,17 @@ public final class ProductResponse {
     private BigDecimal price;
     private CategoryResponse category;
 
-    public ProductResponse(String id) {
+    public ProductResponse(UUID id) {
         this.id = id;
     }
 
-    public ProductResponse(String id, String name, BigDecimal price) {
+    public ProductResponse(UUID id, String name, BigDecimal price) {
         this.id = id;
         this.name = name;
         this.price = price;
     }
 
-    public ProductResponse(String id, String name, BigDecimal price, String thumbUrl) {
+    public ProductResponse(UUID id, String name, BigDecimal price, String thumbUrl) {
         this(id, name, price);
         this.thumbUrl = thumbUrl;
     }

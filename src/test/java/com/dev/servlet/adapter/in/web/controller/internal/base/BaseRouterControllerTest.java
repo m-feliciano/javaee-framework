@@ -12,7 +12,6 @@ import com.dev.servlet.adapter.in.web.validator.RequestValidator;
 import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.port.out.cache.CachePort;
 import com.dev.servlet.application.port.out.security.AuthenticationPort;
-import com.dev.servlet.domain.entity.enums.RequestMethod;
 import jakarta.enterprise.context.control.RequestContextController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static com.dev.servlet.domain.entity.enums.RequestMethod.GET;
@@ -40,15 +40,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Test suite for BaseRouterController.
- * Tests routing, caching, async execution, and argument resolution.
- */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("BaseRouterController Tests")
 class BaseRouterControllerTest {
 
-    private static final String USER_ID = "user-123";
+    private static final UUID USER_ID = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     private static final String VALID_AUTH_TOKEN = "valid.jwt.token";
     @Mock
     private AuthenticationPort authenticationPort;
@@ -249,7 +245,7 @@ class BaseRouterControllerTest {
                 assertThat(response).isNotNull();
                 assertThat(response.body()).isEqualTo("cached-value");
                 verify(cachePort).get(eq("cached:test_cache"), eq(USER_ID));
-                verify(cachePort, never()).set(anyString(), anyString(), any(), any());
+                verify(cachePort, never()).set(anyString(), eq(USER_ID), any(), any());
             }
         }
 
@@ -276,7 +272,7 @@ class BaseRouterControllerTest {
                 assertThat(response).isNotNull();
                 assertThat(response.statusCode()).isEqualTo(500);
                 verify(cachePort).get(anyString(), eq(USER_ID));
-                verify(cachePort, never()).set(anyString(), anyString(), any(), any());
+                verify(cachePort, never()).set(anyString(), eq(USER_ID), any(), any());
             }
         }
 
@@ -345,7 +341,7 @@ class BaseRouterControllerTest {
 
                 // Assert
                 assertThat(response).isNotNull();
-                verify(cachePort, never()).clearSuffix(anyString(), anyString());
+                verify(cachePort, never()).clearSuffix(anyString(), eq(USER_ID));
             }
         }
 
@@ -444,4 +440,5 @@ class BaseRouterControllerTest {
             }
         }
     }
+
 }

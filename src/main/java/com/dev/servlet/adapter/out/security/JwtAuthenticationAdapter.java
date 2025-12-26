@@ -19,6 +19,7 @@ import java.util.function.Function;
 
 @Slf4j
 @ApplicationScoped
+@SuppressWarnings("unchecked")
 public class JwtAuthenticationAdapter implements AuthenticationPort {
 
     private static final String ISSUER = "Servlet";
@@ -59,23 +60,24 @@ public class JwtAuthenticationAdapter implements AuthenticationPort {
     }
 
     @Override
-    public String extractUserId(String token) {
-        return decode(token, claims -> claims.get(USER, String.class));
+    public UUID extractUserId(String token) {
+        return decode(token, claims -> UUID.fromString(claims.get(USER, String.class)));
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public List<Integer> extractRoles(String token) {
         return decode(token, claims -> (List<Integer>) claims.get(ROLES, List.class));
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public User extractUser(String token) {
         return decode(token, claims -> {
-            String userId = claims.get(USER, String.class);
+            UUID userId = UUID.fromString(claims.get(USER, String.class));
             List<Integer> roles = (List<Integer>) claims.get(ROLES, List.class);
-            return User.builder().id(userId).perfis(roles).build();
+            return User.builder()
+                    .id(userId)
+                    .perfis(roles)
+                    .build();
         });
     }
 
