@@ -4,14 +4,14 @@ import com.dev.servlet.adapter.in.web.controller.internal.ProductController;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.adapter.in.web.dto.IServletResponse;
 import com.dev.servlet.application.mapper.ProductMapper;
-import com.dev.servlet.application.port.in.category.ListCategoryPort;
-import com.dev.servlet.application.port.in.product.CreateProductWithThumbPort;
-import com.dev.servlet.application.port.in.product.DeleteProductPort;
-import com.dev.servlet.application.port.in.product.ListProductContainerPort;
-import com.dev.servlet.application.port.in.product.ProductDetailPort;
-import com.dev.servlet.application.port.in.product.ScrapeProductPort;
-import com.dev.servlet.application.port.in.product.UpdateProductPort;
-import com.dev.servlet.application.port.in.product.UpdateProductThumbPort;
+import com.dev.servlet.application.port.in.category.ListCategoryUseCase;
+import com.dev.servlet.application.port.in.product.CreateProductWithThumbUseCase;
+import com.dev.servlet.application.port.in.product.DeleteProductUseCase;
+import com.dev.servlet.application.port.in.product.ListProductContainerUseCase;
+import com.dev.servlet.application.port.in.product.ProductDetailUserCase;
+import com.dev.servlet.application.port.in.product.ScrapeProductUseCase;
+import com.dev.servlet.application.port.in.product.UpdateProductThumbUseCase;
+import com.dev.servlet.application.port.in.product.UpdateProductUseCase;
 import com.dev.servlet.application.transfer.request.FileUploadRequest;
 import com.dev.servlet.application.transfer.request.ProductRequest;
 import com.dev.servlet.application.transfer.response.CategoryResponse;
@@ -52,23 +52,23 @@ class ProductControllerTest extends BaseControllerTest {
     private static final UUID PRODUCT_ID = UUID.randomUUID();
 
     @Mock
-    private ProductDetailPort productDetailPort;
+    private ProductDetailUserCase productDetailUserCase;
     @Mock
-    private DeleteProductPort deleteProductPort;
+    private DeleteProductUseCase deleteProductUseCase;
     @Mock
-    private UpdateProductPort updateProductPort;
+    private UpdateProductUseCase updateProductUseCase;
     @Mock
-    private CreateProductWithThumbPort createProductWithThumbPort;
+    private CreateProductWithThumbUseCase createProductWithThumbUseCase;
     @Mock
-    private ScrapeProductPort scrapeProductPort;
+    private ScrapeProductUseCase scrapeProductUseCase;
     @Mock
-    private ListCategoryPort listCategoryPort;
+    private ListCategoryUseCase listCategoryUseCase;
     @Mock
-    private ListProductContainerPort listProductContainerPort;
+    private ListProductContainerUseCase listProductContainerUseCase;
     @Mock
-    private ProductMapper productMapper;
+    private ProductMapper mapper;
     @Mock
-    private UpdateProductThumbPort updateProductThumbPort;
+    private UpdateProductThumbUseCase updateProductThumbUseCase;
 
     @InjectMocks
     private ProductController productController;
@@ -87,13 +87,13 @@ class ProductControllerTest extends BaseControllerTest {
         mockProduct.setName("Test Product");
         mockProduct.setPrice(new BigDecimal("99.99"));
 
-        lenient().when(createProductWithThumbPort.execute(any(), any())).thenReturn(mockProduct);
-        lenient().when(updateProductPort.update(any(), any())).thenReturn(mockProduct);
-        lenient().when(productDetailPort.get(any(), any())).thenReturn(mockProduct);
-        lenient().when(listCategoryPort.list(any(), any())).thenReturn(List.of());
-        lenient().when(productMapper.toProduct(any(), any())).thenReturn(Product.builder().build());
-        lenient().when(productMapper.queryToProduct(any(), any())).thenReturn(Product.builder().build());
-        lenient().when(listProductContainerPort.assembleContainerResponse(any(), any(), any()))
+        lenient().when(createProductWithThumbUseCase.execute(any(), any())).thenReturn(mockProduct);
+        lenient().when(updateProductUseCase.update(any(), any())).thenReturn(mockProduct);
+        lenient().when(productDetailUserCase.get(any(), any())).thenReturn(mockProduct);
+        lenient().when(listCategoryUseCase.list(any(), any())).thenReturn(List.of());
+        lenient().when(mapper.toProduct(any(), any())).thenReturn(Product.builder().build());
+        lenient().when(mapper.queryToProduct(any(), any())).thenReturn(Product.builder().build());
+        lenient().when(listProductContainerUseCase.assembleContainerResponse(any(), any(), any()))
                 .thenReturn(Set.of(new KeyPair("products", List.of())));
     }
 
@@ -119,7 +119,7 @@ class ProductControllerTest extends BaseControllerTest {
             assertThat(response.next()).contains("redirect:");
             assertThat(response.next()).contains(PRODUCT_ID.toString());
 
-            verify(createProductWithThumbPort).execute(request, VALID_AUTH_TOKEN);
+            verify(createProductWithThumbUseCase).execute(request, VALID_AUTH_TOKEN);
         }
     }
 
@@ -142,7 +142,7 @@ class ProductControllerTest extends BaseControllerTest {
             assertThat(response.body().getId()).isEqualTo(PRODUCT_ID);
             assertThat(response.next()).contains("forward:");
 
-            verify(productDetailPort).get(request, VALID_AUTH_TOKEN);
+            verify(productDetailUserCase).get(request, VALID_AUTH_TOKEN);
         }
 
         @Test
@@ -162,8 +162,8 @@ class ProductControllerTest extends BaseControllerTest {
             assertThat(response.body()).isNotNull();
             assertThat(response.next()).contains("forward:");
 
-            verify(productMapper).toProduct(null, USER_ID);
-            verify(listProductContainerPort).assembleContainerResponse(any(), eq(VALID_AUTH_TOKEN), any());
+            verify(mapper).toProduct(null, USER_ID);
+            verify(listProductContainerUseCase).assembleContainerResponse(any(), eq(VALID_AUTH_TOKEN), any());
         }
 
         @Test
@@ -181,8 +181,8 @@ class ProductControllerTest extends BaseControllerTest {
             assertThat(response.next()).contains("forward:");
             assertThat(response.next()).contains("formUpdateProduct");
 
-            verify(productDetailPort).get(request, VALID_AUTH_TOKEN);
-            verify(listCategoryPort).list(null, VALID_AUTH_TOKEN);
+            verify(productDetailUserCase).get(request, VALID_AUTH_TOKEN);
+            verify(listCategoryUseCase).list(null, VALID_AUTH_TOKEN);
         }
     }
 
@@ -212,8 +212,8 @@ class ProductControllerTest extends BaseControllerTest {
             assertThat(response.next()).contains("forward:");
 
             verify(authenticationPort).extractUser(VALID_AUTH_TOKEN);
-            verify(productMapper).queryToProduct(eq(query), any());
-            verify(listProductContainerPort).assembleContainerResponse(any(), eq(VALID_AUTH_TOKEN), any());
+            verify(mapper).queryToProduct(eq(query), any());
+            verify(listProductContainerUseCase).assembleContainerResponse(any(), eq(VALID_AUTH_TOKEN), any());
         }
     }
 
@@ -238,7 +238,7 @@ class ProductControllerTest extends BaseControllerTest {
             assertThat(response.statusCode()).isEqualTo(204);
             assertThat(response.next()).contains("redirect:");
 
-            verify(updateProductPort).update(request, VALID_AUTH_TOKEN);
+            verify(updateProductUseCase).update(request, VALID_AUTH_TOKEN);
         }
 
         @Test
@@ -257,7 +257,7 @@ class ProductControllerTest extends BaseControllerTest {
             assertThat(response.statusCode()).isEqualTo(204);
             assertThat(response.next()).contains("redirect:");
 
-            verify(updateProductThumbPort).updateThumb(uploadRequest, VALID_AUTH_TOKEN);
+            verify(updateProductThumbUseCase).updateThumb(uploadRequest, VALID_AUTH_TOKEN);
         }
     }
 
@@ -271,7 +271,7 @@ class ProductControllerTest extends BaseControllerTest {
             // Arrange
             ProductRequest request = ProductRequest.builder().id(PRODUCT_ID).build();
 
-            doNothing().when(deleteProductPort).delete(any(), any());
+            doNothing().when(deleteProductUseCase).delete(any(), any());
 
             // Act
             IHttpResponse<Void> response = productController.delete(request, VALID_AUTH_TOKEN);
@@ -280,7 +280,7 @@ class ProductControllerTest extends BaseControllerTest {
             assertThat(response).isNotNull();
             assertThat(response.next()).contains("redirect:");
 
-            verify(deleteProductPort).delete(request, VALID_AUTH_TOKEN);
+            verify(deleteProductUseCase).delete(request, VALID_AUTH_TOKEN);
         }
     }
 
@@ -294,7 +294,7 @@ class ProductControllerTest extends BaseControllerTest {
             // Arrange
             String url = "https://example.com/product";
 
-            when(scrapeProductPort.scrape(any(), any())).thenReturn(null);
+            when(scrapeProductUseCase.scrape(any(), any())).thenReturn(null);
 
             // Act
             IHttpResponse<Void> response = productController.scrape(VALID_AUTH_TOKEN, url);
@@ -303,7 +303,7 @@ class ProductControllerTest extends BaseControllerTest {
             assertThat(response).isNotNull();
             assertThat(response.next()).contains("redirect:");
 
-            verify(scrapeProductPort).scrape(any(), eq(VALID_AUTH_TOKEN));
+            verify(scrapeProductUseCase).scrape(any(), eq(VALID_AUTH_TOKEN));
         }
     }
 
@@ -321,7 +321,7 @@ class ProductControllerTest extends BaseControllerTest {
 
             category.setName("Electronics");
 
-            when(listCategoryPort.list(null, VALID_AUTH_TOKEN))
+            when(listCategoryUseCase.list(null, VALID_AUTH_TOKEN))
                     .thenReturn(List.of(category));
 
             // Act
@@ -334,7 +334,7 @@ class ProductControllerTest extends BaseControllerTest {
             assertThat(response.next()).contains("forward:");
             assertThat(response.next()).contains("formCreateProduct");
 
-            verify(listCategoryPort).list(null, VALID_AUTH_TOKEN);
+            verify(listCategoryUseCase).list(null, VALID_AUTH_TOKEN);
         }
     }
 
@@ -351,15 +351,15 @@ class ProductControllerTest extends BaseControllerTest {
         @Test
         @DisplayName("Should have all required dependencies injected")
         void shouldHaveAllDependencies() {
-            assertThat(productController).extracting("productDetailPort").isNotNull();
-            assertThat(productController).extracting("deleteProductPort").isNotNull();
-            assertThat(productController).extracting("updateProductPort").isNotNull();
-            assertThat(productController).extracting("createProductWithThumbPort").isNotNull();
-            assertThat(productController).extracting("scrapeProductPort").isNotNull();
-            assertThat(productController).extracting("listCategoryPort").isNotNull();
-            assertThat(productController).extracting("listProductContainerPort").isNotNull();
-            assertThat(productController).extracting("productMapper").isNotNull();
-            assertThat(productController).extracting("updateProductThumbPort").isNotNull();
+            assertThat(productController).extracting("productDetailUserCase").isNotNull();
+            assertThat(productController).extracting("deleteProductUseCase").isNotNull();
+            assertThat(productController).extracting("updateProductUseCase").isNotNull();
+            assertThat(productController).extracting("createProductWithThumbUseCase").isNotNull();
+            assertThat(productController).extracting("scrapeProductUseCase").isNotNull();
+            assertThat(productController).extracting("listCategoryUseCase").isNotNull();
+            assertThat(productController).extracting("listProductContainerUseCase").isNotNull();
+            assertThat(productController).extracting("mapper").isNotNull();
+            assertThat(productController).extracting("updateProductThumbUseCase").isNotNull();
         }
     }
 }

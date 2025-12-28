@@ -6,12 +6,12 @@ import com.dev.servlet.adapter.in.web.controller.AuthControllerApi;
 import com.dev.servlet.adapter.in.web.controller.internal.base.BaseController;
 import com.dev.servlet.adapter.in.web.dto.HttpResponse;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
-import com.dev.servlet.application.port.in.auth.FormPort;
-import com.dev.servlet.application.port.in.auth.HomePagePort;
-import com.dev.servlet.application.port.in.auth.LoginPort;
-import com.dev.servlet.application.port.in.auth.LogoutPort;
-import com.dev.servlet.application.port.in.auth.RefreshTokenPort;
-import com.dev.servlet.application.port.in.auth.RegisterPagePort;
+import com.dev.servlet.application.port.in.auth.FormUseCase;
+import com.dev.servlet.application.port.in.auth.HomePageUseCase;
+import com.dev.servlet.application.port.in.auth.LoginUseCase;
+import com.dev.servlet.application.port.in.auth.LogoutUseCase;
+import com.dev.servlet.application.port.in.auth.RefreshTokenUseCase;
+import com.dev.servlet.application.port.in.auth.RegisterPageUseCase;
 import com.dev.servlet.application.transfer.request.LoginRequest;
 import com.dev.servlet.application.transfer.request.RefreshTokenRequest;
 import com.dev.servlet.application.transfer.response.RefreshTokenResponse;
@@ -25,17 +25,17 @@ import lombok.extern.slf4j.Slf4j;
 @ApplicationScoped
 public class AuthController extends BaseController implements AuthControllerApi {
     @Inject
-    private LoginPort loginPort;
+    private LoginUseCase loginUseCase;
     @Inject
-    private FormPort formPort;
+    private FormUseCase formUseCase;
     @Inject
-    private LogoutPort logoutPort;
+    private LogoutUseCase logoutUseCase;
     @Inject
-    private HomePagePort homePagePort;
+    private HomePageUseCase homePageUseCase;
     @Inject
-    private RegisterPagePort registerPagePort;
+    private RegisterPageUseCase registerPageUseCase;
     @Inject
-    private RefreshTokenPort refreshTokenPort;
+    private RefreshTokenUseCase refreshTokenUseCase;
 
     @Override
     protected Class<AuthController> implementation() {
@@ -43,28 +43,28 @@ public class AuthController extends BaseController implements AuthControllerApi 
     }
 
     public IHttpResponse<String> forwardRegister() {
-        return HttpResponse.<String>next(registerPagePort.registerPage()).build();
+        return HttpResponse.<String>next(registerPageUseCase.registerPage()).build();
     }
 
     public IHttpResponse<String> form(@Authorization String auth, @Property("homepage") String homepage) {
-        String next = formPort.form(auth, homepage);
+        String next = formUseCase.form(auth, homepage);
         return HttpResponse.<String>next(next).build();
     }
 
     @SneakyThrows
     public IHttpResponse<UserResponse> login(LoginRequest request, @Property("homepage") String homepage) {
         String onSuccess = "redirect:/" + homepage;
-        return loginPort.login(request, onSuccess);
+        return loginUseCase.login(request, onSuccess);
     }
 
     public IHttpResponse<String> logout(@Authorization String auth) {
-        logoutPort.logout(auth);
-        return HttpResponse.<String>next(homePagePort.homePage()).build();
+        logoutUseCase.logout(auth);
+        return HttpResponse.<String>next(homePageUseCase.homePage()).build();
     }
 
     @Override
     public IHttpResponse<RefreshTokenResponse> refreshToken(RefreshTokenRequest req) {
-        var res = refreshTokenPort.refreshToken(req.refreshToken());
+        var res = refreshTokenUseCase.refreshToken(req.refreshToken());
         return HttpResponse.ok(res).build();
     }
 }

@@ -58,8 +58,8 @@ class BaseRouterControllerTest {
     void setUp() {
         controller = new TestRouterController();
         controller.authenticationPort = authenticationPort;
-        controller.requestContextController = requestContextController;
-        controller.cachePort = cachePort;
+        controller.contextController = requestContextController;
+        controller.cache = cachePort;
 
         lenient().when(authenticationPort.extractUserId(VALID_AUTH_TOKEN)).thenReturn(USER_ID);
     }

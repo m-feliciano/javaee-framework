@@ -2,11 +2,11 @@ package com.dev.servlet.adapter.in.web.controller;
 
 import com.dev.servlet.adapter.in.web.controller.internal.CategoryController;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
-import com.dev.servlet.application.port.in.category.DeleteCategoryPort;
-import com.dev.servlet.application.port.in.category.GetCategoryDetailPort;
-import com.dev.servlet.application.port.in.category.ListCategoryPort;
-import com.dev.servlet.application.port.in.category.RegisterCategoryPort;
-import com.dev.servlet.application.port.in.category.UpdateCategoryPort;
+import com.dev.servlet.application.port.in.category.DeleteCategoryUseCase;
+import com.dev.servlet.application.port.in.category.GetCategoryDetailUseCase;
+import com.dev.servlet.application.port.in.category.ListCategoryUseCase;
+import com.dev.servlet.application.port.in.category.RegisterCategoryUseCase;
+import com.dev.servlet.application.port.in.category.UpdateCategoryUseCase;
 import com.dev.servlet.application.transfer.request.CategoryRequest;
 import com.dev.servlet.application.transfer.response.CategoryResponse;
 import org.junit.jupiter.api.DisplayName;
@@ -30,19 +30,19 @@ import static org.mockito.Mockito.when;
 class CategoryControllerTest extends BaseControllerTest {
 
     @Mock
-    private GetCategoryDetailPort detailPort;
+    private GetCategoryDetailUseCase detailPort;
 
     @Mock
-    private DeleteCategoryPort deletePort;
+    private DeleteCategoryUseCase deletePort;
 
     @Mock
-    private UpdateCategoryPort updatePort;
+    private UpdateCategoryUseCase updatePort;
 
     @Mock
-    private ListCategoryPort listPort;
+    private ListCategoryUseCase listPort;
 
     @Mock
-    private RegisterCategoryPort registerPort;
+    private RegisterCategoryUseCase registerPort;
 
     @InjectMocks
     private CategoryController categoryController;
@@ -313,11 +313,11 @@ class CategoryControllerTest extends BaseControllerTest {
         @Test
         @DisplayName("Should have all required dependencies injected")
         void shouldHaveAllDependencies() {
-            assertThat(categoryController).extracting("detailPort").isNotNull();
-            assertThat(categoryController).extracting("deletePort").isNotNull();
-            assertThat(categoryController).extracting("updatePort").isNotNull();
-            assertThat(categoryController).extracting("listPort").isNotNull();
-            assertThat(categoryController).extracting("registerPort").isNotNull();
+            assertThat(categoryController).extracting("categoryDetailUseCase").isNotNull();
+            assertThat(categoryController).extracting("deleteCategoryUseCase").isNotNull();
+            assertThat(categoryController).extracting("updateCategoryUseCase").isNotNull();
+            assertThat(categoryController).extracting("listCategoryUseCase").isNotNull();
+            assertThat(categoryController).extracting("categoryUseCase").isNotNull();
         }
 
         @Test
