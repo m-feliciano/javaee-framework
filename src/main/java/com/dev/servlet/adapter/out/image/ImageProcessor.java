@@ -10,18 +10,6 @@ import java.awt.image.BufferedImage;
 @ApplicationScoped
 public class ImageProcessor {
 
-    static {
-        ImageIO.scanForPlugins();
-    }
-
-    /**
-     * Convert image to TYPE_INT_RGB (JPG compatible)
-     * TYPE_INT_RGB does not support transparency, so transparent areas
-     * will be filled with white color.
-     *
-     * @param img the source image
-     * @return a BufferedImage of type TYPE_INT_RGB
-     */
     public BufferedImage normalizeToJpg(BufferedImage img) {
         if (img.getType() == BufferedImage.TYPE_INT_RGB) {
             return img;
@@ -34,6 +22,7 @@ public class ImageProcessor {
         );
 
         Graphics2D g = jpg.createGraphics();
+        g.setComposite(AlphaComposite.Src);
         g.drawImage(img, 0, 0, Color.WHITE, null);
         g.dispose();
 
@@ -49,6 +38,12 @@ public class ImageProcessor {
     }
 
     public BufferedImage resize(BufferedImage source, int size) {
-        return Scalr.resize(source, Scalr.Method.ULTRA_QUALITY, size);
+        return Scalr.resize(
+                source,
+                Scalr.Method.ULTRA_QUALITY,
+                Scalr.Mode.FIT_EXACT,
+                size,
+                size
+        );
     }
 }

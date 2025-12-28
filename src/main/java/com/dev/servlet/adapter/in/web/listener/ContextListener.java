@@ -7,11 +7,16 @@ import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.imageio.ImageIO;
 import java.util.Collections;
 
 @Slf4j
 @WebListener
 public class ContextListener implements ServletContextListener {
+
+    static {
+        ImageIO.scanForPlugins();
+    }
 
     @Override
     public void contextInitialized(ServletContextEvent arg0) {
