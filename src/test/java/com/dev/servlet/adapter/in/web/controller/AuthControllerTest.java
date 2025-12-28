@@ -3,11 +3,11 @@ package com.dev.servlet.adapter.in.web.controller;
 import com.dev.servlet.adapter.in.web.controller.internal.AuthController;
 import com.dev.servlet.adapter.in.web.dto.HttpResponse;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
-import com.dev.servlet.application.port.in.auth.FormPort;
-import com.dev.servlet.application.port.in.auth.HomePagePort;
-import com.dev.servlet.application.port.in.auth.LoginPort;
-import com.dev.servlet.application.port.in.auth.LogoutPort;
-import com.dev.servlet.application.port.in.auth.RegisterPagePort;
+import com.dev.servlet.application.port.in.auth.FormUseCase;
+import com.dev.servlet.application.port.in.auth.HomePageUseCase;
+import com.dev.servlet.application.port.in.auth.LoginUseCase;
+import com.dev.servlet.application.port.in.auth.LogoutUseCase;
+import com.dev.servlet.application.port.in.auth.RegisterPageUseCase;
 import com.dev.servlet.application.transfer.request.LoginRequest;
 import com.dev.servlet.application.transfer.response.UserResponse;
 import org.junit.jupiter.api.DisplayName;
@@ -30,15 +30,15 @@ class AuthControllerTest extends BaseControllerTest {
     private static final String REGISTER_PAGE = "forward:pages/auth/register.jsp";
     private static final String LOGIN_FORM = "forward:pages/auth/login.jsp";
     @Mock
-    private LoginPort loginPort;
+    private LoginUseCase loginUseCase;
     @Mock
-    private FormPort formPort;
+    private FormUseCase formUseCase;
     @Mock
-    private LogoutPort logoutPort;
+    private LogoutUseCase logoutUseCase;
     @Mock
-    private HomePagePort homePagePort;
+    private HomePageUseCase homePageUseCase;
     @Mock
-    private RegisterPagePort registerPagePort;
+    private RegisterPageUseCase registerPageUseCase;
     @InjectMocks
     private AuthController authController;
 
@@ -53,7 +53,7 @@ class AuthControllerTest extends BaseControllerTest {
 
         @Test
         @DisplayName("Should successfully login with valid credentials")
-        void shouldLoginSuccessfully() throws Exception {
+        void shouldLoginSuccessfully() {
             // Arrange
             LoginRequest request = new LoginRequest("testuser", "password123");
 
@@ -66,7 +66,7 @@ class AuthControllerTest extends BaseControllerTest {
                     .next("redirect:/" + HOMEPAGE)
                     .build();
 
-            when(loginPort.login(any(LoginRequest.class), anyString())).thenReturn(expectedResponse);
+            when(loginUseCase.login(any(LoginRequest.class), anyString())).thenReturn(expectedResponse);
 
             // Act
             IHttpResponse<UserResponse> response = authController.login(request, HOMEPAGE);
@@ -79,17 +79,17 @@ class AuthControllerTest extends BaseControllerTest {
             assertThat(response.next()).contains("redirect:");
             assertThat(response.next()).contains(HOMEPAGE);
 
-            verify(loginPort).login(eq(request), eq("redirect:/" + HOMEPAGE));
+            verify(loginUseCase).login(eq(request), eq("redirect:/" + HOMEPAGE));
         }
 
         @Test
         @DisplayName("Should handle login with custom homepage")
-        void shouldHandleLoginWithCustomHomepage() throws Exception {
+        void shouldHandleLoginWithCustomHomepage() {
             // Arrange
             LoginRequest request = new LoginRequest("user", "pass");
             String customHomepage = "dashboard";
 
-            when(loginPort.login(any(LoginRequest.class), anyString())).thenReturn(
+            when(loginUseCase.login(any(LoginRequest.class), anyString())).thenReturn(
                     HttpResponse.ok(UserResponse.builder().id(USER_ID).build())
                             .next("redirect:/" + customHomepage)
                             .build()
@@ -101,7 +101,7 @@ class AuthControllerTest extends BaseControllerTest {
             // Assert
             assertThat(response).isNotNull();
             assertThat(response.next()).isEqualTo("redirect:/" + customHomepage);
-            verify(loginPort).login(eq(request), eq("redirect:/" + customHomepage));
+            verify(loginUseCase).login(eq(request), eq("redirect:/" + customHomepage));
         }
     }
 
@@ -113,7 +113,7 @@ class AuthControllerTest extends BaseControllerTest {
         @DisplayName("Should successfully logout user")
         void shouldLogoutSuccessfully() {
             // Arrange
-            when(homePagePort.homePage()).thenReturn("forward:pages/home.jsp");
+            when(homePageUseCase.homePage()).thenReturn("forward:pages/home.jsp");
 
             // Act
             IHttpResponse<String> response = authController.logout(VALID_AUTH_TOKEN);
@@ -123,8 +123,8 @@ class AuthControllerTest extends BaseControllerTest {
             assertThat(response.body()).isNull();
             assertThat(response.next()).isEqualTo("forward:pages/home.jsp");
 
-            verify(logoutPort).logout(VALID_AUTH_TOKEN);
-            verify(homePagePort).homePage();
+            verify(logoutUseCase).logout(VALID_AUTH_TOKEN);
+            verify(homePageUseCase).homePage();
         }
 
         @Test
@@ -132,7 +132,7 @@ class AuthControllerTest extends BaseControllerTest {
         void shouldRedirectToHomepageAfterLogout() {
             // Arrange
             String homePage = "forward:pages/auth/login.jsp";
-            when(homePagePort.homePage()).thenReturn(homePage);
+            when(homePageUseCase.homePage()).thenReturn(homePage);
 
             // Act
             IHttpResponse<String> response = authController.logout(VALID_AUTH_TOKEN);
@@ -150,7 +150,7 @@ class AuthControllerTest extends BaseControllerTest {
         @DisplayName("Should render login form for authenticated user")
         void shouldRenderFormForAuthenticatedUser() {
             // Arrange
-            when(formPort.form(VALID_AUTH_TOKEN, HOMEPAGE)).thenReturn(LOGIN_FORM);
+            when(formUseCase.form(VALID_AUTH_TOKEN, HOMEPAGE)).thenReturn(LOGIN_FORM);
 
             // Act
             IHttpResponse<String> response = authController.form(VALID_AUTH_TOKEN, HOMEPAGE);
@@ -160,7 +160,7 @@ class AuthControllerTest extends BaseControllerTest {
             assertThat(response.body()).isNull();
             assertThat(response.next()).isEqualTo(LOGIN_FORM);
 
-            verify(formPort).form(VALID_AUTH_TOKEN, HOMEPAGE);
+            verify(formUseCase).form(VALID_AUTH_TOKEN, HOMEPAGE);
         }
 
         @Test
@@ -168,14 +168,14 @@ class AuthControllerTest extends BaseControllerTest {
         void shouldRenderFormWithHomepageContext() {
             // Arrange
             String customHomepage = "user/profile";
-            when(formPort.form(anyString(), eq(customHomepage))).thenReturn(LOGIN_FORM);
+            when(formUseCase.form(anyString(), eq(customHomepage))).thenReturn(LOGIN_FORM);
 
             // Act
             IHttpResponse<String> response = authController.form(VALID_AUTH_TOKEN, customHomepage);
 
             // Assert
             assertThat(response).isNotNull();
-            verify(formPort).form(VALID_AUTH_TOKEN, customHomepage);
+            verify(formUseCase).form(VALID_AUTH_TOKEN, customHomepage);
         }
     }
 
@@ -187,7 +187,7 @@ class AuthControllerTest extends BaseControllerTest {
         @DisplayName("Should forward to register page")
         void shouldForwardToRegisterPage() {
             // Arrange
-            when(registerPagePort.registerPage()).thenReturn(REGISTER_PAGE);
+            when(registerPageUseCase.registerPage()).thenReturn(REGISTER_PAGE);
 
             // Act
             IHttpResponse<String> response = authController.forwardRegister();
@@ -197,14 +197,14 @@ class AuthControllerTest extends BaseControllerTest {
             assertThat(response.body()).isNull();
             assertThat(response.next()).isEqualTo(REGISTER_PAGE);
 
-            verify(registerPagePort).registerPage();
+            verify(registerPageUseCase).registerPage();
         }
 
         @Test
         @DisplayName("Should not require authentication for register page")
         void shouldNotRequireAuthForRegisterPage() {
             // Arrange
-            when(registerPagePort.registerPage()).thenReturn(REGISTER_PAGE);
+            when(registerPageUseCase.registerPage()).thenReturn(REGISTER_PAGE);
 
             // Act - No auth token provided
             IHttpResponse<String> response = authController.forwardRegister();
@@ -228,11 +228,11 @@ class AuthControllerTest extends BaseControllerTest {
         @Test
         @DisplayName("Should have all required port dependencies injected")
         void shouldHaveAllDependenciesInjected() {
-            assertThat(authController).extracting("loginPort").isNotNull();
-            assertThat(authController).extracting("formPort").isNotNull();
-            assertThat(authController).extracting("logoutPort").isNotNull();
-            assertThat(authController).extracting("homePagePort").isNotNull();
-            assertThat(authController).extracting("registerPagePort").isNotNull();
+            assertThat(authController).extracting("loginUseCase").isNotNull();
+            assertThat(authController).extracting("formUseCase").isNotNull();
+            assertThat(authController).extracting("logoutUseCase").isNotNull();
+            assertThat(authController).extracting("homePageUseCase").isNotNull();
+            assertThat(authController).extracting("registerPageUseCase").isNotNull();
         }
     }
 }

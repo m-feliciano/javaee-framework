@@ -8,13 +8,13 @@ import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.adapter.in.web.dto.IServletResponse;
 import com.dev.servlet.application.exception.AppException;
 import com.dev.servlet.application.mapper.InventoryMapper;
-import com.dev.servlet.application.port.in.category.ListCategoryPort;
-import com.dev.servlet.application.port.in.product.ProductDetailPort;
-import com.dev.servlet.application.port.in.stock.DeleteInventoryPort;
-import com.dev.servlet.application.port.in.stock.GetInventoryDetailPort;
-import com.dev.servlet.application.port.in.stock.ListInventoryPort;
-import com.dev.servlet.application.port.in.stock.RegisterInventoryPort;
-import com.dev.servlet.application.port.in.stock.UpdateInventoryPort;
+import com.dev.servlet.application.port.in.category.ListCategoryUseCase;
+import com.dev.servlet.application.port.in.product.ProductDetailUserCase;
+import com.dev.servlet.application.port.in.stock.DeleteInventoryUseCase;
+import com.dev.servlet.application.port.in.stock.GetInventoryDetailUseCase;
+import com.dev.servlet.application.port.in.stock.ListInventoryUseCase;
+import com.dev.servlet.application.port.in.stock.RegisterInventoryUseCase;
+import com.dev.servlet.application.port.in.stock.UpdateInventoryUseCase;
 import com.dev.servlet.application.transfer.request.InventoryCreateRequest;
 import com.dev.servlet.application.transfer.request.InventoryRequest;
 import com.dev.servlet.application.transfer.request.ProductRequest;
@@ -39,21 +39,21 @@ import java.util.UUID;
 @ApplicationScoped
 public class InventoryController extends BaseController implements InventoryControllerApi {
     @Inject
-    private InventoryMapper inventoryMapper;
+    private InventoryMapper mapper;
     @Inject
-    private ListCategoryPort listCategoryPort;
+    private ListCategoryUseCase listCategoryUseCase;
     @Inject
-    private ListInventoryPort listInventoryPort;
+    private ListInventoryUseCase listInventoryUseCase;
     @Inject
-    private UpdateInventoryPort updateInventoryPort;
+    private UpdateInventoryUseCase updateInventoryUseCase;
     @Inject
-    private RegisterInventoryPort registerInventoryPort;
+    private RegisterInventoryUseCase registerInventoryUseCase;
     @Inject
-    private DeleteInventoryPort deleteInventoryPort;
+    private DeleteInventoryUseCase deleteInventoryUseCase;
     @Inject
-    private GetInventoryDetailPort inventoryDetailPort;
+    private GetInventoryDetailUseCase getInventoryDetailUseCase;
     @Inject
-    private ProductDetailPort productDetailPort;
+    private ProductDetailUserCase productDetailUserCase;
 
     @Override
     protected Class<InventoryController> implementation() {
@@ -68,19 +68,19 @@ public class InventoryController extends BaseController implements InventoryCont
 
     @SneakyThrows
     public IHttpResponse<Void> create(InventoryCreateRequest request, @Authorization String auth) {
-        InventoryResponse inventory = registerInventoryPort.register(request, auth);
+        InventoryResponse inventory = registerInventoryUseCase.register(request, auth);
         return newHttpResponse(201, redirectTo(inventory.getId()));
     }
 
     @SneakyThrows
     public IHttpResponse<Void> delete(InventoryRequest request, @Authorization String auth) {
-        deleteInventoryPort.delete(request, auth);
+        deleteInventoryUseCase.delete(request, auth);
         return HttpResponse.<Void>next(redirectToCtx("list")).build();
     }
 
     @SneakyThrows
     public IServletResponse list(IPageRequest pageRequest, InventoryRequest request, @Authorization String auth) {
-        Inventory inventory = inventoryMapper.toInventory(request);
+        Inventory inventory = mapper.toInventory(request);
         pageRequest.setFilter(inventory);
         IServletResponse response = getServletResponse(pageRequest, auth);
         log.debug("List completed for inventory: {}", request);
@@ -89,7 +89,7 @@ public class InventoryController extends BaseController implements InventoryCont
 
     @SneakyThrows
     public IServletResponse search(Query query, IPageRequest pageRequest, @Authorization String auth) {
-        Inventory inventory = inventoryMapper.toInventory(inventoryMapper.queryToInventory(query));
+        Inventory inventory = mapper.toInventory(mapper.queryToInventory(query));
         pageRequest.setFilter(inventory);
         IServletResponse response = getServletResponse(pageRequest, auth);
         log.debug("Search completed with query: {}", query);
@@ -98,26 +98,26 @@ public class InventoryController extends BaseController implements InventoryCont
 
     @SneakyThrows
     public IHttpResponse<InventoryResponse> findById(InventoryRequest request, @Authorization String auth) {
-        InventoryResponse inventory = inventoryDetailPort.get(request, auth);
+        InventoryResponse inventory = getInventoryDetailUseCase.get(request, auth);
         return okHttpResponse(inventory, forwardTo("formListItem"));
     }
 
     @SneakyThrows
     public IHttpResponse<InventoryResponse> details(InventoryRequest request, @Authorization String auth) {
-        InventoryResponse inventory = inventoryDetailPort.get(request, auth);
+        InventoryResponse inventory = getInventoryDetailUseCase.get(request, auth);
         return okHttpResponse(inventory, forwardTo("formUpdateItem"));
     }
 
     @SneakyThrows
     public IHttpResponse<Void> update(InventoryRequest request, @Authorization String auth) {
-        InventoryResponse inventory = updateInventoryPort.update(request, auth);
+        InventoryResponse inventory = updateInventoryUseCase.update(request, auth);
         return newHttpResponse(204, redirectTo(inventory.getId()));
     }
 
     private IServletResponse getServletResponse(IPageRequest pageRequest, String auth) throws AppException {
-        IPageable<InventoryResponse> page = listInventoryPort.getAllPageable(
-                pageRequest, auth, inventoryMapper::toResponse);
-        Collection<CategoryResponse> categories = listCategoryPort.list(null, auth);
+        IPageable<InventoryResponse> page = listInventoryUseCase.getAllPageable(
+                pageRequest, auth, mapper::toResponse);
+        Collection<CategoryResponse> categories = listCategoryUseCase.list(null, auth);
 
         Set<KeyPair> container = Set.of(
                 new KeyPair("pageable", page),
@@ -135,6 +135,6 @@ public class InventoryController extends BaseController implements InventoryCont
         ProductRequest request = ProductRequest.builder()
                 .id(UUID.fromString(productId))
                 .build();
-        return productDetailPort.get(request, auth);
+        return productDetailUserCase.get(request, auth);
     }
 }

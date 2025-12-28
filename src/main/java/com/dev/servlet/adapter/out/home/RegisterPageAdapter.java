@@ -1,10 +1,10 @@
 package com.dev.servlet.adapter.out.home;
 
-import com.dev.servlet.application.port.in.auth.RegisterPagePort;
+import com.dev.servlet.application.port.in.auth.RegisterPageUseCase;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class RegisterPageAdapter implements RegisterPagePort {
+public class RegisterPageAdapter implements RegisterPageUseCase {
 
     @Override
     public String registerPage() {

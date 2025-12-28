@@ -34,12 +34,12 @@ public abstract class BaseController extends BaseRouterController {
 
     @Inject
     public void setRequestContextController(RequestContextController requestContextController) {
-        this.requestContextController = requestContextController;
+        this.contextController = requestContextController;
     }
 
     @Inject
     public void setCachePort(CachePort cachePort) {
-        this.cachePort = cachePort;
+        this.cache = cachePort;
     }
 
     protected BaseController() {

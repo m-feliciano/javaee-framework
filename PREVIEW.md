@@ -305,20 +305,20 @@ public class ProductController extends BaseController implements ProductControll
 
     @SneakyThrows
     public IHttpResponse<Void> register(ProductRequest request, @Authorization String auth) {
-        ProductResponse product = createProductWithThumbPort.execute(request, auth);
+        ProductResponse product = createProductWithThumbUseCase.execute(request, auth);
         return newHttpResponse(201, redirectTo(product.getId()));
     }
 
     @SneakyThrows
     public IHttpResponse<Collection<CategoryResponse>> forward(@Authorization String auth) {
-        var categories = listCategoryPort.list(null, auth);
+        var categories = listCategoryUseCase.list(null, auth);
         return newHttpResponse(302, categories, forwardTo("formCreateProduct"));
     }
 
     @SneakyThrows
     public IServletResponse details(ProductRequest request, @Authorization String auth) {
         ProductResponse response = this.findById(request, auth).body();
-        Collection<CategoryResponse> categories = listCategoryPort.list(null, auth);
+        Collection<CategoryResponse> categories = listCategoryUseCase.list(null, auth);
         Set<KeyPair> body = Set.of(
                 new KeyPair("product", response),
                 new KeyPair("categories", categories)
@@ -328,34 +328,34 @@ public class ProductController extends BaseController implements ProductControll
 
     @SneakyThrows
     public IServletResponse search(Query query, IPageRequest pageRequest, @Authorization String auth) {
-        User user = authenticationPort.extractUser(auth);
-        Product product = productMapper.queryToProduct(query, user);
-        Set<KeyPair> container = listProductContainerPort.assembleContainerResponse(pageRequest, auth, product);
+        User user = this.auth.extractUser(auth);
+        Product product = mapper.queryToProduct(query, user);
+        Set<KeyPair> container = listProductContainerUseCase.assembleContainerResponse(pageRequest, auth, product);
         return newServletResponse(container, forwardTo("listProducts"));
     }
 
     @SneakyThrows
     public IServletResponse list(IPageRequest pageRequest, @Authorization String auth) {
-        Product product = productMapper.toProduct(null, authenticationPort.extractUserId(auth));
-        Set<KeyPair> container = listProductContainerPort.assembleContainerResponse(pageRequest, auth, product);
+        Product product = mapper.toProduct(null, authenticationPort.extractUserId(auth));
+        Set<KeyPair> container = listProductContainerUseCase.assembleContainerResponse(pageRequest, auth, product);
         return newServletResponse(container, forwardTo("listProducts"));
     }
 
     @SneakyThrows
     public IHttpResponse<ProductResponse> findById(ProductRequest request, @Authorization String auth) {
-        ProductResponse product = productDetailPort.get(request, auth);
+        ProductResponse product = productDetailUseCase.get(request, auth);
         return okHttpResponse(product, forwardTo("formListProduct"));
     }
 
     @SneakyThrows
     public IHttpResponse<Void> update(ProductRequest request, @Authorization String auth) {
-        ProductResponse response = updateProductPort.update(request, auth);
+        ProductResponse response = updateProductUseCase.update(request, auth);
         return newHttpResponse(204, redirectTo(response.getId()));
     }
 
     @SneakyThrows
     public IHttpResponse<Void> delete(ProductRequest filter, @Authorization String auth) {
-        deleteProductPort.delete(filter, auth);
+        deleteProductUseCase.delete(filter, auth);
         return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
     }
 
@@ -363,13 +363,13 @@ public class ProductController extends BaseController implements ProductControll
     @Async
     public IHttpResponse<Void> scrape(@Authorization String auth,
                                       @Property("scrape_product_url") String url) {
-        scrapeProductPort.scrape(url, auth);
+        scrapeProductUseCase.scrape(url, auth);
         return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
     }
 
     @Override
     public IHttpResponse<Void> upload(FileUploadRequest request, @Authorization String auth) {
-        updateProductThumbPort.updateThumb(request, auth);
+        updateProductThumbUseCase.updateThumb(request, auth);
         return newHttpResponse(204, redirectTo(request.id()));
     }
 }
@@ -380,9 +380,11 @@ public class ProductController extends BaseController implements ProductControll
 
 ```java
 
+import com.dev.servlet.application.port.in.auth.LoginUseCase;
+
 @Slf4j
 @ApplicationScoped
-public class LoginUseCase implements LoginPort {
+public class LoginService implements LoginUseCase {
     // Dependencies ommitted for brevity
 
     @Override
@@ -392,7 +394,7 @@ public class LoginUseCase implements LoginPort {
         try {
             if (Properties.isDemoModeEnabled()) {
                 log.debug("LoginUseCase: DEMO_MODE is enabled, bypassing authentication for user {}", login);
-                User demoUser = userDemoModePort.validateCredentials(credentials);
+                User demoUser = userDemoModeUseCase.validateCredentials(credentials);
                 UserResponse response = authenticate(demoUser);
                 return HttpResponse.ok(response).next(onSuccess).build();
             }
@@ -497,109 +499,116 @@ Controllers extend `BaseRouterController`, which uses reflection to map endpoint
 ### Package Structure
 
 ```text
-├───adapter
-│   ├───in
-│   │   ├───messaging
-│   │   │   └───consumer
-│   │   ├───web
-│   │   │   ├───annotation
-│   │   │   ├───builder
-│   │   │   ├───controller
-│   │   │   │   └───internal
-│   │   │   │       └───base
-│   │   │   ├───dispatcher
-│   │   │   │   └───impl
-│   │   │   ├───dto
-│   │   │   ├───filter
-│   │   │   │   └───wrapper
-│   │   │   ├───frontcontroller
-│   │   │   ├───introspection
-│   │   │   ├───listener
-│   │   │   ├───ratelimit
-│   │   │   │   └───internal
-│   │   │   ├───util
-│   │   │   ├───validator
-│   │   │   │   └───internal
-│   │   │   └───vo
-│   │   └───ws
-│   └───out
-│       ├───activity
-│       ├───alert
-│       ├───audit
-│       ├───cache
-│       ├───external
-│       │   └───webscrape
-│       │       ├───api
-│       │       ├───builder
-│       │       ├───service
-│       │       └───transfer
-│       ├───home
-│       ├───image
-│       ├───inventory
-│       ├───messaging
-│       │   ├───adapter
-│       │   ├───config
-│       │   ├───factory
-│       │   ├───producer
-│       │   └───registry
-│       ├───product
-│       ├───security
-│       ├───storage
-│       └───user
-├───application
-│   ├───exception
-│   ├───mapper
-│   ├───port
-│   │   ├───in
-│   │   │   ├───activity
-│   │   │   ├───auth
-│   │   │   ├───category
-│   │   │   ├───product
-│   │   │   ├───stock
-│   │   │   └───user
-│   │   └───out
-│   │       ├───activity
-│   │       ├───alert
-│   │       ├───audit
-│   │       ├───cache
-│   │       ├───category
-│   │       ├───confirmtoken
-│   │       ├───inventory
-│   │       ├───product
-│   │       ├───refreshtoken
-│   │       ├───security
-│   │       ├───storage
-│   │       └───user
-│   ├───transfer
-│   │   ├───request
-│   │   └───response
-│   └───usecase
-│       ├───activity
-│       ├───auth
-│       ├───category
-│       ├───product
-│       ├───stock
-│       └───user
-├───domain
-│   ├───entity
-│   │   └───enums
-│   ├───enums
-│   └───vo
-├───infrastructure
-│   ├───annotations
-│   ├───config
-│   ├───health
-│   │   └───internal
-│   ├───http
-│   ├───migration
-│   ├───persistence
-│   │   ├───repository
-│   │   │   └───base
-│   │   └───transfer
-│   │       └───internal
-│   └───utils
-└───shared
-    ├───enums
-    ├───util
-    └───vo
+C:.
+└───servlet
+    ├───adapter
+    │   ├───in
+    │   │   ├───messaging
+    │   │   │   └───consumer
+    │   │   ├───web
+    │   │   │   ├───annotation
+    │   │   │   ├───builder
+    │   │   │   ├───controller
+    │   │   │   │   └───internal
+    │   │   │   │       └───base
+    │   │   │   ├───dispatcher
+    │   │   │   │   └───impl
+    │   │   │   ├───dto
+    │   │   │   ├───filter
+    │   │   │   │   └───wrapper
+    │   │   │   ├───frontcontroller
+    │   │   │   ├───introspection
+    │   │   │   ├───listener
+    │   │   │   ├───ratelimit
+    │   │   │   │   └───internal
+    │   │   │   ├───util
+    │   │   │   ├───validator
+    │   │   │   │   └───internal
+    │   │   │   └───vo
+    │   │   └───ws
+    │   └───out
+    │       ├───activity
+    │       ├───alert
+    │       ├───audit
+    │       ├───cache
+    │       ├───external
+    │       │   └───webscrape
+    │       │       ├───api
+    │       │       ├───builder
+    │       │       ├───service
+    │       │       └───transfer
+    │       ├───home
+    │       ├───image
+    │       ├───inventory
+    │       ├───messaging
+    │       │   ├───adapter
+    │       │   ├───email
+    │       │   ├───factory
+    │       │   ├───producer
+    │       │   └───registry
+    │       ├───product
+    │       ├───publicaccess
+    │       ├───security
+    │       ├───storage
+    │       └───user
+    ├───application
+    │   ├───exception
+    │   ├───mapper
+    │   ├───port
+    │   │   ├───in
+    │   │   │   ├───activity
+    │   │   │   ├───auth
+    │   │   │   ├───category
+    │   │   │   ├───product
+    │   │   │   ├───stock
+    │   │   │   ├───token
+    │   │   │   └───user
+    │   │   └───out
+    │   │       ├───activity
+    │   │       ├───alert
+    │   │       ├───audit
+    │   │       ├───cache
+    │   │       ├───category
+    │   │       ├───confirmtoken
+    │   │       ├───image
+    │   │       ├───inventory
+    │   │       ├───product
+    │   │       ├───publicaccess
+    │   │       ├───refreshtoken
+    │   │       ├───security
+    │   │       ├───storage
+    │   │       └───user
+    │   ├───registry
+    │   ├───transfer
+    │   │   ├───request
+    │   │   └───response
+    │   └───usecase
+    │       ├───activity
+    │       ├───auth
+    │       ├───category
+    │       ├───product
+    │       ├───stock
+    │       └───user
+    ├───domain
+    │   ├───entity
+    │   │   └───enums
+    │   ├───enums
+    │   └───vo
+    ├───infrastructure
+    │   ├───annotations
+    │   ├───config
+    │   ├───health
+    │   │   └───internal
+    │   ├───http
+    │   ├───migration
+    │   ├───persistence
+    │   │   ├───repository
+    │   │   │   └───base
+    │   │   └───transfer
+    │   │       └───internal
+    │   └───utils
+    └───shared
+        ├───enums
+        ├───util
+        └───vo
 ```

@@ -2,7 +2,7 @@ package com.dev.servlet.adapter.in.web.filter;
 
 import com.dev.servlet.adapter.in.web.util.EndpointParser;
 import com.dev.servlet.application.exception.AppException;
-import com.dev.servlet.application.port.in.auth.RefreshTokenPort;
+import com.dev.servlet.application.port.in.auth.RefreshTokenUseCase;
 import com.dev.servlet.application.port.out.security.AuthCookiePort;
 import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.application.transfer.response.RefreshTokenResponse;
@@ -38,7 +38,7 @@ public class AuthFilter implements Filter {
     @Inject
     private AuthenticationPort authenticationPort;
     @Inject
-    private RefreshTokenPort refreshTokenPort;
+    private RefreshTokenUseCase refreshTokenUseCase;
     @Inject
     private AuthCookiePort authCookiePort;
 
@@ -78,7 +78,7 @@ public class AuthFilter implements Filter {
 
         if (refreshToken != null && authenticationPort.validateToken(refreshToken)) {
             try {
-                RefreshTokenResponse refresh = refreshTokenPort.refreshToken(BEARER_PREFIX + refreshToken);
+                RefreshTokenResponse refresh = refreshTokenUseCase.refreshToken(BEARER_PREFIX + refreshToken);
                 authCookiePort.setAuthCookies(response, refresh.token(), refresh.refreshToken());
                 response.sendRedirect(request.getRequestURI());
                 return;

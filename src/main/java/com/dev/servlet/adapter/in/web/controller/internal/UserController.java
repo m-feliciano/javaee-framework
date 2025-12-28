@@ -6,14 +6,14 @@ import com.dev.servlet.adapter.in.web.controller.UserControllerApi;
 import com.dev.servlet.adapter.in.web.controller.internal.base.BaseController;
 import com.dev.servlet.adapter.in.web.dto.HttpResponse;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
-import com.dev.servlet.application.port.in.user.ChangeEmailPort;
-import com.dev.servlet.application.port.in.user.ConfirmEmailPort;
-import com.dev.servlet.application.port.in.user.DeleteUserPort;
-import com.dev.servlet.application.port.in.user.RegisterUserPort;
-import com.dev.servlet.application.port.in.user.ResendConfirmationPort;
-import com.dev.servlet.application.port.in.user.UpdateProfilePicturePort;
-import com.dev.servlet.application.port.in.user.UpdateUserPort;
-import com.dev.servlet.application.port.in.user.UserDetailsPort;
+import com.dev.servlet.application.port.in.user.ChangeEmailUseCase;
+import com.dev.servlet.application.port.in.user.ConfirmEmailUseCase;
+import com.dev.servlet.application.port.in.user.DeleteUserUseCase;
+import com.dev.servlet.application.port.in.user.RegisterUserUseCase;
+import com.dev.servlet.application.port.in.user.ResendConfirmationUseCase;
+import com.dev.servlet.application.port.in.user.UpdateProfilePictureUseCase;
+import com.dev.servlet.application.port.in.user.UpdateUserUseCase;
+import com.dev.servlet.application.port.in.user.UserDetailsUseCase;
 import com.dev.servlet.application.transfer.request.ConfirmEmailRequest;
 import com.dev.servlet.application.transfer.request.FileUploadRequest;
 import com.dev.servlet.application.transfer.request.ResendConfirmationRequest;
@@ -35,21 +35,21 @@ public class UserController extends BaseController implements UserControllerApi 
     private static final String FORM_LOGIN_FORM = "forward:pages/formLogin.jsp";
 
     @Inject
-    private UpdateUserPort updateUserUseCase;
+    private UpdateUserUseCase updateUserUseCase;
     @Inject
-    private DeleteUserPort deleteUserUseCase;
+    private DeleteUserUseCase deleteUserUseCase;
     @Inject
-    private RegisterUserPort registerUserUseCase;
+    private RegisterUserUseCase registerUserUseCase;
     @Inject
-    private ConfirmEmailPort confirmEmailUseCase;
+    private ConfirmEmailUseCase confirmEmailUseCase;
     @Inject
-    private ChangeEmailPort changeEmailUseCase;
+    private ChangeEmailUseCase changeEmailUseCase;
     @Inject
-    private ResendConfirmationPort resendConfirmationUseCase;
+    private ResendConfirmationUseCase resendConfirmationUseCase;
     @Inject
-    private UserDetailsPort userDetailsUseCase;
+    private UserDetailsUseCase userDetailsUseCase;
     @Inject
-    private UpdateProfilePicturePort updateProfilePicturePort;
+    private UpdateProfilePictureUseCase updateProfilePictureUseCase;
 
     @Override
     protected Class<UserController> implementation() {
@@ -121,7 +121,7 @@ public class UserController extends BaseController implements UserControllerApi 
     @Override
     @Cache(invalidate = {"users_cache", "profile_cache"})
     public IHttpResponse<Void> updateProfilePicture(FileUploadRequest request, @Authorization String auth) {
-        updateProfilePicturePort.updatePicture(request, auth);
+        updateProfilePictureUseCase.updatePicture(request, auth);
         return newHttpResponse(204, redirectToCtx("me"));
     }
 }

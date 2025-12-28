@@ -1,16 +1,15 @@
 package com.dev.servlet.adapter.in.web.controller.internal;
 
 import com.dev.servlet.adapter.in.web.annotation.Authorization;
-import com.dev.servlet.adapter.in.web.annotation.Cache;
 import com.dev.servlet.adapter.in.web.controller.CategoryControllerApi;
 import com.dev.servlet.adapter.in.web.controller.internal.base.BaseController;
 import com.dev.servlet.adapter.in.web.dto.HttpResponse;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
-import com.dev.servlet.application.port.in.category.DeleteCategoryPort;
-import com.dev.servlet.application.port.in.category.GetCategoryDetailPort;
-import com.dev.servlet.application.port.in.category.ListCategoryPort;
-import com.dev.servlet.application.port.in.category.RegisterCategoryPort;
-import com.dev.servlet.application.port.in.category.UpdateCategoryPort;
+import com.dev.servlet.application.port.in.category.DeleteCategoryUseCase;
+import com.dev.servlet.application.port.in.category.GetCategoryDetailUseCase;
+import com.dev.servlet.application.port.in.category.ListCategoryUseCase;
+import com.dev.servlet.application.port.in.category.RegisterCategoryUseCase;
+import com.dev.servlet.application.port.in.category.UpdateCategoryUseCase;
 import com.dev.servlet.application.transfer.request.CategoryRequest;
 import com.dev.servlet.application.transfer.response.CategoryResponse;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -18,20 +17,19 @@ import jakarta.inject.Inject;
 import lombok.SneakyThrows;
 
 import java.util.Collection;
-import java.util.concurrent.TimeUnit;
 
 @ApplicationScoped
 public class CategoryController extends BaseController implements CategoryControllerApi {
     @Inject
-    private GetCategoryDetailPort detailPort;
+    private GetCategoryDetailUseCase categoryDetailUseCase;
     @Inject
-    private DeleteCategoryPort deletePort;
+    private DeleteCategoryUseCase deleteCategoryUseCase;
     @Inject
-    private UpdateCategoryPort updatePort;
+    private UpdateCategoryUseCase updateCategoryUseCase;
     @Inject
-    private ListCategoryPort listPort;
+    private ListCategoryUseCase listCategoryUseCase;
     @Inject
-    private RegisterCategoryPort registerPort;
+    private RegisterCategoryUseCase categoryUseCase;
 
     @Override
     protected Class<CategoryController> implementation() {
@@ -44,37 +42,37 @@ public class CategoryController extends BaseController implements CategoryContro
 
     @SneakyThrows
     public IHttpResponse<CategoryResponse> details(CategoryRequest category, @Authorization String auth) {
-        CategoryResponse response = detailPort.get(category, auth);
+        CategoryResponse response = categoryDetailUseCase.get(category, auth);
         return okHttpResponse(response, forwardTo("formUpdateCategory"));
     }
 
     @SneakyThrows
     public IHttpResponse<Void> delete(CategoryRequest category, @Authorization String auth) {
-        deletePort.delete(category, auth);
+        deleteCategoryUseCase.delete(category, auth);
         return HttpResponse.<Void>next(redirectToCtx(LIST)).build();
     }
 
     @SneakyThrows
     public IHttpResponse<Void> register(CategoryRequest category, @Authorization String auth) {
-        CategoryResponse response = registerPort.register(category, auth);
+        CategoryResponse response = categoryUseCase.register(category, auth);
         return newHttpResponse(201, redirectTo(response.getId()));
     }
 
     @SneakyThrows
     public IHttpResponse<Void> update(CategoryRequest category, @Authorization String auth) {
-        CategoryResponse response = updatePort.update(category, auth);
+        CategoryResponse response = updateCategoryUseCase.update(category, auth);
         return newHttpResponse(204, redirectTo(response.getId()));
     }
 
     @SneakyThrows
     public IHttpResponse<Collection<CategoryResponse>> list(CategoryRequest category, @Authorization String auth) {
-        Collection<CategoryResponse> response = listPort.list(category, auth);
+        Collection<CategoryResponse> response = listCategoryUseCase.list(category, auth);
         return okHttpResponse(response, forwardTo("listCategories"));
     }
 
     @SneakyThrows
     public IHttpResponse<CategoryResponse> getCategoryDetail(CategoryRequest request, @Authorization String auth) {
-        CategoryResponse response = detailPort.get(request, auth);
+        CategoryResponse response = categoryDetailUseCase.get(request, auth);
         return okHttpResponse(response, forwardTo("formListCategory"));
     }
 }

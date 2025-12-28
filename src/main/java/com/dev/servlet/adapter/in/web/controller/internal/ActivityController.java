@@ -8,7 +8,7 @@ import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.application.mapper.ActivityMapper;
 import com.dev.servlet.application.port.in.activity.GetActivityPageablePort;
 import com.dev.servlet.application.port.in.activity.GetUserActivityByPeriodPort;
-import com.dev.servlet.application.port.in.activity.GetUserActivityDetailPort;
+import com.dev.servlet.application.port.in.activity.GetUserActivityDetailUseCase;
 import com.dev.servlet.application.transfer.request.ActivityRequest;
 import com.dev.servlet.application.transfer.response.UserActivityLogResponse;
 import com.dev.servlet.domain.entity.UserActivityLog;
@@ -38,9 +38,9 @@ public class ActivityController extends BaseController implements ActivityContro
     @Inject
     private GetUserActivityByPeriodPort activityByPeriodUseCase;
     @Inject
-    private GetUserActivityDetailPort userActivityDetailUseCase;
+    private GetUserActivityDetailUseCase userActivityDetailUseCase;
     @Inject
-    private ActivityMapper activityMapper;
+    private ActivityMapper mapper;
 
     @Override
     protected Class<ActivityController> implementation() {
@@ -55,7 +55,7 @@ public class ActivityController extends BaseController implements ActivityContro
                 UserActivityLog.builder().userId(userId).build(),
                 Sort.by("timestamp").descending()
         );
-        var activityLogPage = activityPageableUseCase.getAllPageable(pageRequest, activityMapper::toResponse);
+        var activityLogPage = activityPageableUseCase.getAllPageable(pageRequest, mapper::toResponse);
         return HttpResponse.ok(activityLogPage).next(forwardTo("history")).build();
     }
 
@@ -72,9 +72,9 @@ public class ActivityController extends BaseController implements ActivityContro
     }
 
     public IHttpResponse<IPageable<UserActivityLogResponse>> search(Query query, IPageRequest pageRequest, @Authorization String auth) {
-        UserActivityLog filter = activityMapper.toFilter(authenticationPort.extractUserId(auth), query);
+        UserActivityLog filter = mapper.toFilter(authenticationPort.extractUserId(auth), query);
         pageRequest.setFilter(filter);
-        var activities = activityPageableUseCase.getAllPageable(pageRequest, activityMapper::toResponseDashBoard);
+        var activities = activityPageableUseCase.getAllPageable(pageRequest, mapper::toResponseDashBoard);
         return HttpResponse.ok(activities).next(forwardTo("history")).build();
     }
 
@@ -93,7 +93,7 @@ public class ActivityController extends BaseController implements ActivityContro
         Date dateFinal = DateUtil.toDateFinal(endDate, YYYY_MM_DD);
 
         var userActivities = activityByPeriodUseCase.getByPeriod(
-                userId, dateInitial, dateFinal, activityMapper::toResponse);
+                userId, dateInitial, dateFinal, mapper::toResponse);
         return HttpResponse.ok(userActivities).next(forwardTo("timeline")).build();
     }
 }

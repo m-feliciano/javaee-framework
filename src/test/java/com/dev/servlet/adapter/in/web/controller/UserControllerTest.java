@@ -2,14 +2,14 @@ package com.dev.servlet.adapter.in.web.controller;
 
 import com.dev.servlet.adapter.in.web.controller.internal.UserController;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
-import com.dev.servlet.application.port.in.user.ChangeEmailPort;
-import com.dev.servlet.application.port.in.user.ConfirmEmailPort;
-import com.dev.servlet.application.port.in.user.DeleteUserPort;
-import com.dev.servlet.application.port.in.user.RegisterUserPort;
-import com.dev.servlet.application.port.in.user.ResendConfirmationPort;
-import com.dev.servlet.application.port.in.user.UpdateProfilePicturePort;
-import com.dev.servlet.application.port.in.user.UpdateUserPort;
-import com.dev.servlet.application.port.in.user.UserDetailsPort;
+import com.dev.servlet.application.port.in.user.ChangeEmailUseCase;
+import com.dev.servlet.application.port.in.user.ConfirmEmailUseCase;
+import com.dev.servlet.application.port.in.user.DeleteUserUseCase;
+import com.dev.servlet.application.port.in.user.RegisterUserUseCase;
+import com.dev.servlet.application.port.in.user.ResendConfirmationUseCase;
+import com.dev.servlet.application.port.in.user.UpdateProfilePictureUseCase;
+import com.dev.servlet.application.port.in.user.UpdateUserUseCase;
+import com.dev.servlet.application.port.in.user.UserDetailsUseCase;
 import com.dev.servlet.application.transfer.request.FileUploadRequest;
 import com.dev.servlet.application.transfer.request.UserCreateRequest;
 import com.dev.servlet.application.transfer.request.UserRequest;
@@ -40,21 +40,21 @@ class UserControllerTest extends BaseControllerTest {
     private static final UUID USER_ID = UUID.randomUUID();
 
     @Mock
-    private UpdateUserPort updateUserPort;
+    private UpdateUserUseCase updateUserUseCase;
     @Mock
-    private DeleteUserPort deleteUserPort;
+    private DeleteUserUseCase deleteUserUseCase;
     @Mock
-    private RegisterUserPort registerUserPort;
+    private RegisterUserUseCase registerUserUseCase;
     @Mock
-    private ConfirmEmailPort confirmEmailPort;
+    private ConfirmEmailUseCase confirmEmailUseCase;
     @Mock
-    private ChangeEmailPort changeEmailPort;
+    private ChangeEmailUseCase changeEmailUseCase;
     @Mock
-    private ResendConfirmationPort resendConfirmationPort;
+    private ResendConfirmationUseCase resendConfirmationUseCase;
     @Mock
-    private UserDetailsPort userDetailsPort;
+    private UserDetailsUseCase userDetailsUseCase;
     @Mock
-    private UpdateProfilePicturePort updateProfilePicturePort;
+    private UpdateProfilePictureUseCase updateProfilePictureUseCase;
 
     @InjectMocks
     private UserController userController;
@@ -83,7 +83,7 @@ class UserControllerTest extends BaseControllerTest {
                     .login("newuser@example.com")
                     .build();
 
-            when(registerUserPort.register(any(UserCreateRequest.class))).thenReturn(expectedResponse);
+            when(registerUserUseCase.register(any(UserCreateRequest.class))).thenReturn(expectedResponse);
 
             // Act
             IHttpResponse<UserResponse> response = userController.register(request);
@@ -92,7 +92,7 @@ class UserControllerTest extends BaseControllerTest {
             assertThat(response).isNotNull();
             assertThat(response.body()).isEqualTo(expectedResponse);
 
-            verify(registerUserPort).register(request);
+            verify(registerUserUseCase).register(request);
         }
     }
 
@@ -114,7 +114,7 @@ class UserControllerTest extends BaseControllerTest {
                     .login("updateduser@example.com")
                     .build();
 
-            when(updateUserPort.update(any(UserRequest.class), eq(VALID_AUTH_TOKEN)))
+            when(updateUserUseCase.update(any(UserRequest.class), eq(VALID_AUTH_TOKEN)))
                     .thenReturn(expectedResponse);
 
             // Act
@@ -124,7 +124,7 @@ class UserControllerTest extends BaseControllerTest {
             assertThat(response).isNotNull();
             assertThat(response.body()).isEqualTo(expectedResponse);
 
-            verify(updateUserPort).update(request, VALID_AUTH_TOKEN);
+            verify(updateUserUseCase).update(request, VALID_AUTH_TOKEN);
         }
     }
 
@@ -138,14 +138,14 @@ class UserControllerTest extends BaseControllerTest {
             // Arrange
             UserRequest request = UserRequest.builder().id(USER_ID).build();
 
-            doNothing().when(deleteUserPort).delete(eq(USER_ID), eq(VALID_AUTH_TOKEN));
+            doNothing().when(deleteUserUseCase).delete(eq(USER_ID), eq(VALID_AUTH_TOKEN));
 
             // Act
             IHttpResponse<Void> response = userController.delete(request, VALID_AUTH_TOKEN);
 
             // Assert
             assertThat(response).isNotNull();
-            verify(deleteUserPort).delete(USER_ID, VALID_AUTH_TOKEN);
+            verify(deleteUserUseCase).delete(USER_ID, VALID_AUTH_TOKEN);
         }
     }
 
@@ -162,7 +162,7 @@ class UserControllerTest extends BaseControllerTest {
                     .login("test@example.com")
                     .build();
 
-            when(userDetailsPort.getDetail(eq(VALID_AUTH_TOKEN)))
+            when(userDetailsUseCase.getDetail(eq(VALID_AUTH_TOKEN)))
                     .thenReturn(expectedUser);
 
             // Act
@@ -172,7 +172,7 @@ class UserControllerTest extends BaseControllerTest {
             assertThat(response).isNotNull();
             assertThat(response.body()).isEqualTo(expectedUser);
 
-            verify(userDetailsPort).getDetail(VALID_AUTH_TOKEN);
+            verify(userDetailsUseCase).getDetail(VALID_AUTH_TOKEN);
         }
     }
 
@@ -188,14 +188,14 @@ class UserControllerTest extends BaseControllerTest {
             params.put("token", "valid-confirmation-token");
             Query query = Query.builder().parameters(params).build();
 
-            doNothing().when(confirmEmailPort).confirm(any());
+            doNothing().when(confirmEmailUseCase).confirm(any());
 
             // Act
             IHttpResponse<Void> response = userController.confirm(query);
 
             // Assert
             assertThat(response).isNotNull();
-            verify(confirmEmailPort).confirm(any());
+            verify(confirmEmailUseCase).confirm(any());
         }
 
         @Test
@@ -203,14 +203,14 @@ class UserControllerTest extends BaseControllerTest {
         void shouldResendConfirmation() {
             // Arrange
             User user = User.builder().id(USER_ID).build();
-            doNothing().when(resendConfirmationPort).resend(any());
+            doNothing().when(resendConfirmationUseCase).resend(any());
 
             // Act
             IHttpResponse<Void> response = userController.resendConfirmation(user);
 
             // Assert
             assertThat(response).isNotNull();
-            verify(resendConfirmationPort).resend(any());
+            verify(resendConfirmationUseCase).resend(any());
         }
     }
 
@@ -226,14 +226,14 @@ class UserControllerTest extends BaseControllerTest {
             params.put("token", "email-change-token");
             Query query = Query.builder().parameters(params).build();
 
-            doNothing().when(changeEmailPort).change(eq("email-change-token"));
+            doNothing().when(changeEmailUseCase).change(eq("email-change-token"));
 
             // Act
             IHttpResponse<Void> response = userController.changeEmail(query);
 
             // Assert
             assertThat(response).isNotNull();
-            verify(changeEmailPort).change("email-change-token");
+            verify(changeEmailUseCase).change("email-change-token");
         }
     }
 
@@ -249,14 +249,14 @@ class UserControllerTest extends BaseControllerTest {
                     new BinaryPayload("/temp/path/avatar.jpg", 2048L, "image/jpeg"),
                     USER_ID);
 
-            doNothing().when(updateProfilePicturePort).updatePicture(any(FileUploadRequest.class), eq(VALID_AUTH_TOKEN));
+            doNothing().when(updateProfilePictureUseCase).updatePicture(any(FileUploadRequest.class), eq(VALID_AUTH_TOKEN));
 
             // Act
             IHttpResponse<Void> response = userController.updateProfilePicture(uploadRequest, VALID_AUTH_TOKEN);
 
             // Assert
             assertThat(response).isNotNull();
-            verify(updateProfilePicturePort).updatePicture(uploadRequest, VALID_AUTH_TOKEN);
+            verify(updateProfilePictureUseCase).updatePicture(uploadRequest, VALID_AUTH_TOKEN);
         }
     }
 

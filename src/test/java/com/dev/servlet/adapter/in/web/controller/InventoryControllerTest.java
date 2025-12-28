@@ -5,13 +5,13 @@ import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.adapter.in.web.dto.IServletResponse;
 import com.dev.servlet.application.mapper.InventoryMapper;
 import com.dev.servlet.application.mapper.Mapper;
-import com.dev.servlet.application.port.in.category.ListCategoryPort;
-import com.dev.servlet.application.port.in.product.ProductDetailPort;
-import com.dev.servlet.application.port.in.stock.DeleteInventoryPort;
-import com.dev.servlet.application.port.in.stock.GetInventoryDetailPort;
-import com.dev.servlet.application.port.in.stock.ListInventoryPort;
-import com.dev.servlet.application.port.in.stock.RegisterInventoryPort;
-import com.dev.servlet.application.port.in.stock.UpdateInventoryPort;
+import com.dev.servlet.application.port.in.category.ListCategoryUseCase;
+import com.dev.servlet.application.port.in.product.ProductDetailUserCase;
+import com.dev.servlet.application.port.in.stock.DeleteInventoryUseCase;
+import com.dev.servlet.application.port.in.stock.GetInventoryDetailUseCase;
+import com.dev.servlet.application.port.in.stock.ListInventoryUseCase;
+import com.dev.servlet.application.port.in.stock.RegisterInventoryUseCase;
+import com.dev.servlet.application.port.in.stock.UpdateInventoryUseCase;
 import com.dev.servlet.application.transfer.request.InventoryCreateRequest;
 import com.dev.servlet.application.transfer.request.InventoryRequest;
 import com.dev.servlet.application.transfer.request.ProductRequest;
@@ -49,19 +49,19 @@ class InventoryControllerTest extends BaseControllerTest {
     @Mock
     private InventoryMapper inventoryMapper;
     @Mock
-    private ListCategoryPort listCategoryPort;
+    private ListCategoryUseCase listCategoryUseCase;
     @Mock
-    private ListInventoryPort listInventoryPort;
+    private ListInventoryUseCase listInventoryUseCase;
     @Mock
-    private UpdateInventoryPort updateInventoryPort;
+    private UpdateInventoryUseCase updateInventoryUseCase;
     @Mock
-    private RegisterInventoryPort registerInventoryPort;
+    private RegisterInventoryUseCase registerInventoryUseCase;
     @Mock
-    private DeleteInventoryPort deleteInventoryPort;
+    private DeleteInventoryUseCase deleteInventoryUseCase;
     @Mock
-    private GetInventoryDetailPort inventoryDetailPort;
+    private GetInventoryDetailUseCase inventoryDetailUseCase;
     @Mock
-    private ProductDetailPort productDetailPort;
+    private ProductDetailUserCase productDetailUserCase;
 
     @InjectMocks
     private InventoryController inventoryController;
@@ -90,7 +90,7 @@ class InventoryControllerTest extends BaseControllerTest {
             expectedResponse.setQuantity(100);
             expectedResponse.setDescription("Initial stock");
 
-            when(registerInventoryPort.register(any(InventoryCreateRequest.class), eq(VALID_AUTH_TOKEN)))
+            when(registerInventoryUseCase.register(any(InventoryCreateRequest.class), eq(VALID_AUTH_TOKEN)))
                     .thenReturn(expectedResponse);
 
             // Act
@@ -101,7 +101,7 @@ class InventoryControllerTest extends BaseControllerTest {
             assertThat(response.next()).contains("redirect:");
             assertThat(response.next()).contains(uuid.toString());
 
-            verify(registerInventoryPort).register(request, VALID_AUTH_TOKEN);
+            verify(registerInventoryUseCase).register(request, VALID_AUTH_TOKEN);
         }
     }
 
@@ -122,7 +122,7 @@ class InventoryControllerTest extends BaseControllerTest {
             InventoryResponse expectedResponse = new InventoryResponse(uuid);
             expectedResponse.setQuantity(150);
 
-            when(updateInventoryPort.update(any(InventoryRequest.class), eq(VALID_AUTH_TOKEN)))
+            when(updateInventoryUseCase.update(any(InventoryRequest.class), eq(VALID_AUTH_TOKEN)))
                     .thenReturn(expectedResponse);
 
             // Act
@@ -133,7 +133,7 @@ class InventoryControllerTest extends BaseControllerTest {
             assertThat(response.next()).contains("redirect:");
             assertThat(response.next()).contains(uuid.toString());
 
-            verify(updateInventoryPort).update(request, VALID_AUTH_TOKEN);
+            verify(updateInventoryUseCase).update(request, VALID_AUTH_TOKEN);
         }
     }
 
@@ -149,7 +149,7 @@ class InventoryControllerTest extends BaseControllerTest {
                     .id(UUID.randomUUID())
                     .build();
 
-            doNothing().when(deleteInventoryPort).delete(any(InventoryRequest.class), eq(VALID_AUTH_TOKEN));
+            doNothing().when(deleteInventoryUseCase).delete(any(InventoryRequest.class), eq(VALID_AUTH_TOKEN));
 
             // Act
             IHttpResponse<Void> response = inventoryController.delete(request, VALID_AUTH_TOKEN);
@@ -159,7 +159,7 @@ class InventoryControllerTest extends BaseControllerTest {
             assertThat(response.next()).contains("redirect:");
             assertThat(response.next()).contains("list");
 
-            verify(deleteInventoryPort).delete(request, VALID_AUTH_TOKEN);
+            verify(deleteInventoryUseCase).delete(request, VALID_AUTH_TOKEN);
         }
     }
 
@@ -199,10 +199,10 @@ class InventoryControllerTest extends BaseControllerTest {
                     .pageSize(10)
                     .build();
 
-            when(listInventoryPort.getAllPageable(any(PageRequest.class), eq(VALID_AUTH_TOKEN), any(Mapper.class)))
+            when(listInventoryUseCase.getAllPageable(any(PageRequest.class), eq(VALID_AUTH_TOKEN), any(Mapper.class)))
                     .thenReturn((PageResponse) pageResponse);
 
-            when(listCategoryPort.list(any(), eq(VALID_AUTH_TOKEN))).thenReturn(categories);
+            when(listCategoryUseCase.list(any(), eq(VALID_AUTH_TOKEN))).thenReturn(categories);
 
             // Act
             IServletResponse response = inventoryController.list(pageRequest, filter, VALID_AUTH_TOKEN);
@@ -212,8 +212,8 @@ class InventoryControllerTest extends BaseControllerTest {
             assertThat(response.body()).isNotNull();
             assertThat(response.body()).hasSize(2); // items and categories
 
-            verify(listInventoryPort).getAllPageable(any(PageRequest.class), eq(VALID_AUTH_TOKEN), any(Mapper.class));
-            verify(listCategoryPort).list(null, VALID_AUTH_TOKEN);
+            verify(listInventoryUseCase).getAllPageable(any(PageRequest.class), eq(VALID_AUTH_TOKEN), any(Mapper.class));
+            verify(listCategoryUseCase).list(null, VALID_AUTH_TOKEN);
         }
 
         @Test
@@ -226,7 +226,7 @@ class InventoryControllerTest extends BaseControllerTest {
             InventoryResponse expectedInventory = new InventoryResponse(uuid);
             expectedInventory.setQuantity(100);
 
-            when(inventoryDetailPort.get(any(InventoryRequest.class), eq(VALID_AUTH_TOKEN)))
+            when(inventoryDetailUseCase.get(any(InventoryRequest.class), eq(VALID_AUTH_TOKEN)))
                     .thenReturn(expectedInventory);
 
             // Act
@@ -236,7 +236,7 @@ class InventoryControllerTest extends BaseControllerTest {
             assertThat(response).isNotNull();
             assertThat(response.body()).isEqualTo(expectedInventory);
 
-            verify(inventoryDetailPort).get(request, VALID_AUTH_TOKEN);
+            verify(inventoryDetailUseCase).get(request, VALID_AUTH_TOKEN);
         }
     }
 
@@ -268,7 +268,7 @@ class InventoryControllerTest extends BaseControllerTest {
                             100,
                             "Sample inventory")
                     );
-            when(listCategoryPort.list(any(), eq(VALID_AUTH_TOKEN))).thenReturn(List.of());
+            when(listCategoryUseCase.list(any(), eq(VALID_AUTH_TOKEN))).thenReturn(List.of());
 
             IPageRequest pageRequest = PageRequest.builder()
                     .filter(filter)
@@ -283,7 +283,7 @@ class InventoryControllerTest extends BaseControllerTest {
                     .pageSize(10)
                     .build();
 
-            when(listInventoryPort.getAllPageable(any(), eq(VALID_AUTH_TOKEN), any()))
+            when(listInventoryUseCase.getAllPageable(any(), eq(VALID_AUTH_TOKEN), any()))
                     .thenReturn((PageResponse) pageableResponse);
 
             // Act
@@ -295,8 +295,8 @@ class InventoryControllerTest extends BaseControllerTest {
 
             verify(inventoryMapper).toInventory(any());
             verify(inventoryMapper).queryToInventory(any(Query.class));
-            verify(listCategoryPort).list(null, VALID_AUTH_TOKEN);
-            verify(listInventoryPort).getAllPageable(any(PageRequest.class), eq(VALID_AUTH_TOKEN), any(Mapper.class));
+            verify(listCategoryUseCase).list(null, VALID_AUTH_TOKEN);
+            verify(listInventoryUseCase).getAllPageable(any(PageRequest.class), eq(VALID_AUTH_TOKEN), any(Mapper.class));
         }
     }
 
@@ -317,7 +317,7 @@ class InventoryControllerTest extends BaseControllerTest {
             ProductResponse product = new ProductResponse(uuid);
             product.setName("Test Product");
 
-            when(productDetailPort.get(any(ProductRequest.class), eq(VALID_AUTH_TOKEN)))
+            when(productDetailUserCase.get(any(ProductRequest.class), eq(VALID_AUTH_TOKEN)))
                     .thenReturn(product);
 
             // Act
@@ -327,7 +327,7 @@ class InventoryControllerTest extends BaseControllerTest {
             assertThat(response).isNotNull();
             assertThat(response.body()).isEqualTo(product);
 
-            verify(productDetailPort).get(any(ProductRequest.class), eq(VALID_AUTH_TOKEN));
+            verify(productDetailUserCase).get(any(ProductRequest.class), eq(VALID_AUTH_TOKEN));
         }
 
         @Test

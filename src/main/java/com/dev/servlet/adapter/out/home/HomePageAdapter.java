@@ -1,10 +1,10 @@
 package com.dev.servlet.adapter.out.home;
 
-import com.dev.servlet.application.port.in.auth.HomePagePort;
+import com.dev.servlet.application.port.in.auth.HomePageUseCase;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class HomePageAdapter implements HomePagePort {
+public class HomePageAdapter implements HomePageUseCase {
     @Override
     public String homePage() {
         // TODO Use property file to manage page paths

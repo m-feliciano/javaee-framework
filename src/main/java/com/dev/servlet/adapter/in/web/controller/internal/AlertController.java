@@ -21,7 +21,7 @@ import java.util.UUID;
 @ApplicationScoped
 public class AlertController extends BaseController implements AlertControllerApi {
     @Inject
-    private AlertPort alertPort;
+    private AlertPort alert;
 
     @Override
     protected Class<AlertController> implementation() {
@@ -30,14 +30,14 @@ public class AlertController extends BaseController implements AlertControllerAp
 
     public IHttpResponse<String> list(@Authorization String auth) {
         UUID userId = authenticationPort.extractUserId(auth);
-        List<Alert> alerts = alertPort.list(userId);
+        List<Alert> alerts = alert.list(userId);
         String json = CloneUtil.toJson(alerts);
         return HttpResponse.ok(json).build();
     }
 
     public IHttpResponse<Void> clear(@Authorization String auth) {
         UUID userId = authenticationPort.extractUserId(auth);
-        alertPort.clear(userId);
+        alert.clear(userId);
         return HttpResponse.<Void>newBuilder().statusCode(204).build();
     }
 }

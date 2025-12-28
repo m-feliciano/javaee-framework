@@ -1,6 +1,6 @@
 package com.dev.servlet.adapter.out.audit;
 
-import com.dev.servlet.application.port.in.activity.LogUserActivityPort;
+import com.dev.servlet.application.port.in.activity.LogUserActivityUseCase;
 import com.dev.servlet.application.port.out.audit.AuditPort;
 import com.dev.servlet.application.port.out.security.AuthenticationPort;
 import com.dev.servlet.domain.entity.enums.ActivityStatus;
@@ -37,7 +37,7 @@ public class AuditAdapter implements AuditPort {
     );
 
     @Inject
-    private LogUserActivityPort userActivityPort;
+    private LogUserActivityUseCase userActivityPort;
     @Inject
     private AuthenticationPort authenticationPort;
     @Inject

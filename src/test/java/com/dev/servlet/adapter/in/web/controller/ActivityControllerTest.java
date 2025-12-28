@@ -5,7 +5,7 @@ import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.application.mapper.ActivityMapper;
 import com.dev.servlet.application.port.in.activity.GetActivityPageablePort;
 import com.dev.servlet.application.port.in.activity.GetUserActivityByPeriodPort;
-import com.dev.servlet.application.port.in.activity.GetUserActivityDetailPort;
+import com.dev.servlet.application.port.in.activity.GetUserActivityDetailUseCase;
 import com.dev.servlet.application.transfer.request.ActivityRequest;
 import com.dev.servlet.application.transfer.response.UserActivityLogResponse;
 import com.dev.servlet.domain.entity.User;
@@ -46,7 +46,7 @@ class ActivityControllerTest extends BaseControllerTest {
     @Mock
     private GetUserActivityByPeriodPort activityByPeriodUseCase;
     @Mock
-    private GetUserActivityDetailPort userActivityDetailUseCase;
+    private GetUserActivityDetailUseCase userActivityDetailUseCase;
     @Mock
     private ActivityMapper activityMapper;
 

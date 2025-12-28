@@ -175,7 +175,7 @@ class AlertControllerTest extends BaseControllerTest {
         @Test
         @DisplayName("Should have AlertPort dependency injected")
         void shouldHaveAlertPortInjected() {
-            assertThat(alertController).extracting("alertPort").isNotNull();
+            assertThat(alertController).extracting("alert").isNotNull();
         }
 
         @Test
