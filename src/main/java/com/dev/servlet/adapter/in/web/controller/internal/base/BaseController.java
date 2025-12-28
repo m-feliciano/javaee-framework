@@ -28,13 +28,13 @@ public abstract class BaseController extends BaseRouterController {
     private String webService;
 
     @Inject
-    public void setJwtUtils(AuthenticationPort jwts) {
-        this.authenticationPort = jwts;
+    public void setJwtUtils(AuthenticationPort auth) {
+        this.auth = auth;
     }
 
     @Inject
     public void setRequestContextController(RequestContextController requestContextController) {
-        this.contextController = requestContextController;
+        this.context = requestContextController;
     }
 
     @Inject

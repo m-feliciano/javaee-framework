@@ -17,6 +17,7 @@ public class LogExecutionTimeInterceptor {
         StopWatch stopWatch = new StopWatch();
         String methodName = context.getMethod().getName();
         String className = context.getTarget().getClass().getSuperclass().getName();
+        className = className.substring(className.lastIndexOf('.') + 1);
         stopWatch.start();
         try {
             return context.proceed();

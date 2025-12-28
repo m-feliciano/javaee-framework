@@ -14,11 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 @ApplicationScoped
 public class ListProductAdapter implements ListProductPort {
     @Inject
-    private ProductRepositoryPort repositoryPort;
+    private ProductRepositoryPort repository;
 
     @Override
     public <U> IPageable<U> getAllPageable(IPageRequest payload, String auth, Mapper<Product, U> mapper) {
         log.debug("ListProductAdapter: fetching products pageable with payload {}", payload);
-        return repositoryPort.getAllPageable(payload, mapper);
+        return repository.getAllPageable(payload, mapper);
     }
 }

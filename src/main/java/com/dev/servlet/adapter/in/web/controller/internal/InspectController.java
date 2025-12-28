@@ -16,7 +16,7 @@ import java.util.List;
 @ApplicationScoped
 public class InspectController extends BaseController implements InspectControllerApi {
     @Inject
-    private ControllerIntrospectionService inspector;
+    private ControllerIntrospectionService service;
 
     @Override
     protected Class<InspectController> implementation() {
@@ -25,14 +25,14 @@ public class InspectController extends BaseController implements InspectControll
 
     @Cache(value = "inspect_raw_json")
     public IHttpResponse<String> rawJson() {
-        List<ControllerInfo> controllers = inspector.listControllers();
+        List<ControllerInfo> controllers = service.listControllers();
         String json = CloneUtil.toJson(controllers);
         return HttpResponse.ok(json).next(forwardTo("inspect-raw")).build();
     }
 
     @Cache(value = "inspect_info")
     public IHttpResponse<List<ControllerInfo>> page() {
-        List<ControllerInfo> controllers = inspector.listControllers();
+        List<ControllerInfo> controllers = service.listControllers();
         return newHttpResponse(200, controllers, forwardTo("inspect"));
     }
 }

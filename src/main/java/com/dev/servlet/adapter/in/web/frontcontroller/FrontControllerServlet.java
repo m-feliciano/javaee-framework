@@ -2,7 +2,6 @@ package com.dev.servlet.adapter.in.web.frontcontroller;
 
 import com.dev.servlet.adapter.in.web.builder.RequestBuilder;
 import com.dev.servlet.adapter.in.web.dispatcher.IServletDispatcher;
-import com.dev.servlet.adapter.in.web.dispatcher.impl.LogExecutionTimeInterceptor;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.adapter.in.web.dto.Request;
 import com.dev.servlet.application.exception.AppException;
@@ -14,7 +13,6 @@ import com.dev.servlet.infrastructure.utils.URIUtils;
 import com.dev.servlet.shared.util.CloneUtil;
 import com.dev.servlet.shared.vo.AuditPayload;
 import jakarta.inject.Inject;
-import jakarta.interceptor.Interceptors;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,9 +39,9 @@ public class FrontControllerServlet extends HttpServlet {
     private static final String GET_PROFILE_EVENT = "GET:/api/v1/user/profile";
 
     @Inject
-    private AuditPort auditPort;
+    private AuditPort audit;
     @Inject
-    private AuthCookiePort authCookiePort;
+    private AuthCookiePort authCookie;
     @Inject
     private IServletDispatcher dispatcher;
     @Inject
@@ -62,7 +60,6 @@ public class FrontControllerServlet extends HttpServlet {
     }
 
     @Override
-    @Interceptors({LogExecutionTimeInterceptor.class})
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         log.trace("service(req={}, resp={})", req, resp);
 
@@ -118,9 +115,9 @@ public class FrontControllerServlet extends HttpServlet {
 
         int status = resp != null ? resp.statusCode() : 500;
         if (status >= 200 && status < 400) {
-            auditPort.success(event, input.getToken(), payload);
+            audit.success(event, input.getToken(), payload);
         } else {
-            auditPort.failure(event, input.getToken(), payload);
+            audit.failure(event, input.getToken(), payload);
         }
     }
 
@@ -145,16 +142,16 @@ public class FrontControllerServlet extends HttpServlet {
 
     private void handleCookies(HttpServletResponse resp, Request request, IHttpResponse<?> response) {
         if (RequestMethod.GET.equals(request.getMethod())) {
-            authCookiePort.addCdnCookies(resp);
+            authCookie.addCdnCookies(resp);
         }
 
         if (RequestMethod.POST.equals(request.getMethod())) {
             if (response.body() instanceof UserResponse user && user.hasToken()) {
-                authCookiePort.setAuthCookies(resp, user.getToken(), user.getRefreshToken());
+                authCookie.setAuthCookies(resp, user.getToken(), user.getRefreshToken());
             }
 
             if (request.contains("logout")) {
-                authCookiePort.clearCookies(resp);
+                authCookie.clearCookies(resp);
             }
         }
     }

@@ -3,8 +3,8 @@ package com.dev.servlet.adapter.in.web.controller;
 import com.dev.servlet.adapter.in.web.controller.internal.ActivityController;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.application.mapper.ActivityMapper;
-import com.dev.servlet.application.port.in.activity.GetActivityPageablePort;
-import com.dev.servlet.application.port.in.activity.GetUserActivityByPeriodPort;
+import com.dev.servlet.application.port.in.activity.GetActivityPageableUseCase;
+import com.dev.servlet.application.port.in.activity.GetUserActivityByPeriodUseCase;
 import com.dev.servlet.application.port.in.activity.GetUserActivityDetailUseCase;
 import com.dev.servlet.application.transfer.request.ActivityRequest;
 import com.dev.servlet.application.transfer.response.UserActivityLogResponse;
@@ -42,9 +42,9 @@ class ActivityControllerTest extends BaseControllerTest {
 
     private static final UUID ACTIVITY_ID = UUID.randomUUID();
     @Mock
-    private GetActivityPageablePort activityPageableUseCase;
+    private GetActivityPageableUseCase activityPageableUseCase;
     @Mock
-    private GetUserActivityByPeriodPort activityByPeriodUseCase;
+    private GetUserActivityByPeriodUseCase activityByPeriodUseCase;
     @Mock
     private GetUserActivityDetailUseCase userActivityDetailUseCase;
     @Mock

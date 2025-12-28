@@ -14,11 +14,11 @@ import java.math.BigDecimal;
 @ApplicationScoped
 public class ProductCalculatePriceAdapter implements ProductCalculatePricePort {
     @Inject
-    private ProductRepositoryPort productRepositoryPort;
+    private ProductRepositoryPort repository;
 
     @Override
     public BigDecimal calculateTotalPriceFor(IPageable<?> page, Product product) {
-        return productRepositoryPort.calculateTotalPriceFor(product);
+        return repository.calculateTotalPriceFor(product);
     }
 
 }

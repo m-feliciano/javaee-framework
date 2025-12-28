@@ -4,7 +4,6 @@ import com.dev.servlet.adapter.in.web.filter.wrapper.XSSRequestWrapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -14,9 +13,6 @@ import java.io.IOException;
 
 @ApplicationScoped
 public class XSSFilter implements Filter {
-    @Override
-    public void init(FilterConfig filterConfig) {
-    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {

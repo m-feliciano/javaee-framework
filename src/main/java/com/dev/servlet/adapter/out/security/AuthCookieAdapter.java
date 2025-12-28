@@ -1,17 +1,14 @@
 package com.dev.servlet.adapter.out.security;
 
-import com.dev.servlet.application.port.out.audit.AuditPort;
 import com.dev.servlet.application.port.out.cache.CachePort;
 import com.dev.servlet.application.port.out.security.AuthCookiePort;
 import com.dev.servlet.infrastructure.config.Properties;
-import com.dev.servlet.shared.vo.AuditPayload;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -48,7 +45,7 @@ public class AuthCookieAdapter implements AuthCookiePort {
     private String sameSite;
 
     @Inject
-    private CachePort cachePort;
+    private CachePort cache;
 
     @PostConstruct
     public void init() {
@@ -179,14 +176,14 @@ public class AuthCookieAdapter implements AuthCookiePort {
         try {
             String namespace = "cdn:cookies";
 
-            Map<String, String> cookies = cachePort.get(namespace, cdnCookiesKey);
+            Map<String, String> cookies = cache.get(namespace, cdnCookiesKey);
             if (cookies == null || cookies.isEmpty()) {
                 log.debug("No cached CDN cookies found, generating new ones");
 
                 cookies = generateCloudFrontSignedCookies();
 
                 Duration ttl = Duration.ofMinutes(15).minus(Duration.ofSeconds(30));
-                cachePort.set(namespace, cdnCookiesKey, cookies, ttl);
+                cache.set(namespace, cdnCookiesKey, cookies, ttl);
             } else {
                 log.debug("Using cached CDN cookies");
             }

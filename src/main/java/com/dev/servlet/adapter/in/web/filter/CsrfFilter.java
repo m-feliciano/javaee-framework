@@ -32,7 +32,7 @@ public class CsrfFilter implements Filter {
     );
 
     @Inject
-    private AuthCookiePort AuthCookiePort;
+    private AuthCookiePort AuthCookie;
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -50,13 +50,13 @@ public class CsrfFilter implements Filter {
         String requestURI = request.getRequestURI();
         String method = request.getMethod();
         if (RequestMethod.GET.getMethod().equals(method)) {
-            AuthCookiePort.ensureCsrfToken(request, response);
+            AuthCookie.ensureCsrfToken(request, response);
             chain.doFilter(request, response);
             return;
         }
 
         if (isStatefulMethod(method)) {
-            if (!AuthCookiePort.validateCsrfToken(request)) {
+            if (!AuthCookie.validateCsrfToken(request)) {
                 log.warn("CSRF validation failed [implementation={}, uri={}]", method, requestURI);
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid CSRF token");
                 return;

@@ -14,13 +14,13 @@ import lombok.extern.slf4j.Slf4j;
 public class ServletDispatcherImpl implements IServletDispatcher {
 
     @Inject
-    private HttpExecutor httpExecutor;
+    private HttpExecutor executor;
 
     @Override
     @Interceptors({LogExecutionTimeInterceptor.class})
     public IHttpResponse<?> dispatch(Request request) {
-        log.debug("Dispatching request to HttpExecutor: {}", httpExecutor.getClass().getSimpleName());
-        IHttpResponse<?> sent = httpExecutor.send(request);
+        log.debug("Dispatching request to HttpExecutor: {}", executor.getClass().getSimpleName());
+        IHttpResponse<?> sent = executor.send(request);
         log.debug("Request dispatched successfully.");
         return sent;
     }

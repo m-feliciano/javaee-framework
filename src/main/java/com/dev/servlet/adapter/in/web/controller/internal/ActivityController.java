@@ -6,8 +6,8 @@ import com.dev.servlet.adapter.in.web.controller.internal.base.BaseController;
 import com.dev.servlet.adapter.in.web.dto.HttpResponse;
 import com.dev.servlet.adapter.in.web.dto.IHttpResponse;
 import com.dev.servlet.application.mapper.ActivityMapper;
-import com.dev.servlet.application.port.in.activity.GetActivityPageablePort;
-import com.dev.servlet.application.port.in.activity.GetUserActivityByPeriodPort;
+import com.dev.servlet.application.port.in.activity.GetActivityPageableUseCase;
+import com.dev.servlet.application.port.in.activity.GetUserActivityByPeriodUseCase;
 import com.dev.servlet.application.port.in.activity.GetUserActivityDetailUseCase;
 import com.dev.servlet.application.transfer.request.ActivityRequest;
 import com.dev.servlet.application.transfer.response.UserActivityLogResponse;
@@ -34,9 +34,9 @@ import static com.dev.servlet.shared.util.DateUtil.YYYY_MM_DD;
 @ApplicationScoped
 public class ActivityController extends BaseController implements ActivityControllerApi {
     @Inject
-    private GetActivityPageablePort activityPageableUseCase;
+    private GetActivityPageableUseCase activityPageableUseCase;
     @Inject
-    private GetUserActivityByPeriodPort activityByPeriodUseCase;
+    private GetUserActivityByPeriodUseCase activityByPeriodUseCase;
     @Inject
     private GetUserActivityDetailUseCase userActivityDetailUseCase;
     @Inject
@@ -48,7 +48,7 @@ public class ActivityController extends BaseController implements ActivityContro
     }
 
     public IHttpResponse<IPageable<UserActivityLogResponse>> getHistory(PageRequest defaultPage, @Authorization String auth) {
-        UUID userId = authenticationPort.extractUserId(auth);
+        UUID userId = this.auth.extractUserId(auth);
         PageRequest pageRequest = PageRequest.of(
                 defaultPage.getInitialPage(),
                 defaultPage.getPageSize(),
@@ -60,7 +60,7 @@ public class ActivityController extends BaseController implements ActivityContro
     }
 
     public IHttpResponse<UserActivityLog> getActivityDetail(ActivityRequest request, @Authorization String auth) {
-        UUID userId = authenticationPort.extractUserId(auth);
+        UUID userId = this.auth.extractUserId(auth);
         Optional<UserActivityLog> optional = userActivityDetailUseCase.getActivityDetail(request.id(), userId);
 
         UserActivityLog activityLog = optional.orElseThrow(() -> new RuntimeException("Activity not found"));
@@ -72,14 +72,14 @@ public class ActivityController extends BaseController implements ActivityContro
     }
 
     public IHttpResponse<IPageable<UserActivityLogResponse>> search(Query query, IPageRequest pageRequest, @Authorization String auth) {
-        UserActivityLog filter = mapper.toFilter(authenticationPort.extractUserId(auth), query);
+        UserActivityLog filter = mapper.toFilter(this.auth.extractUserId(auth), query);
         pageRequest.setFilter(filter);
         var activities = activityPageableUseCase.getAllPageable(pageRequest, mapper::toResponseDashBoard);
         return HttpResponse.ok(activities).next(forwardTo("history")).build();
     }
 
     public IHttpResponse<List<UserActivityLogResponse>> getTimeline(Query query, @Authorization String auth) {
-        UUID userId = authenticationPort.extractUserId(auth);
+        UUID userId = this.auth.extractUserId(auth);
         String startDateStr = null;
         String endDateStr = null;
         if (query != null) {

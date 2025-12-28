@@ -312,7 +312,7 @@ class InspectControllerTest extends BaseControllerTest {
         @Test
         @DisplayName("Should have introspection service injected")
         void shouldHaveIntrospectionServiceInjected() {
-            assertThat(inspectController).extracting("inspector").isNotNull();
+            assertThat(inspectController).extracting("service").isNotNull();
         }
 
         @Test

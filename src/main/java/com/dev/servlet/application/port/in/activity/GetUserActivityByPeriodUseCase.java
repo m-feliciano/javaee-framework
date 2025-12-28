@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-public interface GetUserActivityByPeriodPort {
+public interface GetUserActivityByPeriodUseCase {
     <U> List<U> getByPeriod(UUID userId, Date startDate, Date endDate, Mapper<UserActivityLog, U> mapper);
 }
 

@@ -29,14 +29,14 @@ public class AlertController extends BaseController implements AlertControllerAp
     }
 
     public IHttpResponse<String> list(@Authorization String auth) {
-        UUID userId = authenticationPort.extractUserId(auth);
+        UUID userId = this.auth.extractUserId(auth);
         List<Alert> alerts = alert.list(userId);
         String json = CloneUtil.toJson(alerts);
         return HttpResponse.ok(json).build();
     }
 
     public IHttpResponse<Void> clear(@Authorization String auth) {
-        UUID userId = authenticationPort.extractUserId(auth);
+        UUID userId = this.auth.extractUserId(auth);
         alert.clear(userId);
         return HttpResponse.<Void>newBuilder().statusCode(204).build();
     }

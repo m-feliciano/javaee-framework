@@ -32,15 +32,14 @@ import static com.dev.servlet.shared.enums.ConstantUtils.LOGIN_PAGE;
 @Slf4j
 @ApplicationScoped
 public class AuthFilter implements Filter {
-
     private final Map<String, Set<String>> preAuthorized = new HashMap<>();
 
     @Inject
-    private AuthenticationPort authenticationPort;
+    private AuthenticationPort auth;
     @Inject
     private RefreshTokenUseCase refreshTokenUseCase;
     @Inject
-    private AuthCookiePort authCookiePort;
+    private AuthCookiePort authCookie;
 
     @PostConstruct
     public void init() {
@@ -61,8 +60,8 @@ public class AuthFilter implements Filter {
         }
 
         Cookie[] cookies = request.getCookies();
-        String token = authCookiePort.getCookieFromArray(cookies, authCookiePort.getAccessTokenCookieName());
-        String refreshToken = authCookiePort.getCookieFromArray(cookies, authCookiePort.getRefreshTokenCookieName());
+        String token = authCookie.getCookieFromArray(cookies, authCookie.getAccessTokenCookieName());
+        String refreshToken = authCookie.getCookieFromArray(cookies, authCookie.getRefreshTokenCookieName());
 
         if (token == null && refreshToken == null) {
             log.warn("No tokens found for: {}", request.getRequestURI());
@@ -70,16 +69,16 @@ public class AuthFilter implements Filter {
             return;
         }
 
-        if (token != null && authenticationPort.validateToken(token)) {
+        if (token != null && auth.validateToken(token)) {
             log.debug("Valid token access [endpoint={}]", request.getRequestURI());
             chain.doFilter(req, res);
             return;
         }
 
-        if (refreshToken != null && authenticationPort.validateToken(refreshToken)) {
+        if (refreshToken != null && auth.validateToken(refreshToken)) {
             try {
                 RefreshTokenResponse refresh = refreshTokenUseCase.refreshToken(BEARER_PREFIX + refreshToken);
-                authCookiePort.setAuthCookies(response, refresh.token(), refresh.refreshToken());
+                authCookie.setAuthCookies(response, refresh.token(), refresh.refreshToken());
                 response.sendRedirect(request.getRequestURI());
                 return;
             } catch (AppException e) {
@@ -88,7 +87,7 @@ public class AuthFilter implements Filter {
         }
 
         log.warn("Invalid tokens for: {}", request.getRequestURI());
-        authCookiePort.clearCookies(response);
+        authCookie.clearCookies(response);
         redirectToLogin(response);
     }
 

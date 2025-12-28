@@ -11,11 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 @ApplicationScoped
 public class HasInventoryAdapter implements HasInventoryUseCase {
     @Inject
-    private InventoryRepositoryPort repositoryPort;
+    private InventoryRepositoryPort repository;
 
     @Override
     public boolean hasInventory(Inventory inventory, String auth) {
         log.debug("HasInventoryUseCase: checking inventory existence for item {}", inventory.getId());
-        return repositoryPort.has(inventory);
+        return repository.has(inventory);
     }
 }

@@ -43,8 +43,8 @@ public abstract class BaseRouterController {
     private static final Map<String, Set<MethodMapping>> reflections = new ConcurrentHashMap<>();
 
     protected CachePort cache;
-    protected AuthenticationPort authenticationPort;
-    protected RequestContextController contextController;
+    protected AuthenticationPort auth;
+    protected RequestContextController context;
 
     protected BaseRouterController() {
         initRouteMapping();
@@ -69,7 +69,7 @@ public abstract class BaseRouterController {
 
         log.debug("Validating request for endpoint: {}", path);
 
-        RequestValidator validator = new RequestValidator(endpoint, authenticationPort);
+        RequestValidator validator = new RequestValidator(endpoint, auth);
         validator.validate(requestMapping, request);
 
         final Method method = methodMapping.implementation();
@@ -80,7 +80,7 @@ public abstract class BaseRouterController {
 
         final Cache cache = method.getAnnotation(Cache.class);
         if (request.getToken() != null && cache != null && StringUtils.isNotBlank(cache.value())) {
-            UUID userId = authenticationPort.extractUserId(request.getToken());
+            UUID userId = auth.extractUserId(request.getToken());
             return executeCachedHttp(endpoint, method, userId, args);
         }
 
@@ -193,13 +193,13 @@ public abstract class BaseRouterController {
         Thread.ofVirtual()
                 .name("async-request-%s-%d".formatted(threadName, counter.incrementAndGet()))
                 .start(() -> {
-                    contextController.activate();
+                    context.activate();
                     try {
                         invokeServiceMethod(method, args);
                     } catch (Exception e) {
                         log.error("Error during async request", e);
                     } finally {
-                        contextController.deactivate();
+                        context.deactivate();
                     }
                 });
 
@@ -235,7 +235,7 @@ public abstract class BaseRouterController {
         if (cache == null || token == null) return;
 
         try {
-            UUID userId = authenticationPort.extractUserId(token);
+            UUID userId = auth.extractUserId(token);
             for (String namespace : cache.invalidate()) {
                 this.cache.clearSuffix(namespace, userId);
             }

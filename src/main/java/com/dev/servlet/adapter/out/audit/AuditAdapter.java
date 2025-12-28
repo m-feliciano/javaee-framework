@@ -37,9 +37,9 @@ public class AuditAdapter implements AuditPort {
     );
 
     @Inject
-    private LogUserActivityUseCase userActivityPort;
+    private LogUserActivityUseCase userActivity;
     @Inject
-    private AuthenticationPort authenticationPort;
+    private AuthenticationPort auth;
     @Inject
     private RequestContextController requestContextController;
 
@@ -83,7 +83,7 @@ public class AuditAdapter implements AuditPort {
                 UUID userId = null;
                 if (token != null && !token.isBlank()) {
                     try {
-                        userId = authenticationPort.extractUserId(token);
+                        userId = auth.extractUserId(token);
                     } catch (Exception ignored) {
                     }
 
@@ -100,7 +100,7 @@ public class AuditAdapter implements AuditPort {
                 log.debug(CloneUtil.toJson(metadata));
 
                 if (userId != null && payload instanceof AuditPayload<?, ?> auditPayload) {
-                    userActivityPort.logActivity(userId, outcome, auditPayload, metadata);
+                    userActivity.logActivity(userId, outcome, auditPayload, metadata);
                     log.debug("[Thread: {}] Activity log registered for userId: {}", threadName, userId);
                 }
 

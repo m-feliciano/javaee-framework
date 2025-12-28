@@ -5,14 +5,11 @@ import com.dev.servlet.shared.vo.Sort;
 import lombok.Builder;
 import lombok.Data;
 
-import java.io.Serial;
 import java.io.Serializable;
 
 @Data
 @Builder
 public final class PageRequest implements IPageRequest, Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
     private Sort sort;
     private int initialPage;
     private int pageSize;

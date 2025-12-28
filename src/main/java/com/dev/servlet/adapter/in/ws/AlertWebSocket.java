@@ -24,12 +24,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AlertWebSocket {
 
     private static final Map<UUID, Session> sessions = new ConcurrentHashMap<>();
-    @Inject
-    private AuthenticationPort authenticationPort;
-    @Inject
-    private AuthCookiePort authCookiePort;
+    private static final ObjectMapper mapper = new ObjectMapper();
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    @Inject
+    private AuthenticationPort auth;
+    @Inject
+    private AuthCookiePort authCookie;
 
     @OnOpen
     public void onOpen(Session session, EndpointConfig config) {
@@ -55,7 +55,7 @@ public class AlertWebSocket {
             List<String> cookie = req.getHeaders().get("cookie");
             if (cookie == null) throw new Exception("No cookies in WS request");
 
-            String jwt = authCookiePort.getCookieFromList(cookie, authCookiePort.getAccessTokenCookieName());
+            String jwt = authCookie.getCookieFromList(cookie, authCookie.getAccessTokenCookieName());
             if (jwt == null) throw new Exception("Missing JWT token in WS cookies");
 
             UUID userId = validateJwtAndGetUser(jwt);
@@ -100,7 +100,7 @@ public class AlertWebSocket {
 
     private UUID validateJwtAndGetUser(String jwt) {
         try {
-            return authenticationPort.extractUserId(jwt);
+            return auth.extractUserId(jwt);
         } catch (Exception e) {
             log.error("AlertWebSocket: JWT validation error", e);
             return null;

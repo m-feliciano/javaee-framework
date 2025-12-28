@@ -21,9 +21,9 @@ import java.util.UUID;
 @Singleton
 public class HealthServiceImpl implements HealthService {
     @Inject
-    private EntityManager entityManager;
+    private EntityManager em;
     @Inject
-    private CachePort cachePort;
+    private CachePort cache;
 
     @Override
     public Map<String, Object> getHealthStatus() {
@@ -98,7 +98,7 @@ public class HealthServiceImpl implements HealthService {
     @Override
     public boolean isDatabaseHealthy() {
         try {
-            entityManager.createNativeQuery("SELECT 1").getSingleResultOrNull();
+            em.createNativeQuery("SELECT 1").getSingleResultOrNull();
             log.debug("Database health check: PASSED");
             return true;
         } catch (Exception e) {
@@ -113,9 +113,9 @@ public class HealthServiceImpl implements HealthService {
             String namespace = "health";
             UUID uuid = UUID.randomUUID();
 
-            cachePort.set(namespace, uuid, "test_value");
-            String result = cachePort.get(namespace, uuid);
-            cachePort.clear(namespace, uuid);
+            cache.set(namespace, uuid, "test_value");
+            String result = cache.get(namespace, uuid);
+            cache.clear(namespace, uuid);
 
             boolean healthy = "test_value".equals(result);
             log.debug("Cache health check: {}", healthy ? "PASSED" : "FAILED");

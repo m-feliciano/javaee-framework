@@ -19,7 +19,7 @@ import java.util.Map;
 public class HealthController extends BaseController implements HealthControllerApi {
     private static final String HEALTH_PAGE = "forward:pages/health/health.jsp";
     @Inject
-    private HealthService healthService;
+    private HealthService service;
 
     @Override
     protected Class<HealthController> implementation() {
@@ -27,25 +27,25 @@ public class HealthController extends BaseController implements HealthController
     }
 
     public IHttpResponse<Map<String, Object>> health() {
-        Map<String, Object> health = healthService.getHealthStatus();
+        Map<String, Object> health = service.getHealthStatus();
         return HttpResponse.ok(health).next(HEALTH_PAGE).build();
     }
 
     @Override
     public IHttpResponse<Map<String, Object>> readiness() {
-        Map<String, Object> ready = healthService.getReadinessStatus();
+        Map<String, Object> ready = service.getReadinessStatus();
         return HttpResponse.ok(ready).next(HEALTH_PAGE).build();
     }
 
     @Override
     public IHttpResponse<Map<String, Object>> liveness() {
-        Map<String, Object> live = healthService.getLivenessStatus();
+        Map<String, Object> live = service.getLivenessStatus();
         return HttpResponse.ok(live).next(HEALTH_PAGE).build();
     }
 
     @Override
     public HttpResponse<HealthStatus> up() {
-        boolean isUp = healthService.isDatabaseHealthy() && healthService.isCacheHealthy();
+        boolean isUp = service.isDatabaseHealthy() && service.isCacheHealthy();
         return HttpResponse.ok(new HealthStatus(isUp ? "UP" : "DOWN")).build();
     }
 }

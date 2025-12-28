@@ -1,7 +1,7 @@
 package com.dev.servlet.adapter.out.activity;
 
 import com.dev.servlet.application.mapper.Mapper;
-import com.dev.servlet.application.port.in.activity.GetActivityPageablePort;
+import com.dev.servlet.application.port.in.activity.GetActivityPageableUseCase;
 import com.dev.servlet.application.port.out.activity.UserActivityLogRepositoryPort;
 import com.dev.servlet.domain.entity.UserActivityLog;
 import com.dev.servlet.infrastructure.persistence.transfer.IPageRequest;
@@ -12,14 +12,14 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ApplicationScoped
-public class GetActivityPageableAdapter implements GetActivityPageablePort {
+public class GetActivityPageableAdapter implements GetActivityPageableUseCase {
 
     @Inject
-    private UserActivityLogRepositoryPort repositoryPort;
+    private UserActivityLogRepositoryPort repository;
 
     @Override
     public <U> IPageable<U> getAllPageable(IPageRequest pageRequest, Mapper<UserActivityLog, U> mapper) {
         log.debug("Fetching pageable activity logs: page {}, size {}", pageRequest.getInitialPage(), pageRequest.getPageSize());
-        return repositoryPort.getAllPageable(pageRequest, mapper);
+        return repository.getAllPageable(pageRequest, mapper);
     }
 }

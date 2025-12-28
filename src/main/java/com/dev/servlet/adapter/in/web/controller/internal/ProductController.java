@@ -86,7 +86,7 @@ public class ProductController extends BaseController implements ProductControll
 
     @SneakyThrows
     public IServletResponse search(Query query, IPageRequest pageRequest, @Authorization String auth) {
-        User user = authenticationPort.extractUser(auth);
+        User user = this.auth.extractUser(auth);
         Product product = mapper.queryToProduct(query, user);
         Set<KeyPair> container = listProductContainerUseCase.assembleContainerResponse(pageRequest, auth, product);
         return newServletResponse(container, forwardTo("listProducts"));
@@ -94,7 +94,7 @@ public class ProductController extends BaseController implements ProductControll
 
     @SneakyThrows
     public IServletResponse list(IPageRequest pageRequest, @Authorization String auth) {
-        Product product = mapper.toProduct(null, authenticationPort.extractUserId(auth));
+        Product product = mapper.toProduct(null, this.auth.extractUserId(auth));
         Set<KeyPair> container = listProductContainerUseCase.assembleContainerResponse(pageRequest, auth, product);
         return newServletResponse(container, forwardTo("listProducts"));
     }
