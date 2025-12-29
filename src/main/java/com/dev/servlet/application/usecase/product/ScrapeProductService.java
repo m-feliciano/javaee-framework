@@ -30,7 +30,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,7 +49,7 @@ public class ScrapeProductService implements ScrapeProductUseCase {
     @Inject
     private AlertPort alert;
     @Inject
-    private WebScrapeServiceRegistry webScrapeServiceRegistry;
+    private WebScrapeServiceRegistry registry;
     @Inject
     private ProductMapper mapper;
     @Inject
@@ -84,27 +83,15 @@ public class ScrapeProductService implements ScrapeProductUseCase {
             return null;
         }
 
-        Optional<List<ProductWebScrapeDTO>> optional;
-        try {
-            optional = WebScrapeBuilder.<List<ProductWebScrapeDTO>>create()
-                    .withServiceType("product")
-                    .withUrl(url)
-                    .withRegistry(webScrapeServiceRegistry)
-                    .onErrorHandler(ex -> {
-                        // do some stuff when an error occurs
-                        throw new RuntimeException(ex);
-                    })
-                    .execute();
+        var optional = WebScrapeBuilder.<List<ProductWebScrapeDTO>>create()
+                .withServiceType("product")
+                .withUrl(url)
+                .withRegistry(registry)
+                .onErrorHandler(ex ->
+                        alert.publish(user.getId(), "error", "Error during web scraping. Try again later."))
+                .execute();
 
-            if (optional.isEmpty()) {
-                alert.publish(user.getId(), "error", "No products found during web scraping.");
-                return null;
-            }
-
-        } catch (Exception ignored) {
-            alert.publish(user.getId(), "error", "Error during web scraping. Try again later.");
-            return null;
-        }
+        if (optional.isEmpty()) return null;
 
         List<ProductWebScrapeDTO> response = optional.get();
         log.info("Scraped {} products from {}", response.size(), url);

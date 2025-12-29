@@ -48,7 +48,7 @@ public class WebScrapeBuilder<T> {
         return this;
     }
 
-    public Optional<T> execute() throws Exception {
+    public Optional<T> execute() {
         Objects.requireNonNull(registry, "WebScrapeServiceRegistry must be set");
         Objects.requireNonNull(serviceType, "WebScrapeServiceType must be set");
         Objects.requireNonNull(url, "WebScrape URL must be set");

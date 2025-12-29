@@ -65,7 +65,7 @@ public class AuthFilter implements Filter {
 
         if (token == null && refreshToken == null) {
             log.warn("No tokens found for: {}", request.getRequestURI());
-            redirectToLogin(response);
+            redirectToLogin(request, response);
             return;
         }
 
@@ -88,12 +88,18 @@ public class AuthFilter implements Filter {
 
         log.warn("Invalid tokens for: {}", request.getRequestURI());
         authCookie.clearCookies(response);
-        redirectToLogin(response);
+        redirectToLogin(request, response);
     }
 
-    private void redirectToLogin(HttpServletResponse response) throws IOException {
+    private void redirectToLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.sendRedirect(Properties.get(LOGIN_PAGE));
+
+        if (request.getHeader("Accept") != null && request.getHeader("Accept").contains("application/json")) {
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\":\"Unauthorized\",\"message\":\"Please log in.\"}");
+        } else {
+            response.sendRedirect(Properties.get(LOGIN_PAGE));
+        }
     }
 
     private void setupFilter(String property) {
