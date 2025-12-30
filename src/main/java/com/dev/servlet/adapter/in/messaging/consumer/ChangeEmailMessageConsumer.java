@@ -16,11 +16,11 @@ import java.util.function.Consumer;
 public class ChangeEmailMessageConsumer implements Consumer<Message> {
     @Inject
     @Named("smtpEmailSender")
-    private MessagePort messagePort;
+    private MessagePort message;
 
     @Override
     public void accept(Message message) {
         log.info("ChangeEmailMessageConsumer received message for ID={}, to email={}", message.id(), message.toEmail());
-        messagePort.send(message);
+        this.message.send(message);
     }
 }

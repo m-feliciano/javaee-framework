@@ -38,7 +38,7 @@ public class EmailJmsConsumer implements MessageListener {
     private MessageConsumer consumer;
 
     @Inject
-    private MessageServiceRegistry messageServiceRegistry;
+    private MessageServiceRegistry registry;
 
     public void onStartup(@Observes @Initialized(ApplicationScoped.class) Object init) {
         if ("jms".equals(Properties.get("provider.broker"))) {
@@ -125,7 +125,7 @@ public class EmailJmsConsumer implements MessageListener {
             }
 
             MessageType type = message.type();
-            var handler = messageServiceRegistry.getConsumer(type);
+            var handler = registry.getConsumer(type);
 
             if (handler == null) {
                 log.warn("No handler registered for message type {}, acknowledging", type);

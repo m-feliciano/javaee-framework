@@ -16,11 +16,11 @@ import java.util.function.Consumer;
 public class WelcomeMessageConsumer implements Consumer<Message> {
     @Inject
     @Named("smtpEmailSender")
-    private MessagePort messagePort;
+    private MessagePort message;
 
     @Override
     public void accept(Message message) {
         log.info("WelcomeMessageConsumer received message for ID={}, to email={}", message.id(), message.toEmail());
-        messagePort.sendWelcome(message.toEmail());
+        this.message.sendWelcome(message.toEmail());
     }
 }

@@ -16,11 +16,11 @@ import java.util.function.Consumer;
 public class ConfirmationMessageConsumer implements Consumer<Message> {
     @Inject
     @Named("smtpEmailSender")
-    private MessagePort messagePort;
+    private MessagePort message;
 
     @Override
     public void accept(Message message) {
         log.info("ConfirmationConsumer received message id={}, to email={}", message.id(), message.toEmail());
-        messagePort.sendConfirmation(message.toEmail(), message.link());
+        this.message.sendConfirmation(message.toEmail(), message.link());
     }
 }

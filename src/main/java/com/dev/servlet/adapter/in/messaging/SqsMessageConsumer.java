@@ -30,7 +30,7 @@ public class SqsMessageConsumer {
     private volatile boolean running = true;
 
     @Inject
-    private MessageServiceRegistry messageServiceRegistry;
+    private MessageServiceRegistry registry;
 
     public void onStartup(@Observes @Initialized(ApplicationScoped.class) Object init) {
         if ("sqs".equals(Properties.get("provider.broker"))) {
@@ -54,7 +54,7 @@ public class SqsMessageConsumer {
     void shutdown() {
         log.info("Stopping SQS consumer");
         running = false;
-        sqsClient.close();
+        if (sqsClient != null) sqsClient.close();
     }
 
     private void poll() {
@@ -107,7 +107,7 @@ public class SqsMessageConsumer {
             if (message == null || message.type() == null)
                 throw new IllegalArgumentException("Deserialized message or message type is null");
 
-            handler = messageServiceRegistry.getConsumer(message.type());
+            handler = registry.getConsumer(message.type());
             if (handler == null)
                 throw new IllegalArgumentException("No @ consumer registered for type " + message.type());
 

@@ -25,6 +25,6 @@ public class EntityManagerFactoryProvider {
 
     @PreDestroy
     void shutdown() {
-        emf.close();
+        if (emf != null) emf.close();
     }
 }
