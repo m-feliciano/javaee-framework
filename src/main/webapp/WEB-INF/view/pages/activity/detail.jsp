@@ -1,4 +1,4 @@
-<%@ page import="com.dev.servlet.adapter.in.web.dto.IHttpResponse" %>
+<%@ page import="com.servletstack.adapter.in.web.dto.IHttpResponse" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="tag" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>

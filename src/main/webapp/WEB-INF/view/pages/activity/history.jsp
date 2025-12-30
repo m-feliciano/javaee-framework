@@ -1,4 +1,4 @@
-<%@ page import="com.dev.servlet.adapter.in.web.dto.IHttpResponse" %>
+<%@ page import="com.servletstack.adapter.in.web.dto.IHttpResponse" %>
 <%@ page import="java.util.List" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>

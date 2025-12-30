@@ -51,12 +51,12 @@
         </encoder>
     </appender>
 
-    <logger name="com.dev.servlet.service.internal.AuditServiceImpl" level="INFO" additivity="true">
+    <logger name="com.servletstack.service.internal.AuditServiceImpl" level="INFO" additivity="true">
         <appender-ref ref="AUDIT"/>
     </logger>
-    <logger name="com.dev.servlet.adapter.in.web.dispatcher.impl.LogExecutionTimeInterceptor" level="INFO"/>
-    <logger name="com.dev.servlet.adapter.in.web.dispatcher.impl.ServletDispatcherImpl" level="INFO"/>
-    <logger name="com.dev.servlet.core.util.CacheUtils" level="WARN"/>
+    <logger name="com.servletstack.adapter.in.web.dispatcher.impl.LogExecutionTimeInterceptor" level="INFO"/>
+    <logger name="com.servletstack.adapter.in.web.dispatcher.impl.ServletDispatcherImpl" level="INFO"/>
+    <logger name="com.servletstack.core.util.CacheUtils" level="WARN"/>
     <logger name="org.hibernate" level="WARN"/>
     <logger name="org.hibernate.SQL" level="OFF"/>
     <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="OFF"/>

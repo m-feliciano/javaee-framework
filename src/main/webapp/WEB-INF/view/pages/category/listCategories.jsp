@@ -1,6 +1,6 @@
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <%@ include file="/WEB-INF/routes/category-routes.jspf" %>
-<%@ page import="com.dev.servlet.adapter.in.web.dto.IHttpResponse" %>
+<%@ page import="com.servletstack.adapter.in.web.dto.IHttpResponse" %>
 <jsp:include page="/WEB-INF/view/components/header.jsp"/>
 
 <%

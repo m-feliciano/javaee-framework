@@ -1,0 +1,127 @@
+package com.servletstack.adapter.in.web.controller.internal;
+
+import com.servletstack.adapter.in.web.annotation.Authorization;
+import com.servletstack.adapter.in.web.annotation.Cache;
+import com.servletstack.adapter.in.web.controller.UserControllerApi;
+import com.servletstack.adapter.in.web.controller.internal.base.BaseController;
+import com.servletstack.adapter.in.web.dto.HttpResponse;
+import com.servletstack.adapter.in.web.dto.IHttpResponse;
+import com.servletstack.application.port.in.user.ChangeEmailUseCase;
+import com.servletstack.application.port.in.user.ConfirmEmailUseCase;
+import com.servletstack.application.port.in.user.DeleteUserUseCase;
+import com.servletstack.application.port.in.user.RegisterUserUseCase;
+import com.servletstack.application.port.in.user.ResendConfirmationUseCase;
+import com.servletstack.application.port.in.user.UpdateProfilePictureUseCase;
+import com.servletstack.application.port.in.user.UpdateUserUseCase;
+import com.servletstack.application.port.in.user.UserDetailsUseCase;
+import com.servletstack.application.transfer.request.ConfirmEmailRequest;
+import com.servletstack.application.transfer.request.FileUploadRequest;
+import com.servletstack.application.transfer.request.ResendConfirmationRequest;
+import com.servletstack.application.transfer.request.UserCreateRequest;
+import com.servletstack.application.transfer.request.UserRequest;
+import com.servletstack.application.transfer.response.UserProfile;
+import com.servletstack.application.transfer.response.UserResponse;
+import com.servletstack.domain.entity.User;
+import com.servletstack.shared.vo.Query;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import lombok.SneakyThrows;
+
+import java.util.concurrent.TimeUnit;
+
+@ApplicationScoped
+public class UserController extends BaseController implements UserControllerApi {
+    private static final String REDIRECT_AUTH_FORM = "redirect:/api/v1/auth/form";
+    private static final String FORM_LOGIN_FORM = "forward:pages/formLogin.jsp";
+
+    @Inject
+    private UpdateUserUseCase updateUserUseCase;
+    @Inject
+    private DeleteUserUseCase deleteUserUseCase;
+    @Inject
+    private RegisterUserUseCase registerUserUseCase;
+    @Inject
+    private ConfirmEmailUseCase confirmEmailUseCase;
+    @Inject
+    private ChangeEmailUseCase changeEmailUseCase;
+    @Inject
+    private ResendConfirmationUseCase resendConfirmationUseCase;
+    @Inject
+    private UserDetailsUseCase userDetailsUseCase;
+    @Inject
+    private UpdateProfilePictureUseCase updateProfilePictureUseCase;
+
+    @Override
+    protected Class<UserController> implementation() {
+        return UserController.class;
+    }
+
+    @SneakyThrows
+    @Override
+    @Cache(invalidate = "users_cache")
+    public IHttpResponse<UserResponse> update(UserRequest user, @Authorization String auth) {
+        UserResponse response = updateUserUseCase.update(user, auth);
+        return newHttpResponse(204, response, redirectToCtx("me"));
+    }
+
+    @SneakyThrows
+    @Override
+    @Cache(invalidate = "users_cache")
+    public IHttpResponse<Void> delete(UserRequest user, @Authorization String auth) {
+        deleteUserUseCase.delete(user.id(), auth);
+        return newHttpResponse(200, REDIRECT_AUTH_FORM);
+    }
+
+    @Override
+    @Cache(value = "users_cache", duration = 1, timeUnit = TimeUnit.HOURS)
+    public IHttpResponse<UserResponse> find(@Authorization String auth) {
+        UserResponse response = userDetailsUseCase.getDetail(auth);
+        return okHttpResponse(response, forwardTo("formListUser"));
+    }
+
+    @Override
+    @Cache(value = "profile_cache")
+    public IHttpResponse<UserProfile> profile(@Authorization String auth) {
+        UserResponse response = userDetailsUseCase.getDetail(auth);
+        UserProfile profile = new UserProfile(response.getLogin(), response.getImgUrl());
+        return HttpResponse.ok(profile).build();
+    }
+
+    @SneakyThrows
+    @Override
+    public IHttpResponse<UserResponse> register(UserCreateRequest user) {
+        UserResponse response = registerUserUseCase.register(user);
+        return newHttpResponse(201, response, FORM_LOGIN_FORM);
+    }
+
+    @SneakyThrows
+    @Override
+    public IHttpResponse<Void> confirm(Query query) {
+        String token = query.get("token");
+        confirmEmailUseCase.confirm(new ConfirmEmailRequest(token));
+        return newHttpResponse(200, REDIRECT_AUTH_FORM);
+    }
+
+    @SneakyThrows
+    @Override
+    @Cache(invalidate = {"users_cache", "profile_cache"})
+    public IHttpResponse<Void> changeEmail(Query query) {
+        changeEmailUseCase.change(query.get("token"));
+        return newHttpResponse(200, REDIRECT_AUTH_FORM);
+    }
+
+    @SneakyThrows
+    @Override
+    public IHttpResponse<Void> resendConfirmation(User user) {
+        resendConfirmationUseCase.resend(new ResendConfirmationRequest(user.getId()));
+        return HttpResponse.<Void>next(FORM_LOGIN_FORM).build();
+    }
+
+    @SneakyThrows
+    @Override
+    @Cache(invalidate = {"users_cache", "profile_cache"})
+    public IHttpResponse<Void> updateProfilePicture(FileUploadRequest request, @Authorization String auth) {
+        updateProfilePictureUseCase.updatePicture(request, auth);
+        return newHttpResponse(204, redirectToCtx("me"));
+    }
+}

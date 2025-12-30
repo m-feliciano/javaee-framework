@@ -1,0 +1,29 @@
+package com.servletstack.adapter.in.web.dispatcher.impl;
+
+import com.servletstack.adapter.in.web.dispatcher.LogExecutionTime;
+import jakarta.interceptor.AroundInvoke;
+import jakarta.interceptor.Interceptor;
+import jakarta.interceptor.InvocationContext;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.StopWatch;
+
+@Slf4j
+@Interceptor
+@LogExecutionTime
+public class LogExecutionTimeInterceptor {
+
+    @AroundInvoke
+    public Object logMethodExecutionTime(InvocationContext context) throws Exception {
+        StopWatch stopWatch = new StopWatch();
+        String methodName = context.getMethod().getName();
+        String className = context.getTarget().getClass().getSuperclass().getName();
+        className = className.substring(className.lastIndexOf('.') + 1);
+        stopWatch.start();
+        try {
+            return context.proceed();
+        } finally {
+            stopWatch.stop();
+            log.info("{}.{} completed [duration={}ms]", className, methodName, stopWatch.getTime());
+        }
+    }
+}

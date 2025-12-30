@@ -380,7 +380,7 @@ public class ProductController extends BaseController implements ProductControll
 
 ```java
 
-import com.dev.servlet.application.port.in.auth.LoginUseCase;
+import com.servletstack.application.port.in.auth.LoginUseCase;
 
 @Slf4j
 @ApplicationScoped

@@ -1,0 +1,43 @@
+package com.servletstack.adapter.in.web.controller.internal;
+
+import com.servletstack.adapter.in.web.annotation.Authorization;
+import com.servletstack.adapter.in.web.controller.AlertControllerApi;
+import com.servletstack.adapter.in.web.controller.internal.base.BaseController;
+import com.servletstack.adapter.in.web.dto.HttpResponse;
+import com.servletstack.adapter.in.web.dto.IHttpResponse;
+import com.servletstack.application.port.out.alert.AlertPort;
+import com.servletstack.application.transfer.Alert;
+import com.servletstack.shared.util.CloneUtil;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+import java.util.UUID;
+
+@Slf4j
+@NoArgsConstructor
+@ApplicationScoped
+public class AlertController extends BaseController implements AlertControllerApi {
+    @Inject
+    private AlertPort alert;
+
+    @Override
+    protected Class<AlertController> implementation() {
+        return AlertController.class;
+    }
+
+    public IHttpResponse<String> list(@Authorization String auth) {
+        UUID userId = this.auth.extractUserId(auth);
+        List<Alert> alerts = alert.list(userId);
+        String json = CloneUtil.toJson(alerts);
+        return HttpResponse.ok(json).build();
+    }
+
+    public IHttpResponse<Void> clear(@Authorization String auth) {
+        UUID userId = this.auth.extractUserId(auth);
+        alert.clear(userId);
+        return HttpResponse.<Void>newBuilder().statusCode(204).build();
+    }
+}

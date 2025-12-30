@@ -18,7 +18,7 @@
 
     <filter>
         <filter-name>CorsFilter</filter-name>
-        <filter-class>com.dev.servlet.adapter.in.web.filter.CorsFilter</filter-class>
+        <filter-class>com.servletstack.adapter.in.web.filter.CorsFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>CorsFilter</filter-name>
@@ -27,7 +27,7 @@
 
     <filter>
         <filter-name>MDCFilter</filter-name>
-        <filter-class>com.dev.servlet.adapter.in.web.filter.MDCFilter</filter-class>
+        <filter-class>com.servletstack.adapter.in.web.filter.MDCFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>MDCFilter</filter-name>
@@ -36,7 +36,7 @@
 
     <filter>
         <filter-name>RateLimitFilter</filter-name>
-        <filter-class>com.dev.servlet.adapter.in.web.filter.RateLimitFilter</filter-class>
+        <filter-class>com.servletstack.adapter.in.web.filter.RateLimitFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>RateLimitFilter</filter-name>
@@ -45,7 +45,7 @@
 
     <filter>
         <filter-name>CsrfFilter</filter-name>
-        <filter-class>com.dev.servlet.adapter.in.web.filter.CsrfFilter</filter-class>
+        <filter-class>com.servletstack.adapter.in.web.filter.CsrfFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>CsrfFilter</filter-name>
@@ -54,7 +54,7 @@
 
     <filter>
         <filter-name>SecurityXSSFilter</filter-name>
-        <filter-class>com.dev.servlet.adapter.in.web.filter.XSSFilter</filter-class>
+        <filter-class>com.servletstack.adapter.in.web.filter.XSSFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>SecurityXSSFilter</filter-name>
@@ -63,7 +63,7 @@
 
     <filter>
         <filter-name>SecurityAuthFilter</filter-name>
-        <filter-class>com.dev.servlet.adapter.in.web.filter.AuthFilter</filter-class>
+        <filter-class>com.servletstack.adapter.in.web.filter.AuthFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>SecurityAuthFilter</filter-name>
@@ -73,7 +73,7 @@
     <servlet>
         <servlet-name>frontController</servlet-name>
         <servlet-class>
-            com.dev.servlet.adapter.in.web.frontcontroller.FrontControllerServlet
+            com.servletstack.adapter.in.web.frontcontroller.FrontControllerServlet
         </servlet-class>
     </servlet>
 
