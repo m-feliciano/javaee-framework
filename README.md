@@ -1,71 +1,57 @@
-# Java Web Framework with Clean Architecture Principles
+# Java Web Framework – Clean Architecture
 
-Lightweight Jakarta–based framework designed with Clean Architecture principles.
-Focused on performance, security, and a clear structure for modern backend applications.
+Jakarta-based framework designed with Clean Architecture principles, focused on performance, security, and a clear structure for modern backend development.
 
-## Core Features
+## Key Features
 
-- Custom framework built from scratch using Servlets, CDI, and annotation-based controllers and routing.
-- Advanced security: JWT with refresh/rotate tokens, CSRF protection, and structured auditing.
-- Multi-layer caching: Hibernate L1/L2 + Ehcache.
-- Rate limiting using the Leaky Bucket algorithm.
-- Messaging with JMS/ActiveMQ or Amazon SQS.
-- JSR-303 validation with custom annotations and composite validators.
-- Observability: correlation-ID logging, metrics, and health checks.
-- DTO mapping powered by MapStruct.
+- Custom framework: Servlets, CDI, annotation-based controllers and routing.
+- Advanced security: JWT, refresh/rotate, CSRF, structured auditing.
+- Multi-layer cache: Hibernate L1/L2, Ehcache.
+- Rate limiting (Leaky Bucket).
+- Messaging: JMS/ActiveMQ, SQS.
+- Custom JSR-303 validation.
+- Observability: correlationId, metrics, health checks.
+- DTO mapping via MapStruct.
 
-## Technology Stack
+## Stack
 
-- Java 21, Jakarta
-- Weld CDI, Hibernate, Ehcache
+- Java 21, Jakarta, Weld CDI, Hibernate, Ehcache
 - JJWT, Jackson, SLF4J/Logback
-- JUnit 5 + Mockito
+- JUnit 5, Mockito
 - PostgreSQL 16+, OkHttp
-- Maven 3.6+
-- AWS SDK v2
-- Docker & Kubernetes
-
-### Migrations over time
-- Java -> 11 -> 17 -> 21
-- Javax -> Jakarta
-- Tomcat 9 -> 10
-- Hibernate 5 -> 6
-- Layered architecture -> Clean Architecture
+- Maven 3.6+, AWS SDK v2
+- Docker, Kubernetes
 
 ## Architecture
 
-Built the following Clean Architecture guidelines:
+- Domain: entities, value objects, business rules
+- Application: use cases, orchestration
+- Web: controllers, routing, HTTP adapters
+- Infrastructure: persistence, messaging, integrations
+- Adapters: implementations for interfaces from other layers
 
-- Domain: entities, value objects, and business rules
-- Application: use cases and orchestration
-- Web: controllers, routing, and HTTP adapters
-- Infrastructure: persistence, messaging, and external integrations
-- Adapters: Class implementations for interfaces defined in other layers
+Each layer is independent; infrastructure never leaks into the domain.
 
-Each layer remains strictly independent — infrastructure never leaks into the domain.
-
-The framework includes its own lightweight MVC layer: annotation scanning, reflection-based routing, a middleware pipeline, and a central dispatcher to manage request flow.
+Custom MVC: annotation scanning, reflection-based routing, middleware pipeline, and central dispatcher.
 
 ## Preview
-
-The demo application includes a modern UI.
 
 ![Preview](images/product-list.png)
 Click [here](PREVIEW.md) to see more.
 
-## Getting Started
+## Demo
 
-### Quickstart (Docker)
+A demo application is available for evaluation.
 
 Pull the demo `docker-compose` file and start the services:
-
-IMPORTANT: This demo uses an older version (v2.x.x) of the framework and will not be updated with the latest changes.
-
-The current version of the framework can be found in the `master` branch.
 
 ```shell
 curl -O https://raw.githubusercontent.com/m-feliciano/javaee-framework/refs/heads/master/docker/demo/docker-compose.demo.yml
 ```
+
+IMPORTANT: This demo uses an older version (v2.x.x) of the framework and will not be updated with the latest changes.
+
+The current version of the framework can be found in the `master` branch.
 
 Run the demo application with Docker Compose:
 
@@ -73,19 +59,9 @@ Run the demo application with Docker Compose:
 docker compose -f docker-compose.demo.yml up -d
 ```
 
-## To Set Up Services Manually
+For local build: `mvn clean package -Pdev`.
 
-Read the docker-compose file at `SETUP_DOCKER_DEVELOP.md` for instructions on how to set up the required services
-
-### Build and Run Locally
-Build the application using Maven:
-
-```bash
-mvn clean package -Pdev # or -Pprod for production, depending on your environment
-```
-
-You may provide your own `.env` file to override default settings if you want to use functionality like email
-sending.
+Modern UI available in the demo application. See technical details in PREVIEW.md.
 
 ## Endpoints
 The application exposes some endpoints. Here are examples:
@@ -95,11 +71,7 @@ The application exposes some endpoints. Here are examples:
 - `GET /api/v1/health/up` - Check application health
 - `GET /api/v1/product/list` - List products
 
-The base URL is `http://localhost:8080` by default (local).
-
-Example of a complete url to list products: http://localhost:8080/api/v1/product/list
-
-If you want to see all available endpoints, check the Docs tab in the demo application UI or refer to the source code.
+If you want to see all available endpoints, check the Docs tab in the application UI or refer to the source code.
 
 ## OpenAPI / Swagger
 
@@ -113,11 +85,11 @@ View the API documentation online:
 
 ## License
 
-MIT — see the LICENSE file.
+MIT. See LICENSE.
 
-## Contributing
+## Contribution
 
-Contributions are welcome. See CONTRIBUTING.md for guidelines.
+Contributions are welcome. See CONTRIBUTING.md.
 
 # Status Badges
 
