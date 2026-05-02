@@ -100,25 +100,19 @@ public class SqsMessageConsumer {
             return;
         }
 
-        Message message;
-        Consumer<Message> handler;
         try {
-            message = CloneUtil.fromJson(payload, Message.class);
+            Message message = CloneUtil.fromJson(payload, Message.class);
             if (message == null || message.type() == null)
                 throw new IllegalArgumentException("Deserialized message or message type is null");
 
-            handler = registry.getConsumer(message.type());
-            if (handler == null)
+            Consumer<Message> consumer;
+            consumer = registry.getConsumer(message.type());
+            if (consumer == null)
                 throw new IllegalArgumentException("No @ consumer registered for type " + message.type());
 
+            consumer.accept(message);
         } catch (Exception e) {
             log.error("Failed to process message payload: {}", e.getMessage(), e);
-            // malformed message, acknowledge to avoid retries
-            return;
         }
-
-        log.debug("Processing message id={} of type {}", message.id(), message.type());
-        handler.accept(message);
-        log.debug("Message id={} of type {} processed", message.id(), message.type());
     }
 }

@@ -18,7 +18,6 @@ public class ListProductAdapter implements ListProductPort {
 
     @Override
     public <U> IPageable<U> getAllPageable(IPageRequest payload, String auth, Mapper<Product, U> mapper) {
-        log.debug("ListProductAdapter: fetching products pageable with payload {}", payload);
         return repository.getAllPageable(payload, mapper);
     }
 }

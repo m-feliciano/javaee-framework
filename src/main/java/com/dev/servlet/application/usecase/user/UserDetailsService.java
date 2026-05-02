@@ -25,8 +25,6 @@ public class UserDetailsService implements UserDetailsUseCase {
 
     public UserResponse getDetail(String auth) throws AppException {
         UUID userId = this.auth.extractUserId(auth);
-        log.debug("UserDetailsUseCase: getting user details with id {}", userId);
-
         return repository.findById(userId)
                 .map(mapper::toResponse)
                 .orElseThrow(NotFoundException::new);

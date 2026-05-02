@@ -39,9 +39,9 @@ public class JwtAuthenticationAdapter implements AuthenticationPort {
     private byte[] getJwtSecret() {
         String value = System.getenv("SECURITY_JWT_KEY");
         if (StringUtils.isBlank(value)) {
-            log.error("security.jwt.key is not configured");
             throw new IllegalStateException("Missing JWT key");
         }
+
         return value.getBytes(StandardCharsets.UTF_8);
     }
 
@@ -83,8 +83,6 @@ public class JwtAuthenticationAdapter implements AuthenticationPort {
 
     @Override
     public String generateAccessToken(User user) {
-        log.debug("Generating access token for user id {}", user.getId());
-
         long now = System.currentTimeMillis();
         return Jwts.builder()
                 .issuer(ISSUER)
@@ -100,7 +98,6 @@ public class JwtAuthenticationAdapter implements AuthenticationPort {
 
     @Override
     public String generateRefreshToken(User user) {
-        log.debug("Generating refresh token for user id {}", user.getId());
         long now = System.currentTimeMillis();
         return Jwts.builder()
                 .issuer(ISSUER)

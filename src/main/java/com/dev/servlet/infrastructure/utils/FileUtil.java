@@ -18,7 +18,7 @@ public final class FileUtil {
         try {
             return Paths.get(url.toURI());
         } catch (Exception e) {
-            throw new RuntimeException("Failed to access resource: " + resource, e);
+            throw new RuntimeException("Error reading resource file: " + resource, e);
         }
     }
 }

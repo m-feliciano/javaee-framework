@@ -29,8 +29,6 @@ public class UserDemoModeService implements UserDemoModeUseCase {
 
     @Override
     public User validateCredentials(LoginRequest credentials) throws AppException {
-        log.debug("UserDemoModeUseCase: authenticating demo user {}", credentials.login());
-
         if (!Properties.isDemoModeEnabled()) {
             log.error("[SEVERE] Attempt to authenticate demo user {} while DEMO_MODE is disabled", credentials.login());
             throw new AppException(SC_FORBIDDEN, "Demo mode is not enabled.");
@@ -38,43 +36,37 @@ public class UserDemoModeService implements UserDemoModeUseCase {
 
         if (!DEMO_USER_LOGIN.equalsIgnoreCase(credentials.login()) ||
             !DEMO_USER_PASSWORD.equalsIgnoreCase(credentials.password())) {
-            log.warn("Authentication attempt in demo mode with invalid credentials: {}", credentials.login());
             throw new AppException(SC_UNAUTHORIZED, "Invalid demo user credentials.");
         }
 
-        User user;
         var maybe = repository.find(new User(credentials.login(), null));
         if (maybe.isPresent()) {
-            user = maybe.get();
+            User user = maybe.get();
 
             if (!user.getStatus().equals(Status.ACTIVE.getValue())) {
-                log.warn("Demo user {} found but is not active", credentials.login());
                 throw new AppException(SC_UNAUTHORIZED, "Demo user is not active.");
             }
 
             if (!PasswordHasher.verify(credentials.password(), user.getCredentials().getPassword())) {
-                log.warn("Demo user {} found but password does not match", credentials.login());
                 throw new AppException(SC_UNAUTHORIZED, "Invalid demo user credentials.");
             }
 
             log.debug("UserDemoModeUseCase: DEMO_MODE - demo user {} found with id {}", credentials.login(), user.getId());
-        } else {
-            log.debug("UserDemoModeUseCase: DEMO_MODE - demo user not found, registering new guest user {}", credentials.login());
 
-            User newUser = User.builder()
-                    .credentials(Credentials.builder()
-                            .login(credentials.login().toLowerCase())
-                            .password(PasswordHasher.hash(credentials.password()))
-                            .build())
-                    .status(Status.ACTIVE.getValue())
-                    .perfis(List.of(RoleType.DEFAULT.getCode()))
-                    .build();
-
-            user = repository.save(newUser);
-            log.debug("LoginUseCase: DEMO_MODE - registered new guest user with id {}", user.getId());
+            return user;
         }
 
-        log.debug("UserDemoModeUseCase: demo user {} validated successfully", credentials.login());
-        return user;
+        log.debug("UserDemoModeUseCase: DEMO_MODE - demo user not found, registering new guest user {}", credentials.login());
+
+        User newUser = User.builder()
+                .credentials(Credentials.builder()
+                        .login(credentials.login().toLowerCase())
+                        .password(PasswordHasher.hash(credentials.password()))
+                        .build())
+                .status(Status.ACTIVE.getValue())
+                .perfis(List.of(RoleType.DEFAULT.getCode()))
+                .build();
+
+        return repository.save(newUser);
     }
 }

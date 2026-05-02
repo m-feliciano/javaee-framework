@@ -99,7 +99,6 @@ public class HealthServiceImpl implements HealthService {
     public boolean isDatabaseHealthy() {
         try {
             em.createNativeQuery("SELECT 1").getSingleResultOrNull();
-            log.debug("Database health check: PASSED");
             return true;
         } catch (Exception e) {
             log.error("Database health check: FAILED", e);
@@ -117,9 +116,7 @@ public class HealthServiceImpl implements HealthService {
             String result = cache.get(namespace, uuid);
             cache.clear(namespace, uuid);
 
-            boolean healthy = "test_value".equals(result);
-            log.debug("Cache health check: {}", healthy ? "PASSED" : "FAILED");
-            return healthy;
+            return "test_value".equals(result);
         } catch (Exception e) {
             log.error("Cache health check: FAILED", e);
             return false;

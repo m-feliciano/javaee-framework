@@ -63,14 +63,6 @@ public class Bucket4jRateLimiter implements RateLimiter {
     }
 
     @Override
-    public void reset(String identifier) {
-        Bucket removed = buckets.remove(identifier);
-        if (removed != null) {
-            log.info("Rate limit bucket reset [identifier={}]", identifier);
-        }
-    }
-
-    @Override
     public long getSecondsUntilRefill(String identifier) {
         Bucket bucket = buckets.get(identifier);
         if (bucket == null || bucket.getAvailableTokens() > 0) {
@@ -81,11 +73,8 @@ public class Bucket4jRateLimiter implements RateLimiter {
     }
 
     private Bucket resolveBucket(String identifier) {
-        return buckets.computeIfAbsent(identifier, k -> {
-            log.debug("Creating new rate limit bucket [identifier={}]", identifier);
-            return Bucket.builder()
-                    .addLimit(bucketConfiguration.getBandwidths()[0])
-                    .build();
-        });
+        return buckets.computeIfAbsent(identifier, k -> Bucket.builder()
+                .addLimit(bucketConfiguration.getBandwidths()[0])
+                .build());
     }
 }

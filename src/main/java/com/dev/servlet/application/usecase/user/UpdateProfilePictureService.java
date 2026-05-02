@@ -84,8 +84,7 @@ public class UpdateProfilePictureService implements UpdateProfilePictureUseCase 
             URI uri = storageService.generateUploadUri(path, "image/jpeg", Duration.ofMinutes(1));
             fileHttpClient.upload(uri, pic, CONTENT_TYPE_JPG);
         } catch (Exception e) {
-            log.error("Error updating profile picture", e);
-            throw new AppException("Failed to update profile picture");
+            throw new AppException("Failed updating profile picture");
 
         } finally {
             payload.close();

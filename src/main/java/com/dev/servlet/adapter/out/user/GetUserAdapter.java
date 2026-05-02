@@ -19,7 +19,6 @@ public class GetUserAdapter implements GetUserPort {
 
 
     public Optional<User> get(UserRequest request) throws AppException {
-        log.debug("GetUserUseCase: getting user details with id {}", request.login());
         return repository.find(new User(request.login(), request.password()));
     }
 }

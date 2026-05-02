@@ -12,18 +12,10 @@ import static com.dev.servlet.domain.entity.enums.RequestMethod.POST;
 
 @Controller("auth")
 public interface AuthControllerApi {
-    @RequestMapping(
-            value = "/registerPage",
-            requestAuth = false,
-            description = "Forward to the registration page."
-    )
+    @RequestMapping(value = "/registerPage", requestAuth = false, description = "Forward to the registration page.")
     IHttpResponse<String> forwardRegister();
 
-    @RequestMapping(
-            value = "/form",
-            requestAuth = false,
-            description = "Retrieve the registration form."
-    )
+    @RequestMapping(value = "/form", requestAuth = false, description = "Retrieve the registration form.")
     IHttpResponse<String> form(String auth, String homepage);
 
     @RequestMapping(
@@ -35,11 +27,7 @@ public interface AuthControllerApi {
     )
     IHttpResponse<UserResponse> login(LoginRequest request, String homepage);
 
-    @RequestMapping(
-            value = "/logout",
-            method = POST,
-            description = "Logout the authorized user."
-    )
+    @RequestMapping(value = "/logout", method = POST, description = "Logout the authorized user.")
     IHttpResponse<String> logout(String auth);
 
     @RequestMapping(

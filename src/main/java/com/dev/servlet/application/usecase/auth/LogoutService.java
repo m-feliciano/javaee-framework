@@ -22,8 +22,6 @@ public class LogoutService implements LogoutUseCase {
 
     @Override
     public void logout(String auth) {
-        log.debug("LogoutUseCase: logging out user");
-
         try {
             UUID userId = this.auth.extractUserId(auth);
             repository.revokeAll(userId);

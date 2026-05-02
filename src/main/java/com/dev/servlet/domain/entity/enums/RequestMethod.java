@@ -1,7 +1,9 @@
 package com.dev.servlet.domain.entity.enums;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+@AllArgsConstructor
 public enum RequestMethod {
     GET("GET"),
     POST("POST"),
@@ -11,8 +13,4 @@ public enum RequestMethod {
     OPTIONS("OPTIONS");
     @Getter
     private final String method;
-
-    RequestMethod(String method) {
-        this.method = method;
-    }
 }

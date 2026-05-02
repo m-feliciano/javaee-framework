@@ -80,18 +80,12 @@ public abstract class BaseRepository<T, ID> implements BaseRepositoryPort<T, ID>
         try {
             beginTransaction();
             R result = action.execute();
-            commitTransaction(true);
+            commitTransaction();
             return result;
 
         } catch (Exception e) {
-            try {
-                rollbackTransaction();
-            } catch (Exception ignore) {
-            }
-
-            throw new RuntimeException("Transaction failed", e);
-        } finally {
-//            closeEm();
+            rollbackTransaction();
+            throw e;
         }
     }
 
@@ -112,24 +106,14 @@ public abstract class BaseRepository<T, ID> implements BaseRepositoryPort<T, ID>
         }
     }
 
-    /**
-     * Commits the current transaction and clears the EntityManager to detach all managed entities.
-     * In case of an exception during commit, it rolls back the transaction.
-     * Note: Do not attempt to use the EntityManager after this implementation is called, as it will be cleared.
-     *
-     * @throws RuntimeException if the commit fails
-     */
-    protected void commitTransaction(boolean rollbackOnError) {
+    protected void commitTransaction() {
         try {
             em.flush(); // Flush changes to the database
             em.getTransaction().commit(); // Commit the transaction
             em.clear(); // Detach all managed entities
         } catch (Exception e) {
             log.error("Error committing transaction: {}", e.getMessage());
-
-            if (rollbackOnError) {
-                rollbackTransaction();
-            }
+            rollbackTransaction();
             throw e;
         }
     }

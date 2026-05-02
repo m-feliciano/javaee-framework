@@ -136,7 +136,7 @@ public class InventoryRepository extends BaseRepository<Inventory, UUID> impleme
         });
 
         try {
-            commitTransaction(true);
+            commitTransaction();
         } catch (Exception e) {
             log.error("Error committing transaction for saving inventories", e);
             throw new AppException("Failed to save inventories");

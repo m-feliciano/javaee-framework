@@ -94,7 +94,7 @@ public class UpdateProductThumbService implements UpdateProductThumbUseCase {
             fileClient.upload(uploadUri, processed, "image/jpeg");
 
         } catch (Exception e) {
-            log.error("Failed to update product thumbnail", e);
+            log.error("Failed to upload product thumbnail for product ID: {}", productId, e);
             throw new AppException("Failed to update product thumbnail");
 
         } finally {

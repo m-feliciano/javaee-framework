@@ -19,7 +19,6 @@ public class GetActivityPageableAdapter implements GetActivityPageableUseCase {
 
     @Override
     public <U> IPageable<U> getAllPageable(IPageRequest pageRequest, Mapper<UserActivityLog, U> mapper) {
-        log.debug("Fetching pageable activity logs: page {}, size {}", pageRequest.getInitialPage(), pageRequest.getPageSize());
         return repository.getAllPageable(pageRequest, mapper);
     }
 }

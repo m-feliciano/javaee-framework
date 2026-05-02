@@ -20,8 +20,6 @@ public class DeleteInventoryService implements DeleteInventoryUseCase {
 
     @Override
     public void delete(InventoryRequest request, String auth) throws AppException {
-        log.debug("DeleteInventoryUseCase: attempting to delete inventory with id {}", request.id());
-
         Inventory inventory = repository.findById(request.id()).orElseThrow(NotFoundException::new);
         repository.delete(inventory);
     }

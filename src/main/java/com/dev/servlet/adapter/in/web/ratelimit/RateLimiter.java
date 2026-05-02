@@ -5,7 +5,5 @@ public interface RateLimiter {
 
     long getAvailableTokens(String identifier);
 
-    void reset(String identifier);
-
     long getSecondsUntilRefill(String identifier);
 }

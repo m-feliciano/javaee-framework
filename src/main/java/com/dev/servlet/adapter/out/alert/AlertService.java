@@ -34,13 +34,6 @@ public class AlertService implements AlertPort {
         ws.push(userId, alert);
     }
 
-    /**
-     * List alerts for a user.
-     *
-     * @param userId ID of the user
-     * @return List of alerts for the user
-     * @deprecated Use WebSocket to receive alerts in real-time.
-     */
     @Deprecated
     public List<Alert> list(UUID userId) {
         Deque<Alert> alerts = store.get(userId);

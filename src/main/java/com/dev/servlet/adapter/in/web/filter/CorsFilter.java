@@ -22,12 +22,10 @@ public class CorsFilter implements Filter {
         res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-XSRF-TOKEN, Authorization, Cookie");
 
-        // Handle preflight requests
         if ("OPTIONS".equalsIgnoreCase(req.getMethod())) {
             res.setStatus(HttpServletResponse.SC_OK);
-            return;
+        } else {
+            chain.doFilter(request, response);
         }
-
-        chain.doFilter(request, response);
     }
 }

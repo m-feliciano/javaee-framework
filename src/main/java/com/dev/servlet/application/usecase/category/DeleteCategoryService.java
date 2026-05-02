@@ -27,8 +27,6 @@ public class DeleteCategoryService implements DeleteCategoryUseCase {
 
     @Override
     public void delete(CategoryRequest request, String auth) throws AppException {
-        log.debug("DeleteCategoryUseCase called with request: {} and auth: {}", request, auth);
-
         UUID userId = this.auth.extractUserId(auth);
         CategoryResponse response = categoryDetailPort.get(request, auth);
         Category category = new Category(response.getId());

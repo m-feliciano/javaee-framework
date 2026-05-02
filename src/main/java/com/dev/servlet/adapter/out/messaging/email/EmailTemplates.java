@@ -106,10 +106,6 @@ public final class EmailTemplates {
             """.formatted(APP_NAME, link, LINK_EXPIRATION_MINUTES));
     }
 
-    /* ============================================================
-       WELCOME EMAIL
-       ============================================================ */
-
     public static String welcomePlain() {
         return """
             Welcome to %s.

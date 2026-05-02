@@ -76,7 +76,6 @@ public class JmsMessageProducer implements AsyncMessagePort {
 
     @PreDestroy
     public void shutdown() {
-        log.info("Shutting down JMS MessageProducer");
         safeClose(producer);
         safeClose(session);
         safeClose(connection);
@@ -101,7 +100,6 @@ public class JmsMessageProducer implements AsyncMessagePort {
             log.info("JMS MessageProducer started for queue {}", EMAIL_EXCHANGE_QUEUE);
 
         } catch (Exception e) {
-            log.error("Failed to start JMS MessageProducer", e);
             throw new IllegalStateException("JMS producer startup failed", e);
         }
     }
@@ -109,8 +107,7 @@ public class JmsMessageProducer implements AsyncMessagePort {
     private void safeClose(AutoCloseable c) {
         try {
             c.close();
-        } catch (Exception e) {
-            log.warn("Failed to close JMS resource: {}", e.getMessage());
+        } catch (Exception ignored) {
         }
     }
 }

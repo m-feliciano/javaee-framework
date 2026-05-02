@@ -18,10 +18,6 @@ public class EndpointParser {
     private String path;
 
     private EndpointParser(String path) {
-        if (StringUtils.isBlank(path)) {
-            throw new IllegalArgumentException("Request or endpoint cannot be null or empty");
-        }
-
         String[] parts = path.split("/");
         if (parts.length < SERVICE_NAME_START_INDEX) {
             throw new IllegalArgumentException("Invalid endpoint format: " + path);

@@ -70,7 +70,6 @@ public class AuthFilter implements Filter {
         }
 
         if (token != null && auth.validateToken(token)) {
-            log.debug("Valid token access [endpoint={}]", request.getRequestURI());
             chain.doFilter(req, res);
             return;
         }

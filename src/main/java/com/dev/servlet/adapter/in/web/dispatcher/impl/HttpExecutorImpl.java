@@ -65,18 +65,15 @@ public class HttpExecutorImpl implements HttpExecutor {
             Thread.sleep(waitTime);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            log.warn("Retry interrupted");
         }
     }
 
     private IHttpResponse<?> handleException(Exception ex) {
-        log.error("HttpExecutor: Unhandled exception occurred: {}", ex.getMessage(), ex);
-
         int code = 500;
         String message = "An unexpected error occurred.";
-        if (ex instanceof AppException exception) {
-            code = exception.getCode();
-            message = exception.getMessage();
+        if (ex instanceof AppException appEx) {
+            code = appEx.getCode();
+            message = appEx.getMessage();
         } else if (ex.getCause() instanceof AppException cause) {
             code = cause.getCode();
             message = cause.getMessage();

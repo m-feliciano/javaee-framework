@@ -42,26 +42,12 @@ public final class PasswordHasher {
         return encode(salt, hash);
     }
 
-    /**
-     * Verify a password against a stored hash
-     *
-     * @param password - plaintext password
-     * @param stored   - stored hash
-     * @return true if the password matches the stored hash, false otherwise
-     */
     public static boolean verify(String password, String stored) {
         Decoded decoded = decode(stored);
         byte[] computed = derive(password.toCharArray(), decoded.salt);
         return constantTimeEquals(decoded.hash, computed);
     }
 
-    /**
-     * Derive a hash from the password and salt using Argon2
-     *
-     * @param password - plaintext password
-     * @param salt     - salt bytes
-     * @return derived hash bytes
-     */
     private static byte[] derive(char[] password, byte[] salt) {
         Argon2Parameters params = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id)
                 .withSalt(salt)
@@ -93,13 +79,7 @@ public final class PasswordHasher {
         );
     }
 
-    /**
-     * Constant-time comparison to prevent timing attacks
-     *
-     * @param a - first byte array
-     * @param b - second byte array
-     * @return true if both arrays are equal, false otherwise
-     */
+    // prevents timing attacks by ensuring the comparison takes the same amount of time
     private static boolean constantTimeEquals(byte[] a, byte[] b) {
         if (a.length != b.length) return false;
         int result = 0;

@@ -23,6 +23,5 @@ public @interface RequestMapping {
 
     RoleType[] roles() default {};
 
-    // ===== For API Documentation =====
     String description() default "";
 }

@@ -112,7 +112,6 @@ public class SmtpEmailSender implements MessagePort {
                 }
             });
 
-            log.debug("JavaMail Session created successfully");
             jakarta.mail.Message message;
             message = new MimeMessage(session);
             message.setFrom(new InternetAddress(smtpFrom, smtpFromName));
@@ -147,12 +146,12 @@ public class SmtpEmailSender implements MessagePort {
         try (Socket sock = new Socket()) {
             int port = Integer.parseInt(smtpPort);
             sock.connect(new InetSocketAddress(smtpHost, port), 5000);
-            log.debug("SMTP {}:{} reachable", smtpHost, smtpPort);
+            return true;
         } catch (Exception sockEx) {
-            log.error("SMTP host unreachable ({}:{}): {}", smtpHost, smtpPort, sockEx.getMessage());
-            return false;
+            log.warn("SMTP host unreachable ({}:{}): {}", smtpHost, smtpPort, sockEx.getMessage());
         }
-        return true;
+
+        return false;
     }
 
     private void sendChangeEmail(String email, String link) {

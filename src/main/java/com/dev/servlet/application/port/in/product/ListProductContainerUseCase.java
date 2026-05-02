@@ -7,6 +7,5 @@ import com.dev.servlet.shared.vo.KeyPair;
 import java.util.Set;
 
 public interface ListProductContainerUseCase {
-
     Set<KeyPair> assembleContainerResponse(IPageRequest pageRequest, String auth, Product product);
 }

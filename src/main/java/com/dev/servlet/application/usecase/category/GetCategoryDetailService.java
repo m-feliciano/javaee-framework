@@ -28,8 +28,6 @@ public class GetCategoryDetailService implements GetCategoryDetailUseCase {
 
     @Override
     public CategoryResponse get(CategoryRequest request, String auth) throws AppException {
-        log.debug("GetCategoryDetailUseCase called with request: {} and auth: {}", request, auth);
-
         UUID userId = this.auth.extractUserId(auth);
         return mapper.toResponse(findById(request.id(), userId));
     }

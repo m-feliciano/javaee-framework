@@ -96,19 +96,16 @@ public class AuditAdapter implements AuditPort {
                     log.warn("[Thread: {}] Failed to serialize audit payload", threadName, e);
                 }
 
-                // [DEBUG only] log the metadata
                 log.debug(CloneUtil.toJson(metadata));
 
                 if (userId != null && payload instanceof AuditPayload<?, ?> auditPayload) {
                     userActivity.logActivity(userId, outcome, auditPayload, metadata);
-                    log.debug("[Thread: {}] Activity log registered for userId: {}", threadName, userId);
                 }
 
             } catch (Exception e) {
                 log.error("[Thread: {}] Failed to log audit event", threadName, e);
             } finally {
                 requestContextController.deactivate();
-                log.debug("[Thread: {}] Audit logging thread completed for event: {}", threadName, event);
             }
         });
     }

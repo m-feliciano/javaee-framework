@@ -35,7 +35,6 @@ public class ResendConfirmationService implements ResendConfirmationUseCase {
     @Override
     public void resend(ResendConfirmationRequest request) throws AppException {
         final UUID userId = request.userId();
-        log.debug("ResendConfirmationUseCase: resending confirmation for userId {}", userId);
 
         if (userId == null) {
             log.warn("ResendConfirmationUseCase: userId is blank");

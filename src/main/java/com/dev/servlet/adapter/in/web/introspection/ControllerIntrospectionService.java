@@ -11,6 +11,7 @@ import com.dev.servlet.adapter.in.web.vo.ParamInfo;
 import com.dev.servlet.domain.entity.enums.RoleType;
 import com.dev.servlet.shared.util.ClassUtil;
 import jakarta.enterprise.context.ApplicationScoped;
+import lombok.SneakyThrows;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -21,26 +22,24 @@ import java.util.List;
 public class ControllerIntrospectionService {
     private static final String CONTROLLERS_PACKAGE = "com.dev.servlet.adapter.in.web.controller";
 
+    @SneakyThrows
     public List<ControllerInfo> listControllers() {
-        try {
-            List<Class<?>> classes = ClassUtil.scanPackage(CONTROLLERS_PACKAGE, Controller.class);
+        List<Class<?>> classes = ClassUtil.scanPackage(CONTROLLERS_PACKAGE, Controller.class);
 
-            return classes.stream()
-                    .map(clz -> new ControllerInfo(
-                            clz.getSimpleName(),
-                            clz.getAnnotation(Controller.class).value(),
-                            buildMethodInfos(clz)))
-                    .parallel()
-                    .toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to inspect controllers", e);
-        }
+        return classes.stream()
+                .map(clz -> new ControllerInfo(
+                        clz.getSimpleName(),
+                        clz.getAnnotation(Controller.class).value(),
+                        buildMethodInfos(clz)))
+                .parallel()
+                .toList();
     }
 
     private List<MethodInfo> buildMethodInfos(Class<?> clazz) {
         List<MethodInfo> methods = new ArrayList<>();
         for (Method method : clazz.getDeclaredMethods()) {
             if (!method.isAnnotationPresent(RequestMapping.class)) continue;
+
             RequestMapping rm = method.getAnnotation(RequestMapping.class);
             List<ParamInfo> params = buildParamInfos(method);
             List<String> roles = extractRoles(rm);
@@ -67,13 +66,17 @@ public class ControllerIntrospectionService {
         for (Parameter p : method.getParameters()) {
             Property prop = p.getAnnotation(Property.class);
             Authorization auth = p.getAnnotation(Authorization.class);
+
             String propName = prop != null ? prop.value() : null;
             String typed;
-            if (auth != null) typed = "Authorization";
+
+            if (auth != null)
+                typed = "Authorization";
             else {
                 typed = p.getParameterizedType().getTypeName();
                 typed = typed.substring(typed.lastIndexOf(".") + 1);
             }
+
             params.add(new ParamInfo(typed, propName));
         }
         return params;
@@ -84,14 +87,15 @@ public class ControllerIntrospectionService {
         if (rm.roles().length == 0) {
             roles.add(RoleType.DEFAULT.name());
         } else {
-            for (RoleType r : rm.roles()) roles.add(r.name());
+            for (RoleType r : rm.roles())
+                roles.add(r.name());
         }
+
         return roles;
     }
 
     private String formatReturnType(String returnType) {
         if (returnType.contains("HttpResponse")) {
-            // Unwrap HttpResponse<>
             int indexOf = returnType.lastIndexOf(">");
             returnType = returnType.substring(returnType.indexOf("<") + 1, indexOf);
         }

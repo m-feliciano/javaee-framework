@@ -17,8 +17,10 @@ public class Request {
     private RequestMethod method;
     private Query query;
     private Integer retry;
+
     @JsonIgnore
     private String token;
+
     @JsonIgnore
     private String payload;
 

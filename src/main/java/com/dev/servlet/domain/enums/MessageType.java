@@ -10,14 +10,14 @@ public enum MessageType {
     WELCOME(2, "email_welcome"),
     CHANGE_EMAIL(3, "email_change");
     public final int code;
-    public final String type;    // Creates a MessageType from a string, case-insensitive
+    public final String type;
 
     @JsonCreator
     public static MessageType of(String type) {
-        if (type == null) throw new IllegalArgumentException("MessageType cannot be null");
         for (MessageType mt : values()) {
             if (mt.type.equalsIgnoreCase(type)) return mt;
         }
+
         throw new IllegalArgumentException("Unknown MessageType: " + type);
     }
 
