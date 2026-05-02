@@ -122,18 +122,18 @@ class InventoryControllerTest extends BaseControllerTest {
             InventoryResponse expectedResponse = new InventoryResponse(uuid);
             expectedResponse.setQuantity(150);
 
-            when(updateInventoryUseCase.update(any(InventoryRequest.class), eq(VALID_AUTH_TOKEN)))
+            when(updateInventoryUseCase.update(any(InventoryRequest.class)))
                     .thenReturn(expectedResponse);
 
             // Act
-            IHttpResponse<Void> response = inventoryController.update(request, VALID_AUTH_TOKEN);
+            IHttpResponse<Void> response = inventoryController.update(request);
 
             // Assert
             assertThat(response).isNotNull();
             assertThat(response.next()).contains("redirect:");
             assertThat(response.next()).contains(uuid.toString());
 
-            verify(updateInventoryUseCase).update(request, VALID_AUTH_TOKEN);
+            verify(updateInventoryUseCase).update(request);
         }
     }
 
@@ -149,17 +149,17 @@ class InventoryControllerTest extends BaseControllerTest {
                     .id(UUID.randomUUID())
                     .build();
 
-            doNothing().when(deleteInventoryUseCase).delete(any(InventoryRequest.class), eq(VALID_AUTH_TOKEN));
+            doNothing().when(deleteInventoryUseCase).delete(any(UUID.class));
 
             // Act
-            IHttpResponse<Void> response = inventoryController.delete(request, VALID_AUTH_TOKEN);
+            IHttpResponse<Void> response = inventoryController.delete(request);
 
             // Assert
             assertThat(response).isNotNull();
             assertThat(response.next()).contains("redirect:");
             assertThat(response.next()).contains("list");
 
-            verify(deleteInventoryUseCase).delete(request, VALID_AUTH_TOKEN);
+            verify(deleteInventoryUseCase).delete(request.id());
         }
     }
 
@@ -226,17 +226,17 @@ class InventoryControllerTest extends BaseControllerTest {
             InventoryResponse expectedInventory = new InventoryResponse(uuid);
             expectedInventory.setQuantity(100);
 
-            when(inventoryDetailUseCase.get(any(InventoryRequest.class), eq(VALID_AUTH_TOKEN)))
+            when(inventoryDetailUseCase.get(any(UUID.class)))
                     .thenReturn(expectedInventory);
 
             // Act
-            IHttpResponse<InventoryResponse> response = inventoryController.findById(request, VALID_AUTH_TOKEN);
+            IHttpResponse<InventoryResponse> response = inventoryController.findById(request);
 
             // Assert
             assertThat(response).isNotNull();
             assertThat(response.body()).isEqualTo(expectedInventory);
 
-            verify(inventoryDetailUseCase).get(request, VALID_AUTH_TOKEN);
+            verify(inventoryDetailUseCase).get(request.id());
         }
     }
 

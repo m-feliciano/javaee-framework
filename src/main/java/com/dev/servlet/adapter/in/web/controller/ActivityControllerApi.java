@@ -23,7 +23,7 @@ public interface ActivityControllerApi {
             jsonType = ActivityRequest.class,
             description = "Retrieve detailed information about a specific user activity log."
     )
-    IHttpResponse<UserActivityLog> getActivityDetail(ActivityRequest request, String auth);
+    IHttpResponse<UserActivityLog> getActivityDetail(ActivityRequest request);
 
     @RequestMapping(value = "/search", description = "Search user activity logs based on query parameters.")
     IHttpResponse<IPageable<UserActivityLogResponse>> search(Query query, IPageRequest pageRequest, String auth);

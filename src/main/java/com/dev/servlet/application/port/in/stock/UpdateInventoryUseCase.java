@@ -5,6 +5,6 @@ import com.dev.servlet.application.transfer.request.InventoryRequest;
 import com.dev.servlet.application.transfer.response.InventoryResponse;
 
 public interface UpdateInventoryUseCase {
-    InventoryResponse update(InventoryRequest request, String auth) throws AppException;
+    InventoryResponse update(InventoryRequest request) throws AppException;
 }
 

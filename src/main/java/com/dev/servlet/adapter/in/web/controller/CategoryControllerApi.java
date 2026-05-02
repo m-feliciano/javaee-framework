@@ -35,7 +35,7 @@ public interface CategoryControllerApi {
             jsonType = CategoryRequest.class,
             description = "Retrieve detailed information about a specific category."
     )
-    IHttpResponse<CategoryResponse> getCategoryDetail(CategoryRequest request, String auth);
+    IHttpResponse<CategoryResponse> getCategoryDetail(CategoryRequest request);
 
     @RequestMapping(
             value = "/delete/{id}",
@@ -50,7 +50,7 @@ public interface CategoryControllerApi {
             jsonType = CategoryRequest.class,
             description = "Retrieve details of a specific category by ID."
     )
-    IHttpResponse<CategoryResponse> details(CategoryRequest category, String auth);
+    IHttpResponse<CategoryResponse> details(CategoryRequest category);
 
     @RequestMapping(
             value = "/update/{id}",

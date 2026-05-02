@@ -31,7 +31,7 @@ public interface UserControllerApi {
             jsonType = UserRequest.class,
             description = "Delete a user by ID. Requires ADMIN role."
     )
-    IHttpResponse<Void> delete(UserRequest user, String auth);
+    IHttpResponse<Void> delete(UserRequest user);
 
     @RequestMapping(
             value = "/me",

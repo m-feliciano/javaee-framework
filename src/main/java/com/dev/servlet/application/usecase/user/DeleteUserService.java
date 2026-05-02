@@ -17,8 +17,8 @@ public class DeleteUserService implements DeleteUserUseCase {
     @Inject
     private UserRepositoryPort repository;
 
-    public void delete(UUID userId, String auth) throws AppException {
-        User user = repository.findById(userId).orElseThrow(NotFoundException::new);
+    public void delete(UUID uuid) throws AppException {
+        User user = repository.findById(uuid).orElseThrow(NotFoundException::new);
         repository.delete(user);
     }
 }

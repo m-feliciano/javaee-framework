@@ -6,6 +6,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface GetUserActivityDetailUseCase {
-    Optional<UserActivityLog> getActivityDetail(UUID activityId, UUID userId);
+    Optional<UserActivityLog> getActivityDetail(UUID uuid);
 }
 

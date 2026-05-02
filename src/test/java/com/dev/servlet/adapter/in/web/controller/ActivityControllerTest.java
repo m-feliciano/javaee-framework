@@ -108,18 +108,18 @@ class ActivityControllerTest extends BaseControllerTest {
                     .action("LOGIN")
                     .build();
 
-            when(userActivityDetailUseCase.getActivityDetail(eq(ACTIVITY_ID), eq(USER_ID)))
+            when(userActivityDetailUseCase.getActivityDetail(eq(ACTIVITY_ID)))
                     .thenReturn(Optional.of(activityLog));
 
             // Act
             IHttpResponse<UserActivityLog> response =
-                    activityController.getActivityDetail(request, VALID_AUTH_TOKEN);
+                    activityController.getActivityDetail(request);
 
             // Assert
             assertThat(response).isNotNull();
             assertThat(response.body()).isEqualTo(activityLog);
 
-            verify(userActivityDetailUseCase).getActivityDetail(ACTIVITY_ID, USER_ID);
+            verify(userActivityDetailUseCase).getActivityDetail(ACTIVITY_ID);
         }
 
         @Test
@@ -129,11 +129,11 @@ class ActivityControllerTest extends BaseControllerTest {
             User user = User.builder().id(USER_ID).build();
             ActivityRequest request = new ActivityRequest(UUID.randomUUID(), "LOGIN", user);
 
-            when(userActivityDetailUseCase.getActivityDetail(any(), any()))
+            when(userActivityDetailUseCase.getActivityDetail(any()))
                     .thenReturn(Optional.empty());
 
             // Act & Assert
-            assertThatThrownBy(() -> activityController.getActivityDetail(request, VALID_AUTH_TOKEN))
+            assertThatThrownBy(() -> activityController.getActivityDetail(request))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessageContaining("Activity not found");
         }

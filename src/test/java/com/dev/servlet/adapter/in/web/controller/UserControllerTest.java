@@ -138,14 +138,14 @@ class UserControllerTest extends BaseControllerTest {
             // Arrange
             UserRequest request = UserRequest.builder().id(USER_ID).build();
 
-            doNothing().when(deleteUserUseCase).delete(eq(USER_ID), eq(VALID_AUTH_TOKEN));
+            doNothing().when(deleteUserUseCase).delete(eq(USER_ID));
 
             // Act
-            IHttpResponse<Void> response = userController.delete(request, VALID_AUTH_TOKEN);
+            IHttpResponse<Void> response = userController.delete(request);
 
             // Assert
             assertThat(response).isNotNull();
-            verify(deleteUserUseCase).delete(USER_ID, VALID_AUTH_TOKEN);
+            verify(deleteUserUseCase).delete(USER_ID);
         }
     }
 
