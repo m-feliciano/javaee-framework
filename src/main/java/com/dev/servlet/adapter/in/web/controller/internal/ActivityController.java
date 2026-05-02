@@ -49,19 +49,20 @@ public class ActivityController extends BaseController implements ActivityContro
 
     public IHttpResponse<IPageable<UserActivityLogResponse>> getHistory(PageRequest defaultPage, @Authorization String auth) {
         UUID userId = this.auth.extractUserId(auth);
+
         PageRequest pageRequest = PageRequest.of(
                 defaultPage.getInitialPage(),
                 defaultPage.getPageSize(),
                 UserActivityLog.builder().userId(userId).build(),
                 Sort.by("timestamp").descending()
         );
+
         var activityLogPage = activityPageableUseCase.getAllPageable(pageRequest, mapper::toResponse);
         return HttpResponse.ok(activityLogPage).next(forwardTo("history")).build();
     }
 
-    public IHttpResponse<UserActivityLog> getActivityDetail(ActivityRequest request, @Authorization String auth) {
-        UUID userId = this.auth.extractUserId(auth);
-        Optional<UserActivityLog> optional = userActivityDetailUseCase.getActivityDetail(request.id(), userId);
+    public IHttpResponse<UserActivityLog> getActivityDetail(ActivityRequest request) {
+        Optional<UserActivityLog> optional = userActivityDetailUseCase.getActivityDetail(request.id());
 
         UserActivityLog activityLog = optional.orElseThrow(() -> new RuntimeException("Activity not found"));
         if (activityLog == null) {

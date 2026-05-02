@@ -67,8 +67,8 @@ public class UserController extends BaseController implements UserControllerApi 
     @SneakyThrows
     @Override
     @Cache(invalidate = "users_cache")
-    public IHttpResponse<Void> delete(UserRequest user, @Authorization String auth) {
-        deleteUserUseCase.delete(user.id(), auth);
+    public IHttpResponse<Void> delete(UserRequest user) {
+        deleteUserUseCase.delete(user.id());
         return newHttpResponse(200, REDIRECT_AUTH_FORM);
     }
 

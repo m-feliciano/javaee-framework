@@ -12,6 +12,8 @@ import jakarta.inject.Inject;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.UUID;
+
 @Slf4j
 @NoArgsConstructor
 @ApplicationScoped
@@ -22,8 +24,8 @@ public class GetInventoryDetailService implements GetInventoryDetailUseCase {
     private InventoryRepositoryPort repository;
 
     @Override
-    public InventoryResponse get(InventoryRequest request, String auth) throws AppException {
-        return repository.findById(request.id())
+    public InventoryResponse get(UUID uuid) throws AppException {
+        return repository.findById(uuid)
                 .map(mapper::toResponse)
                 .orElseThrow(NotFoundException::new);
     }

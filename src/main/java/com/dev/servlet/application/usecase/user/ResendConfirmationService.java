@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @ApplicationScoped
@@ -34,27 +33,25 @@ public class ResendConfirmationService implements ResendConfirmationUseCase {
 
     @Override
     public void resend(ResendConfirmationRequest request) throws AppException {
-        final UUID userId = request.userId();
-
-        if (userId == null) {
+        if (request.userId() == null) {
             log.warn("ResendConfirmationUseCase: userId is blank");
             return;
         }
 
-        Optional<User> maybe = repository.findById(userId);
+        Optional<User> maybe = repository.findById(request.userId());
         if (maybe.isEmpty()) {
-            log.warn("ResendConfirmationUseCase: unknown userId {}", userId);
+            log.warn("ResendConfirmationUseCase: unknown userId {}", request.userId());
             return;
         }
 
         User user = maybe.get();
         if (!Status.PENDING.getValue().equals(user.getStatus())) {
-            log.info("ResendConfirmationUseCase: user {} not pending (status={}), skip", userId, user.getStatus());
+            log.info("ResendConfirmationUseCase: user {} not pending (status={}), skip", request.userId(), user.getStatus());
             return;
         }
 
-        if (tokenRepositoryPort.existsValidTokenForUser(userId)) {
-            log.info("ResendConfirmationUseCase: user {} already has a valid confirmation token, skip", userId);
+        if (tokenRepositoryPort.existsValidTokenForUser(request.userId())) {
+            log.info("ResendConfirmationUseCase: user {} already has a valid confirmation token, skip", request.userId());
             return;
         }
 

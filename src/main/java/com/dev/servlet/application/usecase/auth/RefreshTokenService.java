@@ -63,7 +63,6 @@ public class RefreshTokenService implements RefreshTokenUseCase {
                 .revoked(false)
                 .issuedAt(Instant.now())
                 .expiresAt(Instant.now().plusSeconds(TimeUnit.DAYS.toSeconds(30)))
-                .replacedBy(null)
                 .build();
         repository.save(created);
         return created;

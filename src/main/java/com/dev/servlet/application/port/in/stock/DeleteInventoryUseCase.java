@@ -1,9 +1,10 @@
 package com.dev.servlet.application.port.in.stock;
 
 import com.dev.servlet.application.exception.AppException;
-import com.dev.servlet.application.transfer.request.InventoryRequest;
+
+import java.util.UUID;
 
 public interface DeleteInventoryUseCase {
-    void delete(InventoryRequest request, String auth) throws AppException;
+    void delete(UUID uuid) throws AppException;
 }
 

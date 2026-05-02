@@ -26,9 +26,8 @@ public class RegisterCategoryService implements RegisterCategoryUseCase {
 
     @Override
     public CategoryResponse register(CategoryRequest request, String auth) throws AppException {
-        User user = this.auth.extractUser(auth);
         Category category = mapper.toCategory(request);
-        category.setUser(user);
+        category.setUser(this.auth.extractUser(auth));
         category.setStatus(Status.ACTIVE.getValue());
         category = repository.save(category);
         return CategoryResponse.builder().id(category.getId()).build();

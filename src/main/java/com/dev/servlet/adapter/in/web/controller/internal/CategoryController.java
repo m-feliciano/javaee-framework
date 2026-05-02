@@ -41,8 +41,8 @@ public class CategoryController extends BaseController implements CategoryContro
     }
 
     @SneakyThrows
-    public IHttpResponse<CategoryResponse> details(CategoryRequest category, @Authorization String auth) {
-        CategoryResponse response = categoryDetailUseCase.get(category, auth);
+    public IHttpResponse<CategoryResponse> details(CategoryRequest category) {
+        CategoryResponse response = categoryDetailUseCase.get(category.id());
         return okHttpResponse(response, forwardTo("formUpdateCategory"));
     }
 
@@ -71,8 +71,8 @@ public class CategoryController extends BaseController implements CategoryContro
     }
 
     @SneakyThrows
-    public IHttpResponse<CategoryResponse> getCategoryDetail(CategoryRequest request, @Authorization String auth) {
-        CategoryResponse response = categoryDetailUseCase.get(request, auth);
+    public IHttpResponse<CategoryResponse> getCategoryDetail(CategoryRequest request) {
+        CategoryResponse response = categoryDetailUseCase.get(request.id());
         return okHttpResponse(response, forwardTo("formListCategory"));
     }
 }

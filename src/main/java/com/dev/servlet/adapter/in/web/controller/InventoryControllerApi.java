@@ -45,21 +45,21 @@ public interface InventoryControllerApi {
             jsonType = InventoryRequest.class,
             description = "Delete an inventory record by ID."
     )
-    IHttpResponse<Void> delete(InventoryRequest request, String auth);
+    IHttpResponse<Void> delete(InventoryRequest request);
 
     @RequestMapping(
             value = "/list/{id}",
             jsonType = InventoryRequest.class,
             description = "Retrieve detailed information about a specific inventory record."
     )
-    IHttpResponse<InventoryResponse> findById(InventoryRequest request, String auth);
+    IHttpResponse<InventoryResponse> findById(InventoryRequest request);
 
     @RequestMapping(
             value = "/details/{id}",
             jsonType = InventoryRequest.class,
             description = "Retrieve details of a specific inventory record by ID."
     )
-    IHttpResponse<InventoryResponse> details(InventoryRequest request, String auth);
+    IHttpResponse<InventoryResponse> details(InventoryRequest request);
 
     @RequestMapping(
             value = "/update/{id}",
@@ -67,5 +67,5 @@ public interface InventoryControllerApi {
             jsonType = InventoryRequest.class,
             description = "Update an existing inventory record."
     )
-    IHttpResponse<Void> update(InventoryRequest request, String auth);
+    IHttpResponse<Void> update(InventoryRequest request);
 }

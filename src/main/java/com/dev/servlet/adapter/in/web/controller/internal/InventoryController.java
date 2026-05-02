@@ -73,8 +73,8 @@ public class InventoryController extends BaseController implements InventoryCont
     }
 
     @SneakyThrows
-    public IHttpResponse<Void> delete(InventoryRequest request, @Authorization String auth) {
-        deleteInventoryUseCase.delete(request, auth);
+    public IHttpResponse<Void> delete(InventoryRequest request) {
+        deleteInventoryUseCase.delete(request.id());
         return HttpResponse.<Void>next(redirectToCtx("list")).build();
     }
 
@@ -97,20 +97,20 @@ public class InventoryController extends BaseController implements InventoryCont
     }
 
     @SneakyThrows
-    public IHttpResponse<InventoryResponse> findById(InventoryRequest request, @Authorization String auth) {
-        InventoryResponse inventory = getInventoryDetailUseCase.get(request, auth);
+    public IHttpResponse<InventoryResponse> findById(InventoryRequest request) {
+        InventoryResponse inventory = getInventoryDetailUseCase.get(request.id());
         return okHttpResponse(inventory, forwardTo("formListItem"));
     }
 
     @SneakyThrows
-    public IHttpResponse<InventoryResponse> details(InventoryRequest request, @Authorization String auth) {
-        InventoryResponse inventory = getInventoryDetailUseCase.get(request, auth);
+    public IHttpResponse<InventoryResponse> details(InventoryRequest request) {
+        InventoryResponse inventory = getInventoryDetailUseCase.get(request.id());
         return okHttpResponse(inventory, forwardTo("formUpdateItem"));
     }
 
     @SneakyThrows
-    public IHttpResponse<Void> update(InventoryRequest request, @Authorization String auth) {
-        InventoryResponse inventory = updateInventoryUseCase.update(request, auth);
+    public IHttpResponse<Void> update(InventoryRequest request) {
+        InventoryResponse inventory = updateInventoryUseCase.update(request);
         return newHttpResponse(204, redirectTo(inventory.getId()));
     }
 

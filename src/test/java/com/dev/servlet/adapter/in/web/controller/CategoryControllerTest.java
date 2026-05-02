@@ -232,18 +232,18 @@ class CategoryControllerTest extends BaseControllerTest {
             expectedCategory.setName("Electronics");
             expectedCategory.setStatus("ACTIVE");
 
-            when(detailPort.get(any(CategoryRequest.class), eq(VALID_AUTH_TOKEN)))
+            when(detailPort.get(any(UUID.class)))
                     .thenReturn(expectedCategory);
 
             // Act
-            IHttpResponse<CategoryResponse> response = categoryController.details(request, VALID_AUTH_TOKEN);
+            IHttpResponse<CategoryResponse> response = categoryController.details(request);
 
             // Assert
             assertThat(response).isNotNull();
             assertThat(response.body()).isEqualTo(expectedCategory);
             assertThat(response.next()).contains("formUpdateCategory");
 
-            verify(detailPort).get(request, VALID_AUTH_TOKEN);
+            verify(detailPort).get(request.id());
         }
 
         @Test
@@ -256,19 +256,19 @@ class CategoryControllerTest extends BaseControllerTest {
             CategoryResponse expectedCategory = CategoryResponse.builder().id(uuid).build();
             expectedCategory.setName("Books");
 
-            when(detailPort.get(any(CategoryRequest.class), eq(VALID_AUTH_TOKEN)))
+            when(detailPort.get(any(UUID.class)))
                     .thenReturn(expectedCategory);
 
             // Act
             IHttpResponse<CategoryResponse> response =
-                    categoryController.getCategoryDetail(request, VALID_AUTH_TOKEN);
+                    categoryController.getCategoryDetail(request);
 
             // Assert
             assertThat(response).isNotNull();
             assertThat(response.body()).isEqualTo(expectedCategory);
             assertThat(response.next()).contains("formListCategory");
 
-            verify(detailPort).get(request, VALID_AUTH_TOKEN);
+            verify(detailPort).get(request.id());
         }
     }
 
@@ -335,15 +335,15 @@ class CategoryControllerTest extends BaseControllerTest {
 
             when(registerPort.register(any(), any())).thenReturn(response);
             when(updatePort.update(any(), any())).thenReturn(response);
-            when(detailPort.get(any(), any())).thenReturn(response);
+            when(detailPort.get(any())).thenReturn(response);
             when(listPort.list(any(), any())).thenReturn(List.of(response));
             doNothing().when(deletePort).delete(any(), any());
 
             // Act & Assert - All operations should work
             assertThat(categoryController.register(request, VALID_AUTH_TOKEN)).isNotNull();
             assertThat(categoryController.update(request, VALID_AUTH_TOKEN)).isNotNull();
-            assertThat(categoryController.details(request, VALID_AUTH_TOKEN)).isNotNull();
-            assertThat(categoryController.getCategoryDetail(request, VALID_AUTH_TOKEN)).isNotNull();
+            assertThat(categoryController.details(request)).isNotNull();
+            assertThat(categoryController.getCategoryDetail(request)).isNotNull();
             assertThat(categoryController.list(request, VALID_AUTH_TOKEN)).isNotNull();
             assertThat(categoryController.delete(request, VALID_AUTH_TOKEN)).isNotNull();
         }
