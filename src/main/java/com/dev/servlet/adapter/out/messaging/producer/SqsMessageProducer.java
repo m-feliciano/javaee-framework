@@ -77,7 +77,6 @@ public class SqsMessageProducer implements AsyncMessagePort {
 
     @PreDestroy
     void shutdown() {
-        log.info("Shutting down SQS MessageProducer");
         if (sqsClient != null) sqsClient.close();
     }
 }

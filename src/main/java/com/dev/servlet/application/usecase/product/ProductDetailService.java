@@ -25,8 +25,6 @@ public class ProductDetailService implements ProductDetailUserCase {
 
     @Override
     public ProductResponse get(ProductRequest request, String auth) throws AppException {
-        log.debug("GetProductDetailUseCase: attempting to get product detail for product {}", request.id());
-
         Product product = mapper.toProduct(request, this.auth.extractUserId(auth));
         product = repository.find(product).orElseThrow(NotFoundException::new);
         return mapper.toResponse(product);

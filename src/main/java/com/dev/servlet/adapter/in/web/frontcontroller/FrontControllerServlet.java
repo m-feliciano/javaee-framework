@@ -31,7 +31,6 @@ import static com.dev.servlet.infrastructure.utils.URIUtils.matchWildcard;
 )
 @Slf4j
 public class FrontControllerServlet extends HttpServlet {
-    // Api endpoints that are excluded from audit logging
     private static final String GET_INSPECT_EVENT = "GET:/api/v1/inspect/*";
     private static final String GET_ACTIVITY_EVENT = "GET:/api/v1/activity/*";
     private static final String GET_HEALTH_UP_EVENT = "GET:/api/v1/health/up";
@@ -64,8 +63,6 @@ public class FrontControllerServlet extends HttpServlet {
         log.trace("service(req={}, resp={})", req, resp);
 
         final String event = "%s:%s".formatted(req.getMethod(), req.getRequestURI());
-        log.debug("Processing request for event: {}", event);
-
         boolean isUserRequest = isUserRequest(event);
 
         Request input = null;
@@ -75,7 +72,6 @@ public class FrontControllerServlet extends HttpServlet {
             output = dispatcher.dispatch(input);
 
             if (output.error() != null && output.reasonText() == null) {
-                log.warn("Unsuccessful response: {}", output.error());
                 throw new AppException(output.statusCode(), output.error());
             }
 
@@ -105,7 +101,6 @@ public class FrontControllerServlet extends HttpServlet {
 
         } finally {
             if (input != null && isUserRequest) logAuditEvent(event, input, output);
-            log.debug("Completed processing request for event: {}", event);
         }
     }
 

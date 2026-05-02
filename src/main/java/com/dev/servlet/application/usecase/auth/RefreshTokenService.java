@@ -27,8 +27,6 @@ public class RefreshTokenService implements RefreshTokenUseCase {
 
     @Override
     public RefreshTokenResponse refreshToken(String refreshToken) throws AppException {
-        log.debug("RefreshTokenUseCase: refreshing token");
-
         if (!auth.validateToken(refreshToken)) throw new AppException("Invalid refresh token");
 
         RefreshToken old = validateRefreshToken(refreshToken);
@@ -38,12 +36,10 @@ public class RefreshTokenService implements RefreshTokenUseCase {
         String newRefreshJwt = auth.generateRefreshToken(user);
 
         RefreshToken created = createRefreshToken(newRefreshJwt, user);
-        log.debug("RefreshTokenUseCase: created new refresh token {}", created.getId());
 
         old.setRevoked(true);
         old.setReplacedBy(created.getId());
         repository.update(old);
-        log.debug("RefreshTokenUseCase: revoking old refresh token {}", old.getId());
 
         cache.clearAll(user.getId());
 

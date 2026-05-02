@@ -42,10 +42,9 @@ public final class DateUtil {
     }
 
     public static Date toDateInitial(String value, String format) {
-        if (value == null) return null;
-        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-        dateFormat.setLenient(false);
         try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+            dateFormat.setLenient(false);
             return dateFormat.parse(value);
         } catch (Exception e) {
             return null;

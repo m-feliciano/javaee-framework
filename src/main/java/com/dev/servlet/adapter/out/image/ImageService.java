@@ -23,9 +23,7 @@ public class ImageService {
     public InputStream processToOptimizedJpg(InputStream in, int size, String intendedUsage) {
         try {
             BufferedImage img = ImageIO.read(in);
-            if (img == null) {
-                throw new IllegalArgumentException("Invalid image");
-            }
+            if (img == null) throw new IllegalArgumentException("Invalid image");
 
             img = processor.normalizeToJpg(img);
             img = processor.cropSquare(img);

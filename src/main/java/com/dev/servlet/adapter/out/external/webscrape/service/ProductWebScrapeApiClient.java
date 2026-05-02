@@ -46,25 +46,25 @@ public class ProductWebScrapeApiClient extends ScrapeApiClient<List<ProductWebSc
         if (scrapeRequest == null || scrapeRequest.url() == null) {
             throw new AppException("Scrape request or URL cannot be null.");
         }
+
         List<WebScrapingResponse<ProductWebScrapeDTO>> responses = new ArrayList<>();
         WebScrapingResponse<ProductWebScrapeDTO> scrapingResponse;
         int page = 1;
         int pageTotal;
         int MAX_PAGES = 50;
+
         do {
             String url = scrapeRequest.url().replace("<page>", String.valueOf(page));
 
             Request request = new Request.Builder().url(url).get().build();
             try (Response response = client.newCall(request).execute()) {
                 if (!response.isSuccessful() || response.body() == null) {
-                    log.error("Error retrieving page {}: {}", page, response.message());
                     throw new AppException(response.message());
                 }
 
                 String responseBody = response.body().string();
-                scrapingResponse = objectMapper.readValue(responseBody,
-                        new TypeReference<WebScrapingResponse<ProductWebScrapeDTO>>() {
-                        });
+                scrapingResponse = objectMapper.readValue(responseBody, new TypeReference<>() {
+                });
 
                 responses.add(scrapingResponse);
                 pageTotal = scrapingResponse.getPageTotal();

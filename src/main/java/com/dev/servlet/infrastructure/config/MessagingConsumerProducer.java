@@ -22,12 +22,10 @@ public class MessagingConsumerProducer {
         final String provider = Properties.getOrDefault("provider.broker", "jms");
 
         if ("sqs".equalsIgnoreCase(provider)) {
-            log.info("MessagePort: Using SqsMessageProducer as the messaging provider.");
             return sqsMessageProducerInstance.get();
         }
 
         if ("jms".equalsIgnoreCase(provider)) {
-            log.info("MessagePort: Using jmsMQMessageProducer as the messaging provider.");
             return jmsMessageProducerInstance.get();
         }
 

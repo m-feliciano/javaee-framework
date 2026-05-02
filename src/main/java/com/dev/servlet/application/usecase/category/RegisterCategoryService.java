@@ -26,8 +26,6 @@ public class RegisterCategoryService implements RegisterCategoryUseCase {
 
     @Override
     public CategoryResponse register(CategoryRequest request, String auth) throws AppException {
-        log.debug("RegisterCategoryUseCase called with request: {} and auth: {}", request, auth);
-
         User user = this.auth.extractUser(auth);
         Category category = mapper.toCategory(request);
         category.setUser(user);

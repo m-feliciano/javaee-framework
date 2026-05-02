@@ -23,8 +23,6 @@ public class ChangeEmailService implements ChangeEmailUseCase {
     private ConfirmationTokenRepositoryPort tokenRepository;
 
     public void change(String token) throws AppException {
-        log.debug("ChangeEmailUseCase: changing email with token {}", token);
-
         if (StringUtils.isBlank(token)) {
             throw new AppException(HttpServletResponse.SC_BAD_REQUEST, "Token is required");
         }

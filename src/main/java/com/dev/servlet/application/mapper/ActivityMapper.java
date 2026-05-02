@@ -22,12 +22,15 @@ public interface ActivityMapper {
 
     default UserActivityLog toFilter(UUID userId, Query query) {
         UserActivityLog filter = UserActivityLog.builder().userId(userId).build();
-        if (query.parameters().get("status") != null) {
-            String status = query.parameters().get("status").toUpperCase();
-            filter.setStatus(ActivityStatus.valueOf(status));
+
+        String status = query.get("status");
+        if (status != null) {
+            filter.setStatus(ActivityStatus.valueOf(status.toUpperCase()));
         }
-        if (query.parameters().get("name") != null) {
-            filter.setAction(query.parameters().get("name"));
+
+        String name = query.get("name");
+        if (name != null) {
+            filter.setAction(name);
         }
 
         return filter;

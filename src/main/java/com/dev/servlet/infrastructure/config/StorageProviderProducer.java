@@ -21,7 +21,6 @@ public class StorageProviderProducer {
         final String provider = Properties.getOrDefault("provider.storage", "s3");
 
         if ("s3".equalsIgnoreCase(provider)) {
-            log.info("StorageService: Using S3Service as the storage provider.");
             return s3Instance.get();
         }
 

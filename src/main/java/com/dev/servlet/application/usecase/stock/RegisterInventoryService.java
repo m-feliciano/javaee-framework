@@ -32,8 +32,6 @@ public class RegisterInventoryService implements RegisterInventoryUseCase {
 
     @Override
     public InventoryResponse register(InventoryCreateRequest request, String auth) throws AppException {
-        log.debug("RegisterInventoryUseCase: attempting to register inventory for product {}", request.productId());
-
         User user = this.auth.extractUser(auth);
 
         Inventory inventory = mapper.createToInventory(request);

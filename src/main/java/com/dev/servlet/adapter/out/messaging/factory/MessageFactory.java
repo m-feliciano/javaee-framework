@@ -10,12 +10,6 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 public class MessageFactory {
 
     public static ConnectionFactory createConnectionFactory(String brokerUrl, String user, String pass) {
-        log.info("Creating ActiveMQ ConnectionFactory for user {} at {}", user, brokerUrl);
-
-        return new ActiveMQConnectionFactory(
-                brokerUrl,
-                user,
-                pass
-        );
+        return new ActiveMQConnectionFactory(brokerUrl, user, pass);
     }
 }

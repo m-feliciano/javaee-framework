@@ -75,7 +75,6 @@ public class ScrapeProductService implements ScrapeProductUseCase {
     public List<ProductResponse> scrape(String url, String auth) {
         final User user = authentication.extractUser(auth);
 
-        // Enable web scraping only in the development environment or demo mode
         if (!Properties.isDevelopmentMode() && !Properties.isDemoModeEnabled()) {
             log.warn("Web scraping is only allowed in development environment");
             alert.publish(user.getId(), "warn",

@@ -28,8 +28,6 @@ public class ListCategoryService implements ListCategoryUseCase {
 
     @Override
     public Collection<CategoryResponse> list(CategoryRequest request, String token) {
-        log.debug("ListCategoryUseCase called with request: {} and token: {}", request, token);
-
         User user = auth.extractUser(token);
         Collection<CategoryResponse> categories = findAll(user);
         if (request != null && request.name() != null) {
@@ -38,6 +36,7 @@ public class ListCategoryService implements ListCategoryUseCase {
                     .filter(c -> c.getName().toLowerCase().contains(lowerCase))
                     .toList();
         }
+
         return categories;
     }
 

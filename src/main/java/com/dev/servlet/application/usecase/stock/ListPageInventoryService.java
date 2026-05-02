@@ -24,9 +24,6 @@ public class ListPageInventoryService implements ListPageInventoryUseCase {
     public <R> IPageable<R> getAllPageable(IPageRequest pageRequest,
                                            String auth,
                                            Mapper<Inventory, R> mapper) {
-        log.debug("ListCategoryUseCase called with page initial: {} and size: {}",
-                pageRequest.getInitialPage(), pageRequest.getPageSize());
-
         User user = authentication.extractUser(auth);
         Inventory inventory = ((Inventory) pageRequest.getFilter()).toBuilder().user(user).build();
         pageRequest.setFilter(inventory);

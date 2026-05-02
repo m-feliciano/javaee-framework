@@ -13,14 +13,9 @@ import com.dev.servlet.shared.vo.Query;
 
 import java.util.List;
 
-import static com.dev.servlet.domain.entity.enums.RequestMethod.GET;
-
 @Controller("activity")
 public interface ActivityControllerApi {
-    @RequestMapping(
-            value = "/history",
-            description = "Retrieve paginated user activity logs."
-    )
+    @RequestMapping(value = "/history", description = "Retrieve paginated user activity logs.")
     IHttpResponse<IPageable<UserActivityLogResponse>> getHistory(PageRequest defaultPage, String auth);
 
     @RequestMapping(
@@ -30,15 +25,9 @@ public interface ActivityControllerApi {
     )
     IHttpResponse<UserActivityLog> getActivityDetail(ActivityRequest request, String auth);
 
-    @RequestMapping(
-            value = "/search",
-            description = "Search user activity logs based on query parameters."
-    )
+    @RequestMapping(value = "/search", description = "Search user activity logs based on query parameters.")
     IHttpResponse<IPageable<UserActivityLogResponse>> search(Query query, IPageRequest pageRequest, String auth);
 
-    @RequestMapping(
-            value = "/timeline",
-            description = "Retrieve a timeline of user activities."
-    )
+    @RequestMapping(value = "/timeline", description = "Retrieve a timeline of user activities.")
     IHttpResponse<List<UserActivityLogResponse>> getTimeline(Query query, String auth);
 }

@@ -34,7 +34,6 @@ public class CacheAdapter implements CachePort {
             for (Map.Entry<String, Long> entry : tmpStore.entrySet()) {
                 if (entry.getValue() < now) {
                     tmpStore.remove(entry.getKey());
-                    log.debug("Removed entry: {}", entry.getKey());
                 }
             }
         }, 1, 1, TimeUnit.MINUTES);
@@ -59,22 +58,16 @@ public class CacheAdapter implements CachePort {
                 .build(true);
 
         cache = cacheManager.getCache(MAIN_CACHE, String.class, Object.class);
-
-        log.info("Cache initialized with TTL {}", ttl);
     }
 
     @Override
     public void set(String namespace, UUID key, Object value) {
-        log.debug("set namespace {}, key {}", namespace, key);
-
         String cacheKey = compoundKey(namespace, key);
         cache.put(cacheKey, value);
     }
 
     @Override
     public void set(String namespace, UUID key, Object value, Duration cacheTtl) {
-        log.debug("set namespace {}, key {}", namespace, key);
-
         String cacheKey = compoundKey(namespace, key);
         cache.put(cacheKey, value);
 
@@ -94,7 +87,6 @@ public class CacheAdapter implements CachePort {
     @Override
     public void clear(String namespace, UUID key) {
         String cacheKey = compoundKey(namespace, key);
-        log.debug("Clearing cache {} for key: {}", namespace, key);
         cache.remove(cacheKey);
     }
 
@@ -103,7 +95,6 @@ public class CacheAdapter implements CachePort {
         cache.forEach(entry -> {
             if (entry.getKey().startsWith(namespace + ":")) {
                 cache.remove(entry.getKey());
-                log.debug("[clearNamespace] Removed key: {}", entry.getKey());
             }
         });
     }
@@ -117,7 +108,6 @@ public class CacheAdapter implements CachePort {
                     cache.forEach(entry -> {
                         if (entry.getKey().endsWith(suffix)) {
                             cache.remove(entry.getKey());
-                            log.debug("[clearSuffix] Removed key: {}", entry.getKey());
                         }
                     });
                 });
@@ -127,7 +117,6 @@ public class CacheAdapter implements CachePort {
         for (Cache.Entry<String, Object> entry : cache) {
             if (entry.getKey().endsWith(":" + key)) {
                 cache.remove(entry.getKey());
-                log.debug("[clearAll] Removed key: {}", entry.getKey());
             }
         }
     }
@@ -135,7 +124,6 @@ public class CacheAdapter implements CachePort {
     @PreDestroy
     void shutdown() {
         cacheManager.close();
-        log.info("CacheManager closed");
     }
 
     private String compoundKey(String namespace, UUID key) {

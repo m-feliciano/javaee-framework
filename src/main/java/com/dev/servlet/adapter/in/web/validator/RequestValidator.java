@@ -18,7 +18,7 @@ public final class RequestValidator {
     private final List<ValidationHandler> handlers = new ArrayList<>();
 
     public RequestValidator(EndpointParser endpoint, AuthenticationPort authenticationPort) {
-        // The order of handlers is important
+        // The handlers order matters
         handlers.add(new ApiVersionValidationHandler(endpoint));
         handlers.add(new MethodValidationHandler());
         handlers.add(new AuthValidationHandler());

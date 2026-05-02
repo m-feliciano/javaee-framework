@@ -126,7 +126,10 @@ public final class URIUtils {
                 .collect(Collectors.toList());
 
         if (req.getContentType() != null && req.getContentType().startsWith("multipart/form-data")) {
-            list.add(new KeyPair("payload", buildMultPartPayload(req)));
+            try {
+                list.add(new KeyPair("payload", buildMultPartPayload(req)));
+            } catch (Exception ignored) {
+            }
         }
 
         return list;
@@ -165,23 +168,19 @@ public final class URIUtils {
         return eventName.matches(regex);
     }
 
-    private static BinaryPayload buildMultPartPayload(HttpServletRequest req) {
-        try {
-            if (req.getParts() == null) return null;
+    private static BinaryPayload buildMultPartPayload(HttpServletRequest req) throws Exception {
+        if (req.getParts() == null) return null;
 
-            var part = req.getPart("file");
+        var part = req.getPart("file");
 
-            if (part == null
-                || part.getSize() == 0
-                || part.getSubmittedFileName() == null
-                || part.getInputStream() == null
-                || part.getInputStream().available() == 0) return null;
+        if (part == null
+            || part.getSize() == 0
+            || part.getSubmittedFileName() == null
+            || part.getInputStream() == null
+            || part.getInputStream().available() == 0) return null;
 
-            File tmp = File.createTempFile("upload_" + UUID.randomUUID().toString().substring(8), ".tmp");
-            FileUtils.copyInputStreamToFile(part.getInputStream(), tmp);
-            return new BinaryPayload(tmp.getAbsolutePath(), tmp.length(), part.getContentType());
-        } catch (Exception e) {
-            throw new RuntimeException("Error processing multipart form data: " + e.getMessage(), e);
-        }
+        File tmp = File.createTempFile("upload_" + UUID.randomUUID().toString().substring(8), ".tmp");
+        FileUtils.copyInputStreamToFile(part.getInputStream(), tmp);
+        return new BinaryPayload(tmp.getAbsolutePath(), tmp.length(), part.getContentType());
     }
 }

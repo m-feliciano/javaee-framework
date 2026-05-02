@@ -22,7 +22,6 @@ public class GetUserActivityDetailService implements GetUserActivityDetailUseCas
 
     @Override
     public Optional<UserActivityLog> getActivityDetail(UUID activityId, UUID userId) {
-        log.debug("Fetching activity log {} for user {}", activityId, userId);
         Optional<UserActivityLog> activityLog = repository.findById(activityId);
         if (activityLog.isPresent() && !activityLog.get().getUserId().equals(userId)) {
             log.warn("User {} attempted to access activity log {} belonging to another user", userId, activityId);

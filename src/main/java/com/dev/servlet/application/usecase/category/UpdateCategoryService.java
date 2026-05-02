@@ -21,8 +21,6 @@ public class UpdateCategoryService implements UpdateCategoryUseCase {
 
     @Override
     public CategoryResponse update(CategoryRequest request, String auth) throws AppException {
-        log.debug("UpdateCategoryUseCase called with request: {} and auth: {}", request, auth);
-
         CategoryResponse response = categoryUseCase.get(request, auth);
         response.setName(request.name().toUpperCase());
         repository.updateName(new Category(response.getId(), response.getName()));

@@ -15,15 +15,16 @@ public class LogExecutionTimeInterceptor {
     @AroundInvoke
     public Object logMethodExecutionTime(InvocationContext context) throws Exception {
         StopWatch stopWatch = new StopWatch();
-        String methodName = context.getMethod().getName();
+        stopWatch.start();
+
         String className = context.getTarget().getClass().getSuperclass().getName();
         className = className.substring(className.lastIndexOf('.') + 1);
-        stopWatch.start();
+
         try {
             return context.proceed();
         } finally {
             stopWatch.stop();
-            log.info("{}.{} completed [duration={}ms]", className, methodName, stopWatch.getTime());
+            log.info("{}.{} completed [duration={}ms]", className, context.getMethod().getName(), stopWatch.getTime());
         }
     }
 }

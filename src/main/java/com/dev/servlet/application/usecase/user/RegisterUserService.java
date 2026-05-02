@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
-import static com.dev.servlet.shared.enums.ConstantUtils.DEMO_USER_LOGIN;
 import static jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 
 @Slf4j
@@ -34,15 +33,11 @@ public class RegisterUserService implements RegisterUserUseCase {
     private AsyncMessagePort messagePort;
     @Inject
     private GenerateConfirmationTokenUseCase generateConfirmationTokenUseCase;
-    // Only for demo purposes
     @Inject
     private Instance<UserDemoModeUseCase> demoModePortInstance;
 
     public UserResponse register(UserCreateRequest userReq) throws AppException {
-        log.debug("RegisterUserUseCase: registering user with login {}", userReq.login());
-
         if (Properties.isDemoModeEnabled()) {
-            log.debug("RegisterUserUseCase: demo mode is enabled, only {} user can be registered", DEMO_USER_LOGIN);
             UserDemoModeUseCase instance = demoModePortInstance.get();
             User user = instance.validateCredentials(new LoginRequest(userReq.login(), userReq.password()));
             return new UserResponse(user.getId());

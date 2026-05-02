@@ -108,13 +108,11 @@ public class EmailJmsConsumer implements MessageListener {
             try {
                 String payload = textMessage.getText();
                 if (StringUtils.isBlank(payload)) {
-                    log.warn("Received blank JMS message, acknowledging");
                     throw new IllegalArgumentException("Blank message payload");
                 }
 
                 message = CloneUtil.fromJson(payload, Message.class);
                 if (message == null || message.type() == null) {
-                    log.warn("Invalid message payload, acknowledging");
                     throw new IllegalArgumentException("Invalid message payload");
                 }
 

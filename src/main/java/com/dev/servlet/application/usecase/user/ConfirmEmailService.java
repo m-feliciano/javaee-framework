@@ -25,8 +25,6 @@ public class ConfirmEmailService implements ConfirmEmailUseCase {
     private AsyncMessagePort message;
 
     public void confirm(ConfirmEmailRequest token) throws AppException {
-        log.debug("ConfirmEmailUseCase: confirming email with token {}", token.token());
-
         ConfirmationToken ct = tokenRepository.findByToken(token.token()).orElseThrow(NotFoundException::new);
         User user = userRepository.findById(ct.getUserId()).orElseThrow(NotFoundException::new);
 

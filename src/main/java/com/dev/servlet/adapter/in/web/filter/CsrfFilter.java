@@ -6,7 +6,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -42,12 +41,10 @@ public class CsrfFilter implements Filter {
         String normalizedUri = RegExUtils.removeAll(request.getRequestURI(), "/api/v[0-9]+");
 
         if (normalizedUri != null && WHITELISTED_ENDPOINTS.stream().anyMatch(normalizedUri::equals)) {
-            log.debug("Skipping CSRF validation for login endpoint");
             chain.doFilter(request, response);
             return;
         }
 
-        String requestURI = request.getRequestURI();
         String method = request.getMethod();
         if (RequestMethod.GET.getMethod().equals(method)) {
             AuthCookie.ensureCsrfToken(request, response);
@@ -57,12 +54,11 @@ public class CsrfFilter implements Filter {
 
         if (isStatefulMethod(method)) {
             if (!AuthCookie.validateCsrfToken(request)) {
-                log.warn("CSRF validation failed [implementation={}, uri={}]", method, requestURI);
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid CSRF token");
                 return;
             }
-            log.debug("CSRF validation successful [implementation={}, uri={}]", method, requestURI);
         }
+
         chain.doFilter(request, response);
     }
 
@@ -71,15 +67,5 @@ public class CsrfFilter implements Filter {
                || RequestMethod.PUT.name().equals(method)
                || RequestMethod.PATCH.name().equals(method)
                || RequestMethod.DELETE.name().equals(method);
-    }
-
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        log.info("[CsrfFilter] initialized - protecting POST/PUT/DELETE operations");
-    }
-
-    @Override
-    public void destroy() {
-        log.info("[CsrfFilter] destroyed");
     }
 }

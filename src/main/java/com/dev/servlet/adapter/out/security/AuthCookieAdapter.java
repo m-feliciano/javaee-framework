@@ -67,7 +67,6 @@ public class AuthCookieAdapter implements AuthCookiePort {
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if (cookieName.equals(cookie.getName())) {
-                    log.debug("Token retrieved from cookie: {}", getAccessTokenCookieName());
                     return cookie.getValue();
                 }
             }
@@ -89,7 +88,6 @@ public class AuthCookieAdapter implements AuthCookiePort {
         if (refreshToken != null) {
             addSecureCookie(response, REFRESH_TOKEN_COOKIE, refreshToken, REFRESH_TOKEN_MAX_AGE);
         }
-        log.debug("Auth cookies set [accessToken={}s, refreshToken={}s]", ACCESS_TOKEN_MAX_AGE, REFRESH_TOKEN_MAX_AGE);
     }
 
     @Override
@@ -141,7 +139,6 @@ public class AuthCookieAdapter implements AuthCookiePort {
         String csrfToken = getCsrfToken(request);
         if (StringUtils.isBlank(csrfToken)) {
             setCsrfTokenCookie(response, generateCsrfToken());
-            log.debug("Generated new CSRF token");
         }
     }
 
@@ -242,11 +239,9 @@ public class AuthCookieAdapter implements AuthCookiePort {
                 .map(String::trim)
                 .map(cookie -> {
                     String[] parts = cookie.split("=", 2);
-                    if (parts.length == 2) {
-                        return new Cookie(parts[0], parts[1]);
-                    } else {
-                        return null;
-                    }
+                    if (parts.length != 2) return null;
+
+                    return new Cookie(parts[0], parts[1]);
                 })
                 .filter(Objects::nonNull)
                 .toArray(Cookie[]::new);

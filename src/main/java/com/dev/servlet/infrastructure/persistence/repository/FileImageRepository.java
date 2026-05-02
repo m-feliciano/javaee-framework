@@ -24,7 +24,6 @@ public class FileImageRepository extends BaseRepository<FileImage, UUID> impleme
 
     @Override
     public Collection<FileImage> findAll(FileImage object) {
-        log.warn("FileImageRepository: findAll implementation is not implemented yet.");
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
@@ -57,7 +56,7 @@ public class FileImageRepository extends BaseRepository<FileImage, UUID> impleme
                 }
             });
 
-            commitTransaction(true);
+            commitTransaction();
             return images;
 
         } catch (Exception e) {

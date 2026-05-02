@@ -90,7 +90,7 @@ public class CategoryRepository extends BaseRepository<Category, UUID> implement
             }
         });
 
-        commitTransaction(true);
+        commitTransaction();
         closeEm();
         return categories;
     }

@@ -21,8 +21,8 @@ public class GetUserActivityByPeriodAdapter implements GetUserActivityByPeriodUs
 
     @Override
     public <U> List<U> getByPeriod(UUID userId, Date startDate, Date endDate, Mapper<UserActivityLog, U> mapper) {
-        log.debug("Fetching activity logs for user {} from {} to {}", userId, startDate, endDate);
-        List<UserActivityLog> activities = repository.findByUserIdAndDateRange(userId, startDate, endDate, null);
-        return activities.stream().map(mapper::map).toList();
+        return repository.findByUserIdAndDateRange(userId, startDate, endDate, null).stream()
+                .map(mapper::map)
+                .toList();
     }
 }

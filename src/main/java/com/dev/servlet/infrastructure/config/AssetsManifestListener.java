@@ -19,20 +19,13 @@ public class AssetsManifestListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce) {
         ServletContext ctx = sce.getServletContext();
         ObjectMapper mapper = new ObjectMapper();
+
         try (InputStream is = ctx.getResourceAsStream("/resources/dist/manifest.json")) {
-            if (is != null) {
-                ctx.setAttribute(ATTR_NAME, mapper.readValue(is, Map.class));
-            } else {
-                ctx.setAttribute(ATTR_NAME, Collections.emptyMap());
-            }
+            ctx.setAttribute(ATTR_NAME, is != null ? mapper.readValue(is, Map.class) : Collections.emptyMap());
+
         } catch (IOException e) {
             ctx.log("Failed to read assets manifest", e);
             ctx.setAttribute(ATTR_NAME, Collections.emptyMap());
         }
-    }
-
-    @Override
-    public void contextDestroyed(ServletContextEvent sce) {
-        // nothing
     }
 }

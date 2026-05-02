@@ -15,7 +15,6 @@ public class HasInventoryAdapter implements HasInventoryUseCase {
 
     @Override
     public boolean hasInventory(Inventory inventory, String auth) {
-        log.debug("HasInventoryUseCase: checking inventory existence for item {}", inventory.getId());
         return repository.has(inventory);
     }
 }

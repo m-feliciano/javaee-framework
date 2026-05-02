@@ -19,8 +19,6 @@ public class GenerateConfirmationTokenService implements GenerateConfirmationTok
     private ConfirmationTokenRepositoryPort repository;
 
     public String generateFor(User user, Object body) {
-        log.debug("Generating confirmation token for user {}", user.getId());
-
         String token = UUID.randomUUID().toString();
         ConfirmationToken confirmationToken = ConfirmationToken.builder()
                 .token(token)
@@ -32,7 +30,6 @@ public class GenerateConfirmationTokenService implements GenerateConfirmationTok
                 .build();
 
         repository.save(confirmationToken);
-        log.debug("Generated confirmation token for user {}: {}", user.getId(), token);
         return token;
     }
 }

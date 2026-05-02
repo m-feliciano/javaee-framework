@@ -23,8 +23,6 @@ public class GetInventoryDetailService implements GetInventoryDetailUseCase {
 
     @Override
     public InventoryResponse get(InventoryRequest request, String auth) throws AppException {
-        log.debug("GetInventoryDetailUseCase: attempting to get inventory detail with id {}", request.id());
-
         return repository.findById(request.id())
                 .map(mapper::toResponse)
                 .orElseThrow(NotFoundException::new);

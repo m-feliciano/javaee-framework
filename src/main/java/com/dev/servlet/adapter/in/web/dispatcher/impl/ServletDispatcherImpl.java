@@ -19,10 +19,7 @@ public class ServletDispatcherImpl implements IServletDispatcher {
     @Override
     @Interceptors({LogExecutionTimeInterceptor.class})
     public IHttpResponse<?> dispatch(Request request) {
-        log.debug("Dispatching request to HttpExecutor: {}", executor.getClass().getSimpleName());
-        IHttpResponse<?> sent = executor.send(request);
-        log.debug("Request dispatched successfully.");
-        return sent;
+        return executor.send(request);
     }
 }
 

@@ -5,6 +5,7 @@ import com.dev.servlet.infrastructure.annotations.Provider;
 import com.dev.servlet.infrastructure.config.Properties;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -36,6 +37,7 @@ public class S3Service implements StorageService {
         this.s3Client = S3Client.builder().region(region).build();
     }
 
+    @SneakyThrows
     @Override
     public URI generateUploadUri(String path, String contentType, Duration validity) {
         PutObjectRequest putRequest = PutObjectRequest.builder()
@@ -49,14 +51,10 @@ public class S3Service implements StorageService {
                         .signatureDuration(validity)
                         .putObjectRequest(putRequest)
                         .build();
-        try {
-            return presigner.presignPutObject(presignRequest).url().toURI();
-        } catch (Exception e) {
-            log.error("Failed to generate image URL for path {}: {}", path, e.getMessage());
-            throw new RuntimeException("Failed to generate image URL", e);
-        }
+        return presigner.presignPutObject(presignRequest).url().toURI();
     }
 
+    @SneakyThrows
     @Override
     public URI generatePresignedUri(String path, Duration validity) {
         GetObjectRequest getRequest = GetObjectRequest.builder()
@@ -69,24 +67,15 @@ public class S3Service implements StorageService {
                         .signatureDuration(validity)
                         .getObjectRequest(getRequest)
                         .build();
-        try {
-            return presigner.presignGetObject(presignRequest).url().toURI();
-        } catch (Exception e) {
-            log.error("Failed to generate download URL for path {}: {}", path, e.getMessage());
-            throw new RuntimeException("Failed to generate download URL", e);
-        }
+        return presigner.presignGetObject(presignRequest).url().toURI();
     }
 
+    @SneakyThrows
     @Override
     public URI generatePublicUri(String path) {
-        try {
-            return s3Client.utilities()
-                    .getUrl(builder -> builder.bucket(bucketName).key(path).build())
-                    .toURI();
-        } catch (Exception e) {
-            log.error("Failed to generate public URL for path {}: {}", path, e.getMessage());
-            throw new RuntimeException("Failed to generate public URL", e);
-        }
+        return s3Client.utilities()
+                .getUrl(builder -> builder.bucket(bucketName).key(path).build())
+                .toURI();
     }
 
     @Override

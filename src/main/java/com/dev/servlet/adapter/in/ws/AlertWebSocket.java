@@ -102,7 +102,6 @@ public class AlertWebSocket {
         try {
             return auth.extractUserId(jwt);
         } catch (Exception e) {
-            log.error("AlertWebSocket: JWT validation error", e);
             return null;
         }
     }

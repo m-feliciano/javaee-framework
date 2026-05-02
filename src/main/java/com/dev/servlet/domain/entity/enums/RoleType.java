@@ -17,7 +17,6 @@ public enum RoleType {
     private final String description;
 
     public static RoleType toEnum(Integer code) {
-        if (code == null) return null;
         for (RoleType p : RoleType.values()) {
             if (code.equals(p.code))
                 return p;

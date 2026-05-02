@@ -79,12 +79,10 @@ public class LoginService implements LoginUseCase {
     }
 
     private UserResponse authenticate(User user) throws AppException {
-        log.debug("LoginUseCase: authenticating user {}", user.getId());
 
         UserResponse response = new UserResponse(user.getId());
         String accessToken = auth.generateAccessToken(user);
         String refreshJwt = auth.generateRefreshToken(user);
-        log.debug("LoginUseCase: generated access and refresh tokens for user {}", user.getId());
 
         RefreshToken rt = RefreshToken.builder()
                 .token(auth.stripBearerPrefix(refreshJwt))
@@ -94,7 +92,6 @@ public class LoginService implements LoginUseCase {
                 .expiresAt(Instant.now().plusSeconds(TimeUnit.DAYS.toSeconds(30)))
                 .build();
         refreshTokenRepositoryPort.save(rt);
-        log.debug("LoginUseCase: user {} logged in successfully", user.getId());
 
         response.setToken(accessToken);
         response.setRefreshToken(refreshJwt);

@@ -35,9 +35,8 @@ public class ContextListener implements ServletContextListener {
         boolean demoMode = Properties.isDemoModeEnabled();
         if (demoMode)
             log.info("ContextListener: DEMO_MODE is enabled");
-        context.setAttribute("demoMode", demoMode);
 
-        // Disable session tracking via URL rewriting
+        context.setAttribute("demoMode", demoMode);
         context.setSessionTrackingModes(Collections.emptySet());
     }
 }

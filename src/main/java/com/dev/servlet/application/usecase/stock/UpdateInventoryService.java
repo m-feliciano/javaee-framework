@@ -18,9 +18,8 @@ public class UpdateInventoryService implements UpdateInventoryUseCase {
 
     @Override
     public InventoryResponse update(InventoryRequest request, String auth) throws AppException {
-        log.debug("UpdateInventoryUseCase: attempting to update inventory with id {}", request.id());
-
-        Inventory inventory = repository.findById(request.id()).orElseThrow(() -> new AppException("Inventory not found"));
+        Inventory inventory = repository.findById(request.id())
+                .orElseThrow(() -> new AppException("Inventory not found"));
         inventory.setDescription(request.description());
         inventory.setQuantity(request.quantity());
         repository.update(inventory);

@@ -27,9 +27,6 @@ public class ListInventoryService implements ListInventoryUseCase {
     public <U> IPageable<U> getAllPageable(IPageRequest pageRequest,
                                            String auth,
                                            Mapper<Inventory, U> mapper) {
-        log.debug("ListInventoryUseCase: attempting to list inventories pageable with initialPage {}, pageSize {}",
-                pageRequest.getInitialPage(), pageRequest.getPageSize());
-
         UUID userId = this.auth.extractUserId(auth);
 
         Inventory filter = (Inventory) pageRequest.getFilter();

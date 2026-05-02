@@ -1,21 +1,19 @@
 package com.dev.servlet.domain.entity.enums;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.Arrays;
 
 @Getter
+@AllArgsConstructor
 public enum Status {
     ACTIVE(1, "A"),
     DELETED(2, "X"),
     PENDING(3, "P");
+
     private final int code;
     private final String value;
-
-    Status(int code, String value) {
-        this.code = code;
-        this.value = value;
-    }
 
     public static Status from(int cod) {
         return Arrays.stream(Status.values())

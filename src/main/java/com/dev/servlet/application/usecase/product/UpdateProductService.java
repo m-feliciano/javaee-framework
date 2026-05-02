@@ -26,8 +26,6 @@ public class UpdateProductService implements UpdateProductUseCase {
 
     @Override
     public ProductResponse update(ProductRequest request, String auth) throws AppException {
-        log.debug("UpdateProductUseCase: attempting to update product {}", request.id());
-
         Product product = mapper.toProduct(request, this.auth.extractUserId(auth));
         product = repository.find(product).orElseThrow(NotFoundException::new);
         product.setName(request.name());

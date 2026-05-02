@@ -34,7 +34,6 @@ public class DeleteProductService implements DeleteProductUseCase {
 
     @Override
     public void delete(ProductRequest request, String auth) throws AppException {
-        log.debug("DeleteProductUseCase: deleting product with id {}", request.id());
         UUID userId = this.auth.extractUserId(auth);
 
         Product product = mapper.toProduct(request, userId);
